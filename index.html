@@ -2,177 +2,262 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="Цифровой паспорт партии 2026-001 — мёд разнотравье, Дедушкина пасека, Клецкий район.">
-<title>Мёд разнотравье · Дедушкина пасека</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f4f0e7">
+<meta name="description" content="Цифровой паспорт партии 2026-001 — Мёд разнотравье, Дедушкина пасека.">
+<title>Мёд разнотравье · Партия 2026-001 · Дедушкина пасека</title>
 <style>
-:root{
-  --ink:#2b261f; --muted:#766f66; --paper:#fbf8f1; --white:#fffdf9;
-  --line:#ded6c8; --gold:#b58b3b; --gold-soft:#efe4cb; --olive:#66715a;
-}
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;background:#f0ede6;color:var(--ink);font-family:Inter,Arial,sans-serif;line-height:1.6}
-.container{max-width:1000px;margin:auto;padding:0 22px}
-.topbar{padding:20px 0;background:var(--white);border-bottom:1px solid var(--line)}
-.brand{display:flex;align-items:center;gap:12px;font-family:Georgia,serif;font-size:22px;letter-spacing:.2px}
-.brand-mark{width:40px;height:40px;border:1px solid var(--gold);border-radius:50%;display:grid;place-items:center;font-size:20px}
-.nav{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
-.nav a{color:inherit;text-decoration:none}
-.hero{padding:54px 0 34px}
-.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:42px;align-items:center}
-.eyebrow{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--olive);font-weight:700}
-h1{font-family:Georgia,serif;font-size:54px;line-height:1.02;font-weight:500;margin:12px 0 18px}
-.lead{font-size:18px;color:var(--muted);max-width:620px;margin:0 0 26px}
-.meta{display:flex;gap:10px;flex-wrap:wrap}
-.pill{padding:8px 12px;border:1px solid var(--line);border-radius:999px;background:var(--white);font-size:13px}
-.hero-photo{width:100%;height:520px;object-fit:cover;border-radius:22px;box-shadow:0 18px 50px #00000018}
-.section{padding:28px 0}
-.section-head{display:flex;align-items:end;justify-content:space-between;gap:18px;margin-bottom:18px}
-.kicker{font-size:12px;letter-spacing:1.7px;text-transform:uppercase;color:var(--gold);font-weight:700}
-h2{font-family:Georgia,serif;font-weight:500;font-size:31px;margin:4px 0 0}
-.rule{height:1px;background:var(--line);margin:0 0 26px}
-.card{background:var(--white);border:1px solid var(--line);border-radius:18px;padding:24px}
-.facts{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:18px;overflow:hidden}
-.fact{background:var(--white);padding:22px}
-.fact span{display:block;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
-.fact strong{font-size:17px}
-.about{display:grid;grid-template-columns:1fr .9fr;gap:24px;align-items:start}
-.about-photo{width:100%;border-radius:16px;display:block}
-.about p{font-size:16px;margin-top:0}
-.price-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-.price{background:var(--white);border:1px solid var(--line);border-radius:16px;padding:20px;text-align:center}
-.price .volume{font-family:Georgia,serif;font-size:25px}
-.price .rub{font-size:30px;font-weight:700;margin-top:4px}
-.analysis-wrap{display:grid;grid-template-columns:1.15fr .85fr;gap:24px;align-items:start}
-table{width:100%;border-collapse:collapse;font-size:14px;background:var(--white);border:1px solid var(--line);border-radius:16px;overflow:hidden}
-th,td{padding:13px 14px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
-th{font-size:11px;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);background:#f7f3eb}
-tr:last-child td{border-bottom:0}
-.result{font-weight:700;white-space:nowrap}
-.note{padding:20px;border-radius:16px;background:#f6f2e8;border:1px solid var(--line)}
-.note strong{display:block;font-family:Georgia,serif;font-size:19px;margin-bottom:8px}
-.protocol{margin-top:14px}
-.protocol summary{cursor:pointer;font-weight:700;color:var(--olive)}
-.protocol img{width:100%;margin-top:14px;border-radius:12px;border:1px solid var(--line)}
-.trace{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-.trace .card{height:100%}
-.contact{background:#2e2a24;color:#f8f3ea;border-radius:22px;padding:30px}
-.contact a{color:#f3d892}
-.footer{padding:30px 0 50px;font-size:12px;color:var(--muted);text-align:center}
-a{color:inherit}
-@media(max-width:820px){.hero-grid,.about,.analysis-wrap,.trace{grid-template-columns:1fr}.facts{grid-template-columns:1fr 1fr}.price-grid{grid-template-columns:1fr 1fr}.hero-photo{height:auto}h1{font-size:43px}}
-@media(max-width:520px){.container{padding:0 15px}.nav{gap:12px}.hero{padding-top:34px}.facts{grid-template-columns:1fr}.price-grid{grid-template-columns:1fr 1fr}.card{padding:19px}h1{font-size:37px}.lead{font-size:16px}}
+  :root{
+    --bg:#f3eee4;
+    --paper:#fbfaf6;
+    --ink:#282821;
+    --muted:#716d63;
+    --gold:#b99a5a;
+    --olive:#5f644c;
+    --line:#dcd5c7;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+    line-height:1.6;
+  }
+  .shell{max-width:760px;margin:0 auto;padding:0 14px 34px}
+  .paper{
+    background:var(--paper);
+    box-shadow:0 16px 50px rgba(43,35,22,.08);
+    min-height:100vh;
+  }
+
+  .hero{position:relative}
+  .hero img{
+    display:block;width:100%;height:auto;max-height:68vh;
+    object-fit:cover;
+  }
+  .hero::after{
+    content:"";position:absolute;inset:0;
+    background:linear-gradient(to bottom,rgba(22,20,15,.04) 35%,rgba(22,20,15,.48) 100%);
+    pointer-events:none;
+  }
+  .hero-copy{
+    position:absolute;left:0;right:0;bottom:0;z-index:1;
+    padding:34px 22px 28px;text-align:center;color:#fff;
+    text-shadow:0 1px 12px rgba(0,0,0,.36);
+  }
+  .brand{
+    font-size:12px;letter-spacing:.22em;text-transform:uppercase;
+    font-weight:600
+  }
+  .hairline{
+    width:58px;height:1px;background:rgba(255,255,255,.9);margin:14px auto
+  }
+  h1{
+    margin:0;
+    font-family:Georgia,"Times New Roman",serif;
+    font-size:48px;line-height:1.02;font-weight:500;
+  }
+  .hero-sub{
+    margin-top:9px;font-family:Georgia,"Times New Roman",serif;
+    font-size:19px;letter-spacing:.04em
+  }
+
+  .intro{padding:34px 22px 24px;text-align:center}
+  .eyebrow{
+    color:var(--olive);font-size:11px;font-weight:600;
+    text-transform:uppercase;letter-spacing:.2em
+  }
+  .intro h2,.section h2{
+    margin:7px 0 13px;font-family:Georgia,"Times New Roman",serif;
+    font-weight:500;line-height:1.1;font-size:31px
+  }
+  .intro p,.section p{
+    max-width:620px;margin:0 auto;color:#57534b;font-size:16px
+  }
+
+  .facts{
+    margin:20px 20px 0;border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+    display:grid;grid-template-columns:1fr 1fr;
+  }
+  .fact{
+    padding:15px 10px;text-align:center;border-bottom:1px solid var(--line)
+  }
+  .fact:nth-child(odd){border-right:1px solid var(--line)}
+  .fact:nth-last-child(-n+2){border-bottom:0}
+  .fact-label{
+    color:var(--muted);font-size:10px;text-transform:uppercase;
+    letter-spacing:.14em
+  }
+  .fact-value{margin-top:4px;font-weight:600;font-size:14px}
+
+  .section{padding:30px 22px;text-align:center;border-top:1px solid var(--line)}
+  .section:first-of-type{margin-top:24px}
+
+  .price-grid{
+    max-width:500px;margin:20px auto 0;display:grid;
+    grid-template-columns:1fr 1fr;gap:9px
+  }
+  .price{
+    border:1px solid var(--line);padding:13px 10px;background:#f8f5ee
+  }
+  .price .vol{
+    font-family:Georgia,"Times New Roman",serif;font-size:22px
+  }
+  .price .cost{color:var(--olive);font-weight:700;margin-top:2px}
+
+  .analysis{
+    margin:20px auto 0;max-width:680px;border:1px solid var(--line);
+    background:#fff
+  }
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:11px 9px;border-bottom:1px solid var(--line);font-size:13px}
+  th{
+    background:#f7f3ea;color:var(--muted);text-transform:uppercase;
+    letter-spacing:.08em;font-size:10px;font-weight:600
+  }
+  tr:last-child td{border-bottom:0}
+  td:first-child{text-align:left}
+  td:last-child{text-align:right;font-weight:700;white-space:nowrap}
+  .protocol{
+    margin:14px auto 0;color:var(--muted);font-size:11px;line-height:1.5
+  }
+  .verified{
+    display:inline-block;margin-top:14px;color:var(--olive);
+    border-top:1px solid var(--gold);border-bottom:1px solid var(--gold);
+    padding:8px 14px;font-size:11px;letter-spacing:.06em;text-transform:uppercase
+  }
+
+  .contact{padding-bottom:34px}
+  .phone{
+    display:inline-block;margin-top:11px;color:var(--ink);font-size:21px;
+    font-family:Georgia,"Times New Roman",serif
+  }
+  a{color:inherit;text-decoration:none}
+
+  footer{
+    border-top:1px solid var(--line);text-align:center;padding:20px 15px 24px;
+    color:var(--muted);font-size:10px;letter-spacing:.12em;text-transform:uppercase
+  }
+
+  @media (max-width:560px){
+    .shell{padding:0 8px 20px}
+    .hero-copy{padding:25px 16px 20px}
+    h1{font-size:37px}
+    .hero-sub{font-size:16px}
+    .intro{padding:28px 16px 20px}
+    .intro h2,.section h2{font-size:28px}
+    .section{padding:27px 16px}
+    .facts{margin-left:10px;margin-right:10px}
+    .fact{padding:13px 7px}
+    th,td{padding:10px 7px;font-size:12px}
+    td:last-child{white-space:normal}
+  }
+  @media (max-width:380px){
+    h1{font-size:33px}
+    .hero-sub{font-size:15px}
+    .fact-value{font-size:13px}
+  }
 </style>
 </head>
 <body>
-<header class="topbar">
-  <div class="container" style="display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap">
-    <div class="brand"><div class="brand-mark">🐝</div>Дедушкина пасека</div>
-    <nav class="nav">
-      <a href="#about">О мёде</a>
-      <a href="#price">Объёмы и цены</a>
-      <a href="#analysis">Лабораторный анализ</a>
-      <a href="#contact">Контакты</a>
-    </nav>
-  </div>
-</header>
-
-<main>
-<section class="hero">
-  <div class="container hero-grid">
-    <div>
-      <div class="eyebrow">Цифровой паспорт · партия 2026-001</div>
-      <h1>Мёд<br>разнотравье</h1>
-      <p class="lead">Натуральный цветочный мёд с пасеки «Дедушкина пасека», Клецкий район. Период сбора — июнь–июль 2026 года.</p>
-      <div class="meta">
-        <span class="pill">Клецкий район</span>
-        <span class="pill">Партия 2026-001</span>
-        <span class="pill">Абрамович А.Н.</span>
+<div class="shell">
+  <div class="paper">
+    <header class="hero">
+      <img src="assets/honey-meadow.jpg" alt="Банка мёда разнотравье «Дедушкина пасека» на цветущем лугу">
+      <div class="hero-copy">
+        <div class="brand">Дедушкина пасека</div>
+        <div class="hairline"></div>
+        <h1>Мёд разнотравье</h1>
+        <div class="hero-sub">цифровой паспорт · партия 2026–001</div>
       </div>
-    </div>
-    <div><img class="hero-photo" src="assets/honey-meadow.png" alt="Мёд разнотравье на цветущем лугу"></div>
-  </div>
-</section>
+    </header>
 
-<section class="section">
-  <div class="container">
-    <div class="facts">
-      <div class="fact"><span>Период сбора</span><strong>Июнь–июль 2026</strong></div>
-      <div class="fact"><span>Место сбора</span><strong>Клецкий район</strong></div>
-      <div class="fact"><span>Производитель</span><strong>Абрамович А.Н.</strong></div>
-      <div class="fact"><span>Партия</span><strong>2026-001</strong></div>
-    </div>
-  </div>
-</section>
+    <section class="intro">
+      <div class="eyebrow">Происхождение</div>
+      <h2>Клецкий район · 2026</h2>
+      <p>
+        Натуральный мёд разнотравье, собранный в период активного цветения
+        луговых медоносов в июне–июле 2026 года.
+      </p>
 
-<section id="about" class="section">
-  <div class="container">
-    <div class="section-head"><div><div class="kicker">01 · Про продукт</div><h2>О мёде</h2></div></div>
-    <div class="rule"></div>
-    <div class="card">
-      <p style="font-size:18px;margin-top:0">«Мёд разнотравье» — натуральный цветочный мёд, собранный пчёлами с различных медоносных растений.</p>
-      <p>В цифровом паспорте отражены сведения именно о партии <strong>2026-001</strong>. Период сбора — <strong>июнь–июль 2026 года</strong>, место сбора — <strong>Клецкий район</strong>.</p>
-      <p style="color:var(--muted);font-size:13px;margin-bottom:0">Фотография продукта размещена в верхней части страницы.</p>
-    </div>
-  </div>
-</section>
-
-<section id="price" class="section">
-  <div class="container">
-    <div class="section-head"><div><div class="kicker">02 · Продажа</div><h2>Объёмы и цены</h2></div></div>
-    <div class="rule"></div>
-    <div class="price-grid">
-      <div class="price"><div class="volume">0,1 л</div><div class="rub">5 руб.</div></div>
-      <div class="price"><div class="volume">0,28 л</div><div class="rub">7 руб.</div></div>
-      <div class="price"><div class="volume">0,5 л</div><div class="rub">12 руб.</div></div>
-      <div class="price"><div class="volume">1 л</div><div class="rub">25 руб.</div></div>
-    </div>
-  </div>
-</section>
-
-<section id="analysis" class="section">
-  <div class="container">
-    <div class="section-head"><div><div class="kicker">03 · Контроль качества</div><h2>Лабораторный анализ</h2></div></div>
-    <div class="rule"></div>
-    <div class="analysis-wrap">
-      <table>
-        <thead><tr><th>Показатель</th><th>Норма по ТНПА</th><th>Результат</th></tr></thead>
-        <tbody>
-          <tr><td>Массовая доля воды, %</td><td>не более 20,0</td><td class="result">18,01</td></tr>
-          <tr><td>Массовая доля редуцирующих сахаров, %</td><td>не менее 65,0</td><td class="result">79,3</td></tr>
-          <tr><td>Диастазное число, ед. Готе</td><td>не менее 8,0</td><td class="result">19,5</td></tr>
-          <tr><td>Цезий-137, Бк/кг</td><td>не более 370</td><td class="result">менее 10,2</td></tr>
-        </tbody>
-      </table>
-      <div>
-        <div class="note">
-          <strong>Протокол № 1328/1</strong>
-          <div style="color:var(--muted);font-size:14px">Протокол №1328 х.д. от 23.07.2026. В документе указано, что исследованный образец мёда соответствует установленным требованиям по перечисленным показателям.</div>
+      <div class="facts">
+        <div class="fact">
+          <div class="fact-label">Период сбора</div>
+          <div class="fact-value">Июнь–июль 2026</div>
         </div>
-        <details class="protocol">
-          <summary>Показать документ</summary>
-          <img src="assets/protocol-1328-page2.jpg" alt="Страница 2 протокола испытаний №1328 х.д. от 23.07.2026">
-        </details>
+        <div class="fact">
+          <div class="fact-label">Место сбора</div>
+          <div class="fact-value">Клецкий район</div>
+        </div>
+        <div class="fact">
+          <div class="fact-label">Производитель</div>
+          <div class="fact-value">Абрамович А.Н.</div>
+        </div>
+        <div class="fact">
+          <div class="fact-label">Торговая марка</div>
+          <div class="fact-value">«Дедушкина пасека»</div>
+        </div>
       </div>
-    </div>
+    </section>
+
+    <section class="section">
+      <div class="eyebrow">О мёде</div>
+      <h2>Полевое разнотравье</h2>
+      <p>
+        Характер продукта формируется природным составом цветущих медоносов.
+        Цвет, аромат и вкус могут естественно варьироваться от партии к партии.
+      </p>
+    </section>
+
+    <section class="section">
+      <div class="eyebrow">Форматы</div>
+      <h2>Объёмы и цены</h2>
+      <div class="price-grid">
+        <div class="price"><div class="vol">0,1 л</div><div class="cost">5 руб.</div></div>
+        <div class="price"><div class="vol">0,28 л</div><div class="cost">7 руб.</div></div>
+        <div class="price"><div class="vol">0,5 л</div><div class="cost">12 руб.</div></div>
+        <div class="price"><div class="vol">1 литр</div><div class="cost">25 руб.</div></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="eyebrow">Контроль качества</div>
+      <h2>Лабораторный анализ</h2>
+      <p>Протокол № 1328 х.д. от 23.07.2026 · образец № 1328/1</p>
+
+      <div class="analysis">
+        <table aria-label="Результаты лабораторного анализа">
+          <thead>
+            <tr><th>Показатель</th><th>Результат</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Массовая доля воды</td><td>18,01 %</td></tr>
+            <tr><td>Редуцирующие сахара</td><td>79,3 %</td></tr>
+            <tr><td>Диастазное число</td><td>19,5 ед. Готе</td></tr>
+            <tr><td>Цезий-137</td><td>менее 10,2 Бк/кг</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="verified">По перечисленным показателям образец соответствует требованиям</div>
+      <div class="protocol">
+        В протоколе указано, что результаты исследований распространяются
+        на представленный образец. Дата выдачи протокола — 23.07.2026.
+      </div>
+    </section>
+
+    <section class="section contact">
+      <div class="eyebrow">Связь с пасекой</div>
+      <h2>Дедушкина пасека</h2>
+      <div class="phone"><a href="tel:+375445748112">+375 44 574 8112</a></div>
+      <p><a href="https://instagram.com/dedushkina_paseka" rel="noopener">@dedushkina_paseka</a></p>
+    </section>
+
+    <footer>Цифровой паспорт продукта · Партия 2026–001</footer>
   </div>
-</section>
-
-
-
-<section id="contact" class="section">
-  <div class="container">
-    <div class="contact">
-      <div class="kicker" style="color:#d6b467">06 · Контакты</div>
-      <h2 style="color:#fff7e8">Дедушкина пасека</h2>
-      <p style="margin-bottom:4px">+375 44 574 8112</p>
-      <p style="margin-top:0"><a href="https://instagram.com/dedushkina_paseka">@dedushkina_paseka</a></p>
-    </div>
-  </div>
-</section>
-</main>
-
-<footer class="footer">Цифровой паспорт продукта · партия 2026-001 · Дедушкина пасека</footer>
+</div>
 </body>
 </html>
