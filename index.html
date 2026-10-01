@@ -1,263 +1,101 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#f4f0e7">
-<meta name="description" content="Цифровой паспорт партии 2026-001 — Мёд разнотравье, Дедушкина пасека.">
-<title>Мёд разнотравье · Партия 2026-001 · Дедушкина пасека</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Дедушкина пасека — натуральный мёд и продукты пчеловодства.">
+<title>Дедушкина пасека — натуральные продукты пчеловодства</title>
 <style>
-  :root{
-    --bg:#f3eee4;
-    --paper:#fbfaf6;
-    --ink:#282821;
-    --muted:#716d63;
-    --gold:#b99a5a;
-    --olive:#5f644c;
-    --line:#dcd5c7;
-  }
-  *{box-sizing:border-box}
-  html{scroll-behavior:smooth}
-  body{
-    margin:0;
-    background:var(--bg);
-    color:var(--ink);
-    font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
-    line-height:1.6;
-  }
-  .shell{max-width:760px;margin:0 auto;padding:0 14px 34px}
-  .paper{
-    background:var(--paper);
-    box-shadow:0 16px 50px rgba(43,35,22,.08);
-    min-height:100vh;
-  }
-
-  .hero{position:relative}
-  .hero img{
-    display:block;width:100%;height:auto;max-height:68vh;
-    object-fit:cover;
-  }
-  .hero::after{
-    content:"";position:absolute;inset:0;
-    background:linear-gradient(to bottom,rgba(22,20,15,.04) 35%,rgba(22,20,15,.48) 100%);
-    pointer-events:none;
-  }
-  .hero-copy{
-    position:absolute;left:0;right:0;bottom:0;z-index:1;
-    padding:34px 22px 28px;text-align:center;color:#fff;
-    text-shadow:0 1px 12px rgba(0,0,0,.36);
-  }
-  .brand{
-    font-size:12px;letter-spacing:.22em;text-transform:uppercase;
-    font-weight:600
-  }
-  .hairline{
-    width:58px;height:1px;background:rgba(255,255,255,.9);margin:14px auto
-  }
-  h1{
-    margin:0;
-    font-family:Georgia,"Times New Roman",serif;
-    font-size:48px;line-height:1.02;font-weight:500;
-  }
-  .hero-sub{
-    margin-top:9px;font-family:Georgia,"Times New Roman",serif;
-    font-size:19px;letter-spacing:.04em
-  }
-
-  .intro{padding:34px 22px 24px;text-align:center}
-  .eyebrow{
-    color:var(--olive);font-size:11px;font-weight:600;
-    text-transform:uppercase;letter-spacing:.2em
-  }
-  .intro h2,.section h2{
-    margin:7px 0 13px;font-family:Georgia,"Times New Roman",serif;
-    font-weight:500;line-height:1.1;font-size:31px
-  }
-  .intro p,.section p{
-    max-width:620px;margin:0 auto;color:#57534b;font-size:16px
-  }
-
-  .facts{
-    margin:20px 20px 0;border-top:1px solid var(--line);
-    border-bottom:1px solid var(--line);
-    display:grid;grid-template-columns:1fr 1fr;
-  }
-  .fact{
-    padding:15px 10px;text-align:center;border-bottom:1px solid var(--line)
-  }
-  .fact:nth-child(odd){border-right:1px solid var(--line)}
-  .fact:nth-last-child(-n+2){border-bottom:0}
-  .fact-label{
-    color:var(--muted);font-size:10px;text-transform:uppercase;
-    letter-spacing:.14em
-  }
-  .fact-value{margin-top:4px;font-weight:600;font-size:14px}
-
-  .section{padding:30px 22px;text-align:center;border-top:1px solid var(--line)}
-  .section:first-of-type{margin-top:24px}
-
-  .price-grid{
-    max-width:500px;margin:20px auto 0;display:grid;
-    grid-template-columns:1fr 1fr;gap:9px
-  }
-  .price{
-    border:1px solid var(--line);padding:13px 10px;background:#f8f5ee
-  }
-  .price .vol{
-    font-family:Georgia,"Times New Roman",serif;font-size:22px
-  }
-  .price .cost{color:var(--olive);font-weight:700;margin-top:2px}
-
-  .analysis{
-    margin:20px auto 0;max-width:680px;border:1px solid var(--line);
-    background:#fff
-  }
-  table{width:100%;border-collapse:collapse}
-  th,td{padding:11px 9px;border-bottom:1px solid var(--line);font-size:13px}
-  th{
-    background:#f7f3ea;color:var(--muted);text-transform:uppercase;
-    letter-spacing:.08em;font-size:10px;font-weight:600
-  }
-  tr:last-child td{border-bottom:0}
-  td:first-child{text-align:left}
-  td:last-child{text-align:right;font-weight:700;white-space:nowrap}
-  .protocol{
-    margin:14px auto 0;color:var(--muted);font-size:11px;line-height:1.5
-  }
-  .verified{
-    display:inline-block;margin-top:14px;color:var(--olive);
-    border-top:1px solid var(--gold);border-bottom:1px solid var(--gold);
-    padding:8px 14px;font-size:11px;letter-spacing:.06em;text-transform:uppercase
-  }
-
-  .contact{padding-bottom:34px}
-  .phone{
-    display:inline-block;margin-top:11px;color:var(--ink);font-size:21px;
-    font-family:Georgia,"Times New Roman",serif
-  }
-  a{color:inherit;text-decoration:none}
-
-  footer{
-    border-top:1px solid var(--line);text-align:center;padding:20px 15px 24px;
-    color:var(--muted);font-size:10px;letter-spacing:.12em;text-transform:uppercase
-  }
-
-  @media (max-width:560px){
-    .shell{padding:0 8px 20px}
-    .hero-copy{padding:25px 16px 20px}
-    h1{font-size:37px}
-    .hero-sub{font-size:16px}
-    .intro{padding:28px 16px 20px}
-    .intro h2,.section h2{font-size:28px}
-    .section{padding:27px 16px}
-    .facts{margin-left:10px;margin-right:10px}
-    .fact{padding:13px 7px}
-    th,td{padding:10px 7px;font-size:12px}
-    td:last-child{white-space:normal}
-  }
-  @media (max-width:380px){
-    h1{font-size:33px}
-    .hero-sub{font-size:15px}
-    .fact-value{font-size:13px}
-  }
+:root{--brown:#432815;--gold:#b88735;--cream:#f8efdc;--paper:#fffaf0;--green:#56633f}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;color:var(--brown);font-family:Georgia,"Times New Roman",serif;background:var(--cream)}
+body:before{content:"";position:fixed;inset:0;z-index:-2;background:linear-gradient(rgba(255,248,229,.91),rgba(244,225,184,.94)),url("images/beekeeping-background.png") center/cover fixed no-repeat}
+a{color:inherit}
+.container{width:min(1160px,92%);margin:auto}
+header{min-height:610px;display:flex;align-items:center;text-align:center;color:#fff;background:linear-gradient(rgba(40,25,10,.18),rgba(40,25,10,.48)),url("images/beekeeping-background.png") center/cover no-repeat}
+.hero{width:100%;padding:90px 15px}.hero h1{font-size:clamp(42px,8vw,82px);margin:0 0 12px;text-shadow:0 3px 12px #24170dcc}.hero .tag{font-size:clamp(19px,3vw,28px);margin:8px 0}.hero .place{font-size:17px}
+nav{position:sticky;top:0;z-index:10;background:rgba(255,249,232,.97);border-bottom:1px solid #ddc79c;box-shadow:0 3px 14px #4d351522}
+.nav{display:flex;justify-content:center;gap:8px;overflow:auto;padding:10px 0}.nav a{text-decoration:none;white-space:nowrap;padding:9px 14px;border-radius:22px}.nav a:hover{background:#ead7ac}
+section{padding:58px 0}.paper{background:rgba(255,250,240,.94)}
+.title{text-align:center;font-size:clamp(30px,5vw,42px);margin:0 0 14px}.subtitle{text-align:center;max-width:760px;margin:0 auto 34px;font-size:18px}
+.features{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:-80px;position:relative}.feature{background:rgba(65,39,19,.88);color:#fff;padding:22px;border-radius:16px;text-align:center}.feature b{display:block;font-size:20px;margin-bottom:5px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}.card{background:var(--paper);border:1px solid #dfc99d;border-radius:17px;overflow:hidden;box-shadow:0 9px 28px #4b32151c}.card .pic{height:175px;background:#e6d1a5;display:flex;align-items:center;justify-content:center;font-size:48px}.card-body{padding:20px}.card h3{margin:0 0 7px;font-size:22px}.card p{margin:5px 0;color:#69482e}.card a{display:inline-block;margin-top:12px;padding:9px 16px;border-radius:22px;background:var(--gold);color:white;text-decoration:none}
+.about{background:rgba(255,250,240,.92)}.about-box{max-width:900px;text-align:center;margin:auto;font-size:18px}.contact{background:#432815;color:#fff;text-align:center}.contact a{display:inline-block;margin:7px;padding:12px 20px;border:1px solid #fff8;border-radius:25px;text-decoration:none}footer{text-align:center;padding:22px;background:#2d1d12;color:#ead9bd;font-size:14px}
+@media(max-width:850px){.grid{grid-template-columns:repeat(2,1fr)}.features{grid-template-columns:1fr}.features{margin-top:-40px}}
+@media(max-width:560px){.grid{grid-template-columns:1fr}header{min-height:500px}.hero{padding:70px 10px}section{padding:42px 0}}
 </style>
 </head>
 <body>
-<div class="shell">
-  <div class="paper">
-    <header class="hero">
-      <img src="assets/honey-meadow.jpg" alt="Банка мёда разнотравье «Дедушкина пасека» на цветущем лугу">
-      <div class="hero-copy">
-        <div class="brand">Дедушкина пасека</div>
-        <div class="hairline"></div>
-        <h1>Мёд разнотравье</h1>
-        <div class="hero-sub">цифровой паспорт · партия 2026–001</div>
-      </div>
-    </header>
-
-    <section class="intro">
-      <div class="eyebrow">Происхождение</div>
-      <h2>Клецкий район · 2026</h2>
-      <p>
-        Натуральный мёд разнотравье, собранный в период активного цветения
-        луговых медоносов в июне–июле 2026 года.
-      </p>
-
-      <div class="facts">
-        <div class="fact">
-          <div class="fact-label">Период сбора</div>
-          <div class="fact-value">Июнь–июль 2026</div>
-        </div>
-        <div class="fact">
-          <div class="fact-label">Место сбора</div>
-          <div class="fact-value">Клецкий район</div>
-        </div>
-        <div class="fact">
-          <div class="fact-label">Производитель</div>
-          <div class="fact-value">Абрамович А.Н.</div>
-        </div>
-        <div class="fact">
-          <div class="fact-label">Торговая марка</div>
-          <div class="fact-value">«Дедушкина пасека»</div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="eyebrow">О мёде</div>
-      <h2>Полевое разнотравье</h2>
-      <p>
-        Характер продукта формируется природным составом цветущих медоносов.
-        Цвет, аромат и вкус могут естественно варьироваться от партии к партии.
-      </p>
-    </section>
-
-    <section class="section">
-      <div class="eyebrow">Форматы</div>
-      <h2>Объёмы и цены</h2>
-      <div class="price-grid">
-        <div class="price"><div class="vol">0,1 л</div><div class="cost">5 руб.</div></div>
-        <div class="price"><div class="vol">0,28 л</div><div class="cost">7 руб.</div></div>
-        <div class="price"><div class="vol">0,5 л</div><div class="cost">12 руб.</div></div>
-        <div class="price"><div class="vol">1 литр</div><div class="cost">25 руб.</div></div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="eyebrow">Контроль качества</div>
-      <h2>Лабораторный анализ</h2>
-      <p>Протокол № 1328 х.д. от 23.07.2026 · образец № 1328/1</p>
-
-      <div class="analysis">
-        <table aria-label="Результаты лабораторного анализа">
-          <thead>
-            <tr><th>Показатель</th><th>Результат</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>Массовая доля воды</td><td>18,01 %</td></tr>
-            <tr><td>Редуцирующие сахара</td><td>79,3 %</td></tr>
-            <tr><td>Диастазное число</td><td>19,5 ед. Готе</td></tr>
-            <tr><td>Цезий-137</td><td>менее 10,2 Бк/кг</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="verified">По перечисленным показателям образец соответствует требованиям</div>
-      <div class="protocol">
-        В протоколе указано, что результаты исследований распространяются
-        на представленный образец. Дата выдачи протокола — 23.07.2026.
-      </div>
-    </section>
-
-    <section class="section contact">
-      <div class="eyebrow">Связь с пасекой</div>
-      <h2>Дедушкина пасека</h2>
-      <div class="phone"><a href="tel:+375445748112">+375 44 574 8112</a></div>
-      <p><a href="https://instagram.com/dedushkina_paseka" rel="noopener">@dedushkina_paseka</a></p>
-    </section>
-
-    <footer>Цифровой паспорт продукта · Партия 2026–001</footer>
-  </div>
+<header id="home">
+<div class="hero">
+<h1>Дедушкина пасека</h1>
+<p class="tag">НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</p>
+<p>С заботой о природе и вашем здоровье</p>
+<p class="place">Голынка · Клецкий район · Минская область</p>
 </div>
+</header>
+
+<nav><div class="container nav">
+<a href="#home">Главная</a><a href="#catalog">Каталог</a><a href="#about">О пасеке</a><a href="#info">Информация</a><a href="#contacts">Контакты</a>
+</div></nav>
+
+<section class="paper">
+<div class="container">
+<div class="features">
+<div class="feature">🐝<b>Натурально</b>Продукты пасеки</div>
+<div class="feature">🍯<b>Собственное производство</b>Мёд и изделия ручной работы</div>
+<div class="feature">🌿<b>Традиции и качество</b>Бережное отношение к пчёлам</div>
+</div>
+</div>
+</section>
+
+<section id="catalog" class="paper">
+<div class="container">
+<h2 class="title">Каталог продукции</h2>
+<p class="subtitle">Выберите интересующий раздел. Ассортимент будет постепенно пополняться.</p>
+<div class="grid">
+<div class="card"><div class="pic">🍯</div><div class="card-body"><h3>Натуральный мёд</h3><p>Майский, лесной, разнотравье, падевый, липовый и гречишный.</p><a href="#honey">Смотреть</a></div></div>
+<div class="card"><div class="pic">🍯</div><div class="card-body"><h3>Крем-мёд</h3><p>Лимон, пыльца, имбирь, куркума, ягоды, мята, орехи и другие вкусы.</p><a href="#cream">Смотреть</a></div></div>
+<div class="card"><div class="pic">🧼</div><div class="card-body"><h3>Мыло</h3><p>Натуральное мыло ручной работы с мёдом и ромашкой.</p><a href="#soap">Смотреть</a></div></div>
+<div class="card"><div class="pic">🕯️</div><div class="card-body"><h3>Натуральные восковые свечи</h3><p>Изделия из натурального пчелиного воска.</p></div></div>
+<div class="card"><div class="pic">🌿</div><div class="card-body"><h3>Мази</h3><p>Раздел для продукции пасеки.</p></div></div>
+<div class="card"><div class="pic">🌱</div><div class="card-body"><h3>Настои</h3><p>Натуральные продукты пасеки.</p></div></div>
+<div class="card"><div class="pic">🐝</div><div class="card-body"><h3>Другие продукты</h3><p>Забрус, прополис и другие продукты.</p></div></div>
+</div>
+</div>
+</section>
+
+<section id="honey" class="paper"><div class="container"><h2 class="title">🍯 Натуральный мёд</h2><div class="grid">
+<div class="card"><div class="card-body"><h3>Майский мёд</h3><p>Нежный весенний мёд.</p></div></div>
+<div class="card"><div class="card-body"><h3>Лесной мёд</h3><p>Ароматный мёд лесного разнотравья.</p></div></div>
+<div class="card"><div class="card-body"><h3>Мёд разнотравье</h3><p>0,1 л — 5 руб · 0,28 л — 7 руб · 0,5 л — 12 руб · 1 л — 25 руб.</p><a href="2026-001/">Паспорт партии 2026-001</a></div></div>
+<div class="card"><div class="card-body"><h3>Падевый мёд</h3><p>Натуральный мёд пасеки.</p></div></div>
+<div class="card"><div class="card-body"><h3>Липовый мёд</h3><p>Ароматный мёд с липовым оттенком.</p></div></div>
+<div class="card"><div class="card-body"><h3>Гречишный мёд</h3><p>Насыщенный мёд с характерным вкусом.</p></div></div>
+</div></div></section>
+
+<section id="cream" class="paper"><div class="container"><h2 class="title">🍯 Крем-мёд</h2><div class="grid">
+<div class="card"><div class="card-body"><h3>С лимоном</h3><p>Уточняйте цену.</p></div></div>
+<div class="card"><div class="card-body"><h3>С пыльцой</h3><p>Уточняйте цену.</p></div></div>
+<div class="card"><div class="card-body"><h3>С имбирём</h3><p>Уточняйте цену.</p></div></div>
+<div class="card"><div class="card-body"><h3>С имбирём и куркумой</h3><p>Уточняйте цену.</p></div></div>
+<div class="card"><div class="card-body"><h3>С ягодами годжи</h3><p>Уточняйте цену.</p></div></div>
+<div class="card"><div class="card-body"><h3>С клубникой</h3><p>Уточняйте цену.</p></div></div>
+<div class="card"><div class="card-body"><h3>«Кокос и миндаль»</h3><p>Уточняйте цену.</p></div></div>
+<div class="card"><div class="card-body"><h3>С мятой</h3><p>Уточняйте цену.</p></div></div>
+<div class="card"><div class="card-body"><h3>Со смородиной</h3><p>Уточняйте цену.</p></div></div>
+<div class="card"><div class="card-body"><h3>Со спирулиной</h3><p>Уточняйте цену.</p></div></div>
+<div class="card"><div class="card-body"><h3>С черникой</h3><p>Уточняйте цену.</p></div></div>
+<div class="card"><div class="card-body"><h3>С орехами</h3><p>Уточняйте цену.</p></div></div>
+</div></div></section>
+
+<section id="soap" class="paper"><div class="container"><h2 class="title">🧼 Мыло</h2><div class="grid"><div class="card"><div class="card-body"><h3>Натуральное мыло с мёдом и ромашкой</h3><p>Ручная работа.</p><p>Уточняйте цену.</p></div></div></div></div></section>
+
+<section id="about" class="about"><div class="container about-box"><h2 class="title">О нашей пасеке</h2><p>«Дедушкина пасека» — семейная пасека в Голынке, Клецком районе Минской области. Мы бережно относимся к пчёлам, природе и качеству каждого продукта.</p><p>На сайте можно постепенно добавлять фотографии, историю пасеки, лабораторные анализы, сертификаты и цифровые паспорта партий.</p></div></section>
+
+<section id="info" class="paper"><div class="container about-box"><h2 class="title">Полезная информация</h2><p>Здесь будут размещаться сведения о сортах мёда, способах хранения, особенностях продуктов и материалах о пчеловодстве.</p></div></section>
+
+<section id="contacts" class="contact"><div class="container"><h2 class="title">Контакты</h2><p>Заказы и вопросы по наличию продукции</p><a href="mailto:artnik78@mail.ru">✉️ artnik78@mail.ru</a><a href="https://instagram.com/dedushkina_paseka" target="_blank" rel="noopener">📷 @dedushkina_paseka</a></div></section>
+<footer>© Дедушкина пасека · Голынка · Клецкий район · Минская область</footer>
 </body>
 </html>
