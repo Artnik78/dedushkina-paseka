@@ -11,7 +11,19 @@
 .price-order{display:flex;align-items:center;justify-content:space-between;gap:10px}.viber-order{display:inline-block;margin-top:12px;margin-right:7px;padding:10px 15px;border-radius:22px;background:#665cac;color:#fff!important;text-decoration:none;font-family:Arial,sans-serif;font-size:14px;font-weight:600;box-shadow:0 3px 8px rgba(50,40,90,.18)}
 .viber-order:hover{background:#51489c}
 
-.actions{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px}.info-button{display:inline-block;padding:10px 15px;border-radius:22px;background:#d9c39a;color:#392514!important;text-decoration:none;font-family:Arial,sans-serif;font-size:14px;font-weight:600;box-shadow:0 3px 8px rgba(80,55,25,.14)}.info-button:hover{background:#cbb17f}.actions .viber-order{margin:0;margin-left:auto}</style></head><body>
+.actions{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px}.info-button{display:inline-block;padding:10px 15px;border-radius:22px;background:#d9c39a;color:#392514!important;text-decoration:none;font-family:Arial,sans-serif;font-size:14px;font-weight:600;box-shadow:0 3px 8px rgba(80,55,25,.14)}.info-button:hover{background:#cbb17f}.actions .viber-order{margin:0;margin-left:auto}
+/* Увеличение фотографий по нажатию */
+.product-label{cursor:zoom-in;transition:transform .2s ease,box-shadow .2s ease;}
+.product-label:hover{transform:scale(1.02);}
+.image-modal{display:none;position:fixed;inset:0;z-index:9999;background:rgba(20,15,10,.82);align-items:center;justify-content:center;padding:20px;box-sizing:border-box;}
+.image-modal.open{display:flex;}
+.image-modal img{max-width:92vw;max-height:92vh;width:auto;height:auto;object-fit:contain;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.45);cursor:zoom-out;background:#fff;}
+.image-modal .close{position:absolute;top:14px;right:20px;width:44px;height:44px;border:0;border-radius:50%;background:rgba(255,255,255,.92);color:#4b3425;font-size:30px;line-height:44px;text-align:center;cursor:pointer;}
+@media (max-width:600px){.image-modal{padding:10px}.image-modal img{max-width:96vw;max-height:88vh}.image-modal .close{top:8px;right:10px;width:40px;height:40px;line-height:40px;font-size:27px;}}
+
+/* Корзина */
+.cart-fab{position:fixed;right:20px;bottom:20px;z-index:9000;border:0;border-radius:28px;padding:13px 18px;background:#665cac;color:#fff;font:600 15px Arial,sans-serif;box-shadow:0 5px 18px rgba(40,25,70,.28);cursor:pointer}.cart-fab:hover{background:#51489c}.cart-badge{display:inline-grid;place-items:center;min-width:22px;height:22px;margin-left:7px;padding:0 5px;border-radius:12px;background:#fff;color:#51489c;font-size:12px}.cart-overlay{display:none;position:fixed;inset:0;z-index:9997;background:rgba(25,16,8,.48)}.cart-overlay.open{display:block}.cart-panel{position:fixed;top:0;right:0;width:min(420px,94vw);height:100vh;z-index:9998;background:#fffaf0;box-shadow:-8px 0 30px rgba(40,25,10,.25);transform:translateX(105%);transition:transform .25s ease;display:flex;flex-direction:column}.cart-panel.open{transform:translateX(0)}.cart-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;background:#fff2d9;border-bottom:1px solid #d8c29d}.cart-head h2{margin:0;font-size:24px}.cart-close{border:0;background:transparent;font-size:30px;color:#4b3425;cursor:pointer;line-height:1}.cart-list{padding:14px 18px;overflow:auto;flex:1}.cart-empty{text-align:center;color:#806f5b;padding:35px 10px}.cart-row{display:grid;grid-template-columns:1fr auto;gap:10px;padding:12px 0;border-bottom:1px solid #e2d2b6}.cart-name{font-weight:700}.cart-options{font-size:12px;color:#806f5b;margin-top:4px;line-height:1.35}.cart-controls{display:flex;align-items:center;justify-content:flex-end;gap:7px;margin-top:7px}.qty-btn{width:29px;height:29px;border:1px solid #cdb58f;border-radius:50%;background:#fff;color:#392514;font-size:18px;cursor:pointer}.qty-value{min-width:28px;text-align:center;font-weight:700}.remove-btn{border:0;background:none;color:#8d4b3c;font-size:12px;cursor:pointer;margin-left:5px}.cart-foot{padding:15px 18px;border-top:1px solid #d8c29d;background:#fff6e7}.cart-summary{font-weight:700;margin-bottom:10px}.cart-checkout{width:100%;border:0;border-radius:24px;padding:12px 16px;background:#665cac;color:#fff;font:600 15px Arial,sans-serif;cursor:pointer}.cart-checkout:hover{background:#51489c}.cart-clear{width:100%;margin-top:8px;border:1px solid #cdb58f;border-radius:24px;padding:9px 16px;background:#fff;color:#5b4632;font:600 13px Arial,sans-serif;cursor:pointer}.cart-note{font-size:11px;color:#806f5b;line-height:1.35;margin-top:8px}@media(max-width:600px){.cart-fab{right:12px;bottom:12px;padding:11px 15px}.cart-panel{width:96vw}}
+</style></head><body>
 <div class="top"><div class="wrap topinner"><a class="brand" href="#home"><span class="bee">🐝</span><span><strong>Дедушкина пасека</strong><small>НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</small></span></a><nav class="nav"><a href="#home">Главная</a><a href="#catalog">Каталог</a><a href="#about">О пасеке</a><a href="#info">Полезная информация</a><a href="#contacts">Контакты</a></nav><a class="phone" href="tel:+375445748112">☎ +375 44 574 81 12</a></div></div>
 <header class="hero" id="home"><div class="herobox"><h1>Дедушкина пасека</h1><div class="ornament">── 🐝 ──</div><p class="sub">НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</p><p class="motto">С заботой о природе и вашем здоровье</p><div class="virtues"><div><span>♧</span>Натурально<br/>и полезно</div><div><span>⬡</span>Собственное<br/>производство</div><div><span>♡</span>Традиции<br/>и качество</div></div></div></header>
 <section class="catalog" id="catalog"><div class="wrap"><h2 class="heading">── Каталог продукции ──</h2><div class="cards">
@@ -65,4 +77,114 @@
 <div class="item"><h3>🐝 Забрус</h3><img alt="Листовка Забрус — натуральный дар пчёл" class="product-label" src="images/flyer-zabrus.png"/><a class="viber-order" href="images/flyer-zabrus.png" target="_blank">Открыть листовку</a></div>
 </div></div></section>
 <section class="contacts" id="contacts"><h2>Контакты</h2><p>Голынка · Клецкий район · Минская область<br/><a href="tel:+375445748112">+375 44 574 81 12</a><br/><a href="mailto:artnik78@mail.ru">artnik78@mail.ru</a><br/><a href="https://www.instagram.com/dedushkina_paseka_/">@dedushkina_paseka_</a></p></section><footer>© Дедушкина пасека · Натуральные продукты пчеловодства</footer>
+
+
+<button class="cart-fab" id="cartFab" type="button" aria-label="Открыть корзину">🛒 Корзина <span class="cart-badge" id="cartCount">0</span></button>
+<div class="cart-overlay" id="cartOverlay"></div>
+<aside class="cart-panel" id="cartPanel" aria-hidden="true">
+  <div class="cart-head"><h2>🛒 Корзина</h2><button class="cart-close" id="cartClose" type="button" aria-label="Закрыть корзину">×</button></div>
+  <div class="cart-list" id="cartList"></div>
+  <div class="cart-foot">
+    <div class="cart-summary" id="cartSummary">Товаров: 0</div>
+    <button class="cart-checkout" id="cartCheckout" type="button">Оформить списком в Viber</button>
+    <button class="cart-clear" id="cartClear" type="button">Очистить корзину</button>
+    <div class="cart-note">После нажатия сформируется список товаров и количества. Viber откроет чат с номером пасеки и подставит заказ в сообщение, если это поддерживается установленной версией Viber.</div>
+  </div>
+</aside>
+<div class="image-modal" id="imageModal" aria-hidden="true">
+  <button class="close" type="button" aria-label="Закрыть">×</button>
+  <img id="modalImage" src="" alt="">
+</div>
+
+<script>
+(function(){
+  const STORAGE_KEY='dedushkinaPasekaCart';
+  const VIBER_NUMBER='%2B375445748112';
+  let cart=[];
+  try{cart=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');if(!Array.isArray(cart))cart=[];}catch(e){cart=[];}
+  const fab=document.getElementById('cartFab'), panel=document.getElementById('cartPanel'), overlay=document.getElementById('cartOverlay'), closeBtn=document.getElementById('cartClose'), list=document.getElementById('cartList'), count=document.getElementById('cartCount'), summary=document.getElementById('cartSummary'), checkout=document.getElementById('cartCheckout'), clearBtn=document.getElementById('cartClear');
+  function save(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(cart));}catch(e){}}
+  function totalQty(){return cart.reduce((n,x)=>n+x.qty,0)}
+  function openCart(){panel.classList.add('open');overlay.classList.add('open');panel.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';}
+  function closeCart(){panel.classList.remove('open');overlay.classList.remove('open');panel.setAttribute('aria-hidden','true');document.body.style.overflow='';}
+  function render(){
+    const total=totalQty(); count.textContent=total; summary.textContent='Товаров: '+total;
+    if(!cart.length){list.innerHTML='<div class="cart-empty">Корзина пока пуста.<br>Нажмите «Заказать» у нужного товара.</div>';return;}
+    list.innerHTML='';
+    cart.forEach(function(item,i){
+      const row=document.createElement('div');row.className='cart-row';
+      const left=document.createElement('div');
+      const name=document.createElement('div');name.className='cart-name';name.textContent=item.name;left.appendChild(name);
+      if(item.options){const opt=document.createElement('div');opt.className='cart-options';opt.textContent=item.options;left.appendChild(opt);}
+      const controls=document.createElement('div');controls.className='cart-controls';
+      const minus=document.createElement('button');minus.className='qty-btn';minus.type='button';minus.textContent='−';minus.onclick=function(){if(item.qty>1)item.qty--;else cart.splice(i,1);save();render();};
+      const qty=document.createElement('span');qty.className='qty-value';qty.textContent=item.qty;
+      const plus=document.createElement('button');plus.className='qty-btn';plus.type='button';plus.textContent='+';plus.onclick=function(){item.qty++;save();render();};
+      const remove=document.createElement('button');remove.className='remove-btn';remove.type='button';remove.textContent='Удалить';remove.onclick=function(){cart.splice(i,1);save();render();};
+      controls.append(minus,qty,plus,remove);left.appendChild(controls);row.appendChild(left);list.appendChild(row);
+    });
+  }
+  document.querySelectorAll('.actions .viber-order[href^="viber://chat"]').forEach(function(btn){
+    const item=btn.closest('.item'); if(!item)return;
+    const title=item.querySelector('h3'); if(!title)return;
+    const options=Array.from(item.querySelectorAll('p')).map(p=>p.innerText.trim()).filter(Boolean).join(' ');
+    const cartBtn=document.createElement('button');cartBtn.type='button';cartBtn.className='viber-order cart-add';cartBtn.textContent='Заказать';
+    cartBtn.addEventListener('click',function(){
+      const name=title.innerText.trim();
+      let existing=cart.find(x=>x.name===name);
+      if(existing) existing.qty++; else cart.push({name:name,qty:1,options:options});
+      save();render();
+    });
+    btn.replaceWith(cartBtn);
+  });
+  // Для «Мёд разнотравье» кнопка заказа добавлена отдельно, сохраняя паспорт партии.
+  const meadow=document.querySelector('#honey .item:nth-child(3)');
+  if(meadow && !meadow.querySelector('.cart-add')){
+    const title=meadow.querySelector('h3');
+    const actions=document.createElement('div');actions.className='actions';
+    const info=document.createElement('a');info.className='info-button';info.href='#info';info.textContent='Информация';
+    const btn=document.createElement('button');btn.type='button';btn.className='viber-order cart-add';btn.textContent='Заказать';
+    btn.onclick=function(){const name=title.innerText.trim();let x=cart.find(a=>a.name===name);if(x)x.qty++;else cart.push({name:name,qty:1,options:'0,1 л — 5 руб.; 0,28 л — 7 руб.; 0,5 л — 12,50 руб.; 1 л — 25 руб.'});save();render();};
+    actions.append(info,btn);meadow.appendChild(actions);
+  }
+  fab.onclick=openCart;closeBtn.onclick=closeCart;overlay.onclick=closeCart;
+  clearBtn.onclick=function(){cart=[];save();render();};
+  checkout.onclick=function(){
+    if(!cart.length){openCart();return;}
+    let msg='Здравствуйте! Хочу оформить заказ:\n';
+    cart.forEach(function(x,i){msg+=(i+1)+'. '+x.name+' — '+x.qty+' шт.'+(x.options?' ('+x.options+')':'')+'\n';});
+    msg+='\nВсего позиций: '+totalQty()+'.';
+    const direct='viber://chat?number='+VIBER_NUMBER+'&text='+encodeURIComponent(msg);
+    const share='viber://forward?text='+encodeURIComponent(msg);
+    try{navigator.clipboard && navigator.clipboard.writeText(msg).catch(function(){});}catch(e){}
+    window.location.href=direct;
+  };
+  render();
+})();
+</script>
+<script>
+(function(){
+  const modal=document.getElementById('imageModal');
+  const modalImage=document.getElementById('modalImage');
+  const closeBtn=modal.querySelector('.close');
+  document.querySelectorAll('.product-label').forEach(function(img){
+    img.addEventListener('click',function(){
+      modalImage.src=img.currentSrc || img.src;
+      modalImage.alt=img.alt || '';
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden','false');
+      document.body.style.overflow='hidden';
+    });
+  });
+  function close(){
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden','true');
+    modalImage.src='';
+    document.body.style.overflow='';
+  }
+  closeBtn.addEventListener('click',close);
+  modal.addEventListener('click',function(e){if(e.target===modal || e.target===modalImage) { if(e.target===modal) close(); }});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape' && modal.classList.contains('open')) close();});
+})();
+</script>
 </body></html>
