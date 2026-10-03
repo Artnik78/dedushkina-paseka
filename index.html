@@ -129,7 +129,7 @@
 <section class="detail" id="reviews">
   <div class="wrap">
     <h2>💬 Отзывы покупателей</h2>
-    <p>Оставьте свой отзыв о продукции «Дедушкина пасека». Регистрация и вход через GitHub не нужны.</p>
+    <p>Оставьте свой отзыв о продукции «Дедушкина пасека».</p>
     <div class="reviews-box">
       <form id="reviewForm" autocomplete="off">
         <label for="reviewName">Ваше имя</label>
@@ -365,7 +365,7 @@
     });
   }
   db.ref('reviews').on('value',renderReviews,function(){list.innerHTML='<p class="review-error">Не удалось загрузить отзывы. Попробуйте обновить страницу.</p>';});
-  auth.signInAnonymously().then(function(result){currentUser=result.user;}).catch(function(){status.textContent='Не удалось подключить форму отзывов. Попробуйте обновить страницу.';submit.disabled=true;});
+  auth.onAuthStateChanged(function(user){currentUser=user||null;if(!currentUser){submit.disabled=true;auth.signInAnonymously().catch(function(err){console.error('Firebase auth error:',err);status.textContent='Ошибка подключения: '+(err.code||'unknown')+' — '+(err.message||'неизвестная ошибка');});}else{submit.disabled=false;}});
   form.addEventListener('submit',function(e){
     e.preventDefault();
     if(!currentUser){status.textContent='Подключение ещё выполняется. Попробуйте через несколько секунд.';return;}
@@ -378,9 +378,10 @@
     const last=Number(localStorage.getItem('dpReviewLast')||0);
     if(Date.now()-last<60000){status.textContent='Новый отзыв можно отправить через минуту.';return;}
     submit.disabled=true;status.textContent='Публикуем отзыв…';
-    db.ref('reviews').push({uid:currentUser.uid,name:name,text:text,rating:rating,createdAt:firebase.database.ServerValue.TIMESTAMP}).then(function(){
+    const reviewRef=db.ref('reviews').push();
+    return reviewRef.set({uid:currentUser.uid,name:name,text:text,rating:rating,createdAt:firebase.database.ServerValue.TIMESTAMP}).then(function(){
       localStorage.setItem('dpReviewLast',String(Date.now()));form.reset();setStars(5);status.textContent='Спасибо! Ваш отзыв опубликован.';
-    }).catch(function(){status.textContent='Не удалось опубликовать отзыв. Попробуйте ещё раз.';}).finally(function(){submit.disabled=false;});
+    }).catch(function(err){console.error('Firebase review submit error:',err);status.textContent='Ошибка публикации: '+(err.code||'unknown')+' — '+(err.message||'неизвестная ошибка');}).finally(function(){submit.disabled=false;});
   });
 })();
 </script>
