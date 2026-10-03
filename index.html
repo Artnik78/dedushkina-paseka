@@ -359,9 +359,8 @@
       const card=document.createElement('article');card.className='review-card';
       const head=document.createElement('div');head.className='review-card-head';
       const name=document.createElement('span');name.className='review-card-name';name.textContent=v.name;
-      const date=document.createElement('span');date.className='review-card-date';date.textContent=escDate(v.createdAt);
       const starsEl=document.createElement('div');starsEl.className='review-card-stars';starsEl.textContent='★'.repeat(Math.max(1,Math.min(5,Number(v.rating)||5)))+'☆'.repeat(5-Math.max(1,Math.min(5,Number(v.rating)||5)));
-      head.append(name,date);card.append(head,starsEl);const text=document.createElement('p');text.className='review-card-text';text.textContent=v.text;card.append(text);list.append(card);
+      head.append(name);card.append(head,starsEl);const text=document.createElement('p');text.className='review-card-text';text.textContent=v.text;card.append(text);list.append(card);
     });
   }
   db.ref('reviews').on('value',renderReviews,function(){list.innerHTML='<p class="review-error">Не удалось загрузить отзывы. Попробуйте обновить страницу.</p>';});
