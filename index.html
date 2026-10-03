@@ -378,7 +378,7 @@
     const last=Number(localStorage.getItem('dpReviewLast')||0);
     if(Date.now()-last<60000){status.textContent='Новый отзыв можно отправить через минуту.';return;}
     submit.disabled=true;status.textContent='Публикуем отзыв…';
-    db.ref('reviews').push({name:name,text:text,rating:rating,createdAt:firebase.database.ServerValue.TIMESTAMP}).then(function(){
+    db.ref('reviews').push({uid:currentUser.uid,name:name,text:text,rating:rating,createdAt:firebase.database.ServerValue.TIMESTAMP}).then(function(){
       localStorage.setItem('dpReviewLast',String(Date.now()));form.reset();setStars(5);status.textContent='Спасибо! Ваш отзыв опубликован.';
     }).catch(function(){status.textContent='Не удалось опубликовать отзыв. Попробуйте ещё раз.';}).finally(function(){submit.disabled=false;});
   });
