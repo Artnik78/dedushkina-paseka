@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 500">
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f8efd9"/><stop offset="1" stop-color="#e6c98d"/></linearGradient><linearGradient id="soap" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff8dc"/><stop offset="1" stop-color="#d8b66a"/></linearGradient></defs>
+<rect width="700" height="500" rx="38" fill="url(#bg)"/>
+<ellipse cx="350" cy="400" rx="230" ry="34" fill="#b99a64" opacity=".28"/>
+<g transform="translate(145 100) rotate(-7 205 135)"><rect x="0" y="0" width="410" height="270" rx="65" fill="url(#soap)" stroke="#a77b36" stroke-width="8"/><path d="M70 180c85-55 160 35 260-30" fill="none" stroke="#f2d27d" stroke-width="18" stroke-linecap="round" opacity=".8"/><circle cx="90" cy="78" r="16" fill="#d9a927"/><circle cx="118" cy="55" r="11" fill="#d9a927"/><path d="M90 85c15-32 45-32 57-5" fill="none" stroke="#d9a927" stroke-width="7"/><text x="205" y="135" text-anchor="middle" font-family="Georgia,serif" font-size="36" font-weight="bold" fill="#6b4a24">ДЕДУШКИНА</text><text x="205" y="178" text-anchor="middle" font-family="Georgia,serif" font-size="30" fill="#6b4a24">ПАСЕКА</text></g>
+<g fill="#fff" opacity=".9"><circle cx="82" cy="350" r="10"/><circle cx="108" cy="330" r="8"/><circle cx="600" cy="335" r="9"/><circle cx="575" cy="360" r="7"/></g>
+<text x="350" y="455" text-anchor="middle" font-family="Arial,sans-serif" font-size="24" fill="#6b4a24">Натуральное мыло с мёдом</text>
+</svg>
