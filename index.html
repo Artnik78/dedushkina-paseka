@@ -60,6 +60,16 @@
 
 .reviews-box{max-width:820px;margin:20px auto 0;padding:22px;border:1px solid rgba(125,92,48,.18);border-radius:18px;background:rgba(255,250,241,.92);box-shadow:0 8px 24px rgba(80,50,20,.08)}
 .reviews-box form{display:grid;gap:9px}.reviews-box label{font-weight:700;color:#5e4328}.reviews-box input[type=text],.reviews-box textarea{width:100%;box-sizing:border-box;border:1px solid #d8c5aa;border-radius:10px;padding:11px 12px;font:inherit;background:#fff}.reviews-box textarea{resize:vertical}.review-stars{display:flex;gap:4px;margin:2px 0 8px}.review-stars button{border:0;background:transparent;font-size:30px;line-height:1;color:#c9bca8;cursor:pointer;padding:0 2px}.review-stars button.active{color:#e2a900}.review-status{min-height:20px;margin:2px 0 0;font-size:14px;color:#6b5a48}.reviews-list{display:grid;gap:12px;margin-top:24px}.review-card{border-top:1px solid rgba(125,92,48,.16);padding-top:14px}.review-card-head{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.review-card-name{font-weight:800;color:#5a3d22}.review-card-date{font-size:12px;color:#8c7b68}.review-card-stars{color:#e2a900;letter-spacing:1px}.review-card-text{margin:7px 0 0;white-space:pre-wrap;color:#4e4338}.reviews-loading,.reviews-empty{color:#8c7b68;text-align:center}.review-error{color:#9a3f2f}
+
+/* Информация о сотовом мёде — прямо на сайте */
+.honeycomb-info-modal{display:none;position:fixed;inset:0;z-index:10001;background:rgba(25,16,8,.72);align-items:center;justify-content:center;padding:16px;box-sizing:border-box}
+.honeycomb-info-modal.open{display:flex}
+.honeycomb-info-box{position:relative;width:min(980px,96vw);max-height:94vh;overflow:auto;background:linear-gradient(180deg,#fffaf0,#f6ead2);border:1px solid #d8bd8c;border-radius:20px;box-shadow:0 12px 50px rgba(35,20,8,.4);padding:24px;box-sizing:border-box}
+.honeycomb-info-close{position:absolute;right:12px;top:10px;width:42px;height:42px;border:0;border-radius:50%;background:#fff;color:#5b4025;font-size:29px;cursor:pointer;box-shadow:0 2px 8px rgba(60,40,20,.15)}
+.honeycomb-info-head{text-align:center;padding:4px 45px 18px;border-bottom:1px solid #e2cfaa}.honeycomb-info-head h2{margin:0;color:#5a3515;font-size:clamp(28px,4vw,44px)}.honeycomb-info-head p{margin:8px auto 0;max-width:760px;color:#4f6a35;font-weight:700}
+.honeycomb-info-grid{display:grid;grid-template-columns:1fr 1.15fr;gap:18px;margin-top:18px}.honeycomb-info-card{background:rgba(255,255,255,.78);border:1px solid #e2cfaa;border-radius:14px;padding:17px}.honeycomb-info-card h3{margin:0 0 10px;color:#49662e;font-size:21px}.honeycomb-info-card ul{margin:0;padding-left:22px}.honeycomb-info-card li{margin:7px 0;line-height:1.42}.honeycomb-benefits{display:grid;grid-template-columns:1fr 1fr;gap:10px}.honeycomb-benefit{padding:11px 12px;border:1px dashed #d6b978;border-radius:12px;background:#fffaf0}.honeycomb-benefit b{display:block;color:#35622c;margin-bottom:3px}.honeycomb-info-wide{margin-top:18px}.honeycomb-info-footer{margin-top:18px;padding:15px;border-radius:14px;background:#ead7ad;text-align:center;font-weight:700}.honeycomb-info-footer a{color:#4b6a2d;text-decoration:none}
+.info-button.honeycomb-info-trigger{background:#587b3b;color:#fff!important}.info-button.honeycomb-info-trigger:hover{background:#46662f}
+@media(max-width:700px){.honeycomb-info-box{padding:17px 12px}.honeycomb-info-grid,.honeycomb-benefits{grid-template-columns:1fr}.honeycomb-info-card{padding:14px}}
 </style></head><body>
 <div class="top"><div class="wrap topinner"><a class="brand" href="#home"><span class="bee">🐝</span><span><strong>Дедушкина пасека</strong><small>НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</small></span></a><nav class="nav"><a href="#home">Главная</a><a href="#catalog">Каталог</a><a href="#about">О пасеке</a><a href="#gifts">🎁 Подарочные наборы</a><a href="#info">Полезная информация</a><a href="#contacts">Контакты</a></nav><a class="phone" href="tel:+375445748112">☎ +375 44 574 81 12</a></div></div>
 <header class="hero" id="home"><div class="herobox"><h1>Дедушкина пасека</h1><div class="ornament">── 🐝 ──</div><p class="sub">НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</p><p class="motto">С заботой о природе и вашем здоровье</p><div class="virtues"><div><span>♧</span>Натурально<br/>и полезно</div><div><span>⬡</span>Собственное<br/>производство</div><div><span>♡</span>Традиции<br/>и качество</div></div></div></header>
@@ -121,6 +131,7 @@
 <div class="item choice-item"><img alt="Ложка «веретено» для мёда" class="product-label choice-trigger" data-choice="product" data-options="Маленькая — 3,50 руб.|Большая — 4,50 руб." src="images/honey-spoons.png"/><h3>Ложка «веретено» для мёда</h3><p style="margin:0">Маленькая — 3,50 руб.; большая — 4,50 руб.</p></div>
 </div></div></section>
 <section class="detail" id="info"><div class="wrap"><h2>📚 Полезная информация</h2><p>Информация о сортах мёда, хранении продуктов и цифровых паспортах партий.</p><div class="items">
+<div class="item"><h3>🍯 Сотовый мёд</h3><p>Натуральный мёд в естественных восковых сотах. Узнайте о составе, пользе, употреблении и хранении.</p><button type="button" class="info-button honeycomb-info-trigger" data-open-honeycomb-info>Подробнее о сотовом мёде</button></div>
 <div class="item"><h3>🌲 Лесной мёд</h3><img alt="Листовка Лесной мёд" class="product-label" src="images/flyer-forest.png"/><a class="viber-order" href="images/flyer-forest.png" target="_blank">Открыть листовку</a></div>
 <div class="item"><h3>🌸 Майский мёд</h3><img alt="Листовка Майский мёд" class="product-label" src="images/flyer-may.png"/><a class="viber-order" href="images/flyer-may.png" target="_blank">Открыть листовку</a></div>
 <div class="item"><h3>🌼 Мёд разнотравье</h3><img alt="Листовка Мёд разнотравье" class="product-label" src="images/flyer-meadow.png"/><a class="viber-order" href="images/flyer-meadow.png" target="_blank">Открыть листовку</a></div>
@@ -167,12 +178,48 @@
 <div class="cart-note">После нажатия заказ копируется в буфер обмена и открывается чат Viber. Если ваша версия Viber поддерживает параметр черновика, текст заказа появится в поле сообщения автоматически. Если нет — вставьте скопированный заказ в Viber одним нажатием «Вставить».</div>
 </div>
 </aside>
+
+<div aria-hidden="true" class="honeycomb-info-modal" id="honeycombInfoModal">
+  <div aria-labelledby="honeycombInfoTitle" aria-modal="true" class="honeycomb-info-box" role="dialog">
+    <button aria-label="Закрыть" class="honeycomb-info-close" id="honeycombInfoClose" type="button">×</button>
+    <div class="honeycomb-info-head">
+      <h2 id="honeycombInfoTitle">🍯 Сотовый мёд</h2>
+      <p>Натуральный продукт в естественных восковых сотах</p>
+    </div>
+    <div class="honeycomb-info-grid">
+      <div class="honeycomb-info-card">
+        <h3>🐝 Что такое сотовый мёд?</h3>
+        <p>Сотовый мёд — это зрелый натуральный мёд, запечатанный пчёлами в восковые соты. Вместе с мёдом вы получаете пчелиный воск, прополис, пыльцу и природные ферменты.</p>
+        <h3>🧡 Состав</h3>
+        <ul>
+          <li>Натуральный мёд</li><li>Пчелиный воск</li><li>Прополис</li><li>Пыльца</li><li>Природные ферменты</li><li>Витамины и минеральные вещества</li><li>Аминокислоты и органические кислоты</li>
+        </ul>
+      </div>
+      <div class="honeycomb-info-card">
+        <h3>🌿 Польза и особенности</h3>
+        <div class="honeycomb-benefits">
+          <div class="honeycomb-benefit"><b>Поддержка организма</b>Натуральный продукт с мёдом, воском и компонентами пчеловодства.</div>
+          <div class="honeycomb-benefit"><b>Для полости рта</b>Жевание восковых сот может быть приятным способом употребления продукта.</div>
+          <div class="honeycomb-benefit"><b>Пищеварение</b>Мёд является источником углеводов и употребляется как натуральный продукт питания.</div>
+          <div class="honeycomb-benefit"><b>Натуральность</b>Соты сохраняют мёд в его естественной восковой упаковке.</div>
+          <div class="honeycomb-benefit"><b>Приятный вкус</b>Можно употреблять небольшими кусочками, сочетая с хлебом, чаем или другими продуктами.</div>
+          <div class="honeycomb-benefit"><b>Традиционный продукт</b>Сотовый мёд — один из классических продуктов пчеловодства.</div>
+        </div>
+      </div>
+    </div>
+    <div class="honeycomb-info-grid honeycomb-info-wide">
+      <div class="honeycomb-info-card"><h3>🥄 Как употреблять</h3><ul><li>Жевать небольшой кусочек 10–15 минут.</li><li>Обычно употребляют 2–3 раза в день в небольшом количестве.</li><li>Можно проглатывать небольшое количество воска — он естественным путём выводится из организма.</li><li>Можно добавлять к чаю после его охлаждения примерно до 40 °C.</li><li>Хорошо сочетается с хлебом, йогуртом, фруктами и орехами.</li></ul></div>
+      <div class="honeycomb-info-card"><h3>📦 Хранение</h3><ul><li>Храните в прохладном и тёмном месте.</li><li>Рекомендуемая температура хранения: примерно от +5 °C до +20 °C.</li><li>Не нагревайте мёд выше 40 °C, если хотите сохранить его природные свойства.</li><li>Не допускайте попадания влаги и посторонних запахов.</li></ul></div>
+    </div>
+    <div class="honeycomb-info-footer">🐝 «Дедушкина пасека» · Клецкий район · +375 44 574 81 12 · <a href="mailto:artnik78@mail.ru">artnik78@mail.ru</a></div>
+  </div>
+</div>
 <div aria-hidden="true" class="choice-list-modal" id="choiceListModal">
 <div aria-labelledby="choiceListTitle" aria-modal="true" class="choice-list-box" role="dialog">
 <button aria-label="Закрыть" class="choice-list-close" id="choiceListClose" type="button">×</button>
 <h2 id="choiceListTitle">Выберите вариант</h2>
 <div id="choiceListRows"></div>
-<a class="info-button choice-modal-info" href="#info">Информация</a></div>
+<button type="button" class="info-button choice-modal-info" id="choiceModalInfo">Информация</button></div>
 </div>
 <div aria-hidden="true" class="image-modal" id="imageModal">
 <button aria-label="Закрыть" class="close" type="button">×</button>
@@ -252,6 +299,35 @@
   };
   window.addCartItem=function(name,options){ let existing=cart.find(function(x){return x.name===name;}); if(existing) existing.qty++; else cart.push({name:name,qty:1,options:options}); save(); render(); };
   render();
+})();
+</script>
+
+<script>
+(function(){
+  const modal=document.getElementById('honeycombInfoModal');
+  const closeBtn=document.getElementById('honeycombInfoClose');
+  const choiceInfo=document.getElementById('choiceModalInfo');
+  let returnToChoice=false;
+  function openInfo(fromChoice){returnToChoice=!!fromChoice; modal.classList.add('open');modal.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';}
+  function closeInfo(){modal.classList.remove('open');modal.setAttribute('aria-hidden','true');document.body.style.overflow='';}
+  document.querySelectorAll('[data-open-honeycomb-info]').forEach(function(btn){btn.addEventListener('click',function(){openInfo(false);});});
+  closeBtn.addEventListener('click',closeInfo);
+  modal.addEventListener('click',function(e){if(e.target===modal)closeInfo();});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&modal.classList.contains('open'))closeInfo();});
+  window.openHoneycombInfo=function(fromChoice){openInfo(fromChoice);};
+  if(choiceInfo) choiceInfo.addEventListener('click',function(){
+    const title=document.getElementById('choiceListTitle');
+    if(title && title.textContent.trim()==='Сотовый мёд'){
+      const choiceModal=document.getElementById('choiceListModal');
+      choiceModal.classList.remove('open');choiceModal.setAttribute('aria-hidden','true');
+      openInfo(true);
+    } else {
+      document.getElementById('info').scrollIntoView({behavior:'smooth'});
+      const choiceModal=document.getElementById('choiceListModal');
+      choiceModal.classList.remove('open');choiceModal.setAttribute('aria-hidden','true');
+      document.body.style.overflow='';
+    }
+  });
 })();
 </script>
 <script>
