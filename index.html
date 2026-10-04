@@ -61,6 +61,16 @@
 .reviews-box{max-width:820px;margin:20px auto 0;padding:22px;border:1px solid rgba(125,92,48,.18);border-radius:18px;background:rgba(255,250,241,.92);box-shadow:0 8px 24px rgba(80,50,20,.08)}
 .reviews-box form{display:grid;gap:9px}.reviews-box label{font-weight:700;color:#5e4328}.reviews-box input[type=text],.reviews-box textarea{width:100%;box-sizing:border-box;border:1px solid #d8c5aa;border-radius:10px;padding:11px 12px;font:inherit;background:#fff}.reviews-box textarea{resize:vertical}.review-stars{display:flex;gap:4px;margin:2px 0 8px}.review-stars button{border:0;background:transparent;font-size:30px;line-height:1;color:#c9bca8;cursor:pointer;padding:0 2px}.review-stars button.active{color:#e2a900}.review-status{min-height:20px;margin:2px 0 0;font-size:14px;color:#6b5a48}.reviews-list{display:grid;gap:12px;margin-top:24px}.review-card{border-top:1px solid rgba(125,92,48,.16);padding-top:14px}.review-card-head{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.review-card-name{font-weight:800;color:#5a3d22}.review-card-date{font-size:12px;color:#8c7b68}.review-card-stars{color:#e2a900;letter-spacing:1px}.review-card-text{margin:7px 0 0;white-space:pre-wrap;color:#4e4338}.reviews-loading,.reviews-empty{color:#8c7b68;text-align:center}.review-error{color:#9a3f2f}
 
+
+/* Подробная информация о натуральном и крем-мёде */
+.honey-info-modal,.cream-info-modal{display:none;position:fixed;inset:0;z-index:10002;background:rgba(25,16,8,.72);align-items:center;justify-content:center;padding:16px;box-sizing:border-box}
+.honey-info-modal.open,.cream-info-modal.open{display:flex}
+.detail-info-box{position:relative;width:min(1000px,96vw);max-height:94vh;overflow:auto;background:linear-gradient(180deg,#fffaf0,#f6ead2);border:1px solid #d8bd8c;border-radius:20px;box-shadow:0 12px 50px rgba(35,20,8,.4);padding:24px;box-sizing:border-box}
+.detail-info-close{position:absolute;right:12px;top:10px;width:42px;height:42px;border:0;border-radius:50%;background:#fff;color:#5b4025;font-size:29px;cursor:pointer;box-shadow:0 2px 8px rgba(60,40,20,.15)}
+.detail-info-head{text-align:center;padding:4px 45px 18px;border-bottom:1px solid #e2cfaa}.detail-info-head h2{margin:0;color:#5a3515;font-size:clamp(28px,4vw,44px)}.detail-info-head p{margin:8px auto 0;max-width:780px;color:#4f6a35;font-weight:700}
+.detail-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}.detail-info-card{background:rgba(255,255,255,.8);border:1px solid #e2cfaa;border-radius:14px;padding:17px}.detail-info-card h3{margin:0 0 10px;color:#49662e;font-size:21px}.detail-info-card p{line-height:1.5}.detail-info-card ul{margin:0;padding-left:22px}.detail-info-card li{margin:7px 0;line-height:1.42}.detail-info-benefits{display:grid;grid-template-columns:1fr 1fr;gap:10px}.detail-info-benefit{padding:11px 12px;border:1px dashed #d6b978;border-radius:12px;background:#fffaf0}.detail-info-benefit b{display:block;color:#35622c;margin-bottom:3px}.detail-info-wide{margin-top:18px}.detail-info-footer{margin-top:18px;padding:15px;border-radius:14px;background:#ead7ad;text-align:center;font-weight:700}.detail-info-footer a{color:#4b6a2d;text-decoration:none}
+@media(max-width:700px){.detail-info-box{padding:17px 12px}.detail-info-grid,.detail-info-benefits{grid-template-columns:1fr}.detail-info-card{padding:14px}}
+
 /* Информация о сотовом мёде — прямо на сайте */
 .honeycomb-info-modal{display:none;position:fixed;inset:0;z-index:10001;background:rgba(25,16,8,.72);align-items:center;justify-content:center;padding:16px;box-sizing:border-box}
 .honeycomb-info-modal.open{display:flex}
@@ -131,6 +141,8 @@
 <div class="item choice-item"><img alt="Ложка «веретено» для мёда" class="product-label choice-trigger" data-choice="product" data-options="Маленькая — 3,50 руб.|Большая — 4,50 руб." src="images/honey-spoons.png"/><h3>Ложка «веретено» для мёда</h3><p style="margin:0">Маленькая — 3,50 руб.; большая — 4,50 руб.</p></div>
 </div></div></section>
 <section class="detail" id="info"><div class="wrap"><h2>📚 Полезная информация</h2><p>Информация о сортах мёда, хранении продуктов и цифровых паспортах партий.</p><div class="items">
+<div class="item"><h3>🍯 Натуральный мёд</h3><p>Подробно о сортах мёда, составе, пользе, кристаллизации, употреблении и хранении.</p><button type="button" class="info-button" data-open-honey-info>Подробнее о натуральном мёде</button></div>
+<div class="item"><h3>🍯 Крем-мёд</h3><p>Как получают крем-мёд, чем он отличается от обычного, как хранить и как употреблять разные вкусы.</p><button type="button" class="info-button" data-open-cream-info>Подробнее о крем-мёде</button></div>
 <div class="item"><h3>🍯 Сотовый мёд</h3><p>Натуральный мёд в естественных восковых сотах. Узнайте о составе, пользе, употреблении и хранении.</p><button type="button" class="info-button honeycomb-info-trigger" data-open-honeycomb-info>Подробнее о сотовом мёде</button></div>
 <div class="item"><h3>🌲 Лесной мёд</h3><img alt="Листовка Лесной мёд" class="product-label" src="images/flyer-forest.png"/><a class="viber-order" href="images/flyer-forest.png" target="_blank">Открыть листовку</a></div>
 <div class="item"><h3>🌸 Майский мёд</h3><img alt="Листовка Майский мёд" class="product-label" src="images/flyer-may.png"/><a class="viber-order" href="images/flyer-may.png" target="_blank">Открыть листовку</a></div>
@@ -179,6 +191,38 @@
 </div>
 </aside>
 
+<div aria-hidden="true" class="honey-info-modal" id="honeyInfoModal">
+  <div aria-labelledby="honeyInfoTitle" aria-modal="true" class="detail-info-box" role="dialog">
+    <button aria-label="Закрыть" class="detail-info-close" id="honeyInfoClose" type="button">×</button>
+    <div class="detail-info-head"><h2 id="honeyInfoTitle">🍯 Натуральный мёд</h2><p id="honeyInfoSubtitle">Подробная информация о натуральном мёде «Дедушкина пасека»</p></div>
+    <div class="detail-info-grid">
+      <div class="detail-info-card"><h3>🐝 Что такое натуральный мёд?</h3><p>Натуральный мёд — продукт, который пчёлы создают из нектара цветущих растений и перерабатывают в улье. Его вкус, аромат, цвет и скорость кристаллизации зависят от растений-медоносов, времени сбора и условий хранения.</p><h3>🧡 Что входит в состав</h3><ul><li>природные сахара — главным образом глюкоза и фруктоза;</li><li>вода и органические кислоты;</li><li>небольшие количества витаминов, минералов и других природных соединений;</li><li>ароматические и вкусовые вещества, характерные для конкретного сорта.</li></ul></div>
+      <div class="detail-info-card"><h3>🌿 Особенности разных сортов</h3><div class="detail-info-benefits"><div class="detail-info-benefit"><b>🌸 Майский</b>Нежный весенний аромат и мягкий вкус.</div><div class="detail-info-benefit"><b>🌲 Лесной</b>Более насыщенный аромат, характерный для лесных медоносов.</div><div class="detail-info-benefit"><b>🌼 Разнотравье</b>Многогранный вкус и аромат разных цветущих растений.</div><div class="detail-info-benefit"><b>🌾 Гречишный</b>Более выразительный вкус и тёмный цвет.</div><div class="detail-info-benefit"><b>🌳 Липовый</b>Характерный цветочный аромат липы.</div><div class="detail-info-benefit"><b>🐝 Падевый</b>Особый продукт с характерными вкусовыми свойствами.</div></div></div>
+    </div>
+    <div class="detail-info-grid detail-info-wide">
+      <div class="detail-info-card"><h3>🥄 Как употреблять</h3><ul><li>Ешьте небольшими порциями как самостоятельный продукт.</li><li>Добавляйте в кашу, творог, йогурт, выпечку или напитки.</li><li>Для сохранения природного аромата не добавляйте мёд в очень горячие напитки.</li><li>Мёд — сладкий и калорийный продукт, поэтому количество подбирайте с учётом своего рациона.</li></ul></div>
+      <div class="detail-info-card"><h3>📦 Хранение и кристаллизация</h3><ul><li>Храните плотно закрытым в сухом месте без резких запахов.</li><li>Оптимально — прохладное место, защищённое от прямого солнца.</li><li>Кристаллизация — естественный процесс и не означает порчу мёда.</li><li>Не перегревайте мёд: высокая температура может ухудшать его природные свойства.</li></ul></div>
+    </div>
+    <div class="detail-info-card detail-info-wide"><h3>⚠️ Важно</h3><p>Мёд — пищевой продукт, а не лекарство. Детям до 1 года мёд не дают. При аллергии на продукты пчеловодства употреблять его не следует. При сахарном диабете количество мёда лучше согласовать с врачом.</p></div>
+    <div class="detail-info-footer">🐝 «Дедушкина пасека» · Голынка · Клецкий район · +375 44 574 81 12 · <a href="mailto:artnik78@mail.ru">artnik78@mail.ru</a></div>
+  </div>
+</div>
+<div aria-hidden="true" class="cream-info-modal" id="creamInfoModal">
+  <div aria-labelledby="creamInfoTitle" aria-modal="true" class="detail-info-box" role="dialog">
+    <button aria-label="Закрыть" class="detail-info-close" id="creamInfoClose" type="button">×</button>
+    <div class="detail-info-head"><h2 id="creamInfoTitle">🍯 Крем-мёд</h2><p id="creamInfoSubtitle">Нежная кремовая текстура и натуральный мёд с добавками</p></div>
+    <div class="detail-info-grid">
+      <div class="detail-info-card"><h3>🥄 Что такое крем-мёд?</h3><p>Крем-мёд — это натуральный мёд с мелкокристаллической, однородной текстурой. Его тщательно перемешивают в контролируемых условиях, чтобы кристаллы оставались очень мелкими. Поэтому мёд становится нежным, густым и удобным для намазывания.</p><h3>🍯 Основа</h3><ul><li>натуральный пчелиный мёд;</li><li>мелкокристаллическая структура;</li><li>в зависимости от вкуса — натуральные ингредиенты и добавки.</li></ul></div>
+      <div class="detail-info-card"><h3>🌿 Наши вкусы</h3><div class="detail-info-benefits"><div class="detail-info-benefit"><b>🍋 С лимоном</b>Свежий цитрусовый аромат.</div><div class="detail-info-benefit"><b>🌼 С пыльцой</b>Характерный вкус продукта пчеловодства.</div><div class="detail-info-benefit"><b>🫚 С имбирём</b>Яркий пряный вкус.</div><div class="detail-info-benefit"><b>🫚 С имбирём и куркумой</b>Пряный вкус с характерной нотой куркумы.</div><div class="detail-info-benefit"><b>🫐 С ягодами годжи</b>Ягодно-фруктовый оттенок.</div><div class="detail-info-benefit"><b>🍓 С клубникой</b>Нежный ягодный аромат.</div><div class="detail-info-benefit"><b>🥥 Кокос и миндаль</b>Десертный орехово-кокосовый вкус.</div><div class="detail-info-benefit"><b>🌿 С мятой</b>Свежий мятный аромат.</div><div class="detail-info-benefit"><b>🫐 Со смородиной</b>Выразительный ягодный вкус.</div><div class="detail-info-benefit"><b>🌱 Со спирулиной</b>Необычный вкус и цвет натуральной добавки.</div><div class="detail-info-benefit"><b>🫐 С черникой</b>Мягкий ягодный вкус.</div></div></div>
+    </div>
+    <div class="detail-info-grid detail-info-wide">
+      <div class="detail-info-card"><h3>🥣 Как употреблять</h3><ul><li>Намазывать на хлеб, тосты или печенье.</li><li>Добавлять к каше, творогу и йогурту.</li><li>Использовать как натуральную сладкую добавку к десертам.</li><li>Есть ложкой небольшими порциями.</li></ul></div>
+      <div class="detail-info-card"><h3>📦 Хранение</h3><ul><li>Хранить плотно закрытым в сухом прохладном месте.</li><li>Не оставлять под прямыми солнечными лучами.</li><li>Не перегревать, чтобы сохранить вкус и аромат мёда и добавок.</li><li>Если текстура немного изменится со временем — это естественно.</li></ul></div>
+    </div>
+    <div class="detail-info-card detail-info-wide"><h3>⚠️ Важно</h3><p>Крем-мёд остаётся пищевым продуктом на основе мёда. Он не является лекарством. Детям до 1 года мёд не дают; при аллергии на продукты пчеловодства употреблять не следует.</p></div>
+    <div class="detail-info-footer">🐝 «Дедушкина пасека» · Голынка · Клецкий район · +375 44 574 81 12 · <a href="mailto:artnik78@mail.ru">artnik78@mail.ru</a></div>
+  </div>
+</div>
 <div aria-hidden="true" class="honeycomb-info-modal" id="honeycombInfoModal">
   <div aria-labelledby="honeycombInfoTitle" aria-modal="true" class="honeycomb-info-box" role="dialog">
     <button aria-label="Закрыть" class="honeycomb-info-close" id="honeycombInfoClose" type="button">×</button>
@@ -304,6 +348,26 @@
 
 <script>
 (function(){
+  const honeyModal=document.getElementById('honeyInfoModal');
+  const creamModal=document.getElementById('creamInfoModal');
+  const honeyClose=document.getElementById('honeyInfoClose');
+  const creamClose=document.getElementById('creamInfoClose');
+  const honeyTitle=document.getElementById('honeyInfoTitle');
+  const honeySub=document.getElementById('honeyInfoSubtitle');
+  function openModal(modal){if(!modal)return;modal.classList.add('open');modal.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';}
+  function closeModal(modal){if(!modal)return;modal.classList.remove('open');modal.setAttribute('aria-hidden','true');document.body.style.overflow='';}
+  document.querySelectorAll('[data-open-honey-info]').forEach(function(btn){btn.addEventListener('click',function(){honeyTitle.textContent='🍯 Натуральный мёд';honeySub.textContent='Подробная информация о натуральном мёде «Дедушкина пасека»';openModal(honeyModal);});});
+  document.querySelectorAll('[data-open-cream-info]').forEach(function(btn){btn.addEventListener('click',function(){openModal(creamModal);});});
+  honeyClose.addEventListener('click',function(){closeModal(honeyModal);});
+  creamClose.addEventListener('click',function(){closeModal(creamModal);});
+  [honeyModal,creamModal].forEach(function(m){m.addEventListener('click',function(e){if(e.target===m)closeModal(m);});});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeModal(honeyModal);closeModal(creamModal);}});
+  window.openHoneyInfo=function(title){if(title){honeyTitle.textContent='🍯 '+title;}else{honeyTitle.textContent='🍯 Натуральный мёд';}honeySub.textContent='Подробная информация о натуральном мёде «Дедушкина пасека»';openModal(honeyModal);};
+  window.openCreamInfo=function(){openModal(creamModal);};
+})();
+</script>
+<script>
+(function(){
   const modal=document.getElementById('honeycombInfoModal');
   const closeBtn=document.getElementById('honeycombInfoClose');
   const choiceInfo=document.getElementById('choiceModalInfo');
@@ -317,16 +381,20 @@
   window.openHoneycombInfo=function(fromChoice){openInfo(fromChoice);};
   if(choiceInfo) choiceInfo.addEventListener('click',function(){
     const title=document.getElementById('choiceListTitle');
-    if(title && title.textContent.trim()==='Сотовый мёд'){
-      const choiceModal=document.getElementById('choiceListModal');
-      choiceModal.classList.remove('open');choiceModal.setAttribute('aria-hidden','true');
-      openInfo(true);
-    } else {
-      document.getElementById('info').scrollIntoView({behavior:'smooth'});
-      const choiceModal=document.getElementById('choiceListModal');
-      choiceModal.classList.remove('open');choiceModal.setAttribute('aria-hidden','true');
-      document.body.style.overflow='';
+    const t=title ? title.textContent.trim() : '';
+    const choiceModal=document.getElementById('choiceListModal');
+    choiceModal.classList.remove('open');choiceModal.setAttribute('aria-hidden','true');
+    document.body.style.overflow='';
+    if(t==='Сотовый мёд'){openInfo(true);return;}
+    if(t==='Майский мёд'||t==='Лесной мёд'||t==='Мёд разнотравье'||t==='Падевый мёд'||t==='Липовый мёд'||t==='Гречишный мёд'||t==='Натуральный мёд'){
+      if(window.openHoneyInfo) window.openHoneyInfo(t);
+      return;
     }
+    if(t.indexOf('Крем-мёд')===0||['С лимоном','С пыльцой','С имбирём','С имбирём и куркумой','С ягодами годжи','С клубникой','«Кокос и миндаль»','С мятой','Со смородиной','Со спирулиной','С черникой'].indexOf(t)>=0){
+      if(window.openCreamInfo) window.openCreamInfo();
+      return;
+    }
+    document.getElementById('info').scrollIntoView({behavior:'smooth'});
   });
 })();
 </script>
