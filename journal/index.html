@@ -116,7 +116,13 @@ h1{margin:0 0 6px;font-size:28px}.sub{color:var(--muted);margin:0 0 22px}
       <div class="hero">
         <h2>Добро пожаловать на пасеку 🐝</h2>
         <p class="sub">Цифровой журнал пасечника «Дедушкина пасека» — Клецкий район.</p>
-        <div class="actions"><button class="btn gold" data-page="hives">Добавить улей</button><button class="btn secondary" data-page="inspections">Записать осмотр</button><button class="btn secondary" data-page="honey">Добавить партию мёда</button></div>
+        <div class="actions">
+          <button class="btn gold" data-page="hives">➕ Добавить улей</button>
+          <button class="btn secondary" data-page="inspections">📋 Записать осмотр</button>
+          <button class="btn secondary" data-page="honey">🍯 Добавить партию мёда</button>
+          <button class="btn secondary" data-page="honey">📄 Паспорт мёда</button>
+          <button class="btn secondary" data-page="apiaries">🏡 Паспорт пасеки</button>
+        </div>
       </div>
       <div class="cards">
         <div class="card"><div class="muted">Ульев</div><div class="big" id="countHives">0</div></div>
@@ -510,7 +516,9 @@ async function deleteApiary(id){
 }
 function showHiveFamily(id){
   const h=state.hives.find(x=>String(x.id)===String(id)); if(!h)return;
-  const last=latestInspectionForHive(h.id);
+  const last=state.inspections
+    .filter(i=>String(i.hive_id)===String(id))
+    .sort((a,b)=>String(b.inspection_date||'').localeCompare(String(a.inspection_date||'')))[0]||null;
   const apiaryMap=Object.fromEntries(state.apiaries.map(a=>[a.id,a.name]));
   $('hiveFamilyTitle').textContent='🐝 Пчелиная семья — улей №'+(h.hive_number||'');
   $('hiveFamilyInfo').innerHTML='<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px"><div class="card"><div class="muted">👑 Матка</div><b>'+esc(last?.queen_status||'Нет данных')+'</b></div><div class="card"><div class="muted">💪 Сила семьи</div><b>'+esc(last?.colony_strength||'Нет данных')+'</b></div><div class="card"><div class="muted">🥚 Расплод</div><b>'+esc(last?.brood||'Нет данных')+'</b></div><div class="card"><div class="muted">🍯 Корм</div><b>'+esc(last?.feed||'Нет данных')+'</b></div></div><div class="panel" style="margin-top:14px"><b>📅 Последний осмотр:</b> '+esc(last?.inspection_date||'Нет данных')+'<br><span class="muted">🐝 Пасека: '+esc(apiaryMap[h.apiary_id]||'Не указана')+' • 📍 '+esc(h.location||'Место не указано')+'</span>'+(last?.notes?'<p style="margin-bottom:0"><b>Заметки:</b> '+esc(last.notes)+'</p>':'')+'</div>';
