@@ -422,6 +422,7 @@ const { createClient } = window.supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const state = {hives:[], inspections:[], honey:[], tasks:[], finance:[], apiaries:[], medicines:[], disinfection:[]};
+let guestMode=false;
 let calendarMonth = new Date();
 calendarMonth.setDate(1);
 
@@ -447,6 +448,7 @@ function showPage(name){
 document.querySelectorAll('[data-page]').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
 
 function showGuest(){
+  guestMode=true;
   $('auth').style.display='none';
   $('userEmail').textContent='Гостевой просмотр';
   syncHomeUser('Гостевой просмотр');
@@ -462,57 +464,60 @@ function guestDatePlus(days){
   d.setDate(d.getDate()+days);
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 }
+function guestDatePlus(days){
+  const d=new Date(today()+'T00:00:00');
+  d.setDate(d.getDate()+days);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
 function renderGuestMode(){
-  const t=today();
-  state.apiaries=[
-    {id:'guest-apiary-1',name:'Дедушкина пасека',location:'Клецкий район',description:'Основная пасека — демонстрационная запись для гостевого просмотра.'}
-  ];
-  state.hives=[
-    {id:'guest-hive-1',apiary_id:'guest-apiary-1',hive_number:'1',hive_type:'Дадан',queen_breed:'Карника',queen_year:2025,location:'Ряд 1, место 1',status:'Активен',notes:'Демонстрационный улей'}
-  ];
-  state.inspections=[
-    {id:'guest-inspection-1',hive_id:'guest-hive-1',inspection_date:t,colony_strength:'Сильная',queen_status:'Есть',queen_breed:'Карника',brood:'Хороший',feed:'Мёд и перга',notes:'Семья спокойная, матка работает хорошо.'}
-  ];
-  state.honey=[
-    {id:'guest-honey-1',batch_number:'2026-001',honey_type:'Мёд разнотравье',collection_date:t,quantity_kg:25,price_per_kg:25,collection_place:'Клецкий район',notes:'Демонстрационная партия'}
-  ];
-  state.finance=[
-    {id:'guest-finance-1',operation_date:t,operation_type:'Расход',amount:35,category:'Инвентарь',description:'Покупка демонстрационного инвентаря'}
-  ];
-  state.tasks=[
-    {id:'guest-task-1',title:'[Подкормка] Проверить корм',due_date:guestDatePlus(1),priority:'Обычный',status:'Открыта',description:'[Напоминание:За 1 день] Проверить запасы корма.'}
-  ];
-  state.medicines=[
-    {id:'guest-medicine-1',name:'Бипин-Т',volume:'10 мл',quantity:3,min_quantity:1,expiry_date:guestDatePlus(120),expiry_warning_days:30,notes:'Демонстрационная запись'}
-  ];
-  state.disinfection=[
-    {id:'guest-disinfection-1',target_type:'Улей',apiary_id:'guest-apiary-1',hive_id:'guest-hive-1',frames_count:10,disinfection_date:t,agent:'Сода + вода',treatment_method:'Обмывание',reason:'Плановая',responsible:'Пасечник',next_date:guestDatePlus(30),notes:'Демонстрационная запись'}
-  ];
+  const t=today(), next=guestDatePlus(30);
+  state.apiaries=[{id:'guest-apiary-1',name:'Дедушкина пасека',location:'Клецкий район',description:'Демонстрационная запись'}];
+  state.hives=[{id:'guest-hive-1',apiary_id:'guest-apiary-1',hive_number:'1',hive_type:'Дадан',queen_breed:'Карника',queen_year:2025,location:'Ряд 1, место 1',status:'Активен',notes:'Демонстрационный улей'}];
+  state.inspections=[{id:'guest-inspection-1',hive_id:'guest-hive-1',inspection_date:t,colony_strength:'Сильная',queen_status:'Есть',queen_breed:'Карника',brood:'Хороший',feed:'Мёд и перга',notes:'Семья спокойная, матка работает хорошо.'}];
+  state.honey=[{id:'guest-honey-1',batch_number:'2026-001',honey_type:'Мёд разнотравье',collection_date:t,quantity_kg:25,price_per_kg:25,collection_place:'Клецкий район',notes:'Демонстрационная партия'}];
+  state.finance=[{id:'guest-finance-1',operation_date:t,operation_type:'Расход',amount:35,category:'Инвентарь',description:'Покупка инвентаря'}];
+  state.tasks=[{id:'guest-task-1',title:'[Подкормка] Проверить корм',due_date:guestDatePlus(1),priority:'Обычный',status:'Открыта',description:'[Напоминание:За 1 день] Проверить запасы корма.'}];
+  state.medicines=[{id:'guest-medicine-1',name:'Бипин-Т',volume:'10 мл',quantity:3,min_quantity:1,expiry_date:guestDatePlus(120),expiry_warning_days:30,notes:'Демонстрационная запись'}];
+  state.disinfection=[{id:'guest-disinfection-1',target_type:'Улей',apiary_id:'guest-apiary-1',hive_id:'guest-hive-1',frames_count:10,disinfection_date:t,agent:'Сода + вода',treatment_method:'Обмывание',reason:'Плановая',responsible:'Пасечник',next_date:next,notes:'Демонстрационная запись'}];
+
   renderAll();
 
-  $('photosList')?.replaceChildren?.();
-  const photosSection=document.querySelector('#page-photos .panel');
-  if(photosSection) photosSection.innerHTML='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px"><div class="card"><img src="../images/about-apiary.jpg" alt="Пасека" style="width:100%;height:160px;object-fit:cover;border-radius:10px"><b style="display:block;margin-top:10px">Пасека — образец фотографии</b><div class="muted">Гостевой режим</div></div></div>';
+  // В гостевом режиме показываем примерные записи, но не даём их изменять.
+  $('hivesList').innerHTML='<div class="card"><b style="font-size:18px">⬡ Улей №1</b><div class="muted" style="margin-top:6px">Дедушкина пасека • Дадан • Ряд 1, место 1</div><p style="margin:10px 0 5px">🟢 Активен</p><div class="muted">Порода матки: Карника • Год вывода: 2025</div></div>';
+  $('inspectionsList').innerHTML='<table class="table"><thead><tr><th>Дата</th><th>Улей</th><th>Семья</th><th>Матка</th><th>Заметки</th></tr></thead><tbody><tr><td>'+esc(t)+'</td><td>№ 1</td><td>Сильная</td><td>Есть</td><td>Семья спокойная, матка работает хорошо.</td></tr></tbody></table>';
+  $('honeyList').innerHTML='<table class="table"><thead><tr><th>Партия</th><th>Мёд</th><th>Дата</th><th>Кг</th><th>Цена/кг</th></tr></thead><tbody><tr><td>2026-001</td><td>Мёд разнотравье</td><td>'+esc(t)+'</td><td>25</td><td>25</td></tr></tbody></table>';
+  $('financeList').innerHTML='<table class="table"><thead><tr><th>Дата</th><th>Тип</th><th>Сумма</th><th>Категория</th><th>Описание</th></tr></thead><tbody><tr><td>'+esc(t)+'</td><td>Расход</td><td>35</td><td>Инвентарь</td><td>Покупка инвентаря</td></tr></tbody></table>';
+  $('tasksList').innerHTML='<table class="table"><thead><tr><th>Дата</th><th>Задача</th><th>Приоритет</th><th>Статус</th></tr></thead><tbody><tr><td>'+esc(guestDatePlus(1))+'</td><td>Проверить корм</td><td>Обычный</td><td>Открыта</td></tr></tbody></table>';
+  $('medicinesList').innerHTML='<table class="table"><thead><tr><th>Наименование</th><th>Объём</th><th>Количество</th><th>Мин. остаток</th><th>Срок годности</th><th>Статус</th></tr></thead><tbody><tr><td><b>Бипин-Т</b></td><td>10 мл</td><td>3</td><td>1</td><td>'+esc(guestDatePlus(120))+'</td><td>Норма</td></tr></tbody></table>';
+  $('disinfectionList').innerHTML='<table class="table"><thead><tr><th>Дата</th><th>Что</th><th>Пасека</th><th>Улей</th><th>Рамок</th><th>Средство</th><th>Способ</th><th>Причина</th><th>Ответственный</th><th>Следующая</th></tr></thead><tbody><tr><td>'+esc(t)+'</td><td>Улей</td><td>Дедушкина пасека</td><td>№ 1</td><td>10</td><td>Сода + вода</td><td>Обмывание</td><td>Плановая</td><td>Пасечник</td><td>'+esc(next)+'</td></tr></tbody></table>';
+  $('apiariesList').innerHTML='<div class="card"><b style="font-size:18px">🐝 Дедушкина пасека</b><div class="muted" style="margin-top:6px">Клецкий район • 1 демонстрационный улей</div></div>';
+  $('calendarTasks').innerHTML='<table class="table"><thead><tr><th>Дата</th><th>Тип</th><th>Событие</th><th>Приоритет</th><th>Статус</th></tr></thead><tbody><tr><td>'+esc(guestDatePlus(1))+'</td><td>Подкормка</td><td>Проверить корм</td><td>Обычный</td><td>Открыта</td></tr></tbody></table>';
 
-  document.querySelectorAll('#page-apiaries form,#page-hives form,#page-inspections form,#page-calendar form,#page-honey form,#page-finances form,#page-tasks form,#page-medicines form,#page-disinfection form').forEach(f=>{if(f.closest('.panel'))f.closest('.panel').style.display='none'});
-  document.querySelectorAll('#page-home .actions button,#addCalendarEventBtn,.apiary-edit,.apiary-delete,.hive-edit,.hive-history,.hive-delete,.disinfection-edit,.disinfection-delete').forEach(b=>b.style.display='none');
-  document.querySelectorAll('.panel h3').forEach(h=>{
-    const txt=h.textContent||'';
-    if(txt.includes('Новый')||txt.includes('Добавить')||txt.includes('Новая')||txt.includes('Изменить')) h.closest('.panel')?.style && (h.closest('.panel').style.display='none');
-  });
+  $('homeMedicineAlerts').innerHTML='<h3>💊 Лекарства</h3><div style="padding:7px 0">Бипин-Т — 3 шт. · срок '+esc(guestDatePlus(120))+'</div>';
+  $('homeDisinfectionAlerts').innerHTML='<div class="reminders-head"><div><span class="eyebrow">КОНТРОЛЬ ПАСЕКИ</span><h3>🧴 Дезинфекция</h3></div><button type="button" class="btn secondary" data-page="disinfection">Все</button></div><div style="padding:7px 0">🧽 Улей №1 — обработан '+esc(t)+'</div><div class="muted">Следующая обработка: '+esc(next)+'</div>';
+  document.querySelectorAll('#homeDisinfectionAlerts [data-page]').forEach(b=>b.onclick=()=>showPage(b.dataset.page));
+  $('homeReminderAlerts').innerHTML='<div class="reminder-list"><div class="reminder-row"><div>🟡 <b>Проверить корм</b><div class="muted">'+esc(guestDatePlus(1))+'</div></div><span class="warning-badge">скоро</span></div></div>';
+
+  const photoPanel=document.querySelector('#page-photos .panel');
+  if(photoPanel) photoPanel.innerHTML='<div class="card"><b>📷 Фото пасеки</b><div class="muted">Демонстрационный раздел гостевого режима.</div></div>';
+
+  document.querySelectorAll('#page-apiaries form,#page-hives form,#page-inspections form,#page-calendar form,#page-honey form,#page-finances form,#page-tasks form,#page-medicines form,#page-disinfection form').forEach(f=>{const p=f.closest('.panel');if(p)p.style.display='none';});
+  document.querySelectorAll('#page-home .actions button,#addCalendarEventBtn,.apiary-edit,.apiary-delete,.hive-edit,.hive-history,.hive-delete,.disinfection-edit,.disinfection-delete,.medicine-edit,.medicine-delete').forEach(b=>b.style.display='none');
   setText('countHives',1); setText('countInspections',1); setText('countHoney',1); setText('countTasks',1);
   setText('statHives',1); setText('statInspections',1); setText('statHoney',1); setText('statFinance',1);
 }
 
 async function authInit(){
   const {data:{session}} = await db.auth.getSession();
-  if(session){showApp(session.user)}
-  else $('auth').style.display='flex';
+  if(session && !guestMode){showApp(session.user)}
+  else if(!guestMode) $('auth').style.display='flex';
   db.auth.onAuthStateChange((_event,session)=>{
+    if(guestMode)return;
     if(session) showApp(session.user); else $('auth').style.display='flex';
   });
 }
 async function showApp(user){
+  guestMode=false;
   $('auth').style.display='none';
   $('userEmail').textContent=user.email||'Пользователь';
   syncHomeUser(user.email);
