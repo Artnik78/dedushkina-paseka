@@ -154,6 +154,13 @@ h1{margin:0 0 6px;font-size:28px}.sub{color:var(--muted);margin:0 0 22px}
         </form>
       </div>
       <div class="panel"><h3>Список ульев</h3><div id="hivesList" class="table-wrap"></div></div>
+      <div class="panel" id="hiveHistoryPanel" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+          <h3 id="hiveHistoryTitle">История перемещений</h3>
+          <button type="button" class="btn secondary" id="closeHiveHistoryBtn">Закрыть</button>
+        </div>
+        <div id="hiveHistoryList" class="table-wrap"></div>
+      </div>
     </section>
 
     <section id="page-inspections" class="section">
@@ -413,9 +420,10 @@ function renderAll(){
   document.querySelectorAll('.apiary-delete').forEach(b=>b.onclick=()=>deleteApiary(b.dataset.id));
 
   const apiaryMap=Object.fromEntries(state.apiaries.map(a=>[a.id,a.name]));
-  $('hivesList').innerHTML=state.hives.length?state.hives.map(h=>'<div class="card" style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px"><div><b style="font-size:18px">⬡ Улей №'+esc(h.hive_number)+'</b><div class="muted" style="margin-top:5px">🐝 '+esc(apiaryMap[h.apiary_id]||'Пасека не указана')+' • '+esc(h.hive_type||'Тип не указан')+'</div></div><div class="actions" style="margin:0"><button type="button" class="btn secondary hive-edit" data-id="'+esc(h.id)+'">Изменить</button><button type="button" class="btn danger hive-delete" data-id="'+esc(h.id)+'">Удалить</button></div></div><p style="margin:10px 0 5px">📍 '+esc(h.location||'Место не указано')+' • <b>'+esc(h.status||'')+'</b></p><div class="muted">'+esc(h.notes||'Без примечания')+'</div></div>').join(''):'<div class="empty">Ульев пока нет. Добавьте первый улей выше.</div>';
+  $('hivesList').innerHTML=state.hives.length?state.hives.map(h=>'<div class="card" style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px"><div><b style="font-size:18px">⬡ Улей №'+esc(h.hive_number)+'</b><div class="muted" style="margin-top:5px">🐝 '+esc(apiaryMap[h.apiary_id]||'Пасека не указана')+' • '+esc(h.hive_type||'Тип не указан')+'</div></div><div class="actions" style="margin:0"><button type="button" class="btn secondary hive-edit" data-id="'+esc(h.id)+'">Изменить</button><button type="button" class="btn secondary hive-history" data-id="'+esc(h.id)+'">История</button><button type="button" class="btn danger hive-delete" data-id="'+esc(h.id)+'">Удалить</button></div></div><p style="margin:10px 0 5px">📍 '+esc(h.location||'Место не указано')+' • <b>'+esc(h.status||'')+'</b></p><div class="muted">'+esc(h.notes||'Без примечания')+'</div></div>').join(''):'<div class="empty">Ульев пока нет. Добавьте первый улей выше.</div>';
   document.querySelectorAll('.hive-edit').forEach(b=>b.onclick=()=>editHive(b.dataset.id));
   document.querySelectorAll('.hive-delete').forEach(b=>b.onclick=()=>deleteHive(b.dataset.id));
+  document.querySelectorAll('.hive-history').forEach(b=>b.onclick=()=>showHiveHistory(b.dataset.id));
 
   const hiveMap=Object.fromEntries(state.hives.map(h=>[h.id,h.hive_number]));
   $('inspectionsList').innerHTML=state.inspections.length?`<table class="table"><thead><tr><th>Дата</th><th>Улей</th><th>Семья</th><th>Матка</th><th>Заметки</th></tr></thead><tbody>${state.inspections.map(i=>`<tr><td>${esc(i.inspection_date)}</td><td>${esc(hiveMap[i.hive_id]||i.hive_id||'')}</td><td>${esc(i.colony_strength)}</td><td>${esc(i.queen_status)}</td><td>${esc(i.notes)}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">Осмотров пока нет.</div>';
@@ -488,6 +496,18 @@ async function deleteApiary(id){
   if(error){toast('Ошибка: '+error.message);return}
   toast('Пасека удалена'); await loadAll();
 }
+async function showHiveHistory(id){
+  const h=state.hives.find(x=>String(x.id)===String(id)); if(!h)return;
+  const apiaryMap=Object.fromEntries(state.apiaries.map(a=>[a.id,a.name]));
+  $('hiveHistoryTitle').textContent='История перемещений — улей №'+(h.hive_number||'');
+  $('hiveHistoryList').innerHTML='<div class="empty">Загрузка...</div>';
+  $('hiveHistoryPanel').style.display='block';
+  $('hiveHistoryPanel').scrollIntoView({behavior:'smooth',block:'center'});
+  const {data,error}=await db.from('hive_movements').select('*').eq('hive_id',id).order('movement_date',{ascending:false});
+  if(error){$('hiveHistoryList').innerHTML='<div class="empty">Ошибка: '+esc(error.message)+'</div>';return}
+  $('hiveHistoryList').innerHTML=data&&data.length?'<table class="table"><thead><tr><th>Дата</th><th>Откуда</th><th>Куда</th><th>Причина</th><th>Примечание</th></tr></thead><tbody>'+data.map(x=>'<tr><td>'+esc(x.movement_date)+'</td><td>'+esc(apiaryMap[x.from_apiary_id]||'—')+'</td><td>'+esc(apiaryMap[x.to_apiary_id]||'—')+'</td><td>'+esc(x.reason||'—')+'</td><td>'+esc(x.notes||'—')+'</td></tr>').join('')+'</tbody></table>':'<div class="empty">История перемещений пока пуста.</div>';
+}
+$('closeHiveHistoryBtn').onclick=()=>{$('hiveHistoryPanel').style.display='none'};
 $('hiveForm').onsubmit=async e=>{
   e.preventDefault();
   const f=e.target,d=formData(f);
@@ -495,6 +515,10 @@ $('hiveForm').onsubmit=async e=>{
     const old=state.hives.find(x=>String(x.id)===String(d.id));
     const moved=old && String(old.apiary_id||'')!==String(d.apiary_id||'');
     const {error}=await db.from('hives').update({apiary_id:d.apiary_id,hive_number:d.hive_number,hive_type:d.hive_type,location:d.location,status:d.status,notes:d.notes}).eq('id',d.id);
+    if(!error && moved){
+      const {error:moveError}=await db.from('hive_movements').insert({hive_id:d.id,from_apiary_id:old.apiary_id||null,to_apiary_id:d.apiary_id||null,movement_date:today(),reason:'Перемещение улья'});
+      if(moveError){toast('Улей перемещён, но история не записалась: '+moveError.message);resetHiveForm();await loadAll();return}
+    }
     if(error){toast('Ошибка: '+error.message);return}
     toast(moved?'Улей перемещён на другую пасеку':'Улей изменён');
   }else{
