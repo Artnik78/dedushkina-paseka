@@ -403,18 +403,16 @@ function renderCalendar(){
   const y=calendarMonth.getFullYear(), m=calendarMonth.getMonth();
   const names=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
   $('calendarMonthTitle').textContent=names[m]+' '+y;
-  const first=new Date(y,m,1), last=new Date(y,m+1,0);
-  const startDay=(first.getDay()+6)%7, days=last.getDate(), prevLast=new Date(y,m,0).getDate();
+  const first=new Date(y,m,1);
+  const startDay=(first.getDay()+6)%7;
   let html=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(x=>'<div class="calendar-head">'+x+'</div>').join('');
   const todayStr=today();
-  const localDate=(yy,mm,dd)=>yy+'-'+String(mm+1).padStart(2,'0')+'-'+String(dd).padStart(2,'0');
   for(let i=0;i<42;i++){
-    const n=i-startDay+1;
-    let yy=y,mm=m,dd=n,other=n<1||n>days;
-    if(n<1){mm=m-1;if(mm<0){mm=11;yy=y-1}dd=prevLast+n}
-    if(n>days){mm=m+1;if(mm>11){mm=0;yy=y+1}dd=n-days}
-    const ds=localDate(yy,mm,dd);
-    const ev=state.tasks.filter(t=>t.due_date===ds);
+    const cell=new Date(y,m,1+i-startDay);
+    const yy=cell.getFullYear(), mm=cell.getMonth(), dd=cell.getDate();
+    const other=mm!==m;
+    const ds=yy+'-'+String(mm+1).padStart(2,'0')+'-'+String(dd).padStart(2,'0');
+    const ev=state.tasks.filter(t=>String(t.due_date||'').slice(0,10)===ds);
     html+='<div class="calendar-day '+(other?'other ':'')+(ds===todayStr?'today':'')+'><div class="calendar-num">'+dd+'</div>';
     html+=ev.map(t=>'<button type="button" class="calendar-event '+(t.priority==='Высокий'?'high ':'')+(t.status==='Выполнена'?'done':'')+'" data-event-id="'+esc(t.id)+'" title="'+esc(eventDescription(t))+'">'+esc(eventType(t))+': '+esc(eventTitle(t))+'</button>').join('');
     html+='</div>';
