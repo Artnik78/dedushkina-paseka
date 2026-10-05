@@ -99,6 +99,7 @@ h1{margin:0 0 6px;font-size:28px}.sub{color:var(--muted);margin:0 0 22px}
     <button data-page="honey">🍯 Мёд / партии</button>
     <button data-page="finances">💰 Финансы</button>
     <button data-page="tasks">🔔 Напоминания</button>
+    <button data-page="medicines">💊 Лекарства</button>
     <button data-page="photos">📷 Фото</button>
     <button data-page="stats">📊 Статистика</button>
     <button data-page="settings">⚙️ Настройки</button>
@@ -293,6 +294,29 @@ h1{margin:0 0 6px;font-size:28px}.sub{color:var(--muted);margin:0 0 22px}
       </div>
     </section>
 
+    <section id="page-medicines" class="section">
+      <h1>💊 Лекарства</h1><p class="sub">Учёт препаратов для пасеки, их количества и сроков годности.</p>
+      <div class="panel">
+        <h3>Добавить лекарство</h3>
+        <form id="medicineForm" class="form">
+          <input type="hidden" name="id">
+          <div class="field"><label>Наименование *</label><input name="name" required placeholder="Например, Бипин-Т"></div>
+          <div class="field"><label>Объём / фасовка</label><input name="volume" placeholder="10 мл, 100 г, 20 доз"></div>
+          <div class="field"><label>Количество *</label><input name="quantity" type="number" min="0" step="0.01" required placeholder="Например, 5"></div>
+          <div class="field"><label>Минимальный остаток</label><input name="min_quantity" type="number" min="0" step="0.01" value="1" placeholder="Например, 1"></div>
+          <div class="field"><label>Срок годности</label><input name="expiry_date" type="date"></div>
+          <div class="field"><label>Напомнить за</label><select name="expiry_warning_days"><option value="7">7 дней</option><option value="14">14 дней</option><option value="30" selected>30 дней</option><option value="60">60 дней</option><option value="90">90 дней</option></select></div>
+          <div class="field full"><label>Примечание</label><textarea name="notes" placeholder="Для чего используется, где хранится и т.д."></textarea></div>
+          <div class="actions"><button class="btn" id="medicineSaveBtn">Сохранить лекарство</button><button type="button" class="btn secondary" id="medicineCancelBtn" style="display:none">Отмена</button></div>
+        </form>
+      </div>
+      <div class="panel">
+        <h3>Мои лекарства</h3>
+        <div id="medicineAlerts"></div>
+        <div id="medicinesList" class="table-wrap"></div>
+      </div>
+    </section>
+
     <section id="page-settings" class="section">
       <h1>Настройки</h1><p class="sub">Подключение и информация о журнале.</p>
       <div class="panel">
@@ -332,7 +356,7 @@ const SUPABASE_KEY = 'sb_publishable_1eM3o5IehFq-IvjWkHLiCA_RMXGHfw5';
 const { createClient } = window.supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const state = {hives:[], inspections:[], honey:[], tasks:[], finance:[], apiaries:[]};
+const state = {hives:[], inspections:[], honey:[], tasks:[], finance:[], apiaries:[], medicines:[]};
 let calendarMonth = new Date();
 calendarMonth.setDate(1);
 
@@ -416,8 +440,8 @@ async function getTable(table,order='created_at'){
 }
 async function loadAll(){
   try{
-    [state.apiaries,state.hives,state.inspections,state.honey,state.tasks,state.finance]=await Promise.all([
-      getTable('apiaries'),getTable('hives'),getTable('inspections'),getTable('honey_batches'),getTable('tasks'),getTable('finances')
+    [state.apiaries,state.hives,state.inspections,state.honey,state.tasks,state.finance,state.medicines]=await Promise.all([
+      getTable('apiaries'),getTable('hives'),getTable('inspections'),getTable('honey_batches'),getTable('tasks'),getTable('finances'),getTable('medicines')
     ]);
     renderAll();
   }catch(e){console.error(e);toast('Ошибка загрузки данных: '+e.message)}
@@ -431,6 +455,37 @@ function renderAll(){
   $('statInspections').textContent=state.inspections.length;
   $('statHoney').textContent=state.honey.length;
   $('statFinance').textContent=state.finance.length;
+
+  const medicineToday=new Date(today()+'T00:00:00');
+  const medicineAlerts=state.medicines.map(m=>{
+    const alerts=[];
+    const qty=Number(m.quantity||0), min=Number(m.min_quantity||0);
+    if(qty<=min) alerts.push('остаток '+qty+' — пора проверить запас');
+    if(m.expiry_date){
+      const exp=new Date(String(m.expiry_date).slice(0,10)+'T00:00:00');
+      const days=Math.ceil((exp-medicineToday)/86400000);
+      const warn=Number(m.expiry_warning_days||30);
+      if(days<0) alerts.push('срок годности истёк');
+      else if(days<=warn) alerts.push('срок годности заканчивается через '+days+' дн.');
+    }
+    return alerts.length?{m,alerts}:null;
+  }).filter(Boolean);
+  $('medicineAlerts').innerHTML=medicineAlerts.length
+    ? '<div class="panel" style="margin:0 0 14px;background:#fff7e8;border-color:#e4c77a"><b>⚠️ Требуют внимания</b>'+medicineAlerts.map(x=>'<div style="margin-top:8px">💊 <b>'+esc(x.m.name)+'</b> — '+esc(x.alerts.join('; '))+'</div>').join('')+'</div>'
+    : '<div class="muted" style="margin-bottom:12px">✅ Просроченных лекарств и критически низких остатков нет.</div>';
+  $('medicinesList').innerHTML=state.medicines.length?'<table class="table"><thead><tr><th>Наименование</th><th>Объём</th><th>Количество</th><th>Мин. остаток</th><th>Срок годности</th><th>Статус</th><th></th></tr></thead><tbody>'+state.medicines.map(m=>{
+    const qty=Number(m.quantity||0),min=Number(m.min_quantity||0);
+    let status='Норма';
+    if(qty<=min) status='⚠️ Мало';
+    if(m.expiry_date){
+      const days=Math.ceil((new Date(String(m.expiry_date).slice(0,10)+'T00:00:00')-medicineToday)/86400000);
+      if(days<0) status='❌ Просрочено';
+      else if(days<=Number(m.expiry_warning_days||30)) status='⚠️ Срок подходит';
+    }
+    return '<tr><td><b>'+esc(m.name)+'</b></td><td>'+esc(m.volume||'—')+'</td><td>'+esc(m.quantity)+'</td><td>'+esc(m.min_quantity??'—')+'</td><td>'+esc(m.expiry_date||'—')+'</td><td>'+status+'</td><td><button type="button" class="btn secondary medicine-edit" data-id="'+esc(m.id)+'">Изменить</button><button type="button" class="btn danger medicine-delete" data-id="'+esc(m.id)+'">Удалить</button></td></tr>';
+  }).join('')+'</tbody></table>':'<div class="empty">Лекарств пока нет. Добавьте первый препарат выше.</div>';
+  document.querySelectorAll('.medicine-edit').forEach(b=>b.onclick=()=>editMedicine(b.dataset.id));
+  document.querySelectorAll('.medicine-delete').forEach(b=>b.onclick=()=>deleteMedicine(b.dataset.id));
 
   $('apiariesList').innerHTML=state.apiaries.length?state.apiaries.map(a=>`<div class="card" style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px"><div><b style="font-size:18px">🐝 ${esc(a.name)}</b><div class="muted" style="margin-top:5px">🔢 Ульев: ${state.hives.filter(h=>String(h.apiary_id||'')===String(a.id)).length} &nbsp; 📍 ${esc(a.location||'Место не указано')}</div></div><div class="actions" style="margin:0"><button type="button" class="btn secondary apiary-edit" data-id="${esc(a.id)}">Изменить</button><button type="button" class="btn danger apiary-delete" data-id="${esc(a.id)}">Удалить</button></div></div><p>${esc(a.description||'Без описания')}</p></div>`).join(''):'<div class="empty">Пасек пока нет. Добавьте первую пасеку выше.</div>';
   document.querySelectorAll('.apiary-edit').forEach(b=>b.onclick=()=>editApiary(b.dataset.id));
@@ -591,6 +646,47 @@ async function deleteHive(id){
   toast('Улей удалён'); await loadAll();
 }
 $('hiveCancelBtn').onclick=resetHiveForm;
+
+$('medicineForm').onsubmit=async e=>{
+  e.preventDefault();
+  const d=formData(e.target);
+  const payload={name:d.name.trim(),volume:d.volume.trim(),quantity:Number(d.quantity||0),min_quantity:Number(d.min_quantity||0),expiry_date:d.expiry_date||null,expiry_warning_days:Number(d.expiry_warning_days||30),notes:d.notes.trim()};
+  if(d.id){
+    const {error}=await db.from('medicines').update(payload).eq('id',d.id);
+    if(error){toast('Ошибка: '+error.message);return}
+    toast('Лекарство изменено');
+  }else{
+    const {error}=await db.from('medicines').insert(payload);
+    if(error){toast('Ошибка: '+error.message);return}
+    toast('Лекарство добавлено');
+  }
+  resetMedicineForm(); await loadAll();
+};
+function resetMedicineForm(){
+  const f=$('medicineForm'); f.reset(); f.elements.id.value='';
+  f.elements.min_quantity.value='1'; f.elements.expiry_warning_days.value='30';
+  $('medicineSaveBtn').textContent='Сохранить лекарство'; $('medicineCancelBtn').style.display='none';
+  f.closest('.panel').querySelector('h3').textContent='Добавить лекарство';
+}
+function editMedicine(id){
+  const m=state.medicines.find(x=>String(x.id)===String(id)); if(!m)return;
+  const f=$('medicineForm');
+  f.elements.id.value=m.id; f.elements.name.value=m.name||''; f.elements.volume.value=m.volume||'';
+  f.elements.quantity.value=m.quantity??''; f.elements.min_quantity.value=m.min_quantity??'1';
+  f.elements.expiry_date.value=m.expiry_date||''; f.elements.expiry_warning_days.value=m.expiry_warning_days||30;
+  f.elements.notes.value=m.notes||'';
+  $('medicineSaveBtn').textContent='Сохранить изменения'; $('medicineCancelBtn').style.display='inline-block';
+  f.closest('.panel').querySelector('h3').textContent='Изменить лекарство';
+  f.scrollIntoView({behavior:'smooth',block:'center'});
+}
+async function deleteMedicine(id){
+  const m=state.medicines.find(x=>String(x.id)===String(id)); if(!m)return;
+  if(!confirm('Удалить лекарство «'+(m.name||'')+'»?'))return;
+  const {error}=await db.from('medicines').delete().eq('id',id);
+  if(error){toast('Ошибка: '+error.message);return}
+  toast('Лекарство удалено'); await loadAll();
+}
+$('medicineCancelBtn').onclick=resetMedicineForm;
 $('inspectionForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);insert('inspections',{hive_id:d.hive_id,inspection_date:d.inspection_date,colony_strength:d.colony_strength,queen_status:d.queen_status,queen_breed:d.queen_breed,brood:d.brood,feed:d.feed,notes:d.notes},e.target)};
 $('honeyForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);insert('honey_batches',{batch_number:d.batch_number,honey_type:d.honey_type,collection_date:d.collection_date||null,quantity_kg:d.quantity_kg?Number(d.quantity_kg):null,price_per_kg:d.price_per_kg?Number(d.price_per_kg):null,collection_place:d.collection_place,notes:d.notes},e.target)};
 $('financeForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);insert('finances',{operation_date:d.operation_date,operation_type:d.operation_type,amount:Number(d.amount),category:d.category,description:d.description},e.target)};
