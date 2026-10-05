@@ -20,7 +20,7 @@ button{cursor:pointer}
 .nav{padding-top:14px}.nav button{width:100%;border:0;background:transparent;color:#eaf4ed;text-align:left;padding:12px;border-radius:10px;margin:2px 0}
 .nav button:hover,.nav button.active{background:rgba(255,255,255,.13)}
 .main{margin-left:250px;min-width:0;flex:1;background:rgba(255,250,240,.10)}
-.topbar{height:64px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:10px 24px;position:sticky;top:0;z-index:5}
+.home-view .topbar{background:rgba(255,255,255,.34);border-bottom-color:rgba(255,255,255,.35);box-shadow:none}.home-view .topbar .search{background:rgba(255,255,255,.64)}.home-view .content{padding-top:10px}.topbar{height:64px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:10px 24px;position:sticky;top:0;z-index:5}
 .search{flex:1;max-width:560px;border:1px solid var(--line);border-radius:10px;padding:10px 13px}
 .profile{margin-left:auto;display:flex;align-items:center;gap:8px}
 .status-dot{width:9px;height:9px;border-radius:50%;background:#36a65a;display:inline-block}
@@ -435,6 +435,7 @@ function showPage(name){
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   $('page-'+name)?.classList.add('active');
   document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===name));
+  document.body.classList.toggle('home-view',name==='home');
   window.scrollTo({top:0,behavior:'smooth'});
 }
 document.querySelectorAll('[data-page]').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
@@ -445,6 +446,7 @@ function showGuest(){
   document.querySelectorAll('.nav button').forEach(b=>b.disabled=false);
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   $('page-home').classList.add('active');
+  document.body.classList.add('home-view');
   document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page==='home'));
   renderGuestMode();
 }
@@ -453,6 +455,7 @@ function renderGuestMode(){
   $('statHives').textContent='—'; $('statInspections').textContent='—'; $('statHoney').textContent='—'; $('statFinance').textContent='—';
   $('recentInspections').innerHTML='<div class="empty">Гостевой режим — данные владельца скрыты.</div>';
   $('upcomingTasks').innerHTML='<div class="empty">Гостевой режим — данные владельца скрыты.</div>';
+  $('homeHoneyPreview').innerHTML='<div class="empty">Гостевой режим — данные владельца скрыты.</div>';
   const disToday=new Date(today()+'T00:00:00');
   const disAlerts=state.disinfection.map(x=>{
     if(!x.next_date)return null;
