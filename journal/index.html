@@ -431,6 +431,7 @@ function today(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth
 formatHomeDate();
 
 function formData(form){return Object.fromEntries(new FormData(form).entries())}
+function setText(id,value){const el=$(id);if(el)el.textContent=value}
 function showPage(name){
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   $('page-'+name)?.classList.add('active');
@@ -451,8 +452,8 @@ function showGuest(){
   renderGuestMode();
 }
 function renderGuestMode(){
-  $('countHives').textContent='—'; $('countInspections').textContent='—'; $('countHoney').textContent='—'; $('countTasks').textContent='—';
-  $('statHives').textContent='—'; $('statInspections').textContent='—'; $('statHoney').textContent='—'; $('statFinance').textContent='—';
+  setText('countHives','—'); setText('countInspections','—'); setText('countHoney','—'); setText('countTasks','—');
+  setText('statHives','—'); setText('statInspections','—'); setText('statHoney','—'); setText('statFinance','—');
   $('recentInspections').innerHTML='<div class="empty">Гостевой режим — данные владельца скрыты.</div>';
   $('upcomingTasks').innerHTML='<div class="empty">Гостевой режим — данные владельца скрыты.</div>';
   $('homeHoneyPreview').innerHTML='<div class="empty">Гостевой режим — данные владельца скрыты.</div>';
@@ -543,14 +544,14 @@ async function loadAll(){
   }catch(e){console.error(e);toast('Ошибка загрузки данных: '+e.message)}
 }
 function renderAll(){
-  $('homeWorkHives').textContent=state.hives.length+' '+(state.hives.length===1?'улей':'ульев');
-  $('homeWorkInspections').textContent=state.inspections.length+' '+(state.inspections.length===1?'осмотр':'осмотров');
-  $('homeWorkHoney').textContent=state.honey.length+' '+(state.honey.length===1?'партия':'партий');
+  setText('homeWorkHives',state.hives.length+' '+(state.hives.length===1?'улей':'ульев'));
+  setText('homeWorkInspections',state.inspections.length+' '+(state.inspections.length===1?'осмотр':'осмотров'));
+  setText('homeWorkHoney',state.honey.length+' '+(state.honey.length===1?'партия':'партий'));
   const openTasks=state.tasks.filter(t=>t.status!=='Выполнена');
-  $('homeWorkTasks').textContent=openTasks.length+' '+(openTasks.length===1?'задача':'задач');
+  setText('homeWorkTasks',openTasks.length+' '+(openTasks.length===1?'задача':'задач'));
   const todayTasks=openTasks.filter(t=>String(t.due_date||'').slice(0,10)===today());
   const nextTask=[...openTasks].filter(t=>t.due_date).sort((a,b)=>String(a.due_date).localeCompare(String(b.due_date)))[0];
-  $('todayFocus').innerHTML=todayTasks.length
+  const todayFocus= $('todayFocus'); if(todayFocus) todayFocus.innerHTML=todayTasks.length
     ? '🌤️ <strong>Сегодня:</strong> '+todayTasks.slice(0,3).map(t=>esc(eventTitle(t))).join(' · ')
     : nextTask
       ? '🌿 <strong>Ближайшее дело:</strong> '+esc(eventTitle(nextTask))+' — '+esc(nextTask.due_date)
@@ -592,14 +593,14 @@ function renderAll(){
   $('homeHoneyPreview').innerHTML=honeyRows.length
     ? '<table class="home-honey-table"><thead><tr><th>Продукт</th><th>Количество</th><th>Дата</th></tr></thead><tbody>'+honeyRows.map(h=>'<tr><td><b>'+esc(h.honey_type||'Мёд')+'</b></td><td>'+esc(h.quantity_kg??'')+' кг</td><td>'+esc(h.collection_date||'')+'</td></tr>').join('')+'</tbody></table>'
     : '<div class="empty">Партий мёда пока нет.</div>';
-  $('countHives').textContent=state.hives.length;
-  $('countInspections').textContent=state.inspections.length;
-  $('countHoney').textContent=state.honey.length;
-  $('countTasks').textContent=state.tasks.filter(x=>x.status!=='Выполнена').length;
-  $('statHives').textContent=state.hives.length;
-  $('statInspections').textContent=state.inspections.length;
-  $('statHoney').textContent=state.honey.length;
-  $('statFinance').textContent=state.finance.length;
+  setText('countHives',state.hives.length);
+  setText('countInspections',state.inspections.length);
+  setText('countHoney',state.honey.length);
+  setText('countTasks',state.tasks.filter(x=>x.status!=='Выполнена').length);
+  setText('statHives',state.hives.length);
+  setText('statInspections',state.inspections.length);
+  setText('statHoney',state.honey.length);
+  setText('statFinance',state.finance.length);
 
   const medicineToday=new Date(today()+'T00:00:00');
   const homeMedicineAlerts=state.medicines.map(m=>{
