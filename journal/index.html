@@ -707,6 +707,24 @@ function renderAll(){
   document.querySelectorAll('.disinfection-edit').forEach(b=>b.onclick=()=>editDisinfection(b.dataset.id));
   document.querySelectorAll('.disinfection-delete').forEach(b=>b.onclick=()=>deleteDisinfection(b.dataset.id));
 
+  const homeDisToday=new Date(today()+'T00:00:00');
+  const homeDisUpcoming=state.disinfection.map(x=>{
+    if(!x.next_date)return null;
+    const days=Math.ceil((new Date(String(x.next_date).slice(0,10)+'T00:00:00')-homeDisToday)/86400000);
+    return {x,days};
+  }).filter(Boolean).sort((a,b)=>a.days-b.days);
+  const recentDis=[...state.disinfection].sort((a,b)=>String(b.disinfection_date||'').localeCompare(String(a.disinfection_date||''))).slice(0,4);
+  $('homeDisinfectionAlerts').innerHTML = recentDis.length
+    ? '<div class="reminders-head"><div><span class="eyebrow">КОНТРОЛЬ ПАСЕКИ</span><h3>🧴 Дезинфекция</h3></div><button type="button" class="btn secondary" data-page="disinfection">Все</button></div>'
+      + recentDis.map(x=>{
+          const up=homeDisUpcoming.find(a=>String(a.x.id)===String(x.id));
+          const status=up ? (up.days<0?'🔴 просрочено':up.days===0?'🟠 сегодня':'🟡 след.: '+x.next_date) : '';
+          return '<div style="padding:7px 0;border-bottom:1px solid var(--line)">🧽 <b>'+esc(x.target_type||'')+'</b> — '+esc(x.disinfection_date||'')+'<div class="muted">'+esc(x.agent||'Средство не указано')+(status?' · '+esc(status):'')+'</div></div>';
+        }).join('')
+      + '<div class="muted" style="margin-top:8px">'+(homeDisUpcoming.length?'Ближайшая обработка: '+esc(homeDisUpcoming[0].x.next_date):'Ближайшая обработка не назначена')+'</div>'
+    : '<div class="reminders-head"><div><span class="eyebrow">КОНТРОЛЬ ПАСЕКИ</span><h3>🧴 Дезинфекция</h3></div><button type="button" class="btn secondary" data-page="disinfection">Открыть</button></div><div class="muted">Записей о дезинфекции пока нет.</div>';
+  document.querySelectorAll('#homeDisinfectionAlerts [data-page]').forEach(b=>b.onclick=()=>showPage(b.dataset.page));
+
   $('disinfectionForm').elements.apiary_id.innerHTML='<option value="">Не указана</option>'+state.apiaries.map(a=>'<option value="'+a.id+'">'+esc(a.name)+'</option>').join('');
   $('disinfectionForm').elements.hive_id.innerHTML='<option value="">Не указан</option>'+state.hives.map(h=>'<option value="'+h.id+'">№ '+esc(h.hive_number)+'</option>').join('');
   $('inspectionHive').innerHTML='<option value="">Выберите улей</option>'+state.hives.map(h=>'<option value="'+h.id+'">№ '+esc(h.hive_number)+'</option>').join('');
