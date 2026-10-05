@@ -140,14 +140,16 @@ h1{margin:0 0 6px;font-size:28px}.sub{color:var(--muted);margin:0 0 22px}
     <section id="page-hives" class="section">
       <h1>Ульи</h1><p class="sub">Учёт ульев и пчелиных семей.</p>
       <div class="panel">
-        <h3>Новый улей</h3>
+        <h3 id="hiveFormTitle">Новый улей</h3>
         <form id="hiveForm" class="form">
+          <input type="hidden" name="id">
+          <div class="field"><label>Пасека *</label><select name="apiary_id" required></select></div>
           <div class="field"><label>Номер улья *</label><input name="hive_number" required placeholder="Например, 1"></div>
           <div class="field"><label>Тип</label><input name="hive_type" placeholder="Дадан / Рута"></div>
           <div class="field"><label>Место</label><input name="location" placeholder="Ряд 1, место 3"></div>
           <div class="field"><label>Состояние</label><select name="status"><option>Активен</option><option>Зимовка</option><option>Пустой</option></select></div>
           <div class="field full"><label>Примечание</label><textarea name="notes"></textarea></div>
-          <div><button class="btn">Сохранить улей</button></div>
+          <div class="actions"><button class="btn" id="hiveSaveBtn">Сохранить улей</button><button type="button" class="btn secondary" id="hiveCancelBtn" style="display:none">Отмена</button></div>
         </form>
       </div>
       <div class="panel"><h3>Список ульев</h3><div id="hivesList" class="table-wrap"></div></div>
@@ -396,7 +398,8 @@ function renderAll(){
   $('recentInspections').innerHTML=state.inspections.slice(0,5).map(i=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>${esc(i.inspection_date)}</b> — улей ${esc(hiveMap[i.hive_id]||'')}</div>`).join('')||'<div class="empty">Осмотров пока нет.</div>';
   $('upcomingTasks').innerHTML=state.tasks.filter(t=>t.status!=='Выполнена').slice(0,5).map(t=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>${esc(t.due_date||'')}</b> — ${esc(t.title)}</div>`).join('')||'<div class="empty">Активных задач нет.</div>';
 
-  $('inspectionHive').innerHTML='<option value="">Выберите улей</option>'+state.hives.map(h=>`<option value="${h.id}">№ ${esc(h.hive_number)}</option>`).join('');
+  $('inspectionHive').innerHTML='<option value="">Выберите улей</option>'+state.hives.map(h=>'<option value="'+h.id+'">№ '+esc(h.hive_number)+'</option>').join('');
+  $('hiveForm').elements.apiary_id.innerHTML='<option value="">Выберите пасеку</option>'+state.apiaries.map(a=>'<option value="'+a.id+'">'+esc(a.name)+'</option>').join('');
 }
 async function insert(table,payload,form){
   const {error}=await db.from(table).insert(payload);
@@ -453,7 +456,42 @@ async function deleteApiary(id){
   if(error){toast('Ошибка: '+error.message);return}
   toast('Пасека удалена'); await loadAll();
 }
-$('hiveForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);insert('hives',{hive_number:d.hive_number,hive_type:d.hive_type,location:d.location,status:d.status,notes:d.notes},e.target)};
+$('hiveForm').onsubmit=async e=>{
+  e.preventDefault();
+  const f=e.target,d=formData(f);
+  if(d.id){
+    const old=state.hives.find(x=>String(x.id)===String(d.id));
+    const moved=old && String(old.apiary_id||'')!==String(d.apiary_id||'');
+    const {error}=await db.from('hives').update({apiary_id:d.apiary_id,hive_number:d.hive_number,hive_type:d.hive_type,location:d.location,status:d.status,notes:d.notes}).eq('id',d.id);
+    if(error){toast('Ошибка: '+error.message);return}
+    toast(moved?'Улей перемещён на другую пасеку':'Улей изменён');
+  }else{
+    const {error}=await db.from('hives').insert({apiary_id:d.apiary_id,hive_number:d.hive_number,hive_type:d.hive_type,location:d.location,status:d.status,notes:d.notes});
+    if(error){toast('Ошибка: '+error.message);return}
+    toast('Улей добавлен');
+  }
+  resetHiveForm(); await loadAll();
+};
+function resetHiveForm(){
+  const f=$('hiveForm'); f.reset(); f.elements.id.value='';
+  $('hiveSaveBtn').textContent='Сохранить улей'; $('hiveCancelBtn').style.display='none'; $('hiveFormTitle').textContent='Новый улей';
+}
+function editHive(id){
+  const h=state.hives.find(x=>String(x.id)===String(id)); if(!h)return;
+  const f=$('hiveForm');
+  f.elements.id.value=h.id; f.elements.apiary_id.value=h.apiary_id||''; f.elements.hive_number.value=h.hive_number||'';
+  f.elements.hive_type.value=h.hive_type||''; f.elements.location.value=h.location||''; f.elements.status.value=h.status||'Активен'; f.elements.notes.value=h.notes||'';
+  $('hiveSaveBtn').textContent='Сохранить изменения'; $('hiveCancelBtn').style.display='inline-block'; $('hiveFormTitle').textContent='Изменить улей';
+  f.scrollIntoView({behavior:'smooth',block:'center'});
+}
+async function deleteHive(id){
+  const h=state.hives.find(x=>String(x.id)===String(id)); if(!h)return;
+  if(!confirm('Удалить улей №'+(h.hive_number||'')+'?'))return;
+  const {error}=await db.from('hives').delete().eq('id',id);
+  if(error){toast('Ошибка: '+error.message);return}
+  toast('Улей удалён'); await loadAll();
+}
+$('hiveCancelBtn').onclick=resetHiveForm;
 $('inspectionForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);insert('inspections',{hive_id:d.hive_id,inspection_date:d.inspection_date,colony_strength:d.colony_strength,queen_status:d.queen_status,brood:d.brood,feed:d.feed,notes:d.notes},e.target)};
 $('honeyForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);insert('honey_batches',{batch_number:d.batch_number,honey_type:d.honey_type,collection_date:d.collection_date||null,quantity_kg:d.quantity_kg?Number(d.quantity_kg):null,price_per_kg:d.price_per_kg?Number(d.price_per_kg):null,collection_place:d.collection_place,notes:d.notes},e.target)};
 $('financeForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);insert('finances',{operation_date:d.operation_date,operation_type:d.operation_type,amount:Number(d.amount),category:d.category,description:d.description},e.target)};
