@@ -1,126 +1,352 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0d3825">
+<meta name="theme-color" content="#d8a32b">
 <meta name="description" content="Цифровой журнал пасечника — Дедушкина пасека">
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐝</text></svg>">
-<title>Дедушкина пасека — цифровой журнал</title>
+<title>Дедушкина пасека — Цифровой журнал</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{--green:#103a27;--green2:#1d6337;--gold:#d5a72b;--cream:#f7f0dc;--paper:#fffdf6;--ink:#25352b;--muted:#7a847c;--line:#e5ddc8;--red:#c9533c;--shadow:0 10px 28px rgba(29,52,36,.10)}
-*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--cream);color:var(--ink)}button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}.app{min-height:100vh;display:flex}.sidebar{width:260px;background:linear-gradient(180deg,#0d3825,#123d2a 65%,#0a2b1d);color:#fff;position:fixed;inset:0 auto 0 0;padding:22px 14px;z-index:20}.brand{display:flex;gap:12px;align-items:center;padding:0 10px 24px;border-bottom:1px solid rgba(255,255,255,.12)}.brand-b{font-size:38px}.brand strong{display:block;font-family:Georgia,serif;font-size:22px;color:#f4d477}.brand span{font-size:12px;color:#d6e1d9}.nav{padding-top:18px}.nav button{width:100%;padding:12px 14px;margin:3px 0;border-radius:12px;background:transparent;color:#dce8df;text-align:left;display:flex;gap:12px;align-items:center}.nav button.active,.nav button:hover{background:#d5a72b;color:#182a20}.main{margin-left:260px;flex:1;min-width:0}.topbar{height:72px;background:rgba(255,253,246,.95);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:10}.search{width:min(360px,45vw);background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 14px}.profile{font-size:14px}.content{padding:28px;max-width:1500px;margin:auto}.hero{border-radius:20px;min-height:230px;padding:30px;color:white;background:linear-gradient(90deg,rgba(10,46,29,.94),rgba(10,46,29,.55)),url('assets/hero.svg') center/cover;display:flex;flex-direction:column;justify-content:center}.hero h1{font-family:Georgia,serif;font-size:34px;margin:0 0 8px}.hero p{max-width:650px;color:#eef4ef}.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin:18px 0}.card{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--shadow)}.stat .icon{font-size:26px}.stat .num{font-size:25px;font-weight:800;margin-top:7px}.stat small{color:var(--muted)}.grid{display:grid;grid-template-columns:1.35fr 1fr 1fr;gap:18px}.card h2{font-size:18px;margin:0 0 15px}.list{display:flex;flex-direction:column;gap:11px}.row{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}.row:last-child{border-bottom:0}.thumb{width:48px;height:48px;border-radius:12px;background:#e9e0c6;display:grid;place-items:center;font-size:24px}.row .grow{flex:1}.row strong{display:block}.muted{color:var(--muted);font-size:13px}.pill{padding:5px 8px;border-radius:999px;background:#e5f1e7;color:#23643a;font-size:12px}.warning{background:#fff1dc;color:#9a6114}.danger{background:#fde8e4;color:#a23d2e}.btn{background:var(--green2);color:#fff;padding:11px 15px;border-radius:11px;font-weight:700}.btn.gold{background:var(--gold);color:#182a20}.btn.ghost{background:#f3eddc;color:var(--green)}.actions{display:flex;gap:8px;flex-wrap:wrap}.section{display:none}.section.active{display:block}.toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:10px}.toolbar h1{font-family:Georgia,serif;margin:0}.table{width:100%;border-collapse:collapse}.table th,.table td{padding:12px;border-bottom:1px solid var(--line);text-align:left}.table th{font-size:12px;color:var(--muted);text-transform:uppercase}.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;padding:18px;z-index:50}.modal.open{display:flex}.modalbox{background:var(--paper);width:min(680px,100%);max-height:90vh;overflow:auto;border-radius:18px;padding:22px}.form{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{display:flex;flex-direction:column;gap:6px}.field.full{grid-column:1/-1}.field input,.field select,.field textarea{padding:11px;border:1px solid var(--line);border-radius:10px;background:#fff}.mobile-nav{display:none}.empty{padding:30px;text-align:center;color:var(--muted)}
-@media(max-width:1000px){.sidebar{width:220px}.main{margin-left:220px}.stats{grid-template-columns:repeat(3,1fr)}.grid{grid-template-columns:1fr 1fr}.grid .wide{grid-column:1/-1}}
-@media(max-width:700px){.sidebar{display:none}.main{margin-left:0;padding-bottom:72px}.topbar{height:62px;padding:0 14px}.search{width:42vw}.content{padding:14px}.hero{min-height:210px;padding:22px}.hero h1{font-size:27px}.stats{grid-template-columns:repeat(2,1fr);gap:9px}.stat{padding:13px}.stat .num{font-size:21px}.grid{grid-template-columns:1fr}.mobile-nav{display:flex;position:fixed;bottom:0;left:0;right:0;height:68px;background:#fffdf6;border-top:1px solid var(--line);z-index:30;justify-content:space-around;padding-bottom:env(safe-area-inset-bottom)}.mobile-nav button{background:none;color:var(--muted);font-size:11px;display:flex;flex-direction:column;align-items:center;gap:3px}.mobile-nav button.active{color:var(--green2);font-weight:800}.form{grid-template-columns:1fr}.field.full{grid-column:auto}.toolbar{align-items:flex-start;flex-direction:column}.table{font-size:13px}.table th:nth-child(4),.table td:nth-child(4){display:none}}
+:root{--green:#103a27;--green2:#1d6337;--gold:#d5a72b;--cream:#fffaf0;--paper:#fff;--ink:#25352b;--muted:#708078;--line:#e5e0d5;--danger:#b23a2b}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--cream);color:var(--ink)}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.app{min-height:100vh;display:flex}
+.sidebar{width:250px;background:var(--green);color:#fff;padding:18px 14px;position:fixed;left:0;top:0;bottom:0;overflow:auto}
+.brand{display:flex;gap:10px;align-items:center;padding:8px 8px 20px;border-bottom:1px solid rgba(255,255,255,.15)}
+.brand-b{font-size:30px}.brand strong{display:block;font-size:17px}.brand span{font-size:12px;color:#d9eadf}
+.nav{padding-top:14px}.nav button{width:100%;border:0;background:transparent;color:#eaf4ed;text-align:left;padding:12px;border-radius:10px;margin:2px 0}
+.nav button:hover,.nav button.active{background:rgba(255,255,255,.13)}
+.main{margin-left:250px;min-width:0;flex:1}
+.topbar{height:64px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:10px 24px;position:sticky;top:0;z-index:5}
+.search{flex:1;max-width:560px;border:1px solid var(--line);border-radius:10px;padding:10px 13px}
+.profile{margin-left:auto;display:flex;align-items:center;gap:8px}
+.status-dot{width:9px;height:9px;border-radius:50%;background:#36a65a;display:inline-block}
+.content{padding:24px;max-width:1400px;margin:auto}
+.section{display:none}.section.active{display:block}
+h1{margin:0 0 6px;font-size:28px}.sub{color:var(--muted);margin:0 0 22px}
+.hero{background:linear-gradient(135deg,#fff 0%,#fff8df 100%);border:1px solid var(--line);border-radius:18px;padding:24px;margin-bottom:20px}
+.hero h2{margin:0 0 6px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:0 3px 12px rgba(36,50,40,.04)}
+.card .big{font-size:30px;font-weight:750;margin-top:8px}.muted{color:var(--muted);font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;margin-top:18px}
+.panel h3{margin:0 0 14px}
+.table-wrap{overflow:auto}.table{width:100%;border-collapse:collapse}.table th,.table td{padding:11px 9px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+.btn{border:0;border-radius:9px;padding:10px 14px;background:var(--green2);color:#fff}.btn.secondary{background:#eee9dc;color:var(--ink)}.btn.gold{background:var(--gold);color:#2e250c}.btn.danger{background:var(--danger)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field{display:flex;flex-direction:column;gap:5px}.field.full{grid-column:1/-1}.field label{font-size:13px;color:var(--muted)}.field input,.field select,.field textarea{border:1px solid var(--line);border-radius:9px;padding:10px;background:#fff}.field textarea{min-height:90px;resize:vertical}
+.empty{padding:25px;text-align:center;color:var(--muted)}
+#auth{position:fixed;inset:0;background:linear-gradient(135deg,#103a27,#1d6337);display:none;align-items:center;justify-content:center;padding:20px;z-index:20}
+.authbox{width:min(430px,100%);background:#fff;border-radius:18px;padding:26px;box-shadow:0 20px 70px rgba(0,0,0,.25)}
+.authbox h1{color:var(--green);font-size:25px}.authbox .field{margin-top:12px}
+.auth-message{min-height:22px;color:var(--danger);font-size:13px;margin:10px 0}
+.toast{position:fixed;right:18px;bottom:18px;background:var(--green);color:#fff;padding:12px 16px;border-radius:10px;display:none;z-index:30}
+.loading{opacity:.6;pointer-events:none}
+@media(max-width:1000px){.cards{grid-template-columns:repeat(2,1fr)}.sidebar{width:220px}.main{margin-left:220px}}
+@media(max-width:700px){.app{display:block}.sidebar{position:static;width:100%;padding:10px}.brand{padding-bottom:10px}.nav{display:flex;overflow:auto;gap:4px}.nav button{white-space:nowrap;width:auto}.main{margin-left:0}.topbar{position:static;padding:10px 14px}.search{max-width:none}.profile span:not(.status-dot){display:none}.content{padding:15px}.cards,.grid,.form{grid-template-columns:1fr}.hero{padding:18px}h1{font-size:24px}.panel{padding:14px}}
 </style>
 </head>
 <body>
-<div class="app">
+
+<div id="auth">
+  <div class="authbox">
+    <h1>🐝 Дедушкина пасека</h1>
+    <p class="sub">Вход в цифровой журнал пасечника</p>
+    <div class="field"><label>Email</label><input id="authEmail" type="email" placeholder="Ваш email"></div>
+    <div class="field"><label>Пароль</label><input id="authPassword" type="password" placeholder="Не менее 6 символов"></div>
+    <div class="auth-message" id="authMessage"></div>
+    <div class="actions">
+      <button class="btn" id="loginBtn">Войти</button>
+      <button class="btn secondary" id="signupBtn">Регистрация</button>
+    </div>
+    <div class="muted">Для работы с журналом используется ваш аккаунт Supabase.</div>
+  </div>
+</div>
+
+<div class="app" id="app">
 <aside class="sidebar">
   <div class="brand"><div class="brand-b">🐝</div><div><strong>Дедушкина пасека</strong><span>Цифровой журнал пасечника</span></div></div>
   <nav class="nav">
-    <button data-page="home" class="active">🏠 Главная</button><button data-page="apiaries">🏡 Мои пасеки</button><button data-page="hives">🐝 Ульи</button><button data-page="inspections">📋 Журнал осмотров</button><button data-page="calendar">📅 Календарь</button><button data-page="honey">🍯 Мёд и продукция</button><button data-page="finance">💰 Финансы</button><button data-page="photos">📷 Фотографии</button><button data-page="stats">📊 Статистика</button><button data-page="reminders">🔔 Напоминания</button><button data-page="settings">⚙ Настройки</button>
+    <button class="active" data-page="home">🏠 Главная</button>
+    <button data-page="apiaries">🍯 Мои пасеки</button>
+    <button data-page="hives">⬡ Ульи</button>
+    <button data-page="inspections">📋 Осмотры</button>
+    <button data-page="calendar">📅 Календарь</button>
+    <button data-page="honey">🍯 Мёд / партии</button>
+    <button data-page="finances">💰 Финансы</button>
+    <button data-page="tasks">🔔 Напоминания</button>
+    <button data-page="photos">📷 Фото</button>
+    <button data-page="stats">📊 Статистика</button>
+    <button data-page="settings">⚙️ Настройки</button>
   </nav>
 </aside>
+
 <main class="main">
-<header class="topbar"><input id="search" class="search" placeholder="Поиск по журналу…"><div class="profile"><span id="cloudStatus">☁️ Подключение…</span> <button class="btn ghost" onclick="openLogin()">Облако</button> 🔔 <b>Артур Абрамович</b></div></header>
-<div class="content">
-<section id="home" class="section active">
- <div class="hero"><h1>Добро пожаловать на Дедушкину пасеку!</h1><p>Ваш цифровой журнал: ульи, осмотры, урожай мёда, задачи и история каждой пчелиной семьи — в одном месте.</p><div class="actions"><button class="btn gold" onclick="openInspection()">＋ Новый осмотр</button><button class="btn" onclick="go('honey')">🍯 Добавить партию мёда</button></div></div>
- <div class="stats"><div class="card stat"><div class="icon">🏠</div><div class="num" id="sHives">35</div><small>ульев</small></div><div class="card stat"><div class="icon">🐝</div><div class="num">31</div><small>пчелиная семья</small></div><div class="card stat"><div class="icon">🍯</div><div class="num" id="sHoney">427 кг</div><small>мёда получено</small></div><div class="card stat"><div class="icon">💰</div><div class="num">8 650</div><small>руб. выручка</small></div><div class="card stat"><div class="icon">📅</div><div class="num" id="sTasks">3</div><small>задачи сегодня</small></div></div>
- <div class="grid"><div class="card wide"><h2>Последние записи</h2><div id="recent" class="list"></div></div><div class="card"><h2>Производство мёда</h2><div style="font-size:13px;color:var(--muted);margin-bottom:8px">кг за сезон</div><div style="height:190px;display:flex;align-items:end;gap:18px;padding:10px 8px 0;border-bottom:1px solid var(--line)"><div style="height:58%;flex:1;background:#8bc9a0;border-radius:8px 8px 0 0;position:relative"><b style="position:absolute;top:-24px;width:100%;text-align:center">310</b></div><div style="height:71%;flex:1;background:#d9b447;border-radius:8px 8px 0 0;position:relative"><b style="position:absolute;top:-24px;width:100%;text-align:center">380</b></div><div style="height:80%;flex:1;background:#4c9d55;border-radius:8px 8px 0 0;position:relative"><b style="position:absolute;top:-24px;width:100%;text-align:center">427</b></div></div><div style="display:flex;justify-content:space-around;color:var(--muted);font-size:12px;margin-top:8px"><span>2024</span><span>2025</span><span>2026</span></div></div><div class="card"><h2>Работы на сегодня</h2><div class="list"><div class="row"><span>☑️</span><div class="grow"><strong>Осмотр ульев</strong><span class="muted">3 улья</span></div></div><div class="row"><span>☐</span><div class="grow"><strong>Проверка кормов</strong><span class="muted">12 ульев</span></div></div><div class="row"><span>☐</span><div class="grow"><strong>Подготовка к зиме</strong><span class="muted">вся пасека</span></div></div></div></div></div>
-</section>
-<section id="hives" class="section"><div class="toolbar"><h1>🐝 Ульи</h1><button class="btn" onclick="addHive()">＋ Добавить улей</button></div><div class="card"><table class="table"><thead><tr><th>Улей</th><th>Статус</th><th>Матка</th><th>Последний осмотр</th></tr></thead><tbody id="hiveRows"></tbody></table></div></section>
-<section id="inspections" class="section"><div class="toolbar"><h1>📋 Журнал осмотров</h1><button class="btn" onclick="openInspection()">＋ Новый осмотр</button></div><div class="card"><div id="inspectionList"></div></div></section>
-<section id="calendar" class="section"><div class="toolbar"><h1>📅 Календарь</h1><button class="btn" onclick="addTask()">＋ Задача</button></div><div class="card"><h2>Октябрь 2026</h2><div class="list" id="tasks"></div></div></section>
-<section id="honey" class="section"><div class="toolbar"><h1>🍯 Мёд и продукция</h1><button class="btn" onclick="addHoney()">＋ Новая партия</button></div><div class="card"><table class="table"><thead><tr><th>Партия</th><th>Продукт</th><th>Количество</th><th>Сбор</th></tr></thead><tbody id="honeyRows"></tbody></table></div></section>
-<section id="finance" class="section"><div class="toolbar"><h1>💰 Финансы</h1></div><div class="stats"><div class="card stat"><small>Выручка</small><div class="num">8 650 руб.</div></div><div class="card stat"><small>Расходы</small><div class="num">1 840 руб.</div></div><div class="card stat"><small>Прибыль</small><div class="num">6 810 руб.</div></div></div><div class="card"><h2>Последние расходы</h2><div class="list"><div class="row"><span>🟩</span><div class="grow"><strong>Корм</strong><span class="muted">720 руб.</span></div></div><div class="row"><span>🟨</span><div class="grow"><strong>Лекарства</strong><span class="muted">310 руб.</span></div></div><div class="row"><span>🟧</span><div class="grow"><strong>Рамки и вощина</strong><span class="muted">540 руб.</span></div></div></div></div></section>
-<section id="photos" class="section"><div class="toolbar"><h1>📷 Фотографии</h1></div><div class="card"><div class="empty">Фотографии будут привязываться к ульям, осмотрам и партиям мёда. В следующей версии добавим загрузку фото с камеры телефона.</div></div></section>
-<section id="stats" class="section"><div class="toolbar"><h1>📊 Статистика</h1></div><div class="stats"><div class="card stat"><small>Средний выход</small><div class="num">12,2 кг</div><small>на семью</small></div><div class="card stat"><small>Семьи</small><div class="num">31</div><small>в сезоне 2026</small></div><div class="card stat"><small>Рост урожая</small><div class="num">+12%</div><small>к 2025 году</small></div></div><div class="card"><h2>Урожай по годам</h2><p>2024 — 310 кг</p><p>2025 — 380 кг</p><p><b>2026 — 427 кг</b></p></div></section>
-<section id="reminders" class="section"><div class="toolbar"><h1>🔔 Напоминания</h1><button class="btn" onclick="addTask()">＋ Добавить</button></div><div class="card"><div class="list" id="reminderList"></div></div></section>
-<section id="apiaries" class="section"><div class="toolbar"><h1>🏡 Мои пасеки</h1></div><div class="card"><h2>Пасека №1 — «Дедушкина пасека»</h2><p class="muted">Клецкий район</p><p>35 ульев · 31 семья</p></div></section>
-<section id="settings" class="section"><div class="toolbar"><h1>⚙ Настройки</h1></div><div class="card"><h2>Пасека</h2><div class="form"><label class="field"><span>Название</span><input value="Дедушкина пасека"></label><label class="field"><span>Район</span><input value="Клецкий район"></label><label class="field"><span>Владелец</span><input value="Абрамович А.Н."></label><label class="field"><span>Валюта</span><select><option>Белорусский рубль (BYN)</option><option>Евро (EUR)</option></select></label></div><div style="margin-top:16px" class="actions"><button class="btn" onclick="alert('Настройки сохранены на этом устройстве')">Сохранить</button><button class="btn ghost" onclick="exportData()">Экспорт данных</button><button class="btn ghost" onclick="openLogin()">☁️ Облачная синхронизация</button></div></div></section>
-</div></main>
-<nav class="mobile-nav"><button data-page="home" class="active">🏠<span>Главная</span></button><button data-page="hives">🐝<span>Ульи</span></button><button data-page="inspections">📋<span>Осмотры</span></button><button data-page="honey">🍯<span>Мёд</span></button><button data-page="settings">☰<span>Ещё</span></button></nav>
+  <header class="topbar">
+    <input id="search" class="search" placeholder="Поиск по журналу...">
+    <div class="profile"><span class="status-dot"></span><span id="userEmail">...</span><button class="btn secondary" id="logoutBtn">Выйти</button></div>
+  </header>
+
+  <div class="content">
+    <section id="page-home" class="section active">
+      <div class="hero">
+        <h2>Добро пожаловать на пасеку 🐝</h2>
+        <p class="sub">Цифровой журнал пасечника «Дедушкина пасека» — Клецкий район.</p>
+        <div class="actions"><button class="btn gold" data-page="hives">Добавить улей</button><button class="btn secondary" data-page="inspections">Записать осмотр</button><button class="btn secondary" data-page="honey">Добавить партию мёда</button></div>
+      </div>
+      <div class="cards">
+        <div class="card"><div class="muted">Ульев</div><div class="big" id="countHives">0</div></div>
+        <div class="card"><div class="muted">Осмотров</div><div class="big" id="countInspections">0</div></div>
+        <div class="card"><div class="muted">Партий мёда</div><div class="big" id="countHoney">0</div></div>
+        <div class="card"><div class="muted">Задач</div><div class="big" id="countTasks">0</div></div>
+      </div>
+      <div class="grid">
+        <div class="panel"><h3>Последние осмотры</h3><div id="recentInspections" class="empty">Загрузка...</div></div>
+        <div class="panel"><h3>Ближайшие задачи</h3><div id="upcomingTasks" class="empty">Загрузка...</div></div>
+      </div>
+    </section>
+
+    <section id="page-apiaries" class="section">
+      <h1>Мои пасеки</h1><p class="sub">Пасеки и основные сведения о них.</p>
+      <div class="panel"><h3>Пасеки</h3><div id="apiariesList" class="empty">Загрузка...</div></div>
+    </section>
+
+    <section id="page-hives" class="section">
+      <h1>Ульи</h1><p class="sub">Учёт ульев и пчелиных семей.</p>
+      <div class="panel">
+        <h3>Новый улей</h3>
+        <form id="hiveForm" class="form">
+          <div class="field"><label>Номер улья *</label><input name="hive_number" required placeholder="Например, 1"></div>
+          <div class="field"><label>Тип</label><input name="hive_type" placeholder="Дадан / Рута"></div>
+          <div class="field"><label>Место</label><input name="location" placeholder="Ряд 1, место 3"></div>
+          <div class="field"><label>Состояние</label><select name="status"><option>Активен</option><option>Зимовка</option><option>Пустой</option></select></div>
+          <div class="field full"><label>Примечание</label><textarea name="notes"></textarea></div>
+          <div><button class="btn">Сохранить улей</button></div>
+        </form>
+      </div>
+      <div class="panel"><h3>Список ульев</h3><div id="hivesList" class="table-wrap"></div></div>
+    </section>
+
+    <section id="page-inspections" class="section">
+      <h1>Журнал осмотров</h1><p class="sub">Записывайте состояние семей, маток, расплода, корма и работы.</p>
+      <div class="panel">
+        <h3>Новый осмотр</h3>
+        <form id="inspectionForm" class="form">
+          <div class="field"><label>Улей *</label><select name="hive_id" id="inspectionHive" required></select></div>
+          <div class="field"><label>Дата *</label><input name="inspection_date" type="date" required></div>
+          <div class="field"><label>Состояние семьи</label><input name="colony_strength" placeholder="Сильная / средняя / слабая"></div>
+          <div class="field"><label>Матка</label><input name="queen_status" placeholder="Есть / нет / молодая"></div>
+          <div class="field"><label>Расплод</label><input name="brood" placeholder="Хороший / слабый"></div>
+          <div class="field"><label>Корм</label><input name="feed" placeholder="Мёд / сироп / перга"></div>
+          <div class="field full"><label>Заметки</label><textarea name="notes"></textarea></div>
+          <div><button class="btn">Сохранить осмотр</button></div>
+        </form>
+      </div>
+      <div class="panel"><h3>История осмотров</h3><div id="inspectionsList" class="table-wrap"></div></div>
+    </section>
+
+    <section id="page-calendar" class="section">
+      <h1>Календарь</h1><p class="sub">Работы и события пасеки.</p>
+      <div class="panel"><div id="calendarTasks" class="table-wrap"></div></div>
+    </section>
+
+    <section id="page-honey" class="section">
+      <h1>Мёд / партии</h1><p class="sub">Учёт урожая, партий и продукции «Дедушкиной пасеки».</p>
+      <div class="panel">
+        <h3>Новая партия</h3>
+        <form id="honeyForm" class="form">
+          <div class="field"><label>Номер партии *</label><input name="batch_number" required placeholder="2026-001"></div>
+          <div class="field"><label>Название мёда *</label><input name="honey_type" required placeholder="Мёд разнотравье"></div>
+          <div class="field"><label>Дата сбора</label><input name="collection_date" type="date"></div>
+          <div class="field"><label>Объём, кг</label><input name="quantity_kg" type="number" step="0.01"></div>
+          <div class="field"><label>Цена за кг</label><input name="price_per_kg" type="number" step="0.01"></div>
+          <div class="field"><label>Место сбора</label><input name="collection_place" value="Клецкий район"></div>
+          <div class="field full"><label>Примечание</label><textarea name="notes"></textarea></div>
+          <div><button class="btn">Сохранить партию</button></div>
+        </form>
+      </div>
+      <div class="panel"><h3>Партии мёда</h3><div id="honeyList" class="table-wrap"></div></div>
+    </section>
+
+    <section id="page-finances" class="section">
+      <h1>Финансы</h1><p class="sub">Доходы и расходы пасеки.</p>
+      <div class="panel">
+        <h3>Новая операция</h3>
+        <form id="financeForm" class="form">
+          <div class="field"><label>Дата *</label><input name="operation_date" type="date" required></div>
+          <div class="field"><label>Тип</label><select name="operation_type"><option>Расход</option><option>Доход</option></select></div>
+          <div class="field"><label>Сумма *</label><input name="amount" type="number" step="0.01" required></div>
+          <div class="field"><label>Категория</label><input name="category" placeholder="Инвентарь, мёд, упаковка..."></div>
+          <div class="field full"><label>Описание</label><input name="description"></div>
+          <div><button class="btn">Сохранить</button></div>
+        </form>
+      </div>
+      <div class="panel"><h3>Операции</h3><div id="financeList" class="table-wrap"></div></div>
+    </section>
+
+    <section id="page-tasks" class="section">
+      <h1>Напоминания</h1><p class="sub">Работы, которые нельзя забыть.</p>
+      <div class="panel">
+        <h3>Новое напоминание</h3>
+        <form id="taskForm" class="form">
+          <div class="field"><label>Название *</label><input name="title" required placeholder="Проверить корм"></div>
+          <div class="field"><label>Дата</label><input name="due_date" type="date"></div>
+          <div class="field"><label>Приоритет</label><select name="priority"><option>Обычный</option><option>Высокий</option><option>Низкий</option></select></div>
+          <div class="field"><label>Статус</label><select name="status"><option>Открыта</option><option>Выполнена</option></select></div>
+          <div class="field full"><label>Описание</label><textarea name="description"></textarea></div>
+          <div><button class="btn">Сохранить</button></div>
+        </form>
+      </div>
+      <div class="panel"><h3>Список задач</h3><div id="tasksList" class="table-wrap"></div></div>
+    </section>
+
+    <section id="page-photos" class="section">
+      <h1>Фото</h1><p class="sub">Раздел подготовлен для хранения фотографий ульев, семей и партий.</p>
+      <div class="panel"><div class="empty">Загрузка фотографий будет добавлена следующим этапом.</div></div>
+    </section>
+
+    <section id="page-stats" class="section">
+      <h1>Статистика</h1><p class="sub">Основные показатели журнала.</p>
+      <div class="cards">
+        <div class="card"><div class="muted">Всего ульев</div><div class="big" id="statHives">0</div></div>
+        <div class="card"><div class="muted">Всего осмотров</div><div class="big" id="statInspections">0</div></div>
+        <div class="card"><div class="muted">Партий мёда</div><div class="big" id="statHoney">0</div></div>
+        <div class="card"><div class="muted">Финансовых операций</div><div class="big" id="statFinance">0</div></div>
+      </div>
+    </section>
+
+    <section id="page-settings" class="section">
+      <h1>Настройки</h1><p class="sub">Подключение и информация о журнале.</p>
+      <div class="panel">
+        <h3>Общие сведения</h3>
+        <p><b>Пасека:</b> Дедушкина пасека</p>
+        <p><b>Район:</b> Клецкий район</p>
+        <p><b>База данных:</b> Supabase</p>
+        <p><b>Режим:</b> облачный журнал</p>
+        <button class="btn secondary" id="refreshBtn">Обновить данные</button>
+      </div>
+    </section>
+  </div>
+</main>
 </div>
-<div class="modal" id="modal"><div class="modalbox" id="modalbox"></div></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<div class="toast" id="toast"></div>
+
 <script>
-const SUPABASE_URL="https://owpzcjvseleqeqibwuqj.supabase.co";
-const SUPABASE_KEY="sb_publishable_1eM3o5IehFq-IvjWkHLiCA_RMXGHfw5";
-const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-let cloudUser=null;
-const KEY='dpj-data-v1';let data=JSON.parse(localStorage.getItem(KEY)||'null')||{hives:Array.from({length:35},(_,i)=>({n:i+1,status:i===3?'Требует внимания':i%5===0?'Средняя':'Сильная семья',queen:i%4===0?'2025 г.':'2026 г.',last:i<4?'05.10.2026':'—'})),inspections:[{date:'05.10.2026',hive:17,text:'Семья сильная, матка есть, корм достаточно.'},{date:'04.10.2026',hive:8,text:'Подкормка. Сироп 1:1, 2 литра.'},{date:'03.10.2026',hive:23,text:'Поставлена матка 2026 года.'}],honey:[{batch:'2026-001',product:'Мёд разнотравье',qty:126,collect:'Июнь–июль 2026'},{batch:'2026-002',product:'Лесной мёд',qty:98,collect:'Июнь–август 2026'},{batch:'2026-003',product:'Майский мёд',qty:74,collect:'Май 2026'}],tasks:[{date:'05.10',title:'Осмотр ульев',info:'3 улья',done:true},{date:'08.10',title:'Проверить корм',info:'12 ульев',done:false},{date:'15.10',title:'Подготовка к зиме',info:'Вся пасека',done:false}]};
-async function save(){localStorage.setItem(KEY,JSON.stringify(data));render(); if(cloudUser) await syncToCloud().catch(e=>console.warn('Cloud sync',e))}
-function go(page){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.getElementById(page).classList.add('active');document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===page));window.scrollTo(0,0)}
-document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>go(b.dataset.page));
-function render(){document.getElementById('sHives').textContent=data.hives.length;document.getElementById('sTasks').textContent=data.tasks.filter(x=>!x.done).length;document.getElementById('recent').innerHTML=data.inspections.slice(0,5).map(x=>`<div class="row"><div class="thumb">🐝</div><div class="grow"><strong>Улей №${x.hive}</strong><span class="muted">${x.date} · ${x.text}</span></div></div>`).join('');document.getElementById('hiveRows').innerHTML=data.hives.map(x=>`<tr><td><b>№${String(x.n).padStart(2,'0')}</b></td><td><span class="pill ${x.status.includes('вним')?'danger':x.status.includes('Сред')?'warning':''}">${x.status}</span></td><td>${x.queen}</td><td>${x.last}</td></tr>`).join('');document.getElementById('inspectionList').innerHTML=data.inspections.map(x=>`<div class="row"><div class="thumb">📋</div><div class="grow"><strong>${x.date} · Улей №${x.hive}</strong><span class="muted">${x.text}</span></div></div>`).join('');document.getElementById('honeyRows').innerHTML=data.honey.map(x=>`<tr><td><b>${x.batch}</b></td><td>${x.product}</td><td>${x.qty} кг</td><td>${x.collect}</td></tr>`).join('');document.getElementById('tasks').innerHTML=data.tasks.map((x,i)=>`<div class="row"><button onclick="toggleTask(${i})" style="background:none;font-size:20px">${x.done?'☑️':'☐'}</button><div class="grow"><strong>${x.date} — ${x.title}</strong><span class="muted">${x.info}</span></div></div>`).join('');document.getElementById('reminderList').innerHTML=document.getElementById('tasks').innerHTML}
-function openModal(html){document.getElementById('modalbox').innerHTML=html;document.getElementById('modal').classList.add('open')}function closeModal(){document.getElementById('modal').classList.remove('open')}document.getElementById('modal').onclick=e=>{if(e.target.id==='modal')closeModal()}
-function openInspection(){openModal(`<div class="toolbar"><h1>Новый осмотр</h1><button class="btn ghost" onclick="closeModal()">Закрыть</button></div><div class="form"><label class="field"><span>Улей</span><select id="fHive">${data.hives.map(h=>`<option>${h.n}</option>`).join('')}</select></label><label class="field"><span>Дата</span><input id="fDate" value="05.10.2026"></label><label class="field full"><span>Состояние семьи</span><select id="fState"><option>Сильная семья</option><option>Средняя</option><option>Требует внимания</option></select></label><label class="field full"><span>Заметки</span><textarea id="fText" rows="5" placeholder="Что обнаружили при осмотре?"></textarea></label></div><div style="margin-top:16px"><button class="btn" onclick="saveInspection()">Сохранить осмотр</button></div>`)}
-function saveInspection(){data.inspections.unshift({date:document.getElementById('fDate').value,hive:document.getElementById('fHive').value,text:document.getElementById('fText').value||document.getElementById('fState').value});closeModal();save();go('inspections')}
-function addHive(){openModal(`<div class="toolbar"><h1>Новый улей</h1><button class="btn ghost" onclick="closeModal()">Закрыть</button></div><div class="form"><label class="field"><span>Номер улья</span><input id="hn" value="${data.hives.length+1}"></label><label class="field"><span>Статус</span><select id="hs"><option>Сильная семья</option><option>Средняя</option><option>Требует внимания</option></select></label></div><div style="margin-top:16px"><button class="btn" onclick="data.hives.push({n:Number(document.getElementById('hn').value),status:document.getElementById('hs').value,queen:'—',last:'—'});closeModal();save();go('hives')">Добавить</button></div>`)}
-function addHoney(){openModal(`<div class="toolbar"><h1>Новая партия мёда</h1><button class="btn ghost" onclick="closeModal()">Закрыть</button></div><div class="form"><label class="field"><span>Партия</span><input id="hb" value="2026-004"></label><label class="field"><span>Количество, кг</span><input id="hq" type="number" value="0"></label><label class="field full"><span>Продукт</span><input id="hp" value="Мёд разнотравье"></label></div><div style="margin-top:16px"><button class="btn" onclick="data.honey.push({batch:hb.value,product:hp.value,qty:Number(hq.value),collect:'указать'});closeModal();save();go('honey')">Добавить партию</button></div>`)}
-function addTask(){openModal(`<div class="toolbar"><h1>Новая задача</h1><button class="btn ghost" onclick="closeModal()">Закрыть</button></div><div class="form"><label class="field"><span>Дата</span><input id="td" value="10.10"></label><label class="field"><span>Задача</span><input id="tt" placeholder="Например: осмотр ульев"></label><label class="field full"><span>Комментарий</span><input id="ti" placeholder="Количество ульев или примечание"></label></div><div style="margin-top:16px"><button class="btn" onclick="data.tasks.push({date:td.value,title:tt.value||'Новая задача',info:ti.value||'',done:false});closeModal();save();go('calendar')">Сохранить</button></div>`)}
-function toggleTask(i){data.tasks[i].done=!data.tasks[i].done;save()}
-function exportData(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));a.download='dedushkina-paseka-backup.json';a.click()}
-document.getElementById('search').addEventListener('input',e=>{const q=e.target.value.toLowerCase();if(!q){render();return}const hits=data.inspections.filter(x=>(x.text+' '+x.hive+' '+x.date).toLowerCase().includes(q));document.getElementById('recent').innerHTML=hits.map(x=>`<div class="row"><div class="thumb">🔎</div><div class="grow"><strong>Улей №${x.hive}</strong><span class="muted">${x.date} · ${x.text}</span></div></div>`).join('')||'<div class="empty">Ничего не найдено</div>'});
-async function syncToCloud(){
-  if(!cloudUser) return;
-  const api={name:'Дедушкина пасека',location:'Клецкий район',description:'Основная пасека'};
-  const {data:apis,error:ae}=await sb.from('apiaries').select('*').limit(1); if(ae) throw ae;
-  let apiary=apis?.[0];
-  if(!apiary){ const r=await sb.from('apiaries').insert(api).select().single(); if(r.error) throw r.error; apiary=r.data; }
-  const {data:remoteH,error:he}=await sb.from('hives').select('*').eq('apiary_id',apiary.id); if(he) throw he;
-  if(!remoteH?.length){
-    const rows=data.hives.map(x=>({apiary_id:apiary.id,hive_number:String(x.n),status:x.status,notes:x.queen&&x.queen!=='—'?`Матка: ${x.queen}`:''}));
-    const r=await sb.from('hives').insert(rows).select(); if(r.error) throw r.error;
-  }
-  const {data:remoteB,error:be}=await sb.from('honey_batches').select('*'); if(be) throw be;
-  if(!remoteB?.length && data.honey.length){
-    const rows=data.honey.map(x=>({batch_number:x.batch,honey_type:x.product,collection_period:x.collect,apiary_id:apiary.id,quantity_kg:x.qty,sold_kg:0}));
-    const r=await sb.from('honey_batches').insert(rows); if(r.error) throw r.error;
-  }
-  const {data:remoteI,error:ie}=await sb.from('inspections').select('*'); if(ie) throw ie;
-  if(!remoteI?.length && data.inspections.length){
-    const hiveMap={}; (remoteH||[]).forEach(h=>hiveMap[h.hive_number]=h.id);
-    let currentHives=remoteH; if(!currentHives?.length){ const r=await sb.from('hives').select('*').eq('apiary_id',apiary.id); if(r.error) throw r.error; currentHives=r.data||[]; (currentHives||[]).forEach(h=>hiveMap[h.hive_number]=h.id); }
-    const rows=data.inspections.filter(x=>hiveMap[String(x.hive)]).map(x=>({hive_id:hiveMap[String(x.hive)],inspection_date:isoDate(x.date),notes:x.text,strength:x.text.includes('силь')?'Сильная семья':null}));
-    if(rows.length){const r=await sb.from('inspections').insert(rows); if(r.error) throw r.error;}
-  }
-  const {data:remoteT,error:te}=await sb.from('tasks').select('*'); if(te) throw te;
-  if(!remoteT?.length && data.tasks.length){ const rows=data.tasks.map(x=>({title:x.title,task_date:isoDate(x.date),completed:x.done,notes:x.info})); const r=await sb.from('tasks').insert(rows); if(r.error) throw r.error; }
+const SUPABASE_URL = 'https://owpzcjvseleqeqibwuqj.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_1eM3o5IehFq-IvjWkHLiCA_RMXGHfw5';
+const { createClient } = window.supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const state = {hives:[], inspections:[], honey:[], tasks:[], finance:[], apiaries:[]};
+
+function $(id){return document.getElementById(id)}
+function toast(msg){const t=$('toast');t.textContent=msg;t.style.display='block';setTimeout(()=>t.style.display='none',2500)}
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+function today(){return new Date().toISOString().slice(0,10)}
+function formData(form){return Object.fromEntries(new FormData(form).entries())}
+function showPage(name){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  $('page-'+name)?.classList.add('active');
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===name));
+  window.scrollTo({top:0,behavior:'smooth'});
 }
-function isoDate(v){ if(!v) return new Date().toISOString().slice(0,10); const m=String(v).match(/(\d{2})\.(\d{2})(?:\.(\d{4}))?/); if(m) return `${m[3]||new Date().getFullYear()}-${m[2]}-${m[1]}`; return v; }
-async function loadFromCloud(){
-  if(!cloudUser) return;
-  const {data:apis,error:ae}=await sb.from('apiaries').select('*').limit(1); if(ae) throw ae;
-  if(!apis?.length){ await syncToCloud(); return; }
-  const apiary=apis[0];
-  const [hr,ir,br,tr]=await Promise.all([
-    sb.from('hives').select('*').eq('apiary_id',apiary.id).order('hive_number'),
-    sb.from('inspections').select('*').order('inspection_date',{ascending:false}),
-    sb.from('honey_batches').select('*').order('batch_number'),
-    sb.from('tasks').select('*').order('task_date')
-  ]);
-  if(hr.error) throw hr.error; if(ir.error) throw ir.error; if(br.error) throw br.error; if(tr.error) throw tr.error;
-  if(hr.data?.length) data.hives=hr.data.map(x=>({n:Number(x.hive_number),status:x.status||'Сильная семья',queen:(x.notes||'').replace('Матка: ','')||'—',last:'—'}));
-  if(ir.data?.length) data.inspections=ir.data.map(x=>({date:new Date(x.inspection_date+'T00:00:00').toLocaleDateString('ru-RU'),hive:'?',text:x.notes||x.strength||'Осмотр'}));
-  if(br.data?.length) data.honey=br.data.map(x=>({batch:x.batch_number,product:x.honey_type,qty:Number(x.quantity_kg||0),collect:x.collection_period||'—'}));
-  if(tr.data?.length) data.tasks=tr.data.map(x=>({date:x.task_date?new Date(x.task_date+'T00:00:00').toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit'}):'',title:x.title,info:x.notes||'',done:x.completed}));
-  localStorage.setItem(KEY,JSON.stringify(data)); render();
+document.querySelectorAll('[data-page]').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
+
+async function authInit(){
+  const {data:{session}} = await db.auth.getSession();
+  if(session){showApp(session.user)}
+  else $('auth').style.display='flex';
+  db.auth.onAuthStateChange((_event,session)=>{
+    if(session) showApp(session.user); else $('auth').style.display='flex';
+  });
 }
-async function auth(){
-  const {data:{session}}=await sb.auth.getSession(); cloudUser=session?.user||null;
-  if(cloudUser){setCloudStatus('☁️ Синхронизация включена'); try{await loadFromCloud();}catch(e){setCloudStatus('⚠️ Ошибка синхронизации'); console.error(e)}} else setCloudStatus('☁️ Войдите для синхронизации');
-  sb.auth.onAuthStateChange((_event,session)=>{cloudUser=session?.user||null; setCloudStatus(cloudUser?'☁️ Синхронизация включена':'☁️ Войдите для синхронизации'); if(cloudUser) loadFromCloud().catch(console.error);});
+async function showApp(user){
+  $('auth').style.display='none';
+  $('userEmail').textContent=user.email||'Пользователь';
+  await loadAll();
 }
-function setCloudStatus(t){const el=document.getElementById('cloudStatus'); if(el) el.textContent=t;}
-async function openLogin(){openModal(`<div class="toolbar"><h1>☁️ Облачная синхронизация</h1><button class="btn ghost" onclick="closeModal()">Закрыть</button></div><p class="muted">Войдите, чтобы журнал синхронизировался между телефоном и компьютером.</p><div class="form"><label class="field full"><span>E-mail</span><input id="ae" type="email" placeholder="Ваш e-mail"></label><label class="field full"><span>Пароль</span><input id="ap" type="password" placeholder="Не менее 6 символов"></label></div><div class="actions" style="margin-top:16px"><button class="btn" onclick="signIn()">Войти</button><button class="btn ghost" onclick="signUp()">Создать аккаунт</button></div><p id="authMsg" class="muted"></p>`)}
-async function signIn(){const {error}=await sb.auth.signInWithPassword({email:ae.value,password:ap.value}); document.getElementById('authMsg').textContent=error?error.message:'Вход выполнен'; if(!error) closeModal();}
-async function signUp(){const {error}=await sb.auth.signUp({email:ae.value,password:ap.value}); document.getElementById('authMsg').textContent=error?error.message:'Аккаунт создан. Если включено подтверждение e-mail, проверьте почту.';}
-async function signOut(){await sb.auth.signOut(); cloudUser=null; setCloudStatus('☁️ Войдите для синхронизации');}
-render();
-if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
+$('loginBtn').onclick=async()=>{
+  $('authMessage').textContent='';
+  const email=$('authEmail').value.trim(), password=$('authPassword').value;
+  const {error}=await db.auth.signInWithPassword({email,password});
+  if(error)$('authMessage').textContent=error.message;
+};
+$('signupBtn').onclick=async()=>{
+  $('authMessage').textContent='';
+  const email=$('authEmail').value.trim(), password=$('authPassword').value;
+  if(password.length<6){$('authMessage').textContent='Пароль должен содержать не менее 6 символов.';return}
+  const {error}=await db.auth.signUp({email,password,options:{emailRedirectTo:location.origin+location.pathname}});
+  if(error)$('authMessage').textContent=error.message;
+  else $('authMessage').textContent='Регистрация выполнена. Если потребуется подтверждение, проверьте почту.';
+};
+$('logoutBtn').onclick=()=>db.auth.signOut();
+$('refreshBtn').onclick=loadAll;
+
+async function getTable(table,order='created_at'){
+  const q=db.from(table).select('*');
+  const r=order?q.order(order,{ascending:false}):q;
+  const {data,error}=await r;
+  if(error)throw error;
+  return data||[];
+}
+async function loadAll(){
+  try{
+    [state.apiaries,state.hives,state.inspections,state.honey,state.tasks,state.finance]=await Promise.all([
+      getTable('apiaries'),getTable('hives'),getTable('inspections'),getTable('honey_batches'),getTable('tasks'),getTable('finances')
+    ]);
+    renderAll();
+  }catch(e){console.error(e);toast('Ошибка загрузки данных: '+e.message)}
+}
+function renderAll(){
+  $('countHives').textContent=state.hives.length;
+  $('countInspections').textContent=state.inspections.length;
+  $('countHoney').textContent=state.honey.length;
+  $('countTasks').textContent=state.tasks.filter(x=>x.status!=='Выполнена').length;
+  $('statHives').textContent=state.hives.length;
+  $('statInspections').textContent=state.inspections.length;
+  $('statHoney').textContent=state.honey.length;
+  $('statFinance').textContent=state.finance.length;
+
+  $('apiariesList').innerHTML=state.apiaries.length?state.apiaries.map(a=>`<div class="card"><b>${esc(a.name)}</b><div class="muted">${esc(a.location||'')}</div><p>${esc(a.description||'')}</p></div>`).join(''):'<div class="empty">Пасеки не найдены.</div>';
+
+  $('hivesList').innerHTML=state.hives.length?`<table class="table"><thead><tr><th>№</th><th>Тип</th><th>Место</th><th>Состояние</th></tr></thead><tbody>${state.hives.map(h=>`<tr><td>${esc(h.hive_number)}</td><td>${esc(h.hive_type)}</td><td>${esc(h.location)}</td><td>${esc(h.status)}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">Ульев пока нет.</div>';
+
+  const hiveMap=Object.fromEntries(state.hives.map(h=>[h.id,h.hive_number]));
+  $('inspectionsList').innerHTML=state.inspections.length?`<table class="table"><thead><tr><th>Дата</th><th>Улей</th><th>Семья</th><th>Матка</th><th>Заметки</th></tr></thead><tbody>${state.inspections.map(i=>`<tr><td>${esc(i.inspection_date)}</td><td>${esc(hiveMap[i.hive_id]||i.hive_id||'')}</td><td>${esc(i.colony_strength)}</td><td>${esc(i.queen_status)}</td><td>${esc(i.notes)}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">Осмотров пока нет.</div>';
+
+  $('honeyList').innerHTML=state.honey.length?`<table class="table"><thead><tr><th>Партия</th><th>Мёд</th><th>Дата</th><th>Кг</th><th>Цена/кг</th></tr></thead><tbody>${state.honey.map(h=>`<tr><td>${esc(h.batch_number)}</td><td>${esc(h.honey_type)}</td><td>${esc(h.collection_date)}</td><td>${esc(h.quantity_kg)}</td><td>${esc(h.price_per_kg)}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">Партий пока нет.</div>';
+
+  $('financeList').innerHTML=state.finance.length?`<table class="table"><thead><tr><th>Дата</th><th>Тип</th><th>Сумма</th><th>Категория</th><th>Описание</th></tr></thead><tbody>${state.finance.map(f=>`<tr><td>${esc(f.operation_date)}</td><td>${esc(f.operation_type)}</td><td>${esc(f.amount)}</td><td>${esc(f.category)}</td><td>${esc(f.description)}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">Операций пока нет.</div>';
+
+  $('tasksList').innerHTML=state.tasks.length?`<table class="table"><thead><tr><th>Дата</th><th>Задача</th><th>Приоритет</th><th>Статус</th></tr></thead><tbody>${state.tasks.map(t=>`<tr><td>${esc(t.due_date)}</td><td>${esc(t.title)}</td><td>${esc(t.priority)}</td><td>${esc(t.status)}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">Напоминаний пока нет.</div>';
+  $('calendarTasks').innerHTML=state.tasks.length?`<table class="table"><thead><tr><th>Дата</th><th>Задача</th><th>Статус</th></tr></thead><tbody>${state.tasks.map(t=>`<tr><td>${esc(t.due_date)}</td><td>${esc(t.title)}</td><td>${esc(t.status)}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">Событий нет.</div>';
+
+  $('recentInspections').innerHTML=state.inspections.slice(0,5).map(i=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>${esc(i.inspection_date)}</b> — улей ${esc(hiveMap[i.hive_id]||'')}</div>`).join('')||'<div class="empty">Осмотров пока нет.</div>';
+  $('upcomingTasks').innerHTML=state.tasks.filter(t=>t.status!=='Выполнена').slice(0,5).map(t=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>${esc(t.due_date||'')}</b> — ${esc(t.title)}</div>`).join('')||'<div class="empty">Активных задач нет.</div>';
+
+  $('inspectionHive').innerHTML='<option value="">Выберите улей</option>'+state.hives.map(h=>`<option value="${h.id}">№ ${esc(h.hive_number)}</option>`).join('');
+}
+async function insert(table,payload,form){
+  const {error}=await db.from(table).insert(payload);
+  if(error){toast('Ошибка: '+error.message);return}
+  form.reset();toast('Сохранено');await loadAll();
+}
+$('hiveForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);insert('hives',{hive_number:d.hive_number,hive_type:d.hive_type,location:d.location,status:d.status,notes:d.notes},e.target)};
+$('inspectionForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);insert('inspections',{hive_id:d.hive_id,inspection_date:d.inspection_date,colony_strength:d.colony_strength,queen_status:d.queen_status,brood:d.brood,feed:d.feed,notes:d.notes},e.target)};
+$('honeyForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);insert('honey_batches',{batch_number:d.batch_number,honey_type:d.honey_type,collection_date:d.collection_date||null,quantity_kg:d.quantity_kg?Number(d.quantity_kg):null,price_per_kg:d.price_per_kg?Number(d.price_per_kg):null,collection_place:d.collection_place,notes:d.notes},e.target)};
+$('financeForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);insert('finances',{operation_date:d.operation_date,operation_type:d.operation_type,amount:Number(d.amount),category:d.category,description:d.description},e.target)};
+$('taskForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);insert('tasks',{title:d.title,due_date:d.due_date||null,priority:d.priority,status:d.status,description:d.description},e.target)};
+document.querySelectorAll('form input[type=date]').forEach(x=>{if(!x.value)x.value=today()});
+$('search').addEventListener('input',e=>{
+  const q=e.target.value.trim().toLowerCase(); if(!q){renderAll();return}
+  const old=state.hives; state.hives=old.filter(x=>JSON.stringify(x).toLowerCase().includes(q)); renderAll(); state.hives=old;
+});
+authInit();
 </script>
-</body></html>
+</body>
+</html>
