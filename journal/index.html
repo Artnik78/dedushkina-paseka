@@ -457,52 +457,53 @@ function showGuest(){
   document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page==='home'));
   renderGuestMode();
 }
-function renderGuestMode(){
-  setText('countHives','—'); setText('countInspections','—'); setText('countHoney','—'); setText('countTasks','—');
-  setText('statHives','—'); setText('statInspections','—'); setText('statHoney','—'); setText('statFinance','—');
-  $('recentInspections').innerHTML='<div class="empty">Гостевой режим — данные владельца скрыты.</div>';
-  $('upcomingTasks').innerHTML='<div class="empty">Гостевой режим — данные владельца скрыты.</div>';
-  $('homeHoneyPreview').innerHTML='<div class="empty">Гостевой режим — данные владельца скрыты.</div>';
-  const disToday=new Date(today()+'T00:00:00');
-  const disAlerts=state.disinfection.map(x=>{
-    if(!x.next_date)return null;
-    const days=Math.ceil((new Date(String(x.next_date).slice(0,10)+'T00:00:00')-disToday)/86400000);
-    return days<=30?{x,days}:null;
-  }).filter(Boolean);
-  $('disinfectionAlerts').innerHTML=disAlerts.length
-    ? '<div class="panel" style="margin:0 0 14px;background:#fff7e8;border-color:#e4c77a"><b>⚠️ Ближайшие обработки</b>'+disAlerts.map(a=>'<div style="margin-top:8px">🧴 <b>'+esc(a.x.target_type)+'</b> — '+esc(a.x.next_date)+(a.days<0?' — срок уже наступил':a.days===0?' — сегодня':' — через '+a.days+' дн.')+'</div>').join('')+'</div>'
-    : '<div class="muted" style="margin-bottom:12px">Ближайших обработок в течение 30 дней нет.</div>';
-  const apiaryMap=Object.fromEntries(state.apiaries.map(a=>[a.id,a.name]));
-  const hiveMap=Object.fromEntries(state.hives.map(h=>[h.id,'№ '+h.hive_number]));
-  $('disinfectionList').innerHTML=state.disinfection.length
-    ? '<table class="table"><thead><tr><th>Дата</th><th>Что</th><th>Пасека</th><th>Улей</th><th>Рамок</th><th>Средство</th><th>Причина</th><th>Следующая</th><th></th></tr></thead><tbody>'+state.disinfection.map(x=>'<tr><td>'+esc(x.disinfection_date||'')+'</td><td>'+esc(x.target_type||'')+'</td><td>'+esc(apiaryMap[x.apiary_id]||'—')+'</td><td>'+esc(hiveMap[x.hive_id]||'—')+'</td><td>'+esc(x.frames_count??'—')+'</td><td>'+esc(x.agent||'—')+'</td><td>'+esc(x.reason||'—')+'</td><td>'+esc(x.next_date||'—')+'</td><td><button type="button" class="btn secondary disinfection-edit" data-id="'+esc(x.id)+'">Изменить</button> <button type="button" class="btn danger disinfection-delete" data-id="'+esc(x.id)+'">Удалить</button></td></tr>').join('')+'</tbody></table>'
-    : '<div class="empty">Записей пока нет. Добавьте первую обработку выше.</div>';
-  document.querySelectorAll('.disinfection-edit').forEach(b=>b.onclick=()=>editDisinfection(b.dataset.id));
-  document.querySelectorAll('.disinfection-delete').forEach(b=>b.onclick=()=>deleteDisinfection(b.dataset.id));
-
-  const homeDisAlerts=state.disinfection.map(x=>{
-    if(!x.next_date)return null;
-    const days=Math.ceil((new Date(String(x.next_date).slice(0,10)+'T00:00:00')-medicineToday)/86400000);
-    if(days>30)return null;
-    return {x,days};
-  }).filter(Boolean).sort((a,b)=>a.days-b.days);
-  $('homeDisinfectionAlerts').innerHTML=homeDisAlerts.length
-    ? '<h3>🧴 Дезинфекция</h3>'+homeDisAlerts.slice(0,5).map(a=>'<div style="padding:7px 0;border-bottom:1px solid var(--line)">🧽 <b>'+esc(a.x.target_type)+'</b> — '+esc(a.x.next_date)+(a.days<0?' — 🔴 просрочено':a.days===0?' — 🟠 сегодня':' — 🟡 через '+a.days+' дн.')+'</div>').join('')+'<div class="actions" style="margin-bottom:0"><button type="button" class="btn secondary" data-page="disinfection">Открыть журнал</button></div>'
-    : '<h3>🧴 Дезинфекция</h3><div class="muted">✅ Ближайших обработок в течение 30 дней нет.</div>';
-  document.querySelectorAll('#homeDisinfectionAlerts [data-page]').forEach(b=>b.onclick=()=>showPage(b.dataset.page));
-  $('apiariesList').innerHTML='<div class="card"><b>🐝 Дедушкина пасека</b><div class="muted">Структура журнала доступна для просмотра</div><p>Пасеки, ульи, осмотры, календарь, партии мёда, финансы, напоминания, фото и статистика.</p></div>';
-  $('hivesList').innerHTML='<div class="empty">Гостевой режим: реальные ульи не отображаются.</div>';
-  $('inspectionsList').innerHTML='<div class="empty">Гостевой режим: реальные осмотры не отображаются.</div>';
-  $('honeyList').innerHTML='<div class="empty">Гостевой режим: реальные партии не отображаются.</div>';
-  $('financeList').innerHTML='<div class="empty">Гостевой режим: финансовые данные не отображаются.</div>';
-  $('tasksList').innerHTML='<div class="empty">Гостевой режим: реальные напоминания не отображаются.</div>';
-  $('calendarGrid').innerHTML='<div class="empty" style="grid-column:1/-1">Гостевой режим: календарь доступен как раздел журнала, личные события скрыты.</div>';
-  $('calendarTasks').innerHTML='';
-  $('photos').innerHTML='';
-  document.querySelectorAll('#page-hives form,#page-inspections form,#page-calendar form,#page-honey form,#page-finances form,#page-tasks form').forEach(f=>f.closest('.panel').style.display='none');
-  document.querySelectorAll('.panel h3').forEach(h=>{if(h.textContent.includes('Новый')||h.textContent.includes('Добавить')||h.textContent.includes('Новая'))h.closest('.panel').style.display='none'});
-  document.querySelectorAll('#page-home .actions button').forEach(b=>b.style.display='none');
+function guestDatePlus(days){
+  const d=new Date(today()+'T00:00:00');
+  d.setDate(d.getDate()+days);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 }
+function renderGuestMode(){
+  const t=today();
+  state.apiaries=[
+    {id:'guest-apiary-1',name:'Дедушкина пасека',location:'Клецкий район',description:'Основная пасека — демонстрационная запись для гостевого просмотра.'}
+  ];
+  state.hives=[
+    {id:'guest-hive-1',apiary_id:'guest-apiary-1',hive_number:'1',hive_type:'Дадан',queen_breed:'Карника',queen_year:2025,location:'Ряд 1, место 1',status:'Активен',notes:'Демонстрационный улей'}
+  ];
+  state.inspections=[
+    {id:'guest-inspection-1',hive_id:'guest-hive-1',inspection_date:t,colony_strength:'Сильная',queen_status:'Есть',queen_breed:'Карника',brood:'Хороший',feed:'Мёд и перга',notes:'Семья спокойная, матка работает хорошо.'}
+  ];
+  state.honey=[
+    {id:'guest-honey-1',batch_number:'2026-001',honey_type:'Мёд разнотравье',collection_date:t,quantity_kg:25,price_per_kg:25,collection_place:'Клецкий район',notes:'Демонстрационная партия'}
+  ];
+  state.finance=[
+    {id:'guest-finance-1',operation_date:t,operation_type:'Расход',amount:35,category:'Инвентарь',description:'Покупка демонстрационного инвентаря'}
+  ];
+  state.tasks=[
+    {id:'guest-task-1',title:'[Подкормка] Проверить корм',due_date:guestDatePlus(1),priority:'Обычный',status:'Открыта',description:'[Напоминание:За 1 день] Проверить запасы корма.'}
+  ];
+  state.medicines=[
+    {id:'guest-medicine-1',name:'Бипин-Т',volume:'10 мл',quantity:3,min_quantity:1,expiry_date:guestDatePlus(120),expiry_warning_days:30,notes:'Демонстрационная запись'}
+  ];
+  state.disinfection=[
+    {id:'guest-disinfection-1',target_type:'Улей',apiary_id:'guest-apiary-1',hive_id:'guest-hive-1',frames_count:10,disinfection_date:t,agent:'Сода + вода',treatment_method:'Обмывание',reason:'Плановая',responsible:'Пасечник',next_date:guestDatePlus(30),notes:'Демонстрационная запись'}
+  ];
+  renderAll();
+
+  $('photosList')?.replaceChildren?.();
+  const photosSection=document.querySelector('#page-photos .panel');
+  if(photosSection) photosSection.innerHTML='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px"><div class="card"><img src="../images/about-apiary.jpg" alt="Пасека" style="width:100%;height:160px;object-fit:cover;border-radius:10px"><b style="display:block;margin-top:10px">Пасека — образец фотографии</b><div class="muted">Гостевой режим</div></div></div>';
+
+  document.querySelectorAll('#page-apiaries form,#page-hives form,#page-inspections form,#page-calendar form,#page-honey form,#page-finances form,#page-tasks form,#page-medicines form,#page-disinfection form').forEach(f=>{if(f.closest('.panel'))f.closest('.panel').style.display='none'});
+  document.querySelectorAll('#page-home .actions button,#addCalendarEventBtn,.apiary-edit,.apiary-delete,.hive-edit,.hive-history,.hive-delete,.disinfection-edit,.disinfection-delete').forEach(b=>b.style.display='none');
+  document.querySelectorAll('.panel h3').forEach(h=>{
+    const txt=h.textContent||'';
+    if(txt.includes('Новый')||txt.includes('Добавить')||txt.includes('Новая')||txt.includes('Изменить')) h.closest('.panel')?.style && (h.closest('.panel').style.display='none');
+  });
+  setText('countHives',1); setText('countInspections',1); setText('countHoney',1); setText('countTasks',1);
+  setText('statHives',1); setText('statInspections',1); setText('statHoney',1); setText('statFinance',1);
+}
+
 async function authInit(){
   const {data:{session}} = await db.auth.getSession();
   if(session){showApp(session.user)}
