@@ -123,7 +123,16 @@ h1{margin:0 0 6px;font-size:28px}.sub{color:var(--muted);margin:0 0 22px}
 
     <section id="page-apiaries" class="section">
       <h1>Мои пасеки</h1><p class="sub">Пасеки и основные сведения о них.</p>
-      <div class="panel"><h3>Пасеки</h3><div id="apiariesList" class="empty">Загрузка...</div></div>
+      <div class="panel">
+        <h3>Добавить пасеку</h3>
+        <form id="apiaryForm" class="form">
+          <div class="field"><label>Название пасеки *</label><input name="name" required placeholder="Например, Дедушкина пасека"></div>
+          <div class="field"><label>Место / район</label><input name="location" placeholder="Клецкий район"></div>
+          <div class="field full"><label>Описание</label><textarea name="description" placeholder="Основная пасека, количество ульев, особенности..."></textarea></div>
+          <div><button class="btn">Сохранить пасеку</button></div>
+        </form>
+      </div>
+      <div class="panel"><h3>Мои пасеки</h3><div id="apiariesList" class="empty">Загрузка...</div></div>
     </section>
 
     <section id="page-hives" class="section">
@@ -366,7 +375,9 @@ function renderAll(){
   $('statHoney').textContent=state.honey.length;
   $('statFinance').textContent=state.finance.length;
 
-  $('apiariesList').innerHTML=state.apiaries.length?state.apiaries.map(a=>`<div class="card"><b>${esc(a.name)}</b><div class="muted">${esc(a.location||'')}</div><p>${esc(a.description||'')}</p></div>`).join(''):'<div class="empty">Пасеки не найдены.</div>';
+  $('apiariesList').innerHTML=state.apiaries.length?state.apiaries.map(a=>`<div class="card" style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px"><div><b style="font-size:18px">🐝 ${esc(a.name)}</b><div class="muted" style="margin-top:5px">📍 ${esc(a.location||'Место не указано')}</div></div><div class="actions" style="margin:0"><button type="button" class="btn secondary apiary-edit" data-id="${esc(a.id)}">Изменить</button><button type="button" class="btn danger apiary-delete" data-id="${esc(a.id)}">Удалить</button></div></div><p>${esc(a.description||'Без описания')}</p></div>`).join(''):'<div class="empty">Пасек пока нет. Добавьте первую пасеку выше.</div>';
+  document.querySelectorAll('.apiary-edit').forEach(b=>b.onclick=()=>editApiary(b.dataset.id));
+  document.querySelectorAll('.apiary-delete').forEach(b=>b.onclick=()=>deleteApiary(b.dataset.id));
 
   $('hivesList').innerHTML=state.hives.length?`<table class="table"><thead><tr><th>№</th><th>Тип</th><th>Место</th><th>Состояние</th></tr></thead><tbody>${state.hives.map(h=>`<tr><td>${esc(h.hive_number)}</td><td>${esc(h.hive_type)}</td><td>${esc(h.location)}</td><td>${esc(h.status)}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">Ульев пока нет.</div>';
 
@@ -389,6 +400,30 @@ async function insert(table,payload,form){
   const {error}=await db.from(table).insert(payload);
   if(error){toast('Ошибка: '+error.message);return}
   form.reset();toast('Сохранено');await loadAll();
+}
+$('apiaryForm').onsubmit=async e=>{
+  e.preventDefault();
+  const d=formData(e.target);
+  const {error}=await db.from('apiaries').insert({name:d.name,location:d.location,description:d.description});
+  if(error){toast('Ошибка: '+error.message);return}
+  e.target.reset(); toast('Пасека добавлена'); await loadAll();
+};
+async function editApiary(id){
+  const a=state.apiaries.find(x=>String(x.id)===String(id)); if(!a)return;
+  const name=prompt('Название пасеки:',a.name||''); if(name===null)return;
+  const location=prompt('Место / район:',a.location||''); if(location===null)return;
+  const description=prompt('Описание:',a.description||''); if(description===null)return;
+  if(!name.trim()){toast('Название пасеки обязательно');return}
+  const {error}=await db.from('apiaries').update({name:name.trim(),location:location.trim(),description:description.trim()}).eq('id',id);
+  if(error){toast('Ошибка: '+error.message);return}
+  toast('Пасека изменена'); await loadAll();
+}
+async function deleteApiary(id){
+  const a=state.apiaries.find(x=>String(x.id)===String(id)); if(!a)return;
+  if(!confirm('Удалить пасеку «'+(a.name||'')+'»?'))return;
+  const {error}=await db.from('apiaries').delete().eq('id',id);
+  if(error){toast('Ошибка: '+error.message);return}
+  toast('Пасека удалена'); await loadAll();
 }
 $('hiveForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);insert('hives',{hive_number:d.hive_number,hive_type:d.hive_type,location:d.location,status:d.status,notes:d.notes},e.target)};
 $('inspectionForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);insert('inspections',{hive_id:d.hive_id,inspection_date:d.inspection_date,colony_strength:d.colony_strength,queen_status:d.queen_status,brood:d.brood,feed:d.feed,notes:d.notes},e.target)};
