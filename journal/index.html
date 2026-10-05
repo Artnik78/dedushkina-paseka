@@ -100,6 +100,7 @@ h1{margin:0 0 6px;font-size:28px}.sub{color:var(--muted);margin:0 0 22px}
     <button data-page="finances">💰 Финансы</button>
     <button data-page="tasks">🔔 Напоминания</button>
     <button data-page="medicines">💊 Лекарства</button>
+    <button data-page="disinfection">🧴 Дезинфекция</button>
     <button data-page="photos">📷 Фото</button>
     <button data-page="stats">📊 Статистика</button>
     <button data-page="settings">⚙️ Настройки</button>
@@ -318,6 +319,29 @@ h1{margin:0 0 6px;font-size:28px}.sub{color:var(--muted);margin:0 0 22px}
       </div>
     </section>
 
+    <section id="page-disinfection" class="section">
+      <h1>🧴 Дезинфекция</h1><p class="sub">Учёт дезинфекции пасеки, ульев, рамок и инвентаря: когда, чем, как и по какой причине.</p>
+      <div class="panel">
+        <h3 id="disinfectionFormTitle">Новая запись</h3>
+        <form id="disinfectionForm" class="form">
+          <input type="hidden" name="id">
+          <div class="field"><label>Что обрабатывали *</label><select name="target_type" required><option value="Пасека">Пасека</option><option value="Улей">Улей</option><option value="Рамки">Рамки</option><option value="Инвентарь">Инвентарь</option></select></div>
+          <div class="field"><label>Пасека</label><select name="apiary_id"><option value="">Не указана</option></select></div>
+          <div class="field"><label>Улей</label><select name="hive_id"><option value="">Не указан</option></select></div>
+          <div class="field"><label>Количество рамок</label><input name="frames_count" type="number" min="0" step="1" placeholder="Например, 10"></div>
+          <div class="field"><label>Дата обработки *</label><input name="disinfection_date" type="date" required></div>
+          <div class="field"><label>Средство / препарат *</label><input name="agent" required placeholder="Название дезсредства"></div>
+          <div class="field"><label>Способ обработки</label><select name="treatment_method"><option>Орошение</option><option>Обмывание</option><option>Замачивание</option><option>Обработка паром</option><option>Другой</option></select></div>
+          <div class="field"><label>Причина</label><select name="reason"><option>Плановая</option><option>После болезни</option><option>После выбраковки семьи</option><option>Санитарная</option><option>Другая</option></select></div>
+          <div class="field"><label>Ответственный</label><input name="responsible" placeholder="Кто выполнял"></div>
+          <div class="field"><label>Следующая обработка</label><input name="next_date" type="date"></div>
+          <div class="field full"><label>Примечание</label><textarea name="notes" placeholder="Концентрация, время выдержки, причины, особенности..."></textarea></div>
+          <div class="actions"><button class="btn" id="disinfectionSaveBtn">Сохранить запись</button><button type="button" class="btn secondary" id="disinfectionCancelBtn" style="display:none">Отмена</button></div>
+        </form>
+      </div>
+      <div class="panel"><h3>Журнал дезинфекции</h3><div id="disinfectionAlerts"></div><div id="disinfectionList" class="table-wrap"></div></div>
+    </section>
+
     <section id="page-settings" class="section">
       <h1>Настройки</h1><p class="sub">Подключение и информация о журнале.</p>
       <div class="panel">
@@ -357,7 +381,7 @@ const SUPABASE_KEY = 'sb_publishable_1eM3o5IehFq-IvjWkHLiCA_RMXGHfw5';
 const { createClient } = window.supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const state = {hives:[], inspections:[], honey:[], tasks:[], finance:[], apiaries:[], medicines:[]};
+const state = {hives:[], inspections:[], honey:[], tasks:[], finance:[], apiaries:[], medicines:[], disinfection:[]};
 let calendarMonth = new Date();
 calendarMonth.setDate(1);
 
@@ -388,6 +412,23 @@ function renderGuestMode(){
   $('statHives').textContent='—'; $('statInspections').textContent='—'; $('statHoney').textContent='—'; $('statFinance').textContent='—';
   $('recentInspections').innerHTML='<div class="empty">Гостевой режим — данные владельца скрыты.</div>';
   $('upcomingTasks').innerHTML='<div class="empty">Гостевой режим — данные владельца скрыты.</div>';
+  const disToday=new Date(today()+'T00:00:00');
+  const disAlerts=state.disinfection.map(x=>{
+    if(!x.next_date)return null;
+    const days=Math.ceil((new Date(String(x.next_date).slice(0,10)+'T00:00:00')-disToday)/86400000);
+    return days<=30?{x,days}:null;
+  }).filter(Boolean);
+  $('disinfectionAlerts').innerHTML=disAlerts.length
+    ? '<div class="panel" style="margin:0 0 14px;background:#fff7e8;border-color:#e4c77a"><b>⚠️ Ближайшие обработки</b>'+disAlerts.map(a=>'<div style="margin-top:8px">🧴 <b>'+esc(a.x.target_type)+'</b> — '+esc(a.x.next_date)+(a.days<0?' — срок уже наступил':a.days===0?' — сегодня':' — через '+a.days+' дн.')+'</div>').join('')+'</div>'
+    : '<div class="muted" style="margin-bottom:12px">Ближайших обработок в течение 30 дней нет.</div>';
+  const apiaryMap=Object.fromEntries(state.apiaries.map(a=>[a.id,a.name]));
+  const hiveMap=Object.fromEntries(state.hives.map(h=>[h.id,'№ '+h.hive_number]));
+  $('disinfectionList').innerHTML=state.disinfection.length
+    ? '<table class="table"><thead><tr><th>Дата</th><th>Что</th><th>Пасека</th><th>Улей</th><th>Рамок</th><th>Средство</th><th>Причина</th><th>Следующая</th><th></th></tr></thead><tbody>'+state.disinfection.map(x=>'<tr><td>'+esc(x.disinfection_date||'')+'</td><td>'+esc(x.target_type||'')+'</td><td>'+esc(apiaryMap[x.apiary_id]||'—')+'</td><td>'+esc(hiveMap[x.hive_id]||'—')+'</td><td>'+esc(x.frames_count??'—')+'</td><td>'+esc(x.agent||'—')+'</td><td>'+esc(x.reason||'—')+'</td><td>'+esc(x.next_date||'—')+'</td><td><button type="button" class="btn secondary disinfection-edit" data-id="'+esc(x.id)+'">Изменить</button> <button type="button" class="btn danger disinfection-delete" data-id="'+esc(x.id)+'">Удалить</button></td></tr>').join('')+'</tbody></table>'
+    : '<div class="empty">Записей пока нет. Добавьте первую обработку выше.</div>';
+  document.querySelectorAll('.disinfection-edit').forEach(b=>b.onclick=()=>editDisinfection(b.dataset.id));
+  document.querySelectorAll('.disinfection-delete').forEach(b=>b.onclick=()=>deleteDisinfection(b.dataset.id));
+
   $('apiariesList').innerHTML='<div class="card"><b>🐝 Дедушкина пасека</b><div class="muted">Структура журнала доступна для просмотра</div><p>Пасеки, ульи, осмотры, календарь, партии мёда, финансы, напоминания, фото и статистика.</p></div>';
   $('hivesList').innerHTML='<div class="empty">Гостевой режим: реальные ульи не отображаются.</div>';
   $('inspectionsList').innerHTML='<div class="empty">Гостевой режим: реальные осмотры не отображаются.</div>';
@@ -441,8 +482,8 @@ async function getTable(table,order='created_at'){
 }
 async function loadAll(){
   try{
-    [state.apiaries,state.hives,state.inspections,state.honey,state.tasks,state.finance,state.medicines]=await Promise.all([
-      getTable('apiaries'),getTable('hives'),getTable('inspections'),getTable('honey_batches'),getTable('tasks'),getTable('finances'),getTable('medicines')
+    [state.apiaries,state.hives,state.inspections,state.honey,state.tasks,state.finance,state.medicines,state.disinfection]=await Promise.all([
+      getTable('apiaries'),getTable('hives'),getTable('inspections'),getTable('honey_batches'),getTable('tasks'),getTable('finances'),getTable('medicines'),getTable('disinfection_logs')
     ]);
     renderAll();
   }catch(e){console.error(e);toast('Ошибка загрузки данных: '+e.message)}
@@ -537,6 +578,8 @@ function renderAll(){
   $('recentInspections').innerHTML=state.inspections.slice(0,5).map(i=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>${esc(i.inspection_date)}</b> — улей ${esc(hiveMap[i.hive_id]||'')}</div>`).join('')||'<div class="empty">Осмотров пока нет.</div>';
   $('upcomingTasks').innerHTML=state.tasks.filter(t=>t.status!=='Выполнена').slice(0,5).map(t=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>${esc(t.due_date||'')}</b> — ${esc(t.title)}</div>`).join('')||'<div class="empty">Активных задач нет.</div>';
 
+  $('disinfectionForm').elements.apiary_id.innerHTML='<option value="">Не указана</option>'+state.apiaries.map(a=>'<option value="'+a.id+'">'+esc(a.name)+'</option>').join('');
+  $('disinfectionForm').elements.hive_id.innerHTML='<option value="">Не указан</option>'+state.hives.map(h=>'<option value="'+h.id+'">№ '+esc(h.hive_number)+'</option>').join('');
   $('inspectionHive').innerHTML='<option value="">Выберите улей</option>'+state.hives.map(h=>'<option value="'+h.id+'">№ '+esc(h.hive_number)+'</option>').join('');
   $('hiveForm').elements.apiary_id.innerHTML='<option value="">Выберите пасеку</option>'+state.apiaries.map(a=>'<option value="'+a.id+'">'+esc(a.name)+'</option>').join('');
 }
@@ -705,6 +748,44 @@ async function deleteMedicine(id){
   toast('Лекарство удалено'); await loadAll();
 }
 $('medicineCancelBtn').onclick=resetMedicineForm;
+$('disinfectionForm').onsubmit=async e=>{
+  e.preventDefault();
+  const d=formData(e.target);
+  const payload={target_type:d.target_type,apiary_id:d.apiary_id||null,hive_id:d.hive_id||null,frames_count:d.frames_count?Number(d.frames_count):null,disinfection_date:d.disinfection_date,agent:d.agent.trim(),treatment_method:d.treatment_method,reason:d.reason,responsible:d.responsible.trim(),next_date:d.next_date||null,notes:d.notes.trim()};
+  if(d.id){
+    const {error}=await db.from('disinfection_logs').update(payload).eq('id',d.id);
+    if(error){toast('Ошибка: '+error.message);return}
+    toast('Запись изменена');
+  }else{
+    const {error}=await db.from('disinfection_logs').insert(payload);
+    if(error){toast('Ошибка: '+error.message);return}
+    toast('Запись добавлена');
+  }
+  resetDisinfectionForm(); await loadAll();
+};
+function resetDisinfectionForm(){
+  const f=$('disinfectionForm'); f.reset(); f.elements.id.value=''; f.elements.disinfection_date.value=today();
+  $('disinfectionSaveBtn').textContent='Сохранить запись'; $('disinfectionCancelBtn').style.display='none'; $('disinfectionFormTitle').textContent='Новая запись';
+}
+function editDisinfection(id){
+  const x=state.disinfection.find(v=>String(v.id)===String(id)); if(!x)return;
+  const f=$('disinfectionForm');
+  f.elements.id.value=x.id; f.elements.target_type.value=x.target_type||'Пасека'; f.elements.apiary_id.value=x.apiary_id||''; f.elements.hive_id.value=x.hive_id||'';
+  f.elements.frames_count.value=x.frames_count??''; f.elements.disinfection_date.value=x.disinfection_date||today(); f.elements.agent.value=x.agent||'';
+  f.elements.treatment_method.value=x.treatment_method||'Орошение'; f.elements.reason.value=x.reason||'Плановая'; f.elements.responsible.value=x.responsible||'';
+  f.elements.next_date.value=x.next_date||''; f.elements.notes.value=x.notes||'';
+  $('disinfectionSaveBtn').textContent='Сохранить изменения'; $('disinfectionCancelBtn').style.display='inline-block'; $('disinfectionFormTitle').textContent='Изменить запись';
+  f.scrollIntoView({behavior:'smooth',block:'center'});
+}
+async function deleteDisinfection(id){
+  const x=state.disinfection.find(v=>String(v.id)===String(id)); if(!x)return;
+  if(!confirm('Удалить запись о дезинфекции?'))return;
+  const {error}=await db.from('disinfection_logs').delete().eq('id',id);
+  if(error){toast('Ошибка: '+error.message);return}
+  toast('Запись удалена'); await loadAll();
+}
+$('disinfectionCancelBtn').onclick=resetDisinfectionForm;
+
 $('inspectionForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);insert('inspections',{hive_id:d.hive_id,inspection_date:d.inspection_date,colony_strength:d.colony_strength,queen_status:d.queen_status,queen_breed:d.queen_breed,brood:d.brood,feed:d.feed,notes:d.notes},e.target)};
 $('honeyForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);insert('honey_batches',{batch_number:d.batch_number,honey_type:d.honey_type,collection_date:d.collection_date||null,quantity_kg:d.quantity_kg?Number(d.quantity_kg):null,price_per_kg:d.price_per_kg?Number(d.price_per_kg):null,collection_place:d.collection_place,notes:d.notes},e.target)};
 $('financeForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);insert('finances',{operation_date:d.operation_date,operation_type:d.operation_type,amount:Number(d.amount),category:d.category,description:d.description},e.target)};
