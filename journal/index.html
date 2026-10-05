@@ -128,6 +128,7 @@ h1{margin:0 0 6px;font-size:28px}.sub{color:var(--muted);margin:0 0 22px}
         <form id="apiaryForm" class="form">
           <input type="hidden" name="id">
           <div class="field"><label>Название пасеки *</label><input name="name" required placeholder="Например, Дедушкина пасека"></div>
+          <div class="field"><label>Количество ульев</label><input name="hive_count" type="number" min="0" readonly placeholder="Определяется автоматически"></div>
           <div class="field"><label>Место / район</label><input name="location" placeholder="Клецкий район"></div>
           <div class="field full"><label>Описание</label><textarea name="description" placeholder="Основная пасека, количество ульев, особенности..."></textarea></div>
           <div class="actions"><button class="btn" id="apiarySaveBtn">Сохранить пасеку</button><button type="button" class="btn secondary" id="apiaryCancelBtn" style="display:none">Отмена</button></div>
@@ -376,7 +377,7 @@ function renderAll(){
   $('statHoney').textContent=state.honey.length;
   $('statFinance').textContent=state.finance.length;
 
-  $('apiariesList').innerHTML=state.apiaries.length?state.apiaries.map(a=>`<div class="card" style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px"><div><b style="font-size:18px">🐝 ${esc(a.name)}</b><div class="muted" style="margin-top:5px">📍 ${esc(a.location||'Место не указано')}</div></div><div class="actions" style="margin:0"><button type="button" class="btn secondary apiary-edit" data-id="${esc(a.id)}">Изменить</button><button type="button" class="btn danger apiary-delete" data-id="${esc(a.id)}">Удалить</button></div></div><p>${esc(a.description||'Без описания')}</p></div>`).join(''):'<div class="empty">Пасек пока нет. Добавьте первую пасеку выше.</div>';
+  $('apiariesList').innerHTML=state.apiaries.length?state.apiaries.map(a=>`<div class="card" style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px"><div><b style="font-size:18px">🐝 ${esc(a.name)}</b><div class="muted" style="margin-top:5px">🔢 Ульев: ${state.hives.filter(h=>String(h.apiary_id||'')===String(a.id)).length} &nbsp; 📍 ${esc(a.location||'Место не указано')}</div></div><div class="actions" style="margin:0"><button type="button" class="btn secondary apiary-edit" data-id="${esc(a.id)}">Изменить</button><button type="button" class="btn danger apiary-delete" data-id="${esc(a.id)}">Удалить</button></div></div><p>${esc(a.description||'Без описания')}</p></div>`).join(''):'<div class="empty">Пасек пока нет. Добавьте первую пасеку выше.</div>';
   document.querySelectorAll('.apiary-edit').forEach(b=>b.onclick=()=>editApiary(b.dataset.id));
   document.querySelectorAll('.apiary-delete').forEach(b=>b.onclick=()=>deleteApiary(b.dataset.id));
 
@@ -419,7 +420,7 @@ $('apiaryForm').onsubmit=async e=>{
 };
 function resetApiaryForm(){
   const f=$('apiaryForm');
-  f.reset(); f.elements.id.value='';
+  f.reset(); f.elements.id.value=''; f.elements.hive_count.value='';
   $('apiarySaveBtn').textContent='Сохранить пасеку';
   $('apiaryCancelBtn').style.display='none';
   f.closest('.panel').querySelector('h3').textContent='Добавить пасеку';
@@ -429,6 +430,7 @@ function editApiary(id){
   const f=$('apiaryForm');
   f.elements.id.value=a.id;
   f.elements.name.value=a.name||'';
+  f.elements.hive_count.value=state.hives.filter(h=>String(h.apiary_id||'')===String(a.id)).length;
   f.elements.location.value=a.location||'';
   f.elements.description.value=a.description||'';
   $('apiarySaveBtn').textContent='Сохранить изменения';
