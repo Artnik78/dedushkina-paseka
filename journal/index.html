@@ -40,6 +40,12 @@ h1{margin:0 0 6px;font-size:28px}.sub{color:var(--muted);margin:0 0 22px}
 .actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
 .form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field{display:flex;flex-direction:column;gap:5px}.field.full{grid-column:1/-1}.field label{font-size:13px;color:var(--muted)}.field input,.field select,.field textarea{border:1px solid var(--line);border-radius:9px;padding:10px;background:#fff}.field textarea{min-height:90px;resize:vertical}
 .empty{padding:25px;text-align:center;color:var(--muted)}
+.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);border-top:1px solid var(--line);border-left:1px solid var(--line)}
+.calendar-head{padding:9px 6px;text-align:center;font-size:12px;font-weight:700;color:var(--muted);background:#faf7ee;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.calendar-day{min-height:105px;padding:7px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:#fff}
+.calendar-day.other{background:#fafafa;color:#a4aaa6}.calendar-day.today{box-shadow:inset 0 0 0 2px var(--gold)}
+.calendar-num{font-weight:700;font-size:13px;margin-bottom:5px}.calendar-event{display:block;width:100%;border:0;text-align:left;border-radius:6px;padding:5px 6px;margin:3px 0;background:#edf5ee;color:var(--green);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.calendar-event.done{text-decoration:line-through;opacity:.55}.calendar-event.high{background:#fff0e6;color:#a44820}.calendar-legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;color:var(--muted);font-size:12px}
+@media(max-width:700px){.calendar-day{min-height:78px;padding:5px}.calendar-event{font-size:10px;padding:4px}.calendar-head{font-size:10px}}
 #auth{position:fixed;inset:0;background:linear-gradient(135deg,#103a27,#1d6337);display:none;align-items:center;justify-content:center;padding:20px;z-index:20}
 .authbox{width:min(430px,100%);background:#fff;border-radius:18px;padding:26px;box-shadow:0 20px 70px rgba(0,0,0,.25)}
 .authbox h1{color:var(--green);font-size:25px}.authbox .field{margin-top:12px}
@@ -150,8 +156,33 @@ h1{margin:0 0 6px;font-size:28px}.sub{color:var(--muted);margin:0 0 22px}
     </section>
 
     <section id="page-calendar" class="section">
-      <h1>Календарь</h1><p class="sub">Работы и события пасеки.</p>
-      <div class="panel"><div id="calendarTasks" class="table-wrap"></div></div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
+        <div><h1>Календарь</h1><p class="sub">Работы и события пасеки.</p></div>
+        <button class="btn gold" id="addCalendarEventBtn">＋ Добавить событие</button>
+      </div>
+      <div class="panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px">
+          <button class="btn secondary" id="prevMonthBtn">←</button>
+          <h3 id="calendarMonthTitle" style="margin:0;text-transform:capitalize"></h3>
+          <button class="btn secondary" id="nextMonthBtn">→</button>
+        </div>
+        <div id="calendarGrid" class="calendar-grid"></div>
+        <div id="calendarLegend" class="calendar-legend"></div>
+      </div>
+      <div class="panel" id="calendarFormPanel" style="display:none">
+        <h3>Новое событие</h3>
+        <form id="calendarForm" class="form">
+          <div class="field"><label>Название *</label><input name="title" required placeholder="Например, проверить корм"></div>
+          <div class="field"><label>Дата *</label><input name="due_date" type="date" required></div>
+          <div class="field"><label>Тип работы</label><select name="event_type"><option>Осмотр</option><option>Подкормка</option><option>Обработка</option><option>Откачка мёда</option><option>Перестановка рамок</option><option>Покупка</option><option>Другое</option></select></div>
+          <div class="field"><label>Приоритет</label><select name="priority"><option>Обычный</option><option>Высокий</option><option>Низкий</option></select></div>
+          <div class="field"><label>Напоминание</label><select name="reminder"><option>Без напоминания</option><option>За 1 день</option><option>За 3 дня</option><option>За 7 дней</option></select></div>
+          <div class="field"><label>Статус</label><select name="status"><option>Открыта</option><option>Выполнена</option></select></div>
+          <div class="field full"><label>Описание</label><textarea name="description" placeholder="Что нужно сделать?"></textarea></div>
+          <div class="actions"><button class="btn">Сохранить событие</button><button type="button" class="btn secondary" id="cancelCalendarBtn">Отмена</button></div>
+        </form>
+      </div>
+      <div class="panel"><h3>События и работы</h3><div id="calendarTasks" class="table-wrap"></div></div>
     </section>
 
     <section id="page-honey" class="section">
@@ -243,6 +274,8 @@ const { createClient } = window.supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const state = {hives:[], inspections:[], honey:[], tasks:[], finance:[], apiaries:[]};
+let calendarMonth = new Date();
+calendarMonth.setDate(1);
 
 function $(id){return document.getElementById(id)}
 function toast(msg){const t=$('toast');t.textContent=msg;t.style.display='block';setTimeout(()=>t.style.display='none',2500)}
@@ -324,7 +357,7 @@ function renderAll(){
   $('financeList').innerHTML=state.finance.length?`<table class="table"><thead><tr><th>Дата</th><th>Тип</th><th>Сумма</th><th>Категория</th><th>Описание</th></tr></thead><tbody>${state.finance.map(f=>`<tr><td>${esc(f.operation_date)}</td><td>${esc(f.operation_type)}</td><td>${esc(f.amount)}</td><td>${esc(f.category)}</td><td>${esc(f.description)}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">Операций пока нет.</div>';
 
   $('tasksList').innerHTML=state.tasks.length?`<table class="table"><thead><tr><th>Дата</th><th>Задача</th><th>Приоритет</th><th>Статус</th></tr></thead><tbody>${state.tasks.map(t=>`<tr><td>${esc(t.due_date)}</td><td>${esc(t.title)}</td><td>${esc(t.priority)}</td><td>${esc(t.status)}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">Напоминаний пока нет.</div>';
-  $('calendarTasks').innerHTML=state.tasks.length?`<table class="table"><thead><tr><th>Дата</th><th>Задача</th><th>Статус</th></tr></thead><tbody>${state.tasks.map(t=>`<tr><td>${esc(t.due_date)}</td><td>${esc(t.title)}</td><td>${esc(t.status)}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">Событий нет.</div>';
+  renderCalendar();
 
   $('recentInspections').innerHTML=state.inspections.slice(0,5).map(i=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>${esc(i.inspection_date)}</b> — улей ${esc(hiveMap[i.hive_id]||'')}</div>`).join('')||'<div class="empty">Осмотров пока нет.</div>';
   $('upcomingTasks').innerHTML=state.tasks.filter(t=>t.status!=='Выполнена').slice(0,5).map(t=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>${esc(t.due_date||'')}</b> — ${esc(t.title)}</div>`).join('')||'<div class="empty">Активных задач нет.</div>';
@@ -341,6 +374,38 @@ $('inspectionForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);i
 $('honeyForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);insert('honey_batches',{batch_number:d.batch_number,honey_type:d.honey_type,collection_date:d.collection_date||null,quantity_kg:d.quantity_kg?Number(d.quantity_kg):null,price_per_kg:d.price_per_kg?Number(d.price_per_kg):null,collection_place:d.collection_place,notes:d.notes},e.target)};
 $('financeForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);insert('finances',{operation_date:d.operation_date,operation_type:d.operation_type,amount:Number(d.amount),category:d.category,description:d.description},e.target)};
 $('taskForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);insert('tasks',{title:d.title,due_date:d.due_date||null,priority:d.priority,status:d.status,description:d.description},e.target)};
+function eventTitle(t){const m=String(t.title||'').match(/^\[([^\]]+)\]\s*(.*)$/);return m?m[2]:t.title||''}
+function eventType(t){const m=String(t.title||'').match(/^\[([^\]]+)\]/);return m?m[1]:'Работа'}
+function eventReminder(t){const m=String(t.description||'').match(/^\[Напоминание:([^\]]+)\]\s*/);return m?m[1]:'Без напоминания'}
+function eventDescription(t){return String(t.description||'').replace(/^\[Напоминание:[^\]]+\]\s*/,'')}
+function renderCalendar(){
+  const y=calendarMonth.getFullYear(), m=calendarMonth.getMonth();
+  const names=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+  $('calendarMonthTitle').textContent=names[m]+' '+y;
+  const first=new Date(y,m,1), last=new Date(y,m+1,0);
+  const start=(first.getDay()+6)%7, days=last.getDate(), prevLast=new Date(y,m,0).getDate();
+  let html=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(x=>'<div class="calendar-head">'+x+'</div>').join('');
+  const todayStr=today();
+  for(let i=0;i<42;i++){
+    const n=i-start+1;
+    let d=new Date(y,m,n), other=n<1||n>days;
+    if(n<1)d=new Date(y,m-1,prevLast+n);
+    if(n>days)d=new Date(y,m+1,n-days);
+    const ds=d.toISOString().slice(0,10);
+    const ev=state.tasks.filter(t=>t.due_date===ds);
+    html+='<div class="calendar-day '+(other?'other ':'')+(ds===todayStr?'today':'')+'><div class="calendar-num">'+d.getDate()+'</div>';
+    html+=ev.map(t=>'<button class="calendar-event '+(t.priority==='Высокий'?'high ':'')+(t.status==='Выполнена'?'done':'')+'" title="'+esc(eventDescription(t))+'">'+esc(eventType(t))+': '+esc(eventTitle(t))+'</button>').join('');
+    html+='</div>';
+  }
+  $('calendarGrid').innerHTML=html;
+  $('calendarLegend').innerHTML='<span>🟢 обычная работа</span><span>🟠 высокий приоритет</span><span>✓ зачёркнуто — выполнено</span>';
+  $('calendarTasks').innerHTML=state.tasks.length?'<table class="table"><thead><tr><th>Дата</th><th>Тип</th><th>Событие</th><th>Приоритет</th><th>Статус</th><th>Напоминание</th></tr></thead><tbody>'+state.tasks.map(t=>'<tr><td>'+esc(t.due_date||'')+'</td><td>'+esc(eventType(t))+'</td><td>'+esc(eventTitle(t))+'</td><td>'+esc(t.priority)+'</td><td>'+esc(t.status)+'</td><td>'+esc(eventReminder(t))+'</td></tr>').join('')+'</tbody></table>':'<div class="empty">Событий пока нет. Нажмите «Добавить событие».</div>';
+}
+$('prevMonthBtn').onclick=()=>{calendarMonth.setMonth(calendarMonth.getMonth()-1);renderCalendar()};
+$('nextMonthBtn').onclick=()=>{calendarMonth.setMonth(calendarMonth.getMonth()+1);renderCalendar()};
+$('addCalendarEventBtn').onclick=()=>{$('calendarFormPanel').style.display='block';$('calendarForm').elements.due_date.value=today();$('calendarFormPanel').scrollIntoView({behavior:'smooth',block:'start'})};
+$('cancelCalendarBtn').onclick=()=>{$('calendarFormPanel').style.display='none';$('calendarForm').reset()};
+$('calendarForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);const title='['+(d.event_type||'Работа')+'] '+d.title;const description='[Напоминание:'+(d.reminder||'Без напоминания')+'] '+(d.description||'');insert('tasks',{title,due_date:d.due_date||null,priority:d.priority,status:d.status,description},e.target);$('calendarFormPanel').style.display='none';};
 document.querySelectorAll('form input[type=date]').forEach(x=>{if(!x.value)x.value=today()});
 $('search').addEventListener('input',e=>{
   const q=e.target.value.trim().toLowerCase(); if(!q){renderAll();return}
