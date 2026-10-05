@@ -403,17 +403,19 @@ function renderCalendar(){
   const y=calendarMonth.getFullYear(), m=calendarMonth.getMonth();
   const names=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
   $('calendarMonthTitle').textContent=names[m]+' '+y;
-  const first=new Date(y,m,1);
-  const startDay=(first.getDay()+6)%7;
-  let html=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(x=>'<div class="calendar-head">'+x+'</div>').join('');
+  const firstDow=(new Date(Date.UTC(y,m,1)).getUTCDay()+6)%7;
+  const days=new Date(Date.UTC(y,m+1,0)).getUTCDate();
+  const prevDays=new Date(Date.UTC(y,m,0)).getUTCDate();
   const todayStr=today();
+  let html=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(x=>'<div class="calendar-head">'+x+'</div>').join('');
   for(let i=0;i<42;i++){
-    const cell=new Date(y,m,1+i-startDay);
-    const yy=cell.getFullYear(), mm=cell.getMonth(), dd=cell.getDate();
-    const other=mm!==m;
+    const raw=i-firstDow+1;
+    let yy=y, mm=m, dd=raw, other=false;
+    if(raw<1){mm=m-1;if(mm<0){mm=11;yy=y-1}dd=prevDays+raw;other=true}
+    else if(raw>days){mm=m+1;if(mm>11){mm=0;yy=y+1}dd=raw-days;other=true}
     const ds=yy+'-'+String(mm+1).padStart(2,'0')+'-'+String(dd).padStart(2,'0');
     const ev=state.tasks.filter(t=>String(t.due_date||'').slice(0,10)===ds);
-    html+='<div class="calendar-day '+(other?'other ':'')+(ds===todayStr?'today':'')+'><div class="calendar-num">'+dd+'</div>';
+    html+='<div class="calendar-day '+(other?'other ':'')+(ds===todayStr?'today':'')+'" data-date="'+ds+'"><div class="calendar-num">'+dd+'</div>';
     html+=ev.map(t=>'<button type="button" class="calendar-event '+(t.priority==='Высокий'?'high ':'')+(t.status==='Выполнена'?'done':'')+'" data-event-id="'+esc(t.id)+'" title="'+esc(eventDescription(t))+'">'+esc(eventType(t))+': '+esc(eventTitle(t))+'</button>').join('');
     html+='</div>';
   }
