@@ -161,6 +161,7 @@ h1{margin:0 0 6px;font-size:28px}.sub{color:var(--muted);margin:0 0 22px}
           <div class="field"><label>Пасека *</label><select name="apiary_id" required></select></div>
           <div class="field"><label>Номер улья *</label><input name="hive_number" required placeholder="Например, 1"></div>
           <div class="field"><label>Тип</label><input name="hive_type" placeholder="Дадан / Рута"></div>
+          <div class="field"><label>Порода матки</label><select name="queen_breed"><option value="">Не указана</option><option>Карника</option><option>Бакфаст</option><option>Мешанка</option><option>Итальянка</option><option>Среднерусская</option><option>Кавказская</option><option>Другая</option></select></div>
           <div class="field"><label>Место</label><input name="location" placeholder="Ряд 1, место 3"></div>
           <div class="field"><label>Состояние</label><select name="status"><option>Активен</option><option>Зимовка</option><option>Пустой</option></select></div>
           <div class="field full"><label>Примечание</label><textarea name="notes"></textarea></div>
@@ -525,9 +526,10 @@ function showHiveFamily(id){
   const last=state.inspections
     .filter(i=>String(i.hive_id)===String(id))
     .sort((a,b)=>String(b.inspection_date||'').localeCompare(String(a.inspection_date||'')))[0]||null;
+  const queenBreed=h.queen_breed||last?.queen_breed||'';
   const apiaryMap=Object.fromEntries(state.apiaries.map(a=>[a.id,a.name]));
   $('hiveFamilyTitle').textContent='🐝 Пчелиная семья — улей №'+(h.hive_number||'');
-  $('hiveFamilyInfo').innerHTML='<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px"><div class="card"><div class="muted">👑 Матка</div><b>'+esc(last?.queen_status||'Нет данных')+'</b><div class="muted" style="margin-top:6px">Порода: <b style="color:var(--ink)">'+esc(last?.queen_breed||'Не указана')+'</b></div></div><div class="card"><div class="muted">💪 Сила семьи</div><b>'+esc(last?.colony_strength||'Нет данных')+'</b></div><div class="card"><div class="muted">🥚 Расплод</div><b>'+esc(last?.brood||'Нет данных')+'</b></div><div class="card"><div class="muted">🍯 Корм</div><b>'+esc(last?.feed||'Нет данных')+'</b></div></div><div class="panel" style="margin-top:14px"><b>📅 Последний осмотр:</b> '+esc(last?.inspection_date||'Нет данных')+'<br><span class="muted">🐝 Пасека: '+esc(apiaryMap[h.apiary_id]||'Не указана')+' • 📍 '+esc(h.location||'Место не указано')+'</span>'+(last?.notes?'<p style="margin-bottom:0"><b>Заметки:</b> '+esc(last.notes)+'</p>':'')+'</div>';
+  $('hiveFamilyInfo').innerHTML='<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px"><div class="card"><div class="muted">👑 Матка</div><b>'+esc(last?.queen_status||'Нет данных')+'</b><div class="muted" style="margin-top:6px">Порода: <b style="color:var(--ink)">'+esc(queenBreed||'Не указана')+'</b></div></div><div class="card"><div class="muted">💪 Сила семьи</div><b>'+esc(last?.colony_strength||'Нет данных')+'</b></div><div class="card"><div class="muted">🥚 Расплод</div><b>'+esc(last?.brood||'Нет данных')+'</b></div><div class="card"><div class="muted">🍯 Корм</div><b>'+esc(last?.feed||'Нет данных')+'</b></div></div><div class="panel" style="margin-top:14px"><b>📅 Последний осмотр:</b> '+esc(last?.inspection_date||'Нет данных')+'<br><span class="muted">🐝 Пасека: '+esc(apiaryMap[h.apiary_id]||'Не указана')+' • 📍 '+esc(h.location||'Место не указано')+'</span>'+(last?.notes?'<p style="margin-bottom:0"><b>Заметки:</b> '+esc(last.notes)+'</p>':'')+'</div>';
   $('hiveFamilyModal').style.display='flex';
 }
 function closeHiveFamily(){ $('hiveFamilyModal').style.display='none'; }
@@ -552,7 +554,7 @@ $('hiveForm').onsubmit=async e=>{
   if(d.id){
     const old=state.hives.find(x=>String(x.id)===String(d.id));
     const moved=old && String(old.apiary_id||'')!==String(d.apiary_id||'');
-    const {error}=await db.from('hives').update({apiary_id:d.apiary_id,hive_number:d.hive_number,hive_type:d.hive_type,location:d.location,status:d.status,notes:d.notes}).eq('id',d.id);
+    const {error}=await db.from('hives').update({apiary_id:d.apiary_id,hive_number:d.hive_number,hive_type:d.hive_type,queen_breed:d.queen_breed,location:d.location,status:d.status,notes:d.notes}).eq('id',d.id);
     if(!error && moved){
       const {error:moveError}=await db.from('hive_movements').insert({hive_id:d.id,from_apiary_id:old.apiary_id||null,to_apiary_id:d.apiary_id||null,movement_date:today(),reason:'Перемещение улья'});
       if(moveError){toast('Улей перемещён, но история не записалась: '+moveError.message);resetHiveForm();await loadAll();return}
@@ -560,7 +562,7 @@ $('hiveForm').onsubmit=async e=>{
     if(error){toast('Ошибка: '+error.message);return}
     toast(moved?'Улей перемещён на другую пасеку':'Улей изменён');
   }else{
-    const {error}=await db.from('hives').insert({apiary_id:d.apiary_id,hive_number:d.hive_number,hive_type:d.hive_type,location:d.location,status:d.status,notes:d.notes});
+    const {error}=await db.from('hives').insert({apiary_id:d.apiary_id,hive_number:d.hive_number,hive_type:d.hive_type,queen_breed:d.queen_breed,location:d.location,status:d.status,notes:d.notes});
     if(error){toast('Ошибка: '+error.message);return}
     toast('Улей добавлен');
   }
@@ -574,7 +576,7 @@ function editHive(id){
   const h=state.hives.find(x=>String(x.id)===String(id)); if(!h)return;
   const f=$('hiveForm');
   f.elements.id.value=h.id; f.elements.apiary_id.value=h.apiary_id||''; f.elements.hive_number.value=h.hive_number||'';
-  f.elements.hive_type.value=h.hive_type||''; f.elements.location.value=h.location||''; f.elements.status.value=h.status||'Активен'; f.elements.notes.value=h.notes||'';
+  f.elements.hive_type.value=h.hive_type||''; f.elements.queen_breed.value=h.queen_breed||''; f.elements.location.value=h.location||''; f.elements.status.value=h.status||'Активен'; f.elements.notes.value=h.notes||'';
   $('hiveSaveBtn').textContent='Сохранить изменения'; $('hiveCancelBtn').style.display='inline-block'; $('hiveFormTitle').textContent='Изменить улей';
   f.scrollIntoView({behavior:'smooth',block:'center'});
 }
