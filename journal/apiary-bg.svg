@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900">
+<defs>
+ <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#cfe8d2"/><stop offset=".55" stop-color="#eef3c8"/><stop offset="1" stop-color="#d9c783"/></linearGradient>
+ <linearGradient id="field" x2="0" y2="1"><stop stop-color="#8fb66b"/><stop offset="1" stop-color="#4f7b45"/></linearGradient>
+ <pattern id="honey" width="90" height="104" patternUnits="userSpaceOnUse"><path d="M22 3h46l22 39-22 39H22L0 42z" fill="none" stroke="#d9a62e" stroke-width="5" opacity=".22"/></pattern>
+ <filter id="blur"><feGaussianBlur stdDeviation="10"/></filter>
+</defs>
+<rect width="1600" height="900" fill="url(#sky)"/>
+<circle cx="1280" cy="150" r="110" fill="#fff4a8" opacity=".35" filter="url(#blur)"/>
+<path d="M0 470 Q260 350 520 455 T1050 420 T1600 390V900H0Z" fill="url(#field)"/>
+<path d="M0 600 Q300 510 620 600 T1200 555 T1600 500V900H0Z" fill="#456d3d" opacity=".72"/>
+<g opacity=".42" fill="#fff"><circle cx="130" cy="620" r="9"/><circle cx="180" cy="680" r="7"/><circle cx="290" cy="590" r="8"/><circle cx="420" cy="720" r="9"/><circle cx="560" cy="640" r="7"/><circle cx="720" cy="690" r="8"/><circle cx="930" cy="620" r="8"/><circle cx="1100" cy="700" r="9"/><circle cx="1280" cy="610" r="7"/><circle cx="1450" cy="680" r="9"/></g>
+<g transform="translate(1120 300)">
+ <rect x="0" y="0" width="150" height="180" rx="8" fill="#c99032"/><rect x="12" y="28" width="126" height="105" fill="#e0a93d"/>
+ <rect x="18" y="145" width="114" height="14" fill="#76512c"/><rect x="18" y="171" width="114" height="10" fill="#76512c"/>
+ <path d="M25 48h100M25 73h100M25 98h100" stroke="#8d642b" stroke-width="8"/>
+</g>
+<g transform="translate(1320 345) scale(.72)">
+ <rect width="150" height="180" rx="8" fill="#d9a84b"/><rect x="12" y="28" width="126" height="105" fill="#f0c25e"/><rect x="18" y="145" width="114" height="14" fill="#76512c"/><rect x="18" y="171" width="114" height="10" fill="#76512c"/><path d="M25 48h100M25 73h100M25 98h100" stroke="#9a6b2c" stroke-width="8"/>
+</g>
+<g transform="translate(80 520) scale(1.15)">
+ <path d="M0 80L90 0l90 80v115H0z" fill="#a86d2e"/><path d="M20 88h140v80H20z" fill="#d49a3c"/><path d="M38 108h104M38 130h104M38 152h104" stroke="#8d5a27" stroke-width="9"/>
+ <path d="M48 190h84" stroke="#5d4125" stroke-width="14"/>
+</g>
+<g transform="translate(0 0)" opacity=".7"><path d="M0 0h440v260H0z" fill="url(#honey)"/></g>
+<g fill="#fff5cf" opacity=".7"><circle cx="90" cy="770" r="12"/><circle cx="130" cy="800" r="8"/><circle cx="220" cy="760" r="10"/><circle cx="1450" cy="770" r="11"/><circle cx="1510" cy="810" r="8"/></g>
+</svg>
