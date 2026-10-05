@@ -690,6 +690,23 @@ function renderAll(){
   $('recentInspections').innerHTML=state.inspections.slice(0,5).map(i=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>${esc(i.inspection_date)}</b> — улей ${esc(hiveMap[i.hive_id]||'')}</div>`).join('')||'<div class="empty">Осмотров пока нет.</div>';
   $('upcomingTasks').innerHTML=state.tasks.filter(t=>t.status!=='Выполнена').slice(0,5).map(t=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>${esc(t.due_date||'')}</b> — ${esc(t.title)}</div>`).join('')||'<div class="empty">Активных задач нет.</div>';
 
+  const disToday=new Date(today()+'T00:00:00');
+  const disAlerts=state.disinfection.map(x=>{
+    if(!x.next_date)return null;
+    const days=Math.ceil((new Date(String(x.next_date).slice(0,10)+'T00:00:00')-disToday)/86400000);
+    return {x,days};
+  }).filter(Boolean).sort((a,b)=>a.days-b.days);
+  $('disinfectionAlerts').innerHTML=disAlerts.length
+    ? '<div class="panel" style="margin:0 0 14px;background:#fff7e8;border-color:#e4c77a"><b>⚠️ Ближайшие обработки</b>'+disAlerts.slice(0,6).map(a=>'<div style="margin-top:8px">🧴 <b>'+esc(a.x.target_type||'')+'</b> — '+esc(a.x.next_date)+(a.days<0?' — 🔴 просрочено':a.days===0?' — 🟠 сегодня':' — 🟡 через '+a.days+' дн.')+'</div>').join('')+'</div>'
+    : '<div class="muted" style="margin-bottom:12px">Ближайших обработок пока нет.</div>';
+  const disApiaryMap=Object.fromEntries(state.apiaries.map(a=>[a.id,a.name]));
+  const disHiveMap=Object.fromEntries(state.hives.map(h=>[h.id,'№ '+h.hive_number]));
+  $('disinfectionList').innerHTML=state.disinfection.length
+    ? '<table class="table"><thead><tr><th>Дата</th><th>Что</th><th>Пасека</th><th>Улей</th><th>Рамок</th><th>Средство</th><th>Способ</th><th>Причина</th><th>Ответственный</th><th>Следующая</th><th></th></tr></thead><tbody>'+state.disinfection.map(x=>'<tr><td>'+esc(x.disinfection_date||'')+'</td><td>'+esc(x.target_type||'')+'</td><td>'+esc(disApiaryMap[x.apiary_id]||'—')+'</td><td>'+esc(disHiveMap[x.hive_id]||'—')+'</td><td>'+esc(x.frames_count??'—')+'</td><td>'+esc(x.agent||'—')+'</td><td>'+esc(x.treatment_method||'—')+'</td><td>'+esc(x.reason||'—')+'</td><td>'+esc(x.responsible||'—')+'</td><td>'+esc(x.next_date||'—')+'</td><td><button type="button" class="btn secondary disinfection-edit" data-id="'+esc(x.id)+'">Изменить</button> <button type="button" class="btn danger disinfection-delete" data-id="'+esc(x.id)+'">Удалить</button></td></tr>').join('')+'</tbody></table>'
+    : '<div class="empty">Записей пока нет. Добавьте первую обработку выше.</div>';
+  document.querySelectorAll('.disinfection-edit').forEach(b=>b.onclick=()=>editDisinfection(b.dataset.id));
+  document.querySelectorAll('.disinfection-delete').forEach(b=>b.onclick=()=>deleteDisinfection(b.dataset.id));
+
   $('disinfectionForm').elements.apiary_id.innerHTML='<option value="">Не указана</option>'+state.apiaries.map(a=>'<option value="'+a.id+'">'+esc(a.name)+'</option>').join('');
   $('disinfectionForm').elements.hive_id.innerHTML='<option value="">Не указан</option>'+state.hives.map(h=>'<option value="'+h.id+'">№ '+esc(h.hive_number)+'</option>').join('');
   $('inspectionHive').innerHTML='<option value="">Выберите улей</option>'+state.hives.map(h=>'<option value="'+h.id+'">№ '+esc(h.hive_number)+'</option>').join('');
