@@ -383,7 +383,10 @@ function renderAll(){
   document.querySelectorAll('.apiary-edit').forEach(b=>b.onclick=()=>editApiary(b.dataset.id));
   document.querySelectorAll('.apiary-delete').forEach(b=>b.onclick=()=>deleteApiary(b.dataset.id));
 
-  $('hivesList').innerHTML=state.hives.length?`<table class="table"><thead><tr><th>№</th><th>Тип</th><th>Место</th><th>Состояние</th></tr></thead><tbody>${state.hives.map(h=>`<tr><td>${esc(h.hive_number)}</td><td>${esc(h.hive_type)}</td><td>${esc(h.location)}</td><td>${esc(h.status)}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">Ульев пока нет.</div>';
+  const apiaryMap=Object.fromEntries(state.apiaries.map(a=>[a.id,a.name]));
+  $('hivesList').innerHTML=state.hives.length?state.hives.map(h=>'<div class="card" style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px"><div><b style="font-size:18px">⬡ Улей №'+esc(h.hive_number)+'</b><div class="muted" style="margin-top:5px">🐝 '+esc(apiaryMap[h.apiary_id]||'Пасека не указана')+' • '+esc(h.hive_type||'Тип не указан')+'</div></div><div class="actions" style="margin:0"><button type="button" class="btn secondary hive-edit" data-id="'+esc(h.id)+'">Изменить</button><button type="button" class="btn danger hive-delete" data-id="'+esc(h.id)+'">Удалить</button></div></div><p style="margin:10px 0 5px">📍 '+esc(h.location||'Место не указано')+' • <b>'+esc(h.status||'')+'</b></p><div class="muted">'+esc(h.notes||'Без примечания')+'</div></div>').join(''):'<div class="empty">Ульев пока нет. Добавьте первый улей выше.</div>';
+  document.querySelectorAll('.hive-edit').forEach(b=>b.onclick=()=>editHive(b.dataset.id));
+  document.querySelectorAll('.hive-delete').forEach(b=>b.onclick=()=>deleteHive(b.dataset.id));
 
   const hiveMap=Object.fromEntries(state.hives.map(h=>[h.id,h.hive_number]));
   $('inspectionsList').innerHTML=state.inspections.length?`<table class="table"><thead><tr><th>Дата</th><th>Улей</th><th>Семья</th><th>Матка</th><th>Заметки</th></tr></thead><tbody>${state.inspections.map(i=>`<tr><td>${esc(i.inspection_date)}</td><td>${esc(hiveMap[i.hive_id]||i.hive_id||'')}</td><td>${esc(i.colony_strength)}</td><td>${esc(i.queen_status)}</td><td>${esc(i.notes)}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">Осмотров пока нет.</div>';
