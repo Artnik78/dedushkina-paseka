@@ -45,6 +45,11 @@ h1{margin:0 0 6px;font-size:28px}.sub{color:var(--muted);margin:0 0 22px}
 .calendar-day{min-height:105px;padding:7px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:#fff}
 .calendar-day.other{background:#fafafa;color:#a4aaa6}.calendar-day.today{box-shadow:inset 0 0 0 2px var(--gold)}
 .calendar-num{font-weight:700;font-size:13px;margin-bottom:5px}.calendar-event{display:block;width:100%;border:0;text-align:left;border-radius:6px;padding:5px 6px;margin:3px 0;background:#edf5ee;color:var(--green);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.calendar-event.done{text-decoration:line-through;opacity:.55}.calendar-event.high{background:#fff0e6;color:#a44820}.calendar-legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;color:var(--muted);font-size:12px}
+.event-modal{position:fixed;inset:0;background:rgba(16,58,39,.45);display:none;align-items:center;justify-content:center;padding:18px;z-index:40}
+.event-modal-box{width:min(560px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:16px;padding:22px;box-shadow:0 20px 70px rgba(0,0,0,.25)}
+.event-modal-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
+.event-modal-head h3{margin:0}.close-btn{border:0;background:#eee9dc;border-radius:50%;width:36px;height:36px;font-size:20px}
+.calendar-event{cursor:pointer}
 @media(max-width:700px){.calendar-day{min-height:78px;padding:5px}.calendar-event{font-size:10px;padding:4px}.calendar-head{font-size:10px}}
 #auth{position:fixed;inset:0;background:linear-gradient(135deg,#103a27,#1d6337);display:none;align-items:center;justify-content:center;padding:20px;z-index:20}
 .authbox{width:min(430px,100%);background:#fff;border-radius:18px;padding:26px;box-shadow:0 20px 70px rgba(0,0,0,.25)}
@@ -265,6 +270,22 @@ h1{margin:0 0 6px;font-size:28px}.sub{color:var(--muted);margin:0 0 22px}
 </main>
 </div>
 
+<div class="event-modal" id="eventModal">
+  <div class="event-modal-box">
+    <div class="event-modal-head"><h3>Событие календаря</h3><button class="close-btn" id="closeEventModal">×</button></div>
+    <form id="eventEditForm" class="form">
+      <input type="hidden" name="id">
+      <div class="field"><label>Название *</label><input name="title" required></div>
+      <div class="field"><label>Дата *</label><input name="due_date" type="date" required></div>
+      <div class="field"><label>Тип работы</label><select name="event_type"><option>Осмотр</option><option>Подкормка</option><option>Обработка</option><option>Откачка мёда</option><option>Перестановка рамок</option><option>Покупка</option><option>Другое</option></select></div>
+      <div class="field"><label>Приоритет</label><select name="priority"><option>Обычный</option><option>Высокий</option><option>Низкий</option></select></div>
+      <div class="field"><label>Напоминание</label><select name="reminder"><option>Без напоминания</option><option>За 1 день</option><option>За 3 дня</option><option>За 7 дней</option></select></div>
+      <div class="field"><label>Статус</label><select name="status"><option>Открыта</option><option>Выполнена</option></select></div>
+      <div class="field full"><label>Описание</label><textarea name="description"></textarea></div>
+      <div class="actions"><button class="btn">Сохранить изменения</button><button type="button" class="btn secondary" id="closeEventBtn">Отмена</button><button type="button" class="btn danger" id="deleteEventBtn">Удалить</button></div>
+    </form>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -280,7 +301,7 @@ calendarMonth.setDate(1);
 function $(id){return document.getElementById(id)}
 function toast(msg){const t=$('toast');t.textContent=msg;t.style.display='block';setTimeout(()=>t.style.display='none',2500)}
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
-function today(){return new Date().toISOString().slice(0,10)}
+function today(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function formData(form){return Object.fromEntries(new FormData(form).entries())}
 function showPage(name){
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
@@ -383,28 +404,58 @@ function renderCalendar(){
   const names=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
   $('calendarMonthTitle').textContent=names[m]+' '+y;
   const first=new Date(y,m,1), last=new Date(y,m+1,0);
-  const start=(first.getDay()+6)%7, days=last.getDate(), prevLast=new Date(y,m,0).getDate();
+  const startDay=(first.getDay()+6)%7, days=last.getDate(), prevLast=new Date(y,m,0).getDate();
   let html=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(x=>'<div class="calendar-head">'+x+'</div>').join('');
   const todayStr=today();
+  const localDate=(yy,mm,dd)=>yy+'-'+String(mm+1).padStart(2,'0')+'-'+String(dd).padStart(2,'0');
   for(let i=0;i<42;i++){
-    const n=i-start+1;
-    let d=new Date(y,m,n), other=n<1||n>days;
-    if(n<1)d=new Date(y,m-1,prevLast+n);
-    if(n>days)d=new Date(y,m+1,n-days);
-    const ds=d.toISOString().slice(0,10);
+    const n=i-startDay+1;
+    let yy=y,mm=m,dd=n,other=n<1||n>days;
+    if(n<1){mm=m-1;if(mm<0){mm=11;yy=y-1}dd=prevLast+n}
+    if(n>days){mm=m+1;if(mm>11){mm=0;yy=y+1}dd=n-days}
+    const ds=localDate(yy,mm,dd);
     const ev=state.tasks.filter(t=>t.due_date===ds);
-    html+='<div class="calendar-day '+(other?'other ':'')+(ds===todayStr?'today':'')+'><div class="calendar-num">'+d.getDate()+'</div>';
-    html+=ev.map(t=>'<button class="calendar-event '+(t.priority==='Высокий'?'high ':'')+(t.status==='Выполнена'?'done':'')+'" title="'+esc(eventDescription(t))+'">'+esc(eventType(t))+': '+esc(eventTitle(t))+'</button>').join('');
+    html+='<div class="calendar-day '+(other?'other ':'')+(ds===todayStr?'today':'')+'><div class="calendar-num">'+dd+'</div>';
+    html+=ev.map(t=>'<button type="button" class="calendar-event '+(t.priority==='Высокий'?'high ':'')+(t.status==='Выполнена'?'done':'')+'" data-event-id="'+esc(t.id)+'" title="'+esc(eventDescription(t))+'">'+esc(eventType(t))+': '+esc(eventTitle(t))+'</button>').join('');
     html+='</div>';
   }
   $('calendarGrid').innerHTML=html;
   $('calendarLegend').innerHTML='<span>🟢 обычная работа</span><span>🟠 высокий приоритет</span><span>✓ зачёркнуто — выполнено</span>';
-  $('calendarTasks').innerHTML=state.tasks.length?'<table class="table"><thead><tr><th>Дата</th><th>Тип</th><th>Событие</th><th>Приоритет</th><th>Статус</th><th>Напоминание</th></tr></thead><tbody>'+state.tasks.map(t=>'<tr><td>'+esc(t.due_date||'')+'</td><td>'+esc(eventType(t))+'</td><td>'+esc(eventTitle(t))+'</td><td>'+esc(t.priority)+'</td><td>'+esc(t.status)+'</td><td>'+esc(eventReminder(t))+'</td></tr>').join('')+'</tbody></table>':'<div class="empty">Событий пока нет. Нажмите «Добавить событие».</div>';
+  $('calendarTasks').innerHTML=state.tasks.length?'<table class="table"><thead><tr><th>Дата</th><th>Тип</th><th>Событие</th><th>Приоритет</th><th>Статус</th><th>Напоминание</th><th></th></tr></thead><tbody>'+state.tasks.map(t=>'<tr><td>'+esc(t.due_date||'')+'</td><td>'+esc(eventType(t))+'</td><td>'+esc(eventTitle(t))+'</td><td>'+esc(t.priority)+'</td><td>'+esc(t.status)+'</td><td>'+esc(eventReminder(t))+'</td><td><button type="button" class="btn secondary calendar-open-table" data-event-id="'+esc(t.id)+'">Открыть</button></td></tr>').join('')+'</tbody></table>':'<div class="empty">Событий пока нет. Нажмите «Добавить событие».</div>';
+  document.querySelectorAll('.calendar-event,.calendar-open-table').forEach(b=>b.onclick=()=>openEventModal(b.dataset.eventId));
 }
 $('prevMonthBtn').onclick=()=>{calendarMonth.setMonth(calendarMonth.getMonth()-1);renderCalendar()};
 $('nextMonthBtn').onclick=()=>{calendarMonth.setMonth(calendarMonth.getMonth()+1);renderCalendar()};
 $('addCalendarEventBtn').onclick=()=>{$('calendarFormPanel').style.display='block';$('calendarForm').elements.due_date.value=today();$('calendarFormPanel').scrollIntoView({behavior:'smooth',block:'start'})};
 $('cancelCalendarBtn').onclick=()=>{$('calendarFormPanel').style.display='none';$('calendarForm').reset()};
+function openEventModal(id){
+  const t=state.tasks.find(x=>String(x.id)===String(id)); if(!t)return;
+  const f=$('eventEditForm');
+  f.elements.id.value=t.id; f.elements.title.value=eventTitle(t); f.elements.due_date.value=t.due_date||today();
+  f.elements.event_type.value=eventType(t); f.elements.priority.value=t.priority||'Обычный'; f.elements.reminder.value=eventReminder(t);
+  f.elements.status.value=t.status||'Открыта'; f.elements.description.value=eventDescription(t);
+  $('eventModal').style.display='flex';
+}
+function closeEventModal(){$('eventModal').style.display='none'}
+$('closeEventModal').onclick=closeEventModal;
+$('closeEventBtn').onclick=closeEventModal;
+$('eventModal').onclick=e=>{if(e.target.id==='eventModal')closeEventModal()};
+$('eventEditForm').onsubmit=async e=>{
+  e.preventDefault(); const d=formData(e.target);
+  const title='['+(d.event_type||'Работа')+'] '+d.title;
+  const description='[Напоминание:'+(d.reminder||'Без напоминания')+'] '+(d.description||'');
+  const {error}=await db.from('tasks').update({title,due_date:d.due_date,priority:d.priority,status:d.status,description}).eq('id',d.id);
+  if(error){toast('Ошибка: '+error.message);return}
+  closeEventModal(); toast('Изменения сохранены'); await loadAll();
+};
+$('deleteEventBtn').onclick=async()=>{
+  const id=$('eventEditForm').elements.id.value; if(!id)return;
+  if(!confirm('Удалить это событие?'))return;
+  const {error}=await db.from('tasks').delete().eq('id',id);
+  if(error){toast('Ошибка: '+error.message);return}
+  closeEventModal(); toast('Событие удалено'); await loadAll();
+};
+
 $('calendarForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);const title='['+(d.event_type||'Работа')+'] '+d.title;const description='[Напоминание:'+(d.reminder||'Без напоминания')+'] '+(d.description||'');insert('tasks',{title,due_date:d.due_date||null,priority:d.priority,status:d.status,description},e.target);$('calendarFormPanel').style.display='none';};
 document.querySelectorAll('form input[type=date]').forEach(x=>{if(!x.value)x.value=today()});
 $('search').addEventListener('input',e=>{
