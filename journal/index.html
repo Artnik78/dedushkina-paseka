@@ -186,6 +186,7 @@ h1{margin:0 0 6px;font-size:28px}.sub{color:var(--muted);margin:0 0 22px}
           <div class="field"><label>Дата *</label><input name="inspection_date" type="date" required></div>
           <div class="field"><label>Состояние семьи</label><input name="colony_strength" placeholder="Сильная / средняя / слабая"></div>
           <div class="field"><label>Матка</label><input name="queen_status" placeholder="Есть / нет / молодая"></div>
+          <div class="field"><label>Порода матки</label><select name="queen_breed"><option value="">Не указана</option><option>Карника</option><option>Бакфаст</option><option>Мешанка</option><option>Итальянка</option><option>Среднерусская</option><option>Кавказская</option><option>Другая</option></select></div>
           <div class="field"><label>Расплод</label><input name="brood" placeholder="Хороший / слабый"></div>
           <div class="field"><label>Корм</label><input name="feed" placeholder="Мёд / сироп / перга"></div>
           <div class="field full"><label>Заметки</label><textarea name="notes"></textarea></div>
@@ -526,7 +527,7 @@ function showHiveFamily(id){
     .sort((a,b)=>String(b.inspection_date||'').localeCompare(String(a.inspection_date||'')))[0]||null;
   const apiaryMap=Object.fromEntries(state.apiaries.map(a=>[a.id,a.name]));
   $('hiveFamilyTitle').textContent='🐝 Пчелиная семья — улей №'+(h.hive_number||'');
-  $('hiveFamilyInfo').innerHTML='<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px"><div class="card"><div class="muted">👑 Матка</div><b>'+esc(last?.queen_status||'Нет данных')+'</b></div><div class="card"><div class="muted">💪 Сила семьи</div><b>'+esc(last?.colony_strength||'Нет данных')+'</b></div><div class="card"><div class="muted">🥚 Расплод</div><b>'+esc(last?.brood||'Нет данных')+'</b></div><div class="card"><div class="muted">🍯 Корм</div><b>'+esc(last?.feed||'Нет данных')+'</b></div></div><div class="panel" style="margin-top:14px"><b>📅 Последний осмотр:</b> '+esc(last?.inspection_date||'Нет данных')+'<br><span class="muted">🐝 Пасека: '+esc(apiaryMap[h.apiary_id]||'Не указана')+' • 📍 '+esc(h.location||'Место не указано')+'</span>'+(last?.notes?'<p style="margin-bottom:0"><b>Заметки:</b> '+esc(last.notes)+'</p>':'')+'</div>';
+  $('hiveFamilyInfo').innerHTML='<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px"><div class="card"><div class="muted">👑 Матка</div><b>'+esc(last?.queen_status||'Нет данных')+'</b><div class="muted" style="margin-top:6px">Порода: <b style="color:var(--ink)">'+esc(last?.queen_breed||'Не указана')+'</b></div></div><div class="card"><div class="muted">💪 Сила семьи</div><b>'+esc(last?.colony_strength||'Нет данных')+'</b></div><div class="card"><div class="muted">🥚 Расплод</div><b>'+esc(last?.brood||'Нет данных')+'</b></div><div class="card"><div class="muted">🍯 Корм</div><b>'+esc(last?.feed||'Нет данных')+'</b></div></div><div class="panel" style="margin-top:14px"><b>📅 Последний осмотр:</b> '+esc(last?.inspection_date||'Нет данных')+'<br><span class="muted">🐝 Пасека: '+esc(apiaryMap[h.apiary_id]||'Не указана')+' • 📍 '+esc(h.location||'Место не указано')+'</span>'+(last?.notes?'<p style="margin-bottom:0"><b>Заметки:</b> '+esc(last.notes)+'</p>':'')+'</div>';
   $('hiveFamilyModal').style.display='flex';
 }
 function closeHiveFamily(){ $('hiveFamilyModal').style.display='none'; }
@@ -585,7 +586,7 @@ async function deleteHive(id){
   toast('Улей удалён'); await loadAll();
 }
 $('hiveCancelBtn').onclick=resetHiveForm;
-$('inspectionForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);insert('inspections',{hive_id:d.hive_id,inspection_date:d.inspection_date,colony_strength:d.colony_strength,queen_status:d.queen_status,brood:d.brood,feed:d.feed,notes:d.notes},e.target)};
+$('inspectionForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);insert('inspections',{hive_id:d.hive_id,inspection_date:d.inspection_date,colony_strength:d.colony_strength,queen_status:d.queen_status,queen_breed:d.queen_breed,brood:d.brood,feed:d.feed,notes:d.notes},e.target)};
 $('honeyForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);insert('honey_batches',{batch_number:d.batch_number,honey_type:d.honey_type,collection_date:d.collection_date||null,quantity_kg:d.quantity_kg?Number(d.quantity_kg):null,price_per_kg:d.price_per_kg?Number(d.price_per_kg):null,collection_place:d.collection_place,notes:d.notes},e.target)};
 $('financeForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);insert('finances',{operation_date:d.operation_date,operation_type:d.operation_type,amount:Number(d.amount),category:d.category,description:d.description},e.target)};
 $('taskForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);insert('tasks',{title:d.title,due_date:d.due_date||null,priority:d.priority,status:d.status,description:d.description},e.target)};
