@@ -573,6 +573,7 @@ function renderAll(){
   }).sort((a,b)=>Number(a.number)-Number(b.number));
   $('homeHiveStatus').innerHTML='<div class="status-grid">'+statusCards.map(x=>'<div class="status-box"><div class="num">'+x[0]+' '+x[1]+'</div><small>'+x[2]+'</small></div>').join('')+'</div>'+
     (statusRows.length?'<div class="hive-health-list">'+statusRows.map(x=>'<button type="button" class="hive-health-row '+x.level+'" data-page="hives"><span class="hive-health-icon">'+x.icon+'</span><span><b>Улей №'+esc(x.number)+'</b><small>'+esc(x.text)+'</small></span><span class="hive-arrow">›</span></button>').join('')+'</div>':'<div class="muted" style="margin-top:12px">Ульев пока нет.</div>');
+  document.querySelectorAll('#homeHiveStatus [data-page]').forEach(b=>b.onclick=()=>showPage(b.dataset.page));
   $('countHives').textContent=state.hives.length;
   $('countInspections').textContent=state.inspections.length;
   $('countHoney').textContent=state.honey.length;
