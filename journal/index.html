@@ -125,6 +125,7 @@ h1{margin:0 0 6px;font-size:28px}.sub{color:var(--muted);margin:0 0 22px}
           <button class="btn secondary" data-page="apiaries">🏡 Паспорт пасеки</button>
         </div>
       </div>
+      <div id="homeMedicineAlerts" class="panel" style="margin-top:18px"></div>
       <div class="cards">
         <div class="card"><div class="muted">Ульев</div><div class="big" id="countHives">0</div></div>
         <div class="card"><div class="muted">Осмотров</div><div class="big" id="countInspections">0</div></div>
@@ -457,6 +458,23 @@ function renderAll(){
   $('statFinance').textContent=state.finance.length;
 
   const medicineToday=new Date(today()+'T00:00:00');
+  const homeMedicineAlerts=state.medicines.map(m=>{
+    const alerts=[];
+    const qty=Number(m.quantity||0), min=Number(m.min_quantity||0);
+    if(qty<=min) alerts.push('остаток '+qty+' — проверить запас');
+    if(m.expiry_date){
+      const exp=new Date(String(m.expiry_date).slice(0,10)+'T00:00:00');
+      const days=Math.ceil((exp-medicineToday)/86400000);
+      const warn=Number(m.expiry_warning_days||30);
+      if(days<0) alerts.push('срок годности истёк');
+      else if(days<=warn) alerts.push('срок годности заканчивается через '+days+' дн.');
+    }
+    return alerts.length?{m,alerts}:null;
+  }).filter(Boolean);
+  $('homeMedicineAlerts').innerHTML=homeMedicineAlerts.length
+    ? '<h3 style="margin:0 0 10px">⚠️ Лекарства — требуют внимания</h3>'+homeMedicineAlerts.map(x=>'<div style="padding:7px 0;border-bottom:1px solid var(--line)">💊 <b>'+esc(x.m.name)+'</b> — '+esc(x.alerts.join('; '))+'</div>').join('')+'<div class="actions" style="margin-bottom:0"><button type="button" class="btn secondary" data-page="medicines">Открыть лекарства</button></div>'
+    : '<div style="color:var(--green2)">✅ По лекарствам всё в порядке.</div>';
+  document.querySelectorAll('#homeMedicineAlerts [data-page]').forEach(b=>b.onclick=()=>showPage(b.dataset.page));
   const medicineAlerts=state.medicines.map(m=>{
     const alerts=[];
     const qty=Number(m.quantity||0), min=Number(m.min_quantity||0);
