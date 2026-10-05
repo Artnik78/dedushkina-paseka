@@ -126,10 +126,11 @@ h1{margin:0 0 6px;font-size:28px}.sub{color:var(--muted);margin:0 0 22px}
       <div class="panel">
         <h3>Добавить пасеку</h3>
         <form id="apiaryForm" class="form">
+          <input type="hidden" name="id">
           <div class="field"><label>Название пасеки *</label><input name="name" required placeholder="Например, Дедушкина пасека"></div>
           <div class="field"><label>Место / район</label><input name="location" placeholder="Клецкий район"></div>
           <div class="field full"><label>Описание</label><textarea name="description" placeholder="Основная пасека, количество ульев, особенности..."></textarea></div>
-          <div><button class="btn">Сохранить пасеку</button></div>
+          <div class="actions"><button class="btn" id="apiarySaveBtn">Сохранить пасеку</button><button type="button" class="btn secondary" id="apiaryCancelBtn" style="display:none">Отмена</button></div>
         </form>
       </div>
       <div class="panel"><h3>Мои пасеки</h3><div id="apiariesList" class="empty">Загрузка...</div></div>
@@ -403,21 +404,46 @@ async function insert(table,payload,form){
 }
 $('apiaryForm').onsubmit=async e=>{
   e.preventDefault();
-  const d=formData(e.target);
-  const {error}=await db.from('apiaries').insert({name:d.name,location:d.location,description:d.description});
-  if(error){toast('Ошибка: '+error.message);return}
-  e.target.reset(); toast('Пасека добавлена'); await loadAll();
+  const f=e.target, d=formData(f);
+  if(!d.name.trim()){toast('Название пасеки обязательно');return}
+  if(d.id){
+    const {error}=await db.from('apiaries').update({name:d.name.trim(),location:d.location.trim(),description:d.description.trim()}).eq('id',d.id);
+    if(error){toast('Ошибка: '+error.message);return}
+    toast('Пасека изменена');
+  }else{
+    const {error}=await db.from('apiaries').insert({name:d.name.trim(),location:d.location.trim(),description:d.description.trim()});
+    if(error){toast('Ошибка: '+error.message);return}
+    toast('Пасека добавлена');
+  }
+  resetApiaryForm(); await loadAll();
 };
-async function editApiary(id){
-  const a=state.apiaries.find(x=>String(x.id)===String(id)); if(!a)return;
-  const name=prompt('Название пасеки:',a.name||''); if(name===null)return;
-  const location=prompt('Место / район:',a.location||''); if(location===null)return;
-  const description=prompt('Описание:',a.description||''); if(description===null)return;
-  if(!name.trim()){toast('Название пасеки обязательно');return}
-  const {error}=await db.from('apiaries').update({name:name.trim(),location:location.trim(),description:description.trim()}).eq('id',id);
-  if(error){toast('Ошибка: '+error.message);return}
-  toast('Пасека изменена'); await loadAll();
+function resetApiaryForm(){
+  const f=$('apiaryForm');
+  f.reset(); f.elements.id.value='';
+  $('apiarySaveBtn').textContent='Сохранить пасеку';
+  $('apiaryCancelBtn').style.display='none';
+  f.closest('.panel').querySelector('h3').textContent='Добавить пасеку';
 }
+function editApiary(id){
+  const a=state.apiaries.find(x=>String(x.id)===String(id)); if(!a)return;
+  const f=$('apiaryForm');
+  f.elements.id.value=a.id;
+  f.elements.name.value=a.name||'';
+  f.elements.location.value=a.location||'';
+  f.elements.description.value=a.description||'';
+  $('apiarySaveBtn').textContent='Сохранить изменения';
+  $('apiaryCancelBtn').style.display='inline-block';
+  f.closest('.panel').querySelector('h3').textContent='Изменить пасеку';
+  f.scrollIntoView({behavior:'smooth',block:'center'});
+}
+async function deleteApiary(id){
+  const a=state.apiaries.find(x=>String(x.id)===String(id)); if(!a)return;
+  if(!confirm('Удалить пасеку «'+(a.name||'')+'»?'))return;
+  const {error}=await db.from('apiaries').delete().eq('id',id);
+  if(error){toast('Ошибка: '+error.message);return}
+  toast('Пасека удалена'); await loadAll();
+}
+$('apiaryCancelBtn').onclick=resetApiaryForm;
 async function deleteApiary(id){
   const a=state.apiaries.find(x=>String(x.id)===String(id)); if(!a)return;
   if(!confirm('Удалить пасеку «'+(a.name||'')+'»?'))return;
