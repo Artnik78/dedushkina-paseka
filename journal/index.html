@@ -73,6 +73,7 @@ h1{margin:0 0 6px;font-size:28px}.sub{color:var(--muted);margin:0 0 22px}
     <div class="actions">
       <button class="btn" id="loginBtn">Войти</button>
       <button class="btn secondary" id="signupBtn">Регистрация</button>
+      <button class="btn gold" id="guestBtn">👁️ Гостевой просмотр</button>
     </div>
     <div class="muted">Для работы с журналом используется ваш аккаунт Supabase.</div>
   </div>
@@ -324,6 +325,33 @@ function showPage(name){
 }
 document.querySelectorAll('[data-page]').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
 
+function showGuest(){
+  $('auth').style.display='none';
+  $('userEmail').textContent='Гостевой просмотр';
+  document.querySelectorAll('.nav button').forEach(b=>b.disabled=false);
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  $('page-home').classList.add('active');
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page==='home'));
+  renderGuestMode();
+}
+function renderGuestMode(){
+  $('countHives').textContent='—'; $('countInspections').textContent='—'; $('countHoney').textContent='—'; $('countTasks').textContent='—';
+  $('statHives').textContent='—'; $('statInspections').textContent='—'; $('statHoney').textContent='—'; $('statFinance').textContent='—';
+  $('recentInspections').innerHTML='<div class="empty">Гостевой режим — данные владельца скрыты.</div>';
+  $('upcomingTasks').innerHTML='<div class="empty">Гостевой режим — данные владельца скрыты.</div>';
+  $('apiariesList').innerHTML='<div class="card"><b>🐝 Дедушкина пасека</b><div class="muted">Структура журнала доступна для просмотра</div><p>Пасеки, ульи, осмотры, календарь, партии мёда, финансы, напоминания, фото и статистика.</p></div>';
+  $('hivesList').innerHTML='<div class="empty">Гостевой режим: реальные ульи не отображаются.</div>';
+  $('inspectionsList').innerHTML='<div class="empty">Гостевой режим: реальные осмотры не отображаются.</div>';
+  $('honeyList').innerHTML='<div class="empty">Гостевой режим: реальные партии не отображаются.</div>';
+  $('financeList').innerHTML='<div class="empty">Гостевой режим: финансовые данные не отображаются.</div>';
+  $('tasksList').innerHTML='<div class="empty">Гостевой режим: реальные напоминания не отображаются.</div>';
+  $('calendarGrid').innerHTML='<div class="empty" style="grid-column:1/-1">Гостевой режим: календарь доступен как раздел журнала, личные события скрыты.</div>';
+  $('calendarTasks').innerHTML='';
+  $('photos').innerHTML='';
+  document.querySelectorAll('#page-hives form,#page-inspections form,#page-calendar form,#page-honey form,#page-finances form,#page-tasks form').forEach(f=>f.closest('.panel').style.display='none');
+  document.querySelectorAll('.panel h3').forEach(h=>{if(h.textContent.includes('Новый')||h.textContent.includes('Добавить')||h.textContent.includes('Новая'))h.closest('.panel').style.display='none'});
+  document.querySelectorAll('#page-home .actions button').forEach(b=>b.style.display='none');
+}
 async function authInit(){
   const {data:{session}} = await db.auth.getSession();
   if(session){showApp(session.user)}
@@ -337,6 +365,7 @@ async function showApp(user){
   $('userEmail').textContent=user.email||'Пользователь';
   await loadAll();
 }
+$('guestBtn').onclick=showGuest;
 $('loginBtn').onclick=async()=>{
   $('authMessage').textContent='';
   const email=$('authEmail').value.trim(), password=$('authPassword').value;
@@ -351,7 +380,7 @@ $('signupBtn').onclick=async()=>{
   if(error)$('authMessage').textContent=error.message;
   else $('authMessage').textContent='Регистрация выполнена. Если потребуется подтверждение, проверьте почту.';
 };
-$('logoutBtn').onclick=()=>db.auth.signOut();
+$('logoutBtn').onclick=()=>{location.reload()};
 $('refreshBtn').onclick=loadAll;
 
 async function getTable(table,order='created_at'){
