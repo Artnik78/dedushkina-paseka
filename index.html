@@ -82,6 +82,8 @@
 .honeycomb-info-grid{display:grid;grid-template-columns:1fr 1.15fr;gap:18px;margin-top:18px}.honeycomb-info-card{background:rgba(255,255,255,.78);border:1px solid #e2cfaa;border-radius:14px;padding:17px}.honeycomb-info-card h3{margin:0 0 10px;color:#49662e;font-size:21px}.honeycomb-info-card ul{margin:0;padding-left:22px}.honeycomb-info-card li{margin:7px 0;line-height:1.42}.honeycomb-benefits{display:grid;grid-template-columns:1fr 1fr;gap:10px}.honeycomb-benefit{padding:11px 12px;border:1px dashed #d6b978;border-radius:12px;background:#fffaf0}.honeycomb-benefit b{display:block;color:#35622c;margin-bottom:3px}.honeycomb-info-wide{margin-top:18px}.honeycomb-info-footer{margin-top:18px;padding:15px;border-radius:14px;background:#ead7ad;text-align:center;font-weight:700}.honeycomb-info-footer a{color:#4b6a2d;text-decoration:none}
 .info-button.honeycomb-info-trigger{background:#587b3b;color:#fff!important}.info-button.honeycomb-info-trigger:hover{background:#46662f}
 @media(max-width:700px){.honeycomb-info-box{padding:17px 12px}.honeycomb-info-grid,.honeycomb-benefits{grid-template-columns:1fr}.honeycomb-info-card{padding:14px}}
+
+.detail-info-modal{display:none;position:fixed;inset:0;z-index:10020;background:rgba(20,15,10,.78);align-items:center;justify-content:center;padding:18px;overflow:auto}.detail-info-modal.open{display:flex}.detail-info-modal .detail-info-box{max-height:94vh;overflow:auto;width:min(1050px,96vw);background:#fffaf0;border-radius:18px;box-shadow:0 20px 70px rgba(0,0,0,.3)}
 </style></head><body>
 <div class="top"><div class="wrap topinner"><a class="brand" href="#home"><span class="bee">🐝</span><span><strong>Дедушкина пасека</strong><small>НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</small></span></a><nav class="nav"><a href="#home">Главная</a><a href="#catalog">Каталог</a><a href="#about">О пасеке</a><a href="#gifts">🎁 Подарочные наборы</a><a href="#info">Полезная информация</a><a href="#contacts">Контакты</a></nav><a class="phone" href="tel:+375445748112">☎ +375 44 574 81 12</a></div></div>
 <header class="hero" id="home"><div class="herobox"><h1>Дедушкина пасека</h1><div class="ornament">── 🐝 ──</div><p class="sub">НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</p><p class="motto">С заботой о природе и вашем здоровье</p><div class="virtues"><div><span>♧</span>Натурально<br/>и полезно</div><div><span>⬡</span>Собственное<br/>производство</div><div><span>♡</span>Традиции<br/>и качество</div></div></div></header>
@@ -106,12 +108,12 @@
 </div></div></section>
 <section class="detail" id="cream"><div class="wrap"><h2>🍯 Крем-мёд</h2><p class="cream-intro">Нажмите на изображение крем-мёда, чтобы выбрать объём и заказать.</p><div class="items"><div class="item cream-item choice-item"><img alt="Крем-мёд С лимоном" class="product-label choice-trigger" data-choice="cream" data-options="0,1 л — 8 руб.|0,13 л — 10 руб.|0,28 л — 16 руб." src="images/cream-lemon.png"/><h3>С лимоном</h3></div><div class="item cream-item choice-item"><img alt="Крем-мёд С пыльцой" class="product-label choice-trigger" data-choice="cream" data-options="0,1 л — 8 руб.|0,13 л — 10 руб.|0,28 л — 16 руб." src="images/cream-pollen.png"/><h3>С пыльцой</h3></div><div class="item cream-item choice-item"><img alt="Крем-мёд С имбирём" class="product-label choice-trigger" data-choice="cream" data-options="0,1 л — 8 руб.|0,13 л — 10 руб.|0,28 л — 16 руб." src="images/cream-ginger.png"/><h3>С имбирём</h3></div><div class="item cream-item choice-item"><img alt="Крем-мёд С имбирём и куркумой" class="product-label choice-trigger" data-choice="cream" data-options="0,1 л — 8 руб.|0,13 л — 10 руб.|0,28 л — 16 руб." src="images/cream-ginger-turmeric.png"/><h3>С имбирём и куркумой</h3></div><div class="item cream-item choice-item"><img alt="Крем-мёд С ягодами годжи" class="product-label choice-trigger" data-choice="cream" data-options="0,1 л — 8 руб.|0,13 л — 10 руб.|0,28 л — 16 руб." src="images/cream-goji.png"/><h3>С ягодами годжи</h3></div><div class="item cream-item choice-item"><img alt="Крем-мёд С клубникой" class="product-label choice-trigger" data-choice="cream" data-options="0,1 л — 8 руб.|0,13 л — 10 руб.|0,28 л — 16 руб." src="images/cream-strawberry.png"/><h3>С клубникой</h3></div><div class="item cream-item choice-item"><img alt="Крем-мёд «Кокос и миндаль»" class="product-label choice-trigger" data-choice="cream" data-options="0,1 л — 8 руб.|0,13 л — 10 руб.|0,28 л — 16 руб." src="images/cream-coconut-almond.png"/><h3>«Кокос и миндаль»</h3></div><div class="item cream-item choice-item"><img alt="Крем-мёд С мятой" class="product-label choice-trigger" data-choice="cream" data-options="0,1 л — 8 руб.|0,13 л — 10 руб.|0,28 л — 16 руб." src="images/cream-mint.png"/><h3>С мятой</h3></div><div class="item cream-item choice-item"><img alt="Крем-мёд Со смородиной" class="product-label choice-trigger" data-choice="cream" data-options="0,1 л — 8 руб.|0,13 л — 10 руб.|0,28 л — 16 руб." src="images/cream-currant.png"/><h3>Со смородиной</h3></div><div class="item cream-item choice-item"><img alt="Крем-мёд Со спирулиной" class="product-label choice-trigger" data-choice="cream" data-options="0,1 л — 8 руб.|0,13 л — 10 руб.|0,28 л — 16 руб." src="images/cream-spirulina.png"/><h3>Со спирулиной</h3></div><div class="item cream-item choice-item"><img alt="Крем-мёд С черникой" class="product-label choice-trigger" data-choice="cream" data-options="0,1 л — 8 руб.|0,13 л — 10 руб.|0,28 л — 16 руб." src="images/cream-blueberry.png"/><h3>С черникой</h3></div></div></div></section>
 <section class="detail" id="soap"><div class="wrap"><h2>🧼 Мыло</h2><p class="cream-intro">Нажмите на изображение мыла, чтобы посмотреть информацию и заказать.</p><div class="items">
-<div class="item choice-item"><img alt="Натуральное мыло с мёдом и ромашкой" class="product-label choice-trigger" data-choice="product" data-options="7 руб." src="images/info/soap-calendula.png"/><h3>Натуральное мыло с мёдом и ромашкой</h3><p style="margin:0">7 руб.</p></div>
-<div class="item choice-item"><img alt="Натуральное мыло с мёдом и зверобоем" class="product-label choice-trigger" data-choice="product" data-options="7 руб." src="images/info/soap-calendula.png"/><h3>Натуральное мыло с мёдом и зверобоем</h3><p style="margin:0">7 руб.</p></div>
-<div class="item choice-item"><img alt="Натуральное мыло с мёдом и молоком" class="product-label choice-trigger" data-choice="product" data-options="7 руб." src="images/info/soap-calendula.png"/><h3>Натуральное мыло с мёдом и молоком</h3><p style="margin:0">7 руб.</p></div>
-<div class="item choice-item"><img alt="Натуральное мыло с мёдом и календулой" class="product-label choice-trigger" data-choice="product" data-options="7 руб." src="images/info/soap-calendula.png"/><h3>Натуральное мыло с мёдом и календулой</h3><p style="margin:0">7 руб.</p></div>
-<div class="item choice-item"><img alt="Натуральное мыло с мёдом и календулой (масло виноградной косточки)" class="product-label choice-trigger" data-choice="product" data-options="7 руб." src="images/info/soap-calendula.png"/><h3>Натуральное мыло с мёдом и календулой (масло виноградной косточки)</h3><p style="margin:0">7 руб.</p></div>
-<div class="item choice-item"><img alt="Натуральное мыло с мёдом, ромашкой и чабрецом (масло Ши)" class="product-label choice-trigger" data-choice="product" data-options="7 руб." src="images/info/soap-calendula.png"/><h3>Натуральное мыло с мёдом, ромашкой и чабрецом (масло Ши)</h3><p style="margin:0">7 руб.</p></div>
+<div class="item choice-item"><img alt="Натуральное мыло с мёдом и ромашкой" class="product-label choice-trigger" data-choice="product" data-options="7 руб." data-open-soap-info="true" src="images/info/soap-calendula.png"/><h3>Натуральное мыло с мёдом и ромашкой</h3><p style="margin:0">7 руб.</p></div>
+<div class="item choice-item"><img alt="Натуральное мыло с мёдом и зверобоем" class="product-label choice-trigger" data-choice="product" data-options="7 руб." data-open-soap-info="true" src="images/info/soap-calendula.png"/><h3>Натуральное мыло с мёдом и зверобоем</h3><p style="margin:0">7 руб.</p></div>
+<div class="item choice-item"><img alt="Натуральное мыло с мёдом и молоком" class="product-label choice-trigger" data-choice="product" data-options="7 руб." data-open-soap-info="true" src="images/info/soap-calendula.png"/><h3>Натуральное мыло с мёдом и молоком</h3><p style="margin:0">7 руб.</p></div>
+<div class="item choice-item"><img alt="Натуральное мыло с мёдом и календулой" class="product-label choice-trigger" data-choice="product" data-options="7 руб." data-open-soap-info="true" src="images/info/soap-calendula.png"/><h3>Натуральное мыло с мёдом и календулой</h3><p style="margin:0">7 руб.</p></div>
+<div class="item choice-item"><img alt="Натуральное мыло с мёдом и календулой (масло виноградной косточки)" class="product-label choice-trigger" data-choice="product" data-options="7 руб." data-open-soap-info="true" src="images/info/soap-calendula.png"/><h3>Натуральное мыло с мёдом и календулой (масло виноградной косточки)</h3><p style="margin:0">7 руб.</p></div>
+<div class="item choice-item"><img alt="Натуральное мыло с мёдом, ромашкой и чабрецом (масло Ши)" class="product-label choice-trigger" data-choice="product" data-options="7 руб." data-open-soap-info="true" src="images/info/soap-calendula.png"/><h3>Натуральное мыло с мёдом, ромашкой и чабрецом (масло Ши)</h3><p style="margin:0">7 руб.</p></div>
 </div></div></section>
 <section class="detail" id="candles"><div class="wrap"><h2>🕯️ Натуральные восковые свечи</h2><p class="cream-intro">Нажмите на изображение свечи, чтобы заказать.</p><div class="items">
 <div class="item choice-item"><img alt="Свеча из окрашенной и неокрашенной вощины" class="product-label choice-trigger" data-choice="product" data-options="7 руб. — цвета в ассортименте" src="images/candles-wax-assorted.png"/><h3>Свеча из окрашенной и неокрашенной вощины</h3><p>Цвета в ассортименте.<br/>Размер: ± 3 см × 13 см</p><p style="margin:0">7 руб.</p></div>
@@ -123,10 +125,10 @@
     <h2>🎁 Подарочные наборы</h2>
     <p class="gift-intro">Красивые подарки из натуральных продуктов «Дедушкиной пасеки». Состав набора можно подобрать индивидуально.</p>
     <div class="gift-grid">
-      <div class="gift-card"><img alt="Медовый подарок" src="images/info/gift-honey.png"/><div class="gift-card-body"><h3>🍯 Медовый подарок</h3><p>Натуральный мёд в красивом оформлении — готовый подарок для любителей настоящего мёда.</p><p class="gift-note">Состав и объём подберём по вашему желанию.</p></div></div>
-      <div class="gift-card"><img alt="Подарок с мёдом и орехами" src="images/info/gift-cream.png"/><div class="gift-card-body"><h3>🌰 Подарок с мёдом и орехами</h3><p>Мёд с орехами — оригинальный вариант для подарка родным, друзьям и коллегам.</p><p class="gift-note">Можно подобрать дополнительный продукт.</p></div></div>
-      <div class="gift-card"><img alt="Тёплый подарок со свечами" src="images/candles-wax-assorted.png"/><div class="gift-card-body"><h3>🕯️ Тёплый подарок</h3><p>Натуральные восковые свечи в сочетании с мёдом и другими продуктами пасеки.</p><p class="gift-note">Цвет и состав набора можно выбрать.</p></div></div>
-      <div class="gift-card"><img alt="Подарок для ценителей пасеки" src="images/honey-pottery.png"/><div class="gift-card-body"><h3>🏺 Подарок для ценителей</h3><p>Мёд, керамический горшочек и аксессуары для красивой подачи и хранения.</p><p class="gift-note">Соберём набор под ваш бюджет.</p></div></div>
+      <div class="gift-card"><img alt="Медовый подарок" src="images/info/gift-honey.png"/><div class="gift-card-body"><h3>🍯 Медовый подарок</h3><p>Натуральный мёд в красивом оформлении — готовый подарок для любителей настоящего мёда.</p><p class="gift-note">Состав и объём подберём по вашему желанию.</p><button type="button" class="info-button" data-open-gift-info>Информация</button></div></div>
+      <div class="gift-card"><img alt="Подарок с мёдом и орехами" src="images/info/gift-cream.png"/><div class="gift-card-body"><h3>🌰 Подарок с мёдом и орехами</h3><p>Мёд с орехами — оригинальный вариант для подарка родным, друзьям и коллегам.</p><p class="gift-note">Можно подобрать дополнительный продукт.</p><button type="button" class="info-button" data-open-gift-info>Информация</button></div></div>
+      <div class="gift-card"><img alt="Тёплый подарок со свечами" src="images/candles-wax-assorted.png"/><div class="gift-card-body"><h3>🕯️ Тёплый подарок</h3><p>Натуральные восковые свечи в сочетании с мёдом и другими продуктами пасеки.</p><p class="gift-note">Цвет и состав набора можно выбрать.</p><button type="button" class="info-button" data-open-gift-info>Информация</button></div></div>
+      <div class="gift-card"><img alt="Подарок для ценителей пасеки" src="images/honey-pottery.png"/><div class="gift-card-body"><h3>🏺 Подарок для ценителей</h3><p>Мёд, керамический горшочек и аксессуары для красивой подачи и хранения.</p><p class="gift-note">Соберём набор под ваш бюджет.</p><button type="button" class="info-button" data-open-gift-info>Информация</button></div></div>
     </div>
     <div class="gift-cta"><a class="btn" href="viber://chat?number=%2B375445748112">Подобрать подарочный набор</a></div>
   </div>
@@ -203,6 +205,8 @@
 <figure><img src="images/info/honey-linden.png" alt="Мёд среди липовых цветов"><figcaption>Липовый мёд</figcaption></figure>
 <figure><img src="images/info/honey-apiary.png" alt="Мёд с пасеки"><figcaption>Мёд с пасеки</figcaption></figure>
 <figure><img src="images/info/honey-treasures.png" alt="Медовые сокровища"><figcaption>Медовые сокровища</figcaption></figure>
+<figure><img src="images/info/honey-linden-flowers.png" alt="Мёд среди липовых цветов"><figcaption>Мёд среди липовых цветов</figcaption></figure>
+<figure><img src="images/info/honey-pollen-brand.png" alt="Мёд с пыльцой"><figcaption>Мёд с пыльцой</figcaption></figure>
 <figure><img src="images/info/honey-pollen.png" alt="Мёд с пыльцой «Дедушкина пасека»"><figcaption>Мёд с пыльцой</figcaption></figure>
 </div>
 
@@ -281,6 +285,37 @@
       <div class="honeycomb-info-card"><h3>📦 Хранение</h3><ul><li>Храните в прохладном и тёмном месте.</li><li>Рекомендуемая температура хранения: примерно от +5 °C до +20 °C.</li><li>Не нагревайте мёд выше 40 °C, если хотите сохранить его природные свойства.</li><li>Не допускайте попадания влаги и посторонних запахов.</li></ul></div>
     </div>
     <div class="honeycomb-info-footer">🐝 «Дедушкина пасека» · Клецкий район · +375 44 574 81 12 · <a href="mailto:artnik78@mail.ru">artnik78@mail.ru</a></div>
+  </div>
+</div>
+
+<div aria-hidden="true" class="gift-info-modal detail-info-modal" id="giftInfoModal">
+  <div aria-labelledby="giftInfoTitle" aria-modal="true" class="detail-info-box" role="dialog">
+    <button aria-label="Закрыть" class="detail-info-close" id="giftInfoClose" type="button">×</button>
+    <div class="detail-info-head"><h2 id="giftInfoTitle">🎁 Подарочные наборы</h2><p>Подарки из натуральных продуктов «Дедушкиной пасеки»</p></div>
+    <div class="info-gallery">
+      <figure><img src="images/info/gift-honey.png" alt="Подарочный набор мёда"><figcaption>Подарочный набор мёда</figcaption></figure>
+      <figure><img src="images/info/gift-cream.png" alt="Подарочный набор крем-мёда"><figcaption>Подарочный набор крем-мёда</figcaption></figure>
+    </div>
+    <div class="detail-info-grid">
+      <div class="detail-info-card"><h3>🎁 Что можно подобрать</h3><ul><li>Натуральный мёд разных сортов.</li><li>Крем-мёд с выбранными вкусами.</li><li>Мёд с орехами и другие продукты пасеки.</li><li>Восковые свечи и дополнительные подарочные изделия.</li></ul></div>
+      <div class="detail-info-card"><h3>📦 Оформление</h3><p>Состав, объём и наполнение подарочного набора можно подобрать индивидуально. Напишите нам — поможем собрать набор под праздник, повод или ваш бюджет.</p></div>
+    </div>
+    <div class="detail-info-footer">🐝 «Дедушкина пасека» · Голынка · Клецкий район · +375 44 574 81 12</div>
+  </div>
+</div>
+<div aria-hidden="true" class="soap-info-modal detail-info-modal" id="soapInfoModal">
+  <div aria-labelledby="soapInfoTitle" aria-modal="true" class="detail-info-box" role="dialog">
+    <button aria-label="Закрыть" class="detail-info-close" id="soapInfoClose" type="button">×</button>
+    <div class="detail-info-head"><h2 id="soapInfoTitle">🧼 Натуральное мыло</h2><p>Мыло ручной работы с мёдом и натуральными компонентами</p></div>
+    <div class="info-gallery">
+      <figure><img src="images/info/soap-calendula.png" alt="Натуральное мыло с мёдом и календулой"><figcaption>Мыло с мёдом и календулой</figcaption></figure>
+    </div>
+    <div class="detail-info-grid">
+      <div class="detail-info-card"><h3>🌿 Особенности</h3><ul><li>Основа с натуральным мёдом.</li><li>Ручная работа.</li><li>Для бережного ухода за кожей.</li><li>В ассортименте разные варианты натуральных добавок.</li></ul></div>
+      <div class="detail-info-card"><h3>🧼 Как использовать</h3><ul><li>Намочить кожу и мыло.</li><li>Вспенить и мягко нанести на кожу.</li><li>После использования хранить мыло сухим, не оставляя в воде.</li></ul></div>
+    </div>
+    <div class="detail-info-card detail-info-wide"><h3>⚠️ Важно</h3><p>Перед первым использованием рекомендуется проверить индивидуальную реакцию кожи. При раздражении использование прекратить.</p></div>
+    <div class="detail-info-footer">🐝 «Дедушкина пасека» · Голынка · Клецкий район · +375 44 574 81 12</div>
   </div>
 </div>
 <div aria-hidden="true" class="choice-list-modal" id="choiceListModal">
@@ -391,6 +426,24 @@
   window.openCreamInfo=function(){openModal(creamModal);};
 })();
 </script>
+
+<script>
+(function(){
+  function setupModal(id, closeId, selector){
+    const modal=document.getElementById(id), close=document.getElementById(closeId);
+    if(!modal||!close)return;
+    function open(){modal.classList.add('open');modal.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';}
+    function shut(){modal.classList.remove('open');modal.setAttribute('aria-hidden','true');document.body.style.overflow='';}
+    document.querySelectorAll(selector).forEach(function(b){b.addEventListener('click',open);});
+    close.addEventListener('click',shut);
+    modal.addEventListener('click',function(e){if(e.target===modal)shut();});
+    document.addEventListener('keydown',function(e){if(e.key==='Escape'&&modal.classList.contains('open'))shut();});
+    return open;
+  }
+  window.openGiftInfo=setupModal('giftInfoModal','giftInfoClose','[data-open-gift-info]');
+  window.openSoapInfo=setupModal('soapInfoModal','soapInfoClose','[data-open-soap-info]');
+})();
+</script>
 <script>
 (function(){
   const modal=document.getElementById('honeycombInfoModal');
@@ -417,6 +470,10 @@
     }
     if(t.indexOf('Крем-мёд')===0||['С лимоном','С пыльцой','С имбирём','С имбирём и куркумой','С ягодами годжи','С клубникой','«Кокос и миндаль»','С мятой','Со смородиной','Со спирулиной','С черникой'].indexOf(t)>=0){
       if(window.openCreamInfo) window.openCreamInfo();
+      return;
+    }
+    if(t.indexOf('Натуральное мыло')===0){
+      if(window.openSoapInfo) window.openSoapInfo();
       return;
     }
     document.getElementById('info').scrollIntoView({behavior:'smooth'});
