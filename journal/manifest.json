@@ -1,0 +1,12 @@
+{
+  "name":"Дедушкина пасека — Цифровой журнал",
+  "short_name":"Дедушкина пасека",
+  "description":"Цифровой журнал пасечника",
+  "lang":"ru",
+  "start_url":"/dedushkina-paseka/journal/",
+  "scope":"/dedushkina-paseka/journal/",
+  "display":"standalone",
+  "background_color":"#fffaf0",
+  "theme_color":"#d8a32b",
+  "icons":[{"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+}
