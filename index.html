@@ -9,6 +9,8 @@
 .detail{padding:45px 0;background:#fffaf0}.detail:nth-of-type(even){background:#f5ead6}.detail h2{text-align:center;font-size:32px}.gift-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-top:20px}.gift-card{background:linear-gradient(180deg,#fffaf0,#f6ead2);border:1px solid #e1d0b0;border-radius:16px;overflow:hidden;box-shadow:0 5px 16px rgba(70,45,20,.08);display:flex;flex-direction:column}.gift-card img{width:100%;height:190px;object-fit:contain;background:#f8f0df;padding:8px;box-sizing:border-box}.gift-card-body{padding:16px}.gift-card h3{margin:0 0 8px;color:#5a3d22}.gift-card p{line-height:1.5;margin:0 0 12px;color:#675644}.gift-card .gift-note{font-size:14px;color:#8a6a42}.gift-cta{text-align:center;margin-top:24px}.gift-cta .btn{display:inline-block;padding:11px 24px;border-radius:25px;background:#987044;color:#fff;text-decoration:none}.gift-intro{text-align:center;max-width:760px;margin:0 auto;color:#675644;line-height:1.6}@media(max-width:900px){.gift-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:650px){.gift-grid{grid-template-columns:1fr}}
 .items{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}.item{background:white;border:1px solid #e1d0b0;border-radius:10px;padding:18px}.item h3{margin:0 0 7px}.item p{margin:0 0 8px;line-height:1.5}.item a{color:#81551e}.contacts{padding:35px 15px;text-align:center;background:#432b1a;color:white}.contacts a{color:#fff}.contacts p{line-height:1.7}footer{text-align:center;padding:18px;background:#2f1e12;color:#e9d7b8;font-size:14px}
 @media(max-width:1100px){.topinner{flex-wrap:wrap;justify-content:center;padding:12px 0}.nav{flex-wrap:wrap;justify-content:center;gap:13px}.tile{grid-column:span 6}.tile.wide{grid-column:span 4}}@media(max-width:650px){.brand strong{font-size:24px}.phone{display:none}.hero{min-height:450px}.virtues{gap:10px}.virtues div{min-width:0;font-size:13px}.tile,.tile.wide{grid-column:span 12;height:190px}.about{grid-template-columns:1fr}.about img{height:175px}.items{grid-template-columns:1fr}}
+
+.info-gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:0 0 18px}.info-gallery figure{margin:0;background:#f8f0df;border:1px solid #e1d0b0;border-radius:12px;overflow:hidden}.info-gallery img{display:block;width:100%;height:145px;object-fit:cover;cursor:zoom-in;transition:transform .2s ease}.info-gallery img:hover{transform:scale(1.02)}.info-gallery figcaption{padding:7px 9px;font-size:13px;text-align:center;color:#6b5135;background:#fffaf0}@media(max-width:700px){.info-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}.info-gallery img{height:125px}}@media(max-width:430px){.info-gallery{grid-template-columns:1fr}.info-gallery img{height:190px}}
 .item img.product-label{display:block;width:100%;height:180px;object-fit:contain;background:#f8f0df;border-radius:10px;margin:0 0 14px;padding:6px}.item{overflow:hidden}
 .price-order{display:flex;align-items:center;justify-content:space-between;gap:10px}.viber-order{display:inline-block;margin-top:12px;margin-right:7px;padding:10px 15px;border-radius:22px;background:#665cac;color:#fff!important;text-decoration:none;font-family:Arial,sans-serif;font-size:14px;font-weight:600;box-shadow:0 3px 8px rgba(50,40,90,.18)}
 .viber-order:hover{background:#51489c}
@@ -194,7 +196,15 @@
 <div aria-hidden="true" class="honey-info-modal" id="honeyInfoModal">
   <div aria-labelledby="honeyInfoTitle" aria-modal="true" class="detail-info-box" role="dialog">
     <button aria-label="Закрыть" class="detail-info-close" id="honeyInfoClose" type="button">×</button>
-    <div class="detail-info-head"><h2 id="honeyInfoTitle">🍯 Натуральный мёд</h2><p id="honeyInfoSubtitle">Подробная информация о натуральном мёде «Дедушкина пасека»</p></div>
+    <div class="detail-info-head"><h2 id="honeyInfoTitle">🍯 Натуральный мёд</h2><p id="honeyInfoSubtitle">Подробная информация о натуральном мёде «Дедушкина пасека»</p></div><div class="info-gallery">
+<figure><img src="images/info/honey-may.png" alt="Майский мёд «Дедушкина пасека»"><figcaption>Майский мёд</figcaption></figure>
+<figure><img src="images/info/honey-forest.png" alt="Лесной мёд «Дедушкина пасека»"><figcaption>Лесной мёд</figcaption></figure>
+<figure><img src="images/info/honey-flowers.png" alt="Мёд среди цветов"><figcaption>Мёд разнотравье</figcaption></figure>
+<figure><img src="images/info/honey-linden.png" alt="Мёд среди липовых цветов"><figcaption>Липовый мёд</figcaption></figure>
+<figure><img src="images/info/honey-apiary.png" alt="Мёд с пасеки"><figcaption>Мёд с пасеки</figcaption></figure>
+<figure><img src="images/info/honey-treasures.png" alt="Медовые сокровища"><figcaption>Медовые сокровища</figcaption></figure>
+</div>
+
     <div class="detail-info-grid">
       <div class="detail-info-card"><h3>🐝 Что такое натуральный мёд?</h3><p>Натуральный мёд — продукт, который пчёлы создают из нектара цветущих растений и перерабатывают в улье. Его вкус, аромат, цвет и скорость кристаллизации зависят от растений-медоносов, времени сбора и условий хранения.</p><h3>🧡 Что входит в состав</h3><ul><li>природные сахара — главным образом глюкоза и фруктоза;</li><li>вода и органические кислоты;</li><li>небольшие количества витаминов, минералов и других природных соединений;</li><li>ароматические и вкусовые вещества, характерные для конкретного сорта.</li></ul></div>
       <div class="detail-info-card"><h3>🌿 Особенности разных сортов</h3><div class="detail-info-benefits"><div class="detail-info-benefit"><b>🌸 Майский</b>Нежный весенний аромат и мягкий вкус.</div><div class="detail-info-benefit"><b>🌲 Лесной</b>Более насыщенный аромат, характерный для лесных медоносов.</div><div class="detail-info-benefit"><b>🌼 Разнотравье</b>Многогранный вкус и аромат разных цветущих растений.</div><div class="detail-info-benefit"><b>🌾 Гречишный</b>Более выразительный вкус и тёмный цвет.</div><div class="detail-info-benefit"><b>🌳 Липовый</b>Характерный цветочный аромат липы.</div><div class="detail-info-benefit"><b>🐝 Падевый</b>Особый продукт с характерными вкусовыми свойствами.</div></div></div>
@@ -210,7 +220,16 @@
 <div aria-hidden="true" class="cream-info-modal" id="creamInfoModal">
   <div aria-labelledby="creamInfoTitle" aria-modal="true" class="detail-info-box" role="dialog">
     <button aria-label="Закрыть" class="detail-info-close" id="creamInfoClose" type="button">×</button>
-    <div class="detail-info-head"><h2 id="creamInfoTitle">🍯 Крем-мёд</h2><p id="creamInfoSubtitle">Нежная кремовая текстура и натуральный мёд с добавками</p></div>
+    <div class="detail-info-head"><h2 id="creamInfoTitle">🍯 Крем-мёд</h2><p id="creamInfoSubtitle">Нежная кремовая текстура и натуральный мёд с добавками</p></div><div class="info-gallery">
+<figure><img src="images/info/cream-lemon.png" alt="Крем-мёд с лимоном"><figcaption>С лимоном</figcaption></figure>
+<figure><img src="images/info/cream-strawberry.png" alt="Крем-мёд с клубникой"><figcaption>С клубникой</figcaption></figure>
+<figure><img src="images/info/cream-blueberry.png" alt="Крем-мёд с черникой"><figcaption>С черникой</figcaption></figure>
+<figure><img src="images/info/cream-goji.png" alt="Крем-мёд с ягодами годжи"><figcaption>С ягодами годжи</figcaption></figure>
+<figure><img src="images/info/cream-ginger-turmeric.png" alt="Крем-мёд с имбирём и куркумой"><figcaption>Имбирь и куркума</figcaption></figure>
+<figure><img src="images/info/cream-spirulina.png" alt="Крем-мёд со спирулиной"><figcaption>Со спирулиной</figcaption></figure>
+<figure><img src="images/info/cream-rustic.png" alt="Крем-мёд на пасеке"><figcaption>Крем-мёд на пасеке</figcaption></figure>
+</div>
+
     <div class="detail-info-grid">
       <div class="detail-info-card"><h3>🥄 Что такое крем-мёд?</h3><p>Крем-мёд — это натуральный мёд с мелкокристаллической, однородной текстурой. Его тщательно перемешивают в контролируемых условиях, чтобы кристаллы оставались очень мелкими. Поэтому мёд становится нежным, густым и удобным для намазывания.</p><h3>🍯 Основа</h3><ul><li>натуральный пчелиный мёд;</li><li>мелкокристаллическая структура;</li><li>в зависимости от вкуса — натуральные ингредиенты и добавки.</li></ul></div>
       <div class="detail-info-card"><h3>🌿 Наши вкусы</h3><div class="detail-info-benefits"><div class="detail-info-benefit"><b>🍋 С лимоном</b>Свежий цитрусовый аромат.</div><div class="detail-info-benefit"><b>🌼 С пыльцой</b>Характерный вкус продукта пчеловодства.</div><div class="detail-info-benefit"><b>🫚 С имбирём</b>Яркий пряный вкус.</div><div class="detail-info-benefit"><b>🫚 С имбирём и куркумой</b>Пряный вкус с характерной нотой куркумы.</div><div class="detail-info-benefit"><b>🫐 С ягодами годжи</b>Ягодно-фруктовый оттенок.</div><div class="detail-info-benefit"><b>🍓 С клубникой</b>Нежный ягодный аромат.</div><div class="detail-info-benefit"><b>🥥 Кокос и миндаль</b>Десертный орехово-кокосовый вкус.</div><div class="detail-info-benefit"><b>🌿 С мятой</b>Свежий мятный аромат.</div><div class="detail-info-benefit"><b>🫐 Со смородиной</b>Выразительный ягодный вкус.</div><div class="detail-info-benefit"><b>🌱 Со спирулиной</b>Необычный вкус и цвет натуральной добавки.</div><div class="detail-info-benefit"><b>🫐 С черникой</b>Мягкий ягодный вкус.</div></div></div>
@@ -444,7 +463,7 @@
   const modal=document.getElementById('imageModal');
   const modalImage=document.getElementById('modalImage');
   const closeBtn=modal.querySelector('.close');
-  document.querySelectorAll('.product-label:not(.choice-trigger):not(.cream-item .product-label)').forEach(function(img){
+  document.querySelectorAll('.product-label:not(.choice-trigger):not(.cream-item .product-label), .info-gallery img').forEach(function(img){
     img.addEventListener('click',function(){
       modalImage.src=img.currentSrc || img.src;
       modalImage.alt=img.alt || '';
