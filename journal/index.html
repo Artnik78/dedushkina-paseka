@@ -72,7 +72,7 @@ h1{margin:0 0 6px;font-size:28px}.sub{color:var(--muted);margin:0 0 22px}
     <div class="auth-message" id="authMessage"></div>
     <div class="actions">
       <button class="btn" id="loginBtn">Войти</button>
-      <button class="btn secondary" id="signupBtn">Регистрация</button>
+      <button class="btn secondary" id="signupBtn" style="display:none">Регистрация</button><div class="muted" style="align-self:center">Регистрация временно отключена</div>
       <button class="btn gold" id="guestBtn">👁️ Гостевой просмотр</button>
     </div>
     <div class="muted">Для работы с журналом используется ваш аккаунт Supabase.</div>
@@ -530,14 +530,7 @@ $('loginBtn').onclick=async()=>{
   const {error}=await db.auth.signInWithPassword({email,password});
   if(error)$('authMessage').textContent=error.message;
 };
-$('signupBtn').onclick=async()=>{
-  $('authMessage').textContent='';
-  const email=$('authEmail').value.trim(), password=$('authPassword').value;
-  if(password.length<6){$('authMessage').textContent='Пароль должен содержать не менее 6 символов.';return}
-  const {error}=await db.auth.signUp({email,password,options:{emailRedirectTo:location.origin+location.pathname}});
-  if(error)$('authMessage').textContent=error.message;
-  else $('authMessage').textContent='Регистрация выполнена. Если потребуется подтверждение, проверьте почту.';
-};
+$('signupBtn').onclick=()=>{ $('authMessage').textContent='Регистрация новых пользователей временно отключена. Используйте гостевой просмотр.'; };
 $('logoutBtn').onclick=()=>{location.reload()};
 $('homeLogoutBtn').onclick=()=>$('logoutBtn').click();
 $('refreshBtn').onclick=loadAll;
