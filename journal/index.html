@@ -637,8 +637,7 @@ async function showApp(user){
   $('app').style.display='';
   $('userEmail').textContent=user.email||'Пользователь';
   syncHomeUser(user.email);
-  renderApiaryMap();
-  try{ await loadAll(); }
+  try{ await loadAll(); renderApiaryMap(); }
   catch(e){ console.error(e); toast('Ошибка загрузки данных: '+e.message); }
 }
 $('guestBtn').onclick=showGuest;
@@ -1299,7 +1298,7 @@ $('search').addEventListener('input',e=>{
   const q=e.target.value.trim().toLowerCase(); if(!q){renderAll();return}
   const old=state.hives; state.hives=old.filter(x=>JSON.stringify(x).toLowerCase().includes(q)); renderAll(); state.hives=old;
 });
-$('apiaryMapSelect').onchange=renderApiaryMap;
+const apiaryMapSelect=$('apiaryMapSelect'); if(apiaryMapSelect)apiaryMapSelect.onchange=renderApiaryMap;
 authInit();
 </script>
 </body>
