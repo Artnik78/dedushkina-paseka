@@ -1,11 +1,12 @@
-const CACHE_NAME="dedushkina-paseka-v3";
+const CACHE_NAME="dedushkina-paseka-v4";
+const BASE="/dedushkina-paseka/journal/";
 const APP_SHELL=[
-  "./",
-  "./index.html",
-  "./manifest.json",
-  "./icon.svg",
-  "./icon-192.png",
-  "./icon-512.png"
+  BASE,
+  BASE+"index.html",
+  BASE+"manifest.json",
+  BASE+"icon.svg",
+  BASE+"icon-192.png",
+  BASE+"icon-512.png"
 ];
 
 self.addEventListener("install",event=>{
@@ -40,6 +41,6 @@ self.addEventListener("fetch",event=>{
         }
         return response;
       })
-      .catch(()=>caches.match(event.request).then(cached=>cached||caches.match("./index.html")))
+      .catch(()=>caches.match(event.request).then(cached=>cached||caches.match(BASE)))
   );
 });
