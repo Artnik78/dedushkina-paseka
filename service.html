@@ -59,8 +59,8 @@ th,td{padding:11px;border-bottom:1px solid #e7edf2;text-align:left;white-space:n
 <input name="name" placeholder="Название" required>
 <input name="tax_id" placeholder="УНП">
 <input name="bank_account" placeholder="Расчётный счёт">
-<input name="bik" placeholder="БИК">
-<input name="bank" placeholder="Банк">
+<select name="bik" id="clientBik"><option value="">Выберите БИК банка</option><option value="AKBBBY2X">AKBBBY2X — ОАО «АСБ Беларусбанк»</option><option value="BAPBBY2X">BAPBBY2X — ОАО «Белагропромбанк»</option><option value="PJCBBY2X">PJCBBY2X — ОАО «Приорбанк»</option><option value="BLBBBY2X">BLBBBY2X — ОАО «Белинвестбанк»</option><option value="ALFABY2X">ALFABY2X — ЗАО «Альфа-Банк»</option><option value="OLMPBY2X">OLMPBY2X — ОАО «Белгазпромбанк»</option><option value="BPSBBY2X">BPSBBY2X — ОАО «Сбер Банк»</option><option value="BELBBY2X">BELBBY2X — ОАО «Банк БелВЭБ»</option><option value="MTBKBY22">MTBKBY22 — ЗАО «МТБанк»</option><option value="SLANBY22">SLANBY22 — ЗАО Банк ВТБ (Беларусь)</option><option value="BLNBBY2X">BLNBBY2X — ОАО «БНБ-Банк»</option><option value="UNBSBY2X">UNBSBY2X — ЗАО «БСБ Банк»</option><option value="POISBY2X">POISBY2X — ОАО «Паритетбанк»</option><option value="REDJBY22">REDJBY22 — ЗАО «Банк РРБ»</option><option value="RSHNBY2X">RSHNBY2X — ЗАО «Банк «Решение»</option><option value="IRJSBY22">IRJSBY22 — ЗАО «СтатусБанк»</option><option value="TECNBY22">TECNBY22 — ЗАО «Технобанк»</option><option value="BBTKBY21">BBTKBY21 — ЗАО «Банк торговый капитал»</option><option value="AEBKBY2X">AEBKBY2X — ЗАО «Нео Банк Азия»</option><option value="ZEPTBY2X">ZEPTBY2X — ЗАО «Цептер Банк»</option><option value="BRRBBY2X">BRRBBY2X — ОАО «Банк развития Республики Беларусь»</option><option value="MMBNBY22">MMBNBY22 — ОАО «Банк Дабрабыт»</option></select>
+<input name="bank" id="clientBank" placeholder="Банк" readonly>
 
 <input name="phone" placeholder="Телефон">
 <input name="email" type="email" placeholder="Электронная почта">
@@ -138,9 +138,10 @@ window.selectContracts=id=>{$('contractClient').value=id;refresh()};
 window.editClient=async id=>{
  const {data,error}=await sb.from('service_clients').select('*').eq('id',id).single();
  if(error){alert(error.message);return}
- const f=$('clientForm'); Object.keys(data).forEach(k=>{if(f.elements[k])f.elements[k].value=data[k]??''});
+ const f=$('clientForm'); Object.keys(data).forEach(k=>{if(f.elements[k])f.elements[k].value=data[k]??''}); if(data.bik){const s=document.getElementById('clientBik');s.value=data.bik;s.dispatchEvent(new Event('change'));}
  $('clientSaveBtn').textContent='Сохранить изменения';$('clientCancelBtn').classList.remove('hidden');window.scrollTo({top:$('clients').offsetTop,behavior:'smooth'});
 };
+document.getElementById('clientBik').onchange=()=>{const s=document.getElementById('clientBik');const o=s.options[s.selectedIndex];document.getElementById('clientBank').value=o.value?(o.textContent.split(' — ').slice(1).join(' — ')):''};
 window.cancelClientEdit=()=>{ $('clientForm').reset();$('clientSaveBtn').textContent='Сохранить клиента';$('clientCancelBtn').classList.add('hidden') };
 window.deleteClient=async id=>{
  if(!confirm('Удалить клиента? Связанные заказы, техника или картриджи могут помешать удалению.'))return;
