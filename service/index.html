@@ -55,17 +55,28 @@ th,td{padding:11px;border-bottom:1px solid #e7edf2;text-align:left;white-space:n
 
 <section id="clients"><div class="card"><h2>Клиенты</h2><p class="muted">Название, УНП, расчётный счёт, банк, договор, телефон, электронная почта и ответственное лицо.</p>
 <form id="clientForm" class="formgrid">
+<input type="hidden" name="id">
 <input name="name" placeholder="Название" required>
 <input name="tax_id" placeholder="УНП">
 <input name="bank_account" placeholder="Р/с">
 <input name="bank" placeholder="Банк">
-<input name="contract" placeholder="Договор">
+
 <input name="phone" placeholder="Телефон">
 <input name="email" type="email" placeholder="Электронная почта">
 <input name="responsible_person" placeholder="Ответственное лицо">
-<button class="primary">Сохранить клиента</button>
+<div class="toolbar"><button id="clientSaveBtn" class="primary">Сохранить клиента</button><button type="button" class="light hidden" id="clientCancelBtn" onclick="cancelClientEdit()">Отмена</button></div>
 </form></div>
-<div class="card" style="margin-top:14px"><div class="tablewrap"><table><thead><tr><th>Название</th><th>УНП</th><th>Р/с</th><th>Банк</th><th>Договор</th><th>Телефон</th><th>Электронная почта</th><th>Ответственное лицо</th></tr></thead><tbody id="clientsRows"></tbody></table></div></div></section>
+<div class="card" style="margin-top:14px"><div class="tablewrap"><table><thead><tr><th>Название</th><th>УНП</th><th>Р/с</th><th>Банк</th><th>Телефон</th><th>Электронная почта</th><th>Ответственное лицо</th><th>Действия</th></tr></thead><tbody id="clientsRows"></tbody></table></div></div>
+<div class="card" style="margin-top:14px"><h2>Договоры клиента</h2><p class="muted">Договор хранится отдельно, поэтому при смене договора старый не теряется.</p>
+<form id="contractForm" class="formgrid">
+<input type="hidden" name="id"><select name="client_id" id="contractClient" required><option value="">Выберите клиента</option></select>
+<input name="contract_number" placeholder="Номер договора" required><input name="contract_year" type="number" min="2000" max="2100" placeholder="Год" required>
+<input name="contract_date" type="date" placeholder="Дата договора"><input name="valid_until" type="date" placeholder="Действует до">
+<textarea class="full" name="notes" placeholder="Примечание"></textarea>
+<div class="toolbar"><button id="contractSaveBtn" class="primary">Сохранить договор</button><button type="button" class="light hidden" id="contractCancelBtn" onclick="cancelContractEdit()">Отмена</button></div>
+</form>
+<div class="tablewrap" style="margin-top:14px"><table><thead><tr><th>Год</th><th>№ договора</th><th>Дата</th><th>Действует до</th><th>Действия</th></tr></thead><tbody id="contractsRows"></tbody></table></div>
+</div></section>
 
 <section id="equipment"><div class="card"><h2>Оргтехника и ПЭВМ</h2>
 <form id="equipmentForm" class="formgrid"><input name="barcode" placeholder="Штрихкод"><input name="inventory_number" placeholder="Инвентарный номер"><select name="equipment_type"><option>Принтер</option><option>МФУ</option><option>Копир</option><option>Сканер</option><option>Компьютер</option><option>Ноутбук</option><option>Монитор</option><option>Другая оргтехника</option><option>Другое</option></select><input name="manufacturer" placeholder="Производитель"><input name="model" placeholder="Модель"><input name="serial_number" placeholder="Серийный номер"><input name="location" placeholder="Место установки"><input name="responsible_person" placeholder="Ответственный"><button class="primary">Сохранить технику</button></form></div>
@@ -86,20 +97,51 @@ const sb=createClient('https://owpzcjvseleqeqibwuqj.supabase.co','sb_publishable
 window.sb=sb;
 const $=id=>document.getElementById(id);
 async function refresh(){
- const [c,e,k,o]=await Promise.all([
+ const [c,e,k,o,ct]=await Promise.all([
   sb.from('service_clients').select('*').order('created_at',{ascending:false}),
   sb.from('service_equipment').select('*').order('created_at',{ascending:false}),
   sb.from('service_cartridges').select('*').order('created_at',{ascending:false}),
-  sb.from('service_orders').select('*').order('created_at',{ascending:false})
+  sb.from('service_orders').select('*').order('created_at',{ascending:false}),
+  sb.from('service_client_contracts').select('*').order('contract_year',{ascending:false}).order('created_at',{ascending:false})
  ]);
- if(c.error||e.error||k.error||o.error){console.error(c.error,e.error,k.error,o.error);return}
+ if(c.error||e.error||k.error||o.error||ct.error){console.error(c.error,e.error,k.error,o.error,ct.error);return}
  $('cntClients').textContent=c.data.length;$('cntEquipment').textContent=e.data.length;$('cntCartridges').textContent=k.data.length;$('cntOrders').textContent=o.data.length;
- $('clientsRows').innerHTML=c.data.map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.tax_id||'')}</td><td>${esc(x.bank_account||'')}</td><td>${esc(x.bank||'')}</td><td>${esc(x.contract||'')}</td><td>${esc(x.phone||'')}</td><td>${esc(x.email||'')}</td><td>${esc(x.responsible_person||'')}</td></tr>`).join('');
+ $('clientsRows').innerHTML=c.data.map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.tax_id||'')}</td><td>${esc(x.bank_account||'')}</td><td>${esc(x.bank||'')}</td><td>${esc(x.phone||'')}</td><td>${esc(x.email||'')}</td><td>${esc(x.responsible_person||'')}</td><td><button class="light" onclick="editClient('${x.id}')">Изменить</button> <button class="light" onclick="selectContracts('${x.id}')">Договоры</button> <button class="danger" onclick="deleteClient('${x.id}')">Удалить</button></td></tr>`).join('');
+fillSelect('contractClient',c.data,'name');
  $('equipmentRows').innerHTML=e.data.map(x=>`<tr><td>${esc(x.barcode||'')}</td><td>${esc(x.equipment_type)}</td><td>${esc(x.manufacturer||'')}</td><td>${esc(x.model||'')}</td><td>${esc(x.serial_number||'')}</td></tr>`).join('');
  $('cartridgeRows').innerHTML=k.data.map(x=>`<tr><td>${esc(x.barcode||'')}</td><td>${esc(x.model)}</td><td>${esc(x.manufacturer||'')}</td><td>${x.fill_count}</td><td>${esc(x.serial_number||'')}</td></tr>`).join('');
  $('orderRows').innerHTML=o.data.map(x=>`<tr><td>${x.order_number}</td><td>${x.order_date}</td><td>${esc(x.status)}</td><td>${Number(x.total_amount).toFixed(2)}</td></tr>`).join('');
+renderContracts(ct.data);
+
  fillSelect('orderClient',c.data,'name');fillSelect('orderEquipment',e.data,x=>((x.manufacturer||'')+' '+(x.model||'')+' '+(x.barcode||'')).trim(),'Оргтехника не выбрана');fillSelect('orderCartridge',k.data,x=>((x.model||'')+' '+(x.barcode||'')).trim(),'Картридж не выбран');
 }
+function renderContracts(data){
+ const selected=$('contractClient').value;
+ const rows=data.filter(x=>!selected||x.client_id===selected);
+ $('contractsRows').innerHTML=rows.map(x=>`<tr><td>${x.contract_year}</td><td>${esc(x.contract_number)}</td><td>${esc(x.contract_date||'')}</td><td>${esc(x.valid_until||'')}</td><td><button class="light" onclick="editContract('${x.id}')">Изменить</button> <button class="danger" onclick="deleteContract('${x.id}')">Удалить</button></td></tr>`).join('');
+}
+window.selectContracts=id=>{$('contractClient').value=id;refresh()};
+window.editClient=async id=>{
+ const {data,error}=await sb.from('service_clients').select('*').eq('id',id).single();
+ if(error){alert(error.message);return}
+ const f=$('clientForm'); Object.keys(data).forEach(k=>{if(f.elements[k])f.elements[k].value=data[k]??''});
+ $('clientSaveBtn').textContent='Сохранить изменения';$('clientCancelBtn').classList.remove('hidden');window.scrollTo({top:$('clients').offsetTop,behavior:'smooth'});
+};
+window.cancelClientEdit=()=>{ $('clientForm').reset();$('clientSaveBtn').textContent='Сохранить клиента';$('clientCancelBtn').classList.add('hidden') };
+window.deleteClient=async id=>{
+ if(!confirm('Удалить клиента? Связанные заказы, техника или картриджи могут помешать удалению.'))return;
+ const {error}=await sb.from('service_clients').delete().eq('id',id);
+ if(error)alert('Не удалось удалить клиента: '+error.message);else refresh();
+};
+window.editContract=async id=>{
+ const {data,error}=await sb.from('service_client_contracts').select('*').eq('id',id).single();
+ if(error){alert(error.message);return}
+ const f=$('contractForm');Object.keys(data).forEach(k=>{if(f.elements[k])f.elements[k].value=data[k]??''});
+ $('contractSaveBtn').textContent='Сохранить изменения';$('contractCancelBtn').classList.remove('hidden');window.scrollTo({top:$('clients').offsetTop,behavior:'smooth'});
+};
+window.cancelContractEdit=()=>{$('contractForm').reset();$('contractSaveBtn').textContent='Сохранить договор';$('contractCancelBtn').classList.add('hidden')};
+window.deleteContract=async id=>{if(!confirm('Удалить этот договор из истории?'))return;const {error}=await sb.from('service_client_contracts').delete().eq('id',id);if(error)alert(error.message);else refresh()};
+$('contractClient').onchange=()=>refresh();
 function fillSelect(id,data,label,first){const s=$(id);s.innerHTML='<option value="">'+(first||'Выберите')+'</option>'+data.map(x=>`<option value="${x.id}">${esc(typeof label==='function'?label(x):x[label])}</option>`).join('')}
 function esc(v){return String(v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 window.show=id=>{document.querySelectorAll('section').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');refresh()}
@@ -107,7 +149,16 @@ window.login=async()=>{const {error}=await sb.auth.signInWithPassword({email:$('
 window.signup=async()=>{const {error}=await sb.auth.signUp({email:$('email').value,password:$('password').value});$('authmsg').textContent=error?error.message:'Проверьте почту для подтверждения регистрации.'}
 window.logout=async()=>await sb.auth.signOut();
 function formData(f){return Object.fromEntries(new FormData(f).entries())}
-$('clientForm').onsubmit=async ev=>{ev.preventDefault();const d=formData(ev.target);const {error}=await sb.from('service_clients').insert(d);if(error)alert(error.message);else{ev.target.reset();refresh()}}
+$('clientForm').onsubmit=async ev=>{
+ ev.preventDefault();const d=formData(ev.target);const id=d.id;delete d.id;
+ const q=id?sb.from('service_clients').update(d).eq('id',id):sb.from('service_clients').insert(d);
+ const {error}=await q;if(error)alert(error.message);else{ev.target.reset();$('clientSaveBtn').textContent='Сохранить клиента';$('clientCancelBtn').classList.add('hidden');refresh()}
+}
+$('contractForm').onsubmit=async ev=>{
+ ev.preventDefault();const d=formData(ev.target);const id=d.id;delete d.id;d.contract_year=Number(d.contract_year);
+ const q=id?sb.from('service_client_contracts').update(d).eq('id',id):sb.from('service_client_contracts').insert(d);
+ const {error}=await q;if(error)alert(error.message);else{ev.target.reset();$('contractSaveBtn').textContent='Сохранить договор';$('contractCancelBtn').classList.add('hidden');refresh()}
+}
 $('equipmentForm').onsubmit=async ev=>{ev.preventDefault();const d=formData(ev.target);const {error}=await sb.from('service_equipment').insert(d);if(error)alert(error.message);else{ev.target.reset();refresh()}}
 $('cartridgeForm').onsubmit=async ev=>{ev.preventDefault();const d=formData(ev.target);d.fill_count=Number(d.fill_count||0);const {error}=await sb.from('service_cartridges').insert(d);if(error)alert(error.message);else{ev.target.reset();refresh()}}
 $('orderForm').onsubmit=async ev=>{ev.preventDefault();const d=formData(ev.target);d.total_amount=Number(d.total_amount||0);for(const k of ['equipment_id','cartridge_id'])if(!d[k])d[k]=null;const {error}=await sb.from('service_orders').insert(d);if(error)alert(error.message);else{ev.target.reset();refresh()}}
