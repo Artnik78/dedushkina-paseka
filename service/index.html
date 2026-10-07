@@ -97,6 +97,7 @@ const sb=createClient('https://owpzcjvseleqeqibwuqj.supabase.co','sb_publishable
 window.sb=sb;
 const $=id=>document.getElementById(id);
 async function refresh(){
+ const selectedContractClient=$('contractClient')?.value||'';
  const [c,e,k,o,ct]=await Promise.all([
   sb.from('service_clients').select('*').order('created_at',{ascending:false}),
   sb.from('service_equipment').select('*').order('created_at',{ascending:false}),
@@ -107,7 +108,7 @@ async function refresh(){
  if(c.error||e.error||k.error||o.error||ct.error){console.error(c.error,e.error,k.error,o.error,ct.error);return}
  $('cntClients').textContent=c.data.length;$('cntEquipment').textContent=e.data.length;$('cntCartridges').textContent=k.data.length;$('cntOrders').textContent=o.data.length;
  $('clientsRows').innerHTML=c.data.map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.tax_id||'')}</td><td>${esc(x.bank_account||'')}</td><td>${esc(x.bank||'')}</td><td>${esc(x.phone||'')}</td><td>${esc(x.email||'')}</td><td>${esc(x.responsible_person||'')}</td><td><button class="light" onclick="editClient('${x.id}')">Изменить</button> <button class="light" onclick="selectContracts('${x.id}')">Договоры</button> <button class="danger" onclick="deleteClient('${x.id}')">Удалить</button></td></tr>`).join('');
-fillSelect('contractClient',c.data,'name');
+fillSelect('contractClient',c.data,'name'); if(selectedContractClient && c.data.some(x=>x.id===selectedContractClient)) $('contractClient').value=selectedContractClient;
  $('equipmentRows').innerHTML=e.data.map(x=>`<tr><td>${esc(x.barcode||'')}</td><td>${esc(x.equipment_type)}</td><td>${esc(x.manufacturer||'')}</td><td>${esc(x.model||'')}</td><td>${esc(x.serial_number||'')}</td></tr>`).join('');
  $('cartridgeRows').innerHTML=k.data.map(x=>`<tr><td>${esc(x.barcode||'')}</td><td>${esc(x.model)}</td><td>${esc(x.manufacturer||'')}</td><td>${x.fill_count}</td><td>${esc(x.serial_number||'')}</td></tr>`).join('');
  $('orderRows').innerHTML=o.data.map(x=>`<tr><td>${x.order_number}</td><td>${x.order_date}</td><td>${esc(x.status)}</td><td>${Number(x.total_amount).toFixed(2)}</td></tr>`).join('');
