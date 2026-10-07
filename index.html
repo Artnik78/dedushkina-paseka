@@ -84,6 +84,27 @@
 @media(max-width:700px){.honeycomb-info-box{padding:17px 12px}.honeycomb-info-grid,.honeycomb-benefits{grid-template-columns:1fr}.honeycomb-info-card{padding:14px}}
 
 .detail-info-modal{display:none;position:fixed;inset:0;z-index:10020;background:rgba(20,15,10,.78);align-items:center;justify-content:center;padding:18px;overflow:auto}.detail-info-modal.open{display:flex}.detail-info-modal .detail-info-box{max-height:94vh;overflow:auto;width:min(1050px,96vw);background:#fffaf0;border-radius:18px;box-shadow:0 20px 70px rgba(0,0,0,.3)}
+
+/* Улучшенные карточки товаров на мобильном */
+@media(max-width:600px){
+  .item{padding:12px;border-radius:14px;display:flex;flex-direction:column;}
+  .item img.product-label{height:190px;margin:0 0 11px;padding:4px;border-radius:12px;background:#f7efdf;}
+  .item h3{font-size:20px;line-height:1.25;margin:0 0 6px;}
+  .item p{font-size:14px;line-height:1.45;margin:0 0 7px;}
+  .item .price-tag{display:block;width:max-content;margin:2px 0 9px;padding:5px 10px;border-radius:15px;background:#f0dfb9;color:#5b3d1d;font:700 14px/1.2 Arial,sans-serif;}
+  .item .actions{display:flex;flex-wrap:wrap;gap:8px;width:100%;margin-top:10px;}
+  .item .actions .viber-order,.item .actions .info-button{flex:1 1 150px;min-height:46px;display:flex;align-items:center;justify-content:center;margin:0;padding:11px 12px;border-radius:24px;font-size:14px;}
+  .item .actions .viber-order:only-child,.item .actions .info-button:only-child{flex-basis:100%;}
+  .item .viber-order{min-height:46px;}
+  .gift-card img{height:205px;}
+  .gift-card-body{padding:13px;}
+  .gift-card h3{font-size:19px;line-height:1.25;}
+}
+@media(max-width:380px){
+  .item img.product-label{height:170px;}
+  .item h3{font-size:18px;}
+  .item .actions .viber-order,.item .actions .info-button{flex-basis:100%;}
+}
 </style><style>
 /* Поиск по каталогу */
 .product-search{padding:18px 0 8px;background:#fff8eb}
