@@ -492,7 +492,7 @@ h1{margin:0 0 6px;font-size:28px}.sub{color:var(--muted);margin:0 0 22px}
     </form>
   </div>
 </div>
-<div class="toast" id="toast"></div>
+<div id="journalError" style="display:none;position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:99999;max-width:min(900px,92vw);padding:14px 18px;border:2px solid #b33;border-radius:12px;background:#fff4f2;color:#7a2018;box-shadow:0 8px 30px rgba(0,0,0,.2);font:14px/1.45 Arial,sans-serif;white-space:pre-wrap"></div><div class="toast" id="toast"></div>
 
 <script>
 const SUPABASE_URL = 'https://owpzcjvseleqeqibwuqj.supabase.co';
@@ -506,6 +506,9 @@ let calendarMonth = new Date();
 calendarMonth.setDate(1);
 
 function $(id){return document.getElementById(id)}
+function showJournalError(msg){const el=$('journalError');if(el){el.textContent=String(msg);el.style.display='block'}}
+window.addEventListener('error',e=>showJournalError('Ошибка JavaScript: '+(e.message||e.error||'неизвестная ошибка')));
+window.addEventListener('unhandledrejection',e=>showJournalError('Ошибка Promise: '+(e.reason?.message||e.reason||'неизвестная ошибка')));
 function toast(msg){const t=$('toast');t.textContent=msg;t.style.display='block';clearTimeout(window.__toastTimer);window.__toastTimer=setTimeout(()=>t.style.display='none',12000)}
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
 function today(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}function formatHomeDate(){
@@ -684,8 +687,8 @@ async function loadAll(){
     try{ state[key]=await getTable(table); }
     catch(e){ console.error(table,e); state[key]=[]; errors.push(e.message||String(e)); }
   }
-  renderAll();
-  if(errors.length) toast('Ошибка загрузки: '+errors.join(' | '));
+  try{ renderAll(); }catch(e){ console.error(e); showJournalError('Ошибка отображения журнала: '+(e.message||e)); }
+  if(errors.length) showJournalError('Ошибка загрузки данных:\n'+errors.join('\n'));
 }
 function renderAll(){
   setText('homeWorkHives',state.hives.length+' '+(state.hives.length===1?'улей':'ульев'));
