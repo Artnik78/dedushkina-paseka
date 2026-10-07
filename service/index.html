@@ -59,6 +59,7 @@ th,td{padding:11px;border-bottom:1px solid #e7edf2;text-align:left;white-space:n
 <input name="name" placeholder="Название" required>
 <input name="tax_id" placeholder="УНП">
 <input name="bank_account" placeholder="Расчётный счёт">
+<input name="bik" placeholder="БИК">
 <input name="bank" placeholder="Банк">
 
 <input name="phone" placeholder="Телефон">
@@ -66,7 +67,7 @@ th,td{padding:11px;border-bottom:1px solid #e7edf2;text-align:left;white-space:n
 <input name="responsible_person" placeholder="Ответственное лицо">
 <div class="toolbar"><button id="clientSaveBtn" class="primary">Сохранить клиента</button><button type="button" class="light hidden" id="clientCancelBtn" onclick="cancelClientEdit()">Отмена</button></div>
 </form></div>
-<div class="card" style="margin-top:14px"><div class="tablewrap"><table><thead><tr><th>Название</th><th>УНП</th><th>Расчётный счёт</th><th>Банк</th><th>Телефон</th><th>Электронная почта</th><th>Ответственное лицо</th><th>Действия</th></tr></thead><tbody id="clientsRows"></tbody></table></div></div>
+<div class="card" style="margin-top:14px"><div class="tablewrap"><table><thead><tr><th>Название</th><th>УНП</th><th>Расчётный счёт</th><th>БИК</th><th>Банк</th><th>Телефон</th><th>Электронная почта</th><th>Ответственное лицо</th><th>Действия</th></tr></thead><tbody id="clientsRows"></tbody></table></div></div>
 <div class="card" style="margin-top:14px"><h2>Договоры клиента</h2><p class="muted">Договор хранится отдельно, поэтому при смене договора старый не теряется.</p>
 <form id="contractForm" class="formgrid">
 <input type="hidden" name="id"><select name="client_id" id="contractClient" required><option value="">Выберите клиента</option></select>
@@ -110,7 +111,7 @@ async function refresh(){
  ]);
  if(c.error||e.error||k.error||o.error||ct.error){console.error(c.error,e.error,k.error,o.error,ct.error);return}
  $('cntClients').textContent=c.data.length;$('cntEquipment').textContent=e.data.length;$('cntCartridges').textContent=k.data.length;$('cntOrders').textContent=o.data.length;
- $('clientsRows').innerHTML=c.data.map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.tax_id||'')}</td><td>${esc(x.bank_account||'')}</td><td>${esc(x.bank||'')}</td><td>${esc(x.phone||'')}</td><td>${esc(x.email||'')}</td><td>${esc(x.responsible_person||'')}</td><td><button class="light" onclick="editClient('${x.id}')">Изменить</button> <button class="light" onclick="selectContracts('${x.id}')">Договоры</button> <button class="danger" onclick="deleteClient('${x.id}')">Удалить</button></td></tr>`).join('');
+ $('clientsRows').innerHTML=c.data.map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.tax_id||'')}</td><td>${esc(x.bank_account||'')}</td><td>${esc(x.bik||'')}</td><td>${esc(x.bank||'')}</td><td>${esc(x.phone||'')}</td><td>${esc(x.email||'')}</td><td>${esc(x.responsible_person||'')}</td><td><button class="light" onclick="editClient('${x.id}')">Изменить</button> <button class="light" onclick="selectContracts('${x.id}')">Договоры</button> <button class="danger" onclick="deleteClient('${x.id}')">Удалить</button></td></tr>`).join('');
 fillSelect('contractClient',c.data,'name'); if(selectedContractClient && c.data.some(x=>x.id===selectedContractClient)) $('contractClient').value=selectedContractClient;
  $('equipmentRows').innerHTML=e.data.map(x=>`<tr><td>${esc(c.data.find(cl=>cl.id===x.client_id)?.name||'—')}</td><td>${esc(x.barcode||'')}</td><td>${esc(x.equipment_type)}</td><td>${esc(x.manufacturer||'')}</td><td>${esc(x.model||'')}</td><td>${esc(x.serial_number||'')}</td></tr>`).join('');
  $('cartridgeRows').innerHTML=k.data.map(x=>`<tr><td>${esc(c.data.find(cl=>cl.id===x.client_id)?.name||'—')}</td><td>${esc(x.barcode||'')}</td><td>${esc(x.model)}</td><td>${esc(x.manufacturer||'')}</td><td>${x.fill_count}</td><td>${esc(x.serial_number||'')}</td></tr>`).join('');
