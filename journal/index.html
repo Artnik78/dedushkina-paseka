@@ -9,7 +9,13 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <title>Дедушкина пасека — Цифровой журнал</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));}</script>
+<script>
+if("serviceWorker" in navigator){
+  window.addEventListener("load",()=>{
+    navigator.serviceWorker.register("./sw.js",{scope:"./",updateViaCache:"none"}).catch(err=>console.warn("PWA Service Worker:",err));
+  });
+}
+</script>
 <style>
 :root{--green:#103a27;--green2:#1d6337;--gold:#d5a72b;--cream:#fffaf0;--paper:#fff;--ink:#25352b;--muted:#708078;--line:#e5e0d5;--danger:#b23a2b}
 *{box-sizing:border-box}
