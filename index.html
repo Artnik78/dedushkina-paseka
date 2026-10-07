@@ -105,6 +105,41 @@
   .item h3{font-size:18px;}
   .item .actions .viber-order,.item .actions .info-button{flex-basis:100%;}
 }
+
+/* Улучшенная мобильная шапка и каталог */
+@media(max-width:700px){
+  .top{position:sticky;top:0;z-index:8000;background:rgba(255,242,217,.97);backdrop-filter:blur(8px);}
+  .topinner{min-height:58px;padding:6px 0;gap:7px;flex-wrap:nowrap;justify-content:space-between;}
+  .brand{gap:7px;min-width:0;}
+  .brand .bee{font-size:25px;}
+  .brand strong{font-size:20px;line-height:1.05;white-space:normal;}
+  .brand small{font-size:8px;letter-spacing:.7px;line-height:1.1;}
+  .nav{order:3;width:100%;flex-wrap:nowrap;justify-content:flex-start;gap:7px;overflow-x:auto;overflow-y:hidden;padding:2px 2px 7px;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+  .nav::-webkit-scrollbar{display:none;}
+  .nav a{flex:0 0 auto;padding:7px 11px;border:1px solid #d8bd8c;border-radius:18px;background:#fff9ed;font-size:12px;}
+  .phone{display:inline-block;flex:0 0 auto;padding:7px 9px;font-size:12px;border-radius:20px;}
+  .hero{min-height:365px;background-position:center center;}
+  .herobox{padding:22px 12px;background:rgba(255,240,208,.28);}
+  .hero h1{font-size:38px;}
+  .hero .sub{font-size:15px;line-height:1.35;}
+  .hero .motto{font-size:14px;}
+  .virtues{gap:5px;margin-top:18px;}
+  .virtues div{font-size:11px;min-width:0;}
+  .virtues span{font-size:23px;}
+  .catalog{padding:12px 0 18px;}
+  .catalog .heading{font-size:27px;margin-bottom:11px;}
+  .cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;}
+  .tile,.tile.wide{grid-column:span 1;height:142px;border-radius:11px;}
+  .tile .name{font-size:14px;padding:20px 8px 8px;line-height:1.15;}
+  .tile .arrow{width:22px;height:22px;font-size:15px;}
+}
+@media(max-width:390px){
+  .brand strong{font-size:18px;}
+  .phone{font-size:11px;padding:6px 8px;}
+  .cards{gap:7px;}
+  .tile,.tile.wide{height:132px;}
+  .tile .name{font-size:13px;}
+}
 </style><style>
 /* Поиск по каталогу */
 .product-search{padding:18px 0 8px;background:#fff8eb}
