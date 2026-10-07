@@ -288,11 +288,11 @@ h1{margin:0 0 6px;font-size:28px}.sub{color:var(--muted);margin:0 0 22px}
         <form id="inspectionForm" class="form">
           <div class="field"><label>Улей *</label><select name="hive_id" id="inspectionHive" required></select></div>
           <div class="field"><label>Дата *</label><input name="inspection_date" type="date" required></div>
-          <div class="field"><label>Состояние семьи</label><input name="colony_strength" placeholder="Сильная / средняя / слабая"></div>
-          <div class="field"><label>Матка</label><input name="queen_status" placeholder="Есть / нет / молодая"></div>
+          <div class="field"><label>Состояние семьи</label><select name="colony_strength"><option value="">Не указано</option><option>Сильная</option><option>Средняя</option><option>Слабая</option></select></div>
+          <div class="field"><label>Матка</label><select name="queen_status"><option value="">Не указано</option><option>Есть</option><option>Молодая</option><option>Нет</option><option>Трутневая</option></select></div>
           <div class="field"><label>Порода матки</label><select name="queen_breed"><option value="">Не указана</option><option>Карника</option><option>Бакфаст</option><option>Мешанка</option><option>Итальянка</option><option>Среднерусская</option><option>Кавказская</option><option>Другая</option></select></div>
-          <div class="field"><label>Расплод</label><input name="brood" placeholder="Хороший / слабый"></div>
-          <div class="field"><label>Корм</label><input name="feed" placeholder="Мёд / сироп / перга"></div>
+          <div class="field"><label>Расплод</label><select name="brood"><option value="">Не указано</option><option>Хороший</option><option>Нормальный</option><option>Слабый</option><option>Нет</option></select></div>
+          <div class="field"><label>Корм</label><select name="feed"><option value="">Не указано</option><option>Много</option><option>Достаточно</option><option>Мало</option><option>Нет</option><option>Мёд и перга</option><option>Сироп</option></select></div>
           <div class="field full"><label>Заметки</label><textarea name="notes"></textarea></div>
           <div><button class="btn">Сохранить осмотр</button></div>
         </form>
@@ -694,6 +694,26 @@ function renderAll(){
   state.inspections.forEach(i=>{const id=String(i.hive_id||'');if(!id)return;if(!hiveLast[id]||String(i.inspection_date)>String(hiveLast[id].inspection_date))hiveLast[id]=i});
   const noInspection=state.hives.filter(h=>{const x=hiveLast[String(h.id)];if(!x)return true;return Math.floor((todayDate-new Date(String(x.inspection_date).slice(0,10)+'T00:00:00'))/86400000)>=14});
   const weakFamilies=state.inspections.filter(i=>String(i.colony_strength||'').toLowerCase().includes('слаб')).length;
+  const inspectionWarnings=noInspection.map(h=>{
+    const last=hiveLast[String(h.id)];
+    const days=last?.inspection_date?Math.floor((todayDate-new Date(String(last.inspection_date).slice(0,10)+'T00:00:00'))/86400000):null;
+    return {h,days};
+  });
+  const queenWarnings=state.hives.filter(h=>{
+    const last=hiveLast[String(h.id)];
+    return last && ['нет','трутневая'].includes(String(last.queen_status||'').toLowerCase());
+  });
+  const feedWarnings=state.hives.filter(h=>{
+    const last=hiveLast[String(h.id)];
+    return last && String(last.feed||'').toLowerCase().includes('мало');
+  });
+  const warningHtml=(inspectionWarnings.length||queenWarnings.length||feedWarnings.length)
+    ? '<div class="panel home-alert" style="margin-top:12px;background:#fff7e8"><div class="reminders-head"><div><span class="eyebrow">КОНТРОЛЬ СЕМЕЙ</span><h3>⚠️ Требуют внимания</h3></div></div>'+
+      inspectionWarnings.slice(0,6).map(x=>'<button type="button" class="hive-health-row danger home-hive-warning" data-id="'+esc(x.h.id)+'"><span class="hive-health-icon">🔴</span><span><b>Улей №'+esc(x.h.hive_number)+'</b><small>'+(x.days===null?'Осмотров ещё не было':'Последний осмотр '+x.days+' дн. назад')+'</small></span><span class="hive-arrow">›</span></button>').join('')+
+      queenWarnings.slice(0,6).map(h=>'<button type="button" class="hive-health-row warn home-hive-warning" data-id="'+esc(h.id)+'"><span class="hive-health-icon">👑</span><span><b>Улей №'+esc(h.hive_number)+'</b><small>Проверить состояние матки</small></span><span class="hive-arrow">›</span></button>').join('')+
+      feedWarnings.slice(0,6).map(h=>'<button type="button" class="hive-health-row warn home-hive-warning" data-id="'+esc(h.id)+'"><span class="hive-health-icon">🍯</span><span><b>Улей №'+esc(h.hive_number)+'</b><small>Мало корма — требуется проверка</small></span><span class="hive-arrow">›</span></button>').join('')+
+      '</div>'
+    : '<div class="panel home-alert" style="margin-top:12px"><b>✅ Состояние семей под контролем</b><div class="muted" style="margin-top:5px">Просроченных осмотров и критических предупреждений нет.</div></div>';
   const statusCards=[
     ['🐝',noInspection.length,'ульев без осмотра 14+ дней'],
     ['💪',weakFamilies,'отметок о слабой семье'],
@@ -708,9 +728,10 @@ function renderAll(){
     const text=!last?'нет осмотра':days>=14?'осмотр '+days+' дн. назад':strength.includes('слаб')?'слабая семья':'состояние в норме';
     return {number:h.hive_number,icon,text,level};
   }).sort((a,b)=>Number(a.number)-Number(b.number));
-  $('homeHiveStatus').innerHTML='<div class="status-grid">'+statusCards.map(x=>'<div class="status-box"><div class="num">'+x[0]+' '+x[1]+'</div><small>'+x[2]+'</small></div>').join('')+'</div>'+
+  $('homeHiveStatus').innerHTML=warningHtml+'<div class="status-grid" style="margin-top:12px">'+statusCards.map(x=>'<div class="status-box"><div class="num">'+x[0]+' '+x[1]+'</div><small>'+x[2]+'</small></div>').join('')+'</div>'+
     (statusRows.length?'<div class="hive-health-list">'+statusRows.map(x=>'<button type="button" class="hive-health-row '+x.level+'" data-page="hives"><span class="hive-health-icon">'+x.icon+'</span><span><b>Улей №'+esc(x.number)+'</b><small>'+esc(x.text)+'</small></span><span class="hive-arrow">›</span></button>').join('')+'</div>':'<div class="muted" style="margin-top:12px">Ульев пока нет.</div>');
   document.querySelectorAll('#homeHiveStatus [data-page]').forEach(b=>b.onclick=()=>showPage(b.dataset.page));
+  document.querySelectorAll('.home-hive-warning').forEach(b=>b.onclick=()=>showHiveFamily(b.dataset.id));
   const honeyRows=[...state.honey].sort((a,b)=>String(b.collection_date||'').localeCompare(String(a.collection_date||''))).slice(0,4);
   $('homeHoneyPreview').innerHTML=honeyRows.length
     ? '<table class="home-honey-table"><thead><tr><th>Продукт</th><th>Количество</th><th>Дата</th></tr></thead><tbody>'+honeyRows.map(h=>'<tr><td><b>'+esc(h.honey_type||'Мёд')+'</b></td><td>'+esc(h.quantity_kg??'')+' кг</td><td>'+esc(h.collection_date||'')+'</td></tr>').join('')+'</tbody></table>'
