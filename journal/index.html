@@ -386,12 +386,29 @@ h1{margin:0 0 6px;font-size:28px}.sub{color:var(--muted);margin:0 0 22px}
     </section>
 
     <section id="page-stats" class="section">
-      <h1>Статистика</h1><p class="sub">Основные показатели журнала.</p>
+      <h1>Статистика</h1><p class="sub">Состояние пчелиных семей и основные показатели журнала.</p>
       <div class="cards">
         <div class="card"><div class="muted">Всего ульев</div><div class="big" id="statHives">0</div></div>
         <div class="card"><div class="muted">Всего осмотров</div><div class="big" id="statInspections">0</div></div>
         <div class="card"><div class="muted">Партий мёда</div><div class="big" id="statHoney">0</div></div>
         <div class="card"><div class="muted">Финансовых операций</div><div class="big" id="statFinance">0</div></div>
+      </div>
+      <div class="panel">
+        <h3>🐝 Состояние пчелиных семей</h3>
+        <div class="status-grid">
+          <div class="status-box"><div class="num" id="statStrong">0</div><small>🟢 Сильных семей</small></div>
+          <div class="status-box"><div class="num" id="statMedium">0</div><small>🟡 Средних семей</small></div>
+          <div class="status-box"><div class="num" id="statWeak">0</div><small>🔴 Слабых семей</small></div>
+        </div>
+        <div class="status-grid" style="margin-top:10px">
+          <div class="status-box"><div class="num" id="statYoungQueens">0</div><small>👑 Молодых маток</small></div>
+          <div class="status-box"><div class="num" id="statNoInspection">0</div><small>⚠️ Без осмотра 14+ дней</small></div>
+          <div class="status-box"><div class="num" id="statAttention">0</div><small>❗ Требуют внимания</small></div>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>📈 Изменение состояния семей</h3>
+        <div id="familyStatsList"></div>
       </div>
     </section>
 
@@ -744,6 +761,17 @@ function renderAll(){
   setText('statInspections',state.inspections.length);
   setText('statHoney',state.honey.length);
   setText('statFinance',state.finance.length);
+  const statsToday=new Date(today()+'T00:00:00');
+  const latest={};
+  state.inspections.forEach(i=>{const id=String(i.hive_id||'');if(id&&(!latest[id]||String(i.inspection_date)>String(latest[id].inspection_date)))latest[id]=i});
+  const strengthCount={strong:0,medium:0,weak:0};
+  Object.values(latest).forEach(i=>{const s=String(i.colony_strength||'').toLowerCase();if(s.includes('силь'))strengthCount.strong++;else if(s.includes('сред'))strengthCount.medium++;else if(s.includes('слаб'))strengthCount.weak++;});
+  const youngQueens=Object.values(latest).filter(i=>String(i.queen_status||'').toLowerCase().includes('молод')).length;
+  const noInspection=state.hives.filter(h=>{const i=latest[String(h.id)];if(!i)return true;return Math.floor((statsToday-new Date(String(i.inspection_date).slice(0,10)+'T00:00:00'))/86400000)>=14}).length;
+  const attention=state.hives.filter(h=>{const i=latest[String(h.id)];if(!i)return true;const s=String(i.colony_strength||'').toLowerCase(),q=String(i.queen_status||'').toLowerCase(),f=String(i.feed||'').toLowerCase();return s.includes('слаб')||q==='нет'||q.includes('трутне')||f.includes('мало')}).length;
+  setText('statStrong',strengthCount.strong);setText('statMedium',strengthCount.medium);setText('statWeak',strengthCount.weak);setText('statYoungQueens',youngQueens);setText('statNoInspection',noInspection);setText('statAttention',attention);
+  const statRows=state.hives.map(h=>{const i=latest[String(h.id)];const s=String(i?.colony_strength||'').toLowerCase();const level=s.includes('силь')?'🟢 Сильная':s.includes('сред')?'🟡 Средняя':s.includes('слаб')?'🔴 Слабая':'⚪ Нет данных';return {h,i,level};}).sort((a,b)=>Number(a.h.hive_number)-Number(b.h.hive_number));
+  $('familyStatsList').innerHTML=statRows.length?'<div class="table-wrap"><table class="table"><thead><tr><th>Улей</th><th>Последний осмотр</th><th>Сила</th><th>Матка</th><th>Корм</th></tr></thead><tbody>'+statRows.map(x=>'<tr><td><b>№ '+esc(x.h.hive_number)+'</b></td><td>'+esc(x.i?.inspection_date||'—')+'</td><td>'+x.level+'</td><td>'+esc(x.i?.queen_status||'—')+'</td><td>'+esc(x.i?.feed||'—')+'</td></tr>').join('')+'</tbody></table></div>':'<div class="empty">Добавьте ульи и осмотры — здесь появится статистика семей.</div>';
 
   const medicineToday=new Date(today()+'T00:00:00');
   const homeMedicineAlerts=state.medicines.map(m=>{
