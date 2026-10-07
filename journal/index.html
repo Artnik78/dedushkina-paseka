@@ -671,7 +671,7 @@ async function getTable(table,order='created_at'){
   const q=db.from(table).select('*');
   const r=order?q.order(order,{ascending:false}):q;
   const {data,error}=await r;
-  if(error)throw error;
+  if(error)throw new Error('Таблица «'+table+'»: '+error.message);
   return data||[];
 }
 async function loadAll(){
