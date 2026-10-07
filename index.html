@@ -109,15 +109,15 @@
 /* Улучшенная мобильная шапка и каталог */
 @media(max-width:700px){
   .top{position:sticky;top:0;z-index:8000;background:rgba(255,242,217,.97);backdrop-filter:blur(8px);}
-  .topinner{min-height:58px;padding:6px 0;gap:6px;flex-wrap:wrap;justify-content:space-between;}
+  .topinner{min-height:58px;padding:6px 0;gap:6px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;}
   .brand{gap:7px;min-width:0;}
   .brand .bee{font-size:25px;}
   .brand strong{font-size:20px;line-height:1.05;white-space:normal;}
   .brand small{font-size:8px;letter-spacing:.7px;line-height:1.1;}
-  .nav{order:3;width:100%;flex-wrap:nowrap;justify-content:flex-start;gap:7px;overflow-x:auto;overflow-y:hidden;padding:2px 2px 7px;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+  .nav{grid-column:1/-1;grid-row:2;width:100%;min-width:0;display:flex;flex-wrap:nowrap;justify-content:flex-start;gap:7px;overflow-x:auto;overflow-y:hidden;padding:2px 2px 7px;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
   .nav::-webkit-scrollbar{display:none;}
   .nav a{flex:0 0 auto;padding:7px 11px;border:1px solid #d8bd8c;border-radius:18px;background:#fff9ed;font-size:12px;}
-  .phone{display:inline-block;flex:0 0 auto;padding:7px 9px;font-size:12px;border-radius:20px;}
+  .phone{grid-column:2;grid-row:1;display:inline-block;min-width:max-content;padding:7px 9px;font-size:12px;border-radius:20px;}
   .hero{min-height:365px;background-position:center center;}
   .herobox{padding:22px 12px;background:rgba(255,240,208,.28);}
   .hero h1{font-size:38px;}
