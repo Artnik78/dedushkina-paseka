@@ -190,5 +190,6 @@ $('cartridgeForm').onsubmit=async ev=>{ev.preventDefault();const d=formData(ev.t
 $('orderForm').onsubmit=async ev=>{ev.preventDefault();const d=formData(ev.target);d.total_amount=Number(d.total_amount||0);for(const k of ['equipment_id','cartridge_id'])if(!d[k])d[k]=null;const {error}=await sb.from('service_orders').insert(d);if(error)alert(error.message);else{ev.target.reset();refresh()}}
 sb.auth.onAuthStateChange((event,session)=>{if(session){$('auth').classList.add('hidden');$('app').classList.remove('hidden');refresh()}else{$('auth').classList.remove('hidden');$('app').classList.add('hidden')}});
 const {data:{session}}=await sb.auth.getSession();if(session){$('auth').classList.add('hidden');$('app').classList.remove('hidden');refresh()}
+})();
 </script>
 </body></html>
