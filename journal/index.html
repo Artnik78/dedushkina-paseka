@@ -767,7 +767,7 @@ async function showApp(user){
   $('app').style.display='';
   $('userEmail').textContent=user.email||'Пользователь';
   syncHomeUser(user.email);
-  const owner=email==='78art@gmail.com';
+  const owner=email==='78artnik@gmail.com';
   const p=$('userAccessPanel'); if(p)p.style.display=owner?'block':'none';
   if(owner) loadJournalUsers();
   try{ await loadAll(); }
@@ -817,7 +817,7 @@ async function loadJournalUsers(){
   const {data,error}=await db.from('journal_users').select('*').order('created_at',{ascending:true});
   if(error){box.innerHTML='<div class="empty">Ошибка: '+esc(error.message)+'</div>';return}
   box.innerHTML=(data||[]).map(u=>{
-    const owner=(String(u.email||'').toLowerCase()==='78art@gmail.com');
+    const owner=(String(u.email||'').toLowerCase()==='78artnik@gmail.com');
     const active=!!u.allowed;
     return '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 0;border-bottom:1px solid var(--line)">'+
       '<div><b>'+esc(u.email||'—')+'</b><div class="muted">'+(owner?'Владелец':'Пользователь')+' · '+(active?'🟢 Доступ разрешён':'🔴 Доступ заблокирован')+'</div></div>'+
