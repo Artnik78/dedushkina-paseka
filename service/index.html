@@ -20,7 +20,7 @@ table{width:100%;border-collapse:collapse;background:#fff}.tablewrap{overflow:au
 th,td{padding:11px;border-bottom:1px solid #e7edf2;text-align:left;white-space:nowrap}
 .auth{max-width:420px;margin:70px auto}.muted{color:#64748b;font-size:13px}.hidden{display:none!important}
 @media(max-width:700px){.grid{grid-template-columns:repeat(2,1fr)}.formgrid{grid-template-columns:1fr}.formgrid .full{grid-column:auto}header{align-items:flex-start}.grid b{font-size:23px}}
-.workSummary{white-space:normal;line-height:1.45}.barcodeRow{display:flex;gap:8px;align-items:stretch}.barcodeRow input{flex:1}.scanBtn{white-space:nowrap}.barcodeInfo{grid-column:1/-1;padding:10px 12px;border-radius:9px;background:#eef6ff;color:#17324d;font-size:13px;min-height:0}.barcodeInfo:empty{display:none}.scannerModal{position:fixed;inset:0;background:#000b;display:flex;align-items:center;justify-content:center;z-index:9999;padding:18px}.scannerBox{background:#fff;border-radius:16px;padding:16px;max-width:520px;width:100%}.scannerBox video{width:100%;border-radius:12px;background:#111;max-height:55vh;object-fit:cover}.scannerActions{display:flex;gap:8px;margin-top:10px}.scannerMsg{font-size:13px;color:#64748b;margin-top:8px}</style>
+.barcodeRow{display:flex;gap:8px;align-items:stretch}.barcodeRow input{flex:1}.scanBtn{white-space:nowrap}.barcodeInfo{grid-column:1/-1;padding:10px 12px;border-radius:9px;background:#eef6ff;color:#17324d;font-size:13px;min-height:0}.barcodeInfo:empty{display:none}.scannerModal{position:fixed;inset:0;background:#000b;display:flex;align-items:center;justify-content:center;z-index:9999;padding:18px}.scannerBox{background:#fff;border-radius:16px;padding:16px;max-width:520px;width:100%}.scannerBox video{width:100%;border-radius:12px;background:#111;max-height:55vh;object-fit:cover}.scannerActions{display:flex;gap:8px;margin-top:10px}.scannerMsg{font-size:13px;color:#64748b;margin-top:8px}</style>
 </head>
 <body>
 <div id="auth" class="auth card">
@@ -88,20 +88,13 @@ th,td{padding:11px;border-bottom:1px solid #e7edf2;text-align:left;white-space:n
 <div id="cartridgeMaintenance" class="card hidden" style="margin-top:14px"><h2>Обслуживание картриджа</h2><p class="muted">Здесь сохраняем не только заправки, но и замену барабана, вала заряда, магнитного вала, ракеля и чипа.</p>
 <form id="maintenanceForm" class="formgrid">
 <input type="hidden" name="cartridge_id">
-<div class="full"><b>Какие работы выполнены:</b><div class="toolbar" style="margin-top:8px">
-<label><input type="checkbox" name="component" value="refill"> Заправка</label>
-<label><input type="checkbox" name="component" value="drum"> Барабан</label>
-<label><input type="checkbox" name="component" value="charge_roller"> Вал заряда</label>
-<label><input type="checkbox" name="component" value="magnetic_roller"> Магнитный вал</label>
-<label><input type="checkbox" name="component" value="wiper"> Ракель</label>
-<label><input type="checkbox" name="component" value="chip"> Чип</label>
-</div></div>
+<select name="component" required><option value="refill">Заправка</option><option value="drum">Барабан</option><option value="charge_roller">Вал заряда</option><option value="magnetic_roller">Магнитный вал</option><option value="wiper">Ракель</option><option value="chip">Чип</option></select>
 <input name="service_date" type="date" required>
 <textarea class="full" name="notes" placeholder="Что сделано / примечание"></textarea>
-<div class="toolbar"><button class="primary">Добавить выполненные работы</button></div>
+<div class="toolbar"><button class="primary">Добавить в историю</button></div>
 </form>
 <div class="tablewrap" style="margin-top:12px"><table><thead><tr><th>Дата</th><th>Операция</th><th>Примечание</th><th>Действия</th></tr></thead><tbody id="maintenanceRows"></tbody></table></div></div>
-<div class="card" style="margin-top:14px"><div class="tablewrap"><table><thead><tr><th>Клиент</th><th>Штрихкод</th><th>Модель</th><th>Заправок</th><th>Действия</th></tr></thead><tbody id="cartridgeRows"></tbody></table></div></div></section>
+<div class="card" style="margin-top:14px"><div class="tablewrap"><table><thead><tr><th>Клиент</th><th>Штрихкод</th><th>Модель</th><th>Заправок</th><th>Последние работы</th><th>Действия</th></tr></thead><tbody id="cartridgeRows"></tbody></table></div></div></section>
 
 <section id="cartridgeModels"><div class="card"><h2>Модели картриджей</h2><p class="muted">Добавляйте свои модели. Они появятся в списке при добавлении картриджа.</p><form id="modelForm" class="formgrid"><input name="manufacturer" placeholder="Производитель" required><input name="model" placeholder="Модель картриджа" required><div class="toolbar"><button class="primary">Добавить модель</button></div></form></div><div class="card" style="margin-top:14px"><div class="tablewrap"><table><thead><tr><th>Производитель</th><th>Модель</th><th>Действия</th></tr></thead><tbody id="cartridgeModelsRows"></tbody></table></div></div></section>
 
@@ -144,7 +137,7 @@ async function refresh(){
  $('clientsRows').innerHTML=c.data.map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.tax_id||'')}</td><td>${esc(x.bank_account||'')}</td><td>${esc(x.bik||'')}</td><td>${esc(x.bank||'')}</td><td>${esc(x.phone||'')}</td><td>${esc(x.email||'')}</td><td>${esc(x.responsible_person||'')}</td><td><button class="light" onclick="editClient('${x.id}')">Изменить</button> <button class="light" onclick="selectContracts('${x.id}')">Договоры</button> <button class="danger" onclick="deleteClient('${x.id}')">Удалить</button></td></tr>`).join('');
 fillSelect('contractClient',c.data,'name'); if(selectedContractClient && c.data.some(x=>x.id===selectedContractClient)) $('contractClient').value=selectedContractClient;
  $('equipmentRows').innerHTML=e.data.map(x=>`<tr><td>${esc(c.data.find(cl=>cl.id===x.client_id)?.name||'—')}</td><td>${esc(x.barcode||'')}</td><td>${esc(x.inventory_number||'')}</td><td>${esc(({printer:'Принтер',mfu:'МФУ',copier:'Копировальный аппарат',scanner:'Сканер',computer:'Компьютер',laptop:'Ноутбук',monitor:'Монитор',other_office:'Другая оргтехника',other:'Другое'}[x.equipment_type]||x.equipment_type||''))}</td><td>${esc(x.manufacturer||'')}</td><td>${esc(x.model||'')}</td><td>${esc(x.serial_number||'')}</td><td><button class="light" onclick="editEquipment('${x.id}')">Изменить</button> <button class="danger" onclick="deleteEquipment('${x.id}')">Удалить</button></td></tr>`).join('');
- $('cartridgeRows').innerHTML=k.data.map(x=>`<tr><td><div>${esc(c.data.find(cl=>cl.id===x.client_id)?.name||'—')}</div><div id="workSummary-${x.id}" class="workSummary muted">Загрузка работ…</div></td><td>${esc(x.barcode||'')}</td><td>${esc(x.model)}</td><td>${x.fill_count}</td><td><button class="light" onclick="openExistingCartridge('${x.id}')">🔧 Работы</button> <button class="light" onclick="editCartridge('${x.id}')">Изменить</button> <button class="danger" onclick="deleteCartridge('${x.id}')">Удалить</button></td></tr>`).join('');
+ $('cartridgeRows').innerHTML=k.data.map(x=>`<tr><td>${esc(c.data.find(cl=>cl.id===x.client_id)?.name||'—')}</td><td>${esc(x.barcode||'')}</td><td>${esc(x.model)}</td><td>${x.fill_count}</td><td><span id="workSummary-${x.id}" class="muted">Загрузка…</span></td><td><button class="light" onclick="openExistingCartridge('${x.id}')">🔧 Работы</button> <button class="light" onclick="editCartridge('${x.id}')">Изменить</button> <button class="danger" onclick="deleteCartridge('${x.id}')">Удалить</button></td></tr>`).join('');
 loadCartridgeWorkSummaries(k.data);
  $('orderRows').innerHTML=o.data.map(x=>`<tr><td>${x.order_number}</td><td>${x.order_date}</td><td>${esc({received:'Принят',in_work:'В работе',ready:'Готов',issued:'Выдан',paid:'Оплачен'}[x.status]||x.status)}</td><td>${Number(x.total_amount).toFixed(2)}</td></tr>`).join('');
 renderContracts(ct.data);
@@ -193,33 +186,8 @@ $('orderClient').onchange=()=>refresh();
 $('equipmentClient').onchange=()=>{};
 $('cartridgeClient').onchange=()=>{};
 const defaultCartridgeModelsHtml=$('cartridgeModelSelect').innerHTML;
-window.addCartridgeModel=async()=>{
- const s=$('cartridgeModelSelect');
- const manufacturer=prompt('Производитель картриджа:','Другие');
- if(manufacturer===null)return;
- const model=prompt('Модель картриджа:');
- if(model===null)return;
- const m=manufacturer.trim(), v=model.trim();
- if(!m||!v){alert('Производитель и модель обязательны.');return}
- const {error}=await sb.from('service_cartridge_models').insert({manufacturer:m,model:v});
- if(error){alert('Не удалось добавить модель: '+error.message);return}
- await refresh();
- s.value=v;
-};
-window.deleteSelectedCartridgeModel=async()=>{
- const s=$('cartridgeModelSelect');
- const model=(s?.value||'').trim();
- if(!model){alert('Сначала выберите модель.');return}
- const {data,error}=await sb.from('service_cartridge_models').select('id,manufacturer,model').eq('model',model);
- if(error){alert('Не удалось проверить модель: '+error.message);return}
- if(!data?.length){alert('Эта модель встроенная и не может быть удалена.');return}
- if(!confirm('Удалить пользовательскую модель «'+model+'» из списка? Уже добавленные картриджи не удалятся.'))return;
- const {error:delError}=await sb.from('service_cartridge_models').delete().eq('id',data[0].id);
- if(delError){alert('Не удалось удалить модель: '+delError.message);return}
- await refresh();
-};
 function renderCartridgeModels(data){
- $('cartridgeModelsRows').innerHTML=(data||[]).map(x=>"<tr><td>"+esc(x.manufacturer)+"</td><td>"+esc(x.model)+"</td><td><button type='button' class='danger' onclick=\"deleteCartridgeModel('"+x.id+"')\">Удалить</button></td></tr>").join('')||'<tr><td colspan="3" class="muted">Пользовательских моделей пока нет.</td></tr>';
+ $('cartridgeModelsRows').innerHTML=(data||[]).map(x=>'<tr><td>'+esc(x.manufacturer)+'</td><td>'+esc(x.model)+'</td><td><button type="button" class="danger" onclick="deleteCartridgeModel(\\''+x.id+'\\')">Удалить</button></td></tr>').join('')||'<tr><td colspan="3" class="muted">Пользовательских моделей пока нет.</td></tr>';
  const s=$('cartridgeModelSelect'); if(!s)return;
  const current=s.value;
  s.innerHTML=defaultCartridgeModelsHtml;
@@ -228,6 +196,27 @@ function renderCartridgeModels(data){
  Object.keys(groups).forEach(m=>{const og=document.createElement('optgroup');og.label=m;groups[m].forEach(model=>{if([...s.options].some(o=>o.value===model))return;const o=document.createElement('option');o.value=model;o.textContent=model;og.appendChild(o)});if(og.children.length)s.appendChild(og)});
  if(current)s.value=current;
 }
+window.addCartridgeModel=async()=>{
+ const manufacturer=prompt('Производитель:','');
+ if(manufacturer===null)return;
+ const model=prompt('Модель картриджа:','');
+ if(model===null)return;
+ const m=manufacturer.trim(),md=model.trim();
+ if(!m||!md){alert('Укажите производителя и модель.');return}
+ const {error}=await sb.from('service_cartridge_models').insert({manufacturer:m,model:md});
+ if(error)alert(error.code==='23505'?'Такая модель уже есть.':error.message);else refresh();
+};
+window.deleteSelectedCartridgeModel=async()=>{
+ const s=$('cartridgeModelSelect'),model=s?.value;
+ if(!model){alert('Сначала выберите модель.');return}
+ const {data,error}=await sb.from('service_cartridge_models').select('id,manufacturer,model').eq('model',model);
+ if(error){alert(error.message);return}
+ if(!data?.length){alert('Это встроенная модель. Её нельзя удалить из стандартного списка.');return}
+ if(!confirm('Удалить пользовательскую модель «'+model+'» из списка? Уже созданные картриджи не будут удалены.'))return;
+ const {error:delError}=await sb.from('service_cartridge_models').delete().eq('id',data[0].id);
+ if(delError)alert(delError.message);else refresh();
+};
+window.deleteCartridgeModel=async id=>{if(!confirm('Удалить модель из списка? Уже созданные картриджи не будут удалены.'))return;const {error}=await sb.from('service_cartridge_models').delete().eq('id',id);if(error)alert(error.message);else refresh()};
 function fillSelect(id,data,label,first){const s=$(id);s.innerHTML='<option value="">'+(first||'Выберите')+'</option>'+data.map(x=>`<option value="${x.id}">${esc(typeof label==='function'?label(x):x[label])}</option>`).join('')}
 function esc(v){return String(v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 const maintenanceNames={refill:'Заправка',drum:'Барабан',charge_roller:'Вал заряда',magnetic_roller:'Магнитный вал',wiper:'Ракель',chip:'Чип'};
@@ -237,7 +226,7 @@ async function loadCartridgeWorkSummaries(cartridges){
   const el=$('workSummary-'+x.id); if(!el)continue;
   const {data,error}=await sb.from('service_cartridge_maintenance').select('component,service_date').eq('cartridge_id',x.id).order('service_date',{ascending:false}).limit(4);
   if(error){el.textContent='Ошибка';continue}
-  el.textContent=data?.length?[...new Set(data.map(h=>names[h.component]||h.component))].join(' · '):'Работ не было';
+  el.textContent=data?.length?data.map(h=>names[h.component]+' — '+h.service_date).join(' · '):'Работ не было';
  }
 }
 async function loadCartridgeMaintenance(cartridgeId){
@@ -328,23 +317,7 @@ $('contractForm').onsubmit=async ev=>{
 }
 $('equipmentForm').onsubmit=async ev=>{ev.preventDefault();const d=formData(ev.target);const id=d.id;delete d.id;const q=id?sb.from('service_equipment').update(d).eq('id',id):sb.from('service_equipment').insert(d);const {error}=await q;if(error)alert(error.message);else{ev.target.reset();$('equipmentSaveBtn').textContent='Сохранить технику';$('equipmentCancelBtn').classList.add('hidden');refresh()}}
 $('cartridgeForm').onsubmit=async ev=>{ev.preventDefault();const d=formData(ev.target);const id=d.id;delete d.id;d.fill_count=Number(d.fill_count||0);const q=id?sb.from('service_cartridges').update(d).eq('id',id):sb.from('service_cartridges').insert(d);const {data,error}=await q.select().single();if(error)alert(error.message);else{ev.target.reset();$('cartridgeSaveBtn').textContent='Сохранить картридж';$('cartridgeCancelBtn').classList.add('hidden');$('cartridgeMaintenance').classList.add('hidden');$('maintenanceRows').innerHTML='';refresh()}}
-$('maintenanceForm').onsubmit=async ev=>{
- ev.preventDefault();
- const f=ev.target;
- const cartridgeId=f.elements.cartridge_id.value;
- const components=[...f.querySelectorAll('input[name="component"]:checked')].map(x=>x.value);
- const serviceDate=f.elements.service_date.value||new Date().toISOString().slice(0,10);
- const notes=f.elements.notes.value.trim();
- if(!cartridgeId){alert('Не выбран картридж.');return}
- if(!components.length){alert('Выберите хотя бы одну выполненную работу.');return}
- const rows=components.map(component=>({cartridge_id:cartridgeId,component,service_date:serviceDate,notes}));
- const {error}=await sb.from('service_cartridge_maintenance').insert(rows);
- if(error){alert('Не удалось сохранить работы: '+error.message);return}
- f.querySelectorAll('input[name="component"]').forEach(x=>x.checked=false);
- f.elements.notes.value='';
- await loadCartridgeMaintenance(cartridgeId);
- showCartridgeByBarcode($('cartridgeBarcode').value);
-}
+$('maintenanceForm').onsubmit=async ev=>{ev.preventDefault();const d=formData(ev.target);d.service_date=d.service_date||new Date().toISOString().slice(0,10);const {error}=await sb.from('service_cartridge_maintenance').insert(d);if(error)alert(error.message);else{const id=d.cartridge_id;ev.target.elements.notes.value='';await loadCartridgeMaintenance(id);showCartridgeByBarcode($('cartridgeBarcode').value)}}
 $('modelForm').onsubmit=async ev=>{ev.preventDefault();const d=formData(ev.target);d.manufacturer=d.manufacturer.trim();d.model=d.model.trim();const {error}=await sb.from('service_cartridge_models').insert(d);if(error)alert(error.message);else{ev.target.reset();refresh()}}
 $('orderForm').onsubmit=async ev=>{ev.preventDefault();const d=formData(ev.target);d.total_amount=Number(d.total_amount||0);for(const k of ['equipment_id','cartridge_id'])if(!d[k])d[k]=null;const {error}=await sb.from('service_orders').insert(d);if(error)alert(error.message);else{ev.target.reset();refresh()}}
 sb.auth.onAuthStateChange((event,session)=>{if(session){$('auth').classList.add('hidden');$('app').classList.remove('hidden');refresh()}else{$('auth').classList.remove('hidden');$('app').classList.add('hidden')}});
