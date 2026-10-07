@@ -192,9 +192,9 @@ window.openScanner=async function(targetId){
  try{
   if(!navigator.mediaDevices?.getUserMedia)throw new Error('Браузер не поддерживает доступ к камере.');
   if(!('BarcodeDetector' in window))throw new Error('Этот браузер не поддерживает распознавание штрихкодов. Попробуйте Chrome на телефоне или компьютере.');
-  const formats=await BarcodeDetector.getSupportedFormats();
+  const formats=await BarcodeDetector.getSupportedFormats().catch(()=>[]);
   const wanted=['ean_13','ean_8','code_128','code_39','itf','upc_a','upc_e'].filter(x=>formats.includes(x));
-  const detector=new BarcodeDetector({formats:wanted.length?wanted:formats});
+  const detector=wanted.length?new BarcodeDetector({formats:wanted}):new BarcodeDetector();
   const video=$('scannerVideo');
   window._scannerStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
   video.srcObject=window._scannerStream; await video.play();
