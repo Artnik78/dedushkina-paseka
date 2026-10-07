@@ -3,7 +3,7 @@ const BASE="/dedushkina-paseka/journal/";
 const APP_SHELL=[
   BASE,
   BASE+"index.html",
-  BASE+"manifest.json",
+  BASE+"manifest.webmanifest",
   BASE+"icon.svg",
   BASE+"icon-192.png",
   BASE+"icon-512.png"
