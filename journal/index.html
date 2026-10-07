@@ -940,17 +940,20 @@ function renderAll(){
   $('medicineAlerts').innerHTML=medicineAlerts.length
     ? '<div class="panel" style="margin:0 0 14px;background:#fff7e8;border-color:#e4c77a"><b>⚠️ Требуют внимания</b>'+medicineAlerts.map(x=>'<div style="margin-top:8px">💊 <b>'+esc(x.m.name)+'</b> — '+esc(x.alerts.join('; '))+'</div>').join('')+'</div>'
     : '<div class="muted" style="margin-bottom:12px">✅ Просроченных лекарств и критически низких остатков нет.</div>';
-  $('medicinesList').innerHTML=state.medicines.length?'<div class="medicine-mobile-list">'+state.medicines.map(m=>{<tr><th>Наименование</th><th>Объём</th><th>Количество</th><th>Мин. остаток</th><th>Срок годности</th><th>Статус</th><th></th></tr></thead><tbody>'+state.medicines.map(m=>{
-    const qty=Number(m.quantity||0),min=Number(m.min_quantity||0);
-    let status='Норма';
-    if(qty<=min) status='⚠️ Мало';
-    if(m.expiry_date){
-      const days=Math.ceil((new Date(String(m.expiry_date).slice(0,10)+'T00:00:00')-medicineToday)/86400000);
-      if(days<0) status='❌ Просрочено';
-      else if(days<=Number(m.expiry_warning_days||30)) status='⚠️ Срок подходит';
-    }
-    const statusClass=status.includes('Просрочено')?'danger':status.includes('⚠️')?'warn':'ok';return '<div class="medicine-mobile-card '+statusClass+'"><div class="medicine-mobile-top"><b>💊 '+esc(m.name)+'</b><span>'+status+'</span></div><div class="medicine-mobile-grid"><span><small>Фасовка</small><b>'+esc(m.volume||'—')+'</b></span><span><small>Остаток</small><b>'+esc(m.quantity)+' / '+esc(m.min_quantity??'—')+'</b></span><span><small>Срок годности</small><b>'+esc(m.expiry_date||'—')+'</b></span></div><div class="medicine-mobile-actions"><button type="button" class="btn secondary medicine-edit" data-id="'+esc(m.id)+'">Изменить</button><button type="button" class="btn danger medicine-delete" data-id="'+esc(m.id)+'">Удалить</button></div></div>';
-  }).join('')+'</tbody></table>':'<div class="empty">Лекарств пока нет. Добавьте первый препарат выше.</div>';
+  $('medicinesList').innerHTML=state.medicines.length
+    ? '<div class="medicine-mobile-list">'+state.medicines.map(m=>{
+        const qty=Number(m.quantity||0),min=Number(m.min_quantity||0);
+        let status='Норма';
+        if(qty<=min) status='⚠️ Мало';
+        if(m.expiry_date){
+          const days=Math.ceil((new Date(String(m.expiry_date).slice(0,10)+'T00:00:00')-medicineToday)/86400000);
+          if(days<0) status='❌ Просрочено';
+          else if(days<=Number(m.expiry_warning_days||30)) status='⚠️ Срок подходит';
+        }
+        const statusClass=status.includes('Просрочено')?'danger':status.includes('⚠️')?'warn':'ok';
+        return '<div class="medicine-mobile-card '+statusClass+'"><div class="medicine-mobile-top"><b>💊 '+esc(m.name)+'</b><span>'+status+'</span></div><div class="medicine-mobile-grid"><span><small>Фасовка</small><b>'+esc(m.volume||'—')+'</b></span><span><small>Остаток</small><b>'+esc(m.quantity)+' / '+esc(m.min_quantity??'—')+'</b></span><span><small>Срок годности</small><b>'+esc(m.expiry_date||'—')+'</b></span></div><div class="medicine-mobile-actions"><button type="button" class="btn secondary medicine-edit" data-id="'+esc(m.id)+'">Изменить</button><button type="button" class="btn danger medicine-delete" data-id="'+esc(m.id)+'">Удалить</button></div></div>';
+      }).join('')+'</div>'
+    : '<div class="empty">Лекарств пока нет. Добавьте первый препарат выше.</div>';
   document.querySelectorAll('.medicine-edit').forEach(b=>b.onclick=()=>editMedicine(b.dataset.id));
   document.querySelectorAll('.medicine-delete').forEach(b=>b.onclick=()=>deleteMedicine(b.dataset.id));
 
