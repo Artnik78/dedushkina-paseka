@@ -113,6 +113,15 @@ h1{margin:0 0 6px;font-size:28px}.sub{color:var(--muted);margin:0 0 22px}
 .calendar-day.today{box-shadow:inset 0 0 0 2px #d5a72b}
 .calendar-event{cursor:pointer}
 </style>
+<style id="honey-batch-style">
+.honey-batch-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.honey-batch-card{text-align:left;border:1px solid #e1d6bd;border-radius:15px;background:linear-gradient(180deg,#fffdf7,#faf4e4);padding:16px;cursor:pointer;box-shadow:0 4px 12px rgba(75,55,20,.08);transition:.15s}
+.honey-batch-card:hover{transform:translateY(-1px);box-shadow:0 7px 18px rgba(75,55,20,.13);border-color:#d5a72b}
+.honey-batch-card h3{margin:12px 0 10px;color:#4b321b}
+.honey-batch-top{display:flex;justify-content:space-between;gap:10px}.honey-batch-number{font-weight:800;color:#9a6910}.honey-batch-date{font-size:12px;color:var(--muted)}
+.honey-batch-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:12px 0}.honey-batch-meta span{padding:8px;border-radius:10px;background:#fff}.honey-batch-meta small,.honey-passport-grid small{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}.honey-batch-meta b{font-size:12px}
+.honey-passport{background:#fffaf0;border:1px solid #e1d2ae;border-radius:14px;padding:16px}.honey-passport-main{padding-bottom:14px;border-bottom:1px solid #eadfca}.honey-passport-main span{display:block;font-size:11px;color:var(--muted);letter-spacing:1px}.honey-passport-main b{display:block;font-size:24px;color:#a16d10;margin:3px 0}.honey-passport-main strong{font-size:20px;color:#49301a}.honey-passport-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}.honey-passport-grid>div{padding:10px;border-radius:10px;background:#fff}
+</style>
 </head>
 <body>
 
@@ -359,7 +368,10 @@ h1{margin:0 0 6px;font-size:28px}.sub{color:var(--muted);margin:0 0 22px}
           <div><button class="btn">Сохранить партию</button></div>
         </form>
       </div>
-      <div class="panel"><h3>Партии мёда</h3><div id="honeyList" class="table-wrap"></div></div>
+      <div class="panel">
+        <div class="section-head"><div><h3>Партии мёда</h3><div class="muted">Каждая партия хранится отдельно — её можно открыть и посмотреть подробности.</div></div></div>
+        <div id="honeyList" class="honey-batch-list"></div>
+      </div>
     </section>
 
     <section id="page-finances" class="section">
@@ -486,6 +498,13 @@ h1{margin:0 0 6px;font-size:28px}.sub{color:var(--muted);margin:0 0 22px}
 </main>
 </div>
 
+<div class="event-modal" id="honeyBatchModal">
+  <div class="event-modal-box">
+    <div class="event-modal-head"><h3 id="honeyBatchTitle">🍯 Партия мёда</h3><button class="close-btn" id="closeHoneyBatch">×</button></div>
+    <div id="honeyBatchInfo"></div>
+    <div class="actions" style="justify-content:flex-end"><button type="button" class="btn secondary" id="closeHoneyBatch2">Закрыть</button></div>
+  </div>
+</div>
 <div class="event-modal" id="eventModal">
   <div class="event-modal-box">
     <div class="event-modal-head"><h3>Событие календаря</h3><button class="close-btn" id="closeEventModal">×</button></div>
@@ -895,7 +914,18 @@ function renderAll(){
   const hiveMap=Object.fromEntries(state.hives.map(h=>[h.id,h.hive_number]));
   $('inspectionsList').innerHTML=state.inspections.length?`<table class="table"><thead><tr><th>Дата</th><th>Улей</th><th>Семья</th><th>Матка</th><th>Заметки</th></tr></thead><tbody>${state.inspections.map(i=>`<tr><td>${esc(i.inspection_date)}</td><td>${esc(hiveMap[i.hive_id]||i.hive_id||'')}</td><td>${esc(i.colony_strength)}</td><td>${esc(i.queen_status)}</td><td>${esc(i.notes)}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">Осмотров пока нет.</div>';
 
-  $('honeyList').innerHTML=state.honey.length?`<table class="table"><thead><tr><th>Партия</th><th>Мёд</th><th>Дата</th><th>Кг</th><th>Цена/кг</th></tr></thead><tbody>${state.honey.map(h=>`<tr><td>${esc(h.batch_number)}</td><td>${esc(h.honey_type)}</td><td>${esc(h.collection_date)}</td><td>${esc(h.quantity_kg)}</td><td>${esc(h.price_per_kg)}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">Партий пока нет.</div>';
+  $('honeyList').innerHTML=state.honey.length
+    ? state.honey.map(h=>{
+        const total=(Number(h.quantity_kg)||0)*(Number(h.price_per_kg)||0);
+        return '<button type="button" class="honey-batch-card" data-honey-id="'+esc(h.id)+'">'
+          +'<div class="honey-batch-top"><span class="honey-batch-number">'+esc(h.batch_number||'Без номера')+'</span><span class="honey-batch-date">'+esc(h.collection_date||'Дата не указана')+'</span></div>'
+          +'<h3>🍯 '+esc(h.honey_type||'Мёд')+'</h3>'
+          +'<div class="honey-batch-meta"><span><small>Объём</small><b>'+esc(h.quantity_kg??'—')+' кг</b></span><span><small>Цена</small><b>'+esc(h.price_per_kg??'—')+' / кг</b></span><span><small>Сумма</small><b>'+esc(total?total.toFixed(2):'—')+'</b></span></div>'
+          +'<div class="muted">📍 '+esc(h.collection_place||'Место сбора не указано')+'</div>'
+          +'</button>';
+      }).join('')
+    : '<div class="empty">Партий пока нет.</div>';
+document.querySelectorAll('.honey-batch-card').forEach(b=>b.onclick=()=>openHoneyBatch(b.dataset.honeyId));
 
   $('financeList').innerHTML=state.finance.length?`<table class="table"><thead><tr><th>Дата</th><th>Тип</th><th>Сумма</th><th>Категория</th><th>Описание</th></tr></thead><tbody>${state.finance.map(f=>`<tr><td>${esc(f.operation_date)}</td><td>${esc(f.operation_type)}</td><td>${esc(f.amount)}</td><td>${esc(f.category)}</td><td>${esc(f.description)}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">Операций пока нет.</div>';
 
@@ -1257,6 +1287,17 @@ function eventTitle(t){const m=String(t.title||'').match(/^\[([^\]]+)\]\s*(.*)$/
 function eventType(t){const m=String(t.title||'').match(/^\[([^\]]+)\]/);return m?m[1]:'Работа'}
 function eventReminder(t){const m=String(t.description||'').match(/^\[Напоминание:([^\]]+)\]\s*/);return m?m[1]:'Без напоминания'}
 function eventDescription(t){return String(t.description||'').replace(/^\[Напоминание:[^\]]+\]\s*/,'')}
+function openHoneyBatch(id){
+  const h=state.honey.find(x=>String(x.id)===String(id)); if(!h)return;
+  const total=(Number(h.quantity_kg)||0)*(Number(h.price_per_kg)||0);
+  $('honeyBatchTitle').textContent='🍯 Партия '+(h.batch_number||'');
+  $('honeyBatchInfo').innerHTML='<div class="honey-passport"><div class="honey-passport-main"><span>ПАРТИЯ</span><b>'+esc(h.batch_number||'—')+'</b><strong>'+esc(h.honey_type||'Мёд')+'</strong></div><div class="honey-passport-grid"><div><small>Дата сбора</small><b>'+esc(h.collection_date||'—')+'</b></div><div><small>Объём</small><b>'+esc(h.quantity_kg??'—')+' кг</b></div><div><small>Цена за кг</small><b>'+esc(h.price_per_kg??'—')+'</b></div><div><small>Стоимость</small><b>'+esc(total?total.toFixed(2):'—')+'</b></div><div><small>Место сбора</small><b>'+esc(h.collection_place||'—')+'</b></div><div><small>Примечание</small><b>'+esc(h.notes||'—')+'</b></div></div></div>';
+  $('honeyBatchModal').style.display='flex';
+}
+function closeHoneyBatch(){$('honeyBatchModal').style.display='none'}
+$('closeHoneyBatch').onclick=closeHoneyBatch;
+$('closeHoneyBatch2').onclick=closeHoneyBatch;
+$('honeyBatchModal').onclick=e=>{if(e.target.id==='honeyBatchModal')closeHoneyBatch}
 function renderCalendar(){
   const y=calendarMonth.getFullYear(), m=calendarMonth.getMonth();
   const names=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
