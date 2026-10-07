@@ -179,6 +179,21 @@
   .heading{font-size:27px}.catalog{padding-top:13px}.cards{gap:10px}.tile,.tile.wide{height:145px;border-radius:12px}.tile .name{font-size:17px;padding:25px 11px 10px}
   .about{min-height:0}.about img{height:150px}.about .copy{padding:18px 13px}.about h2{font-size:27px}.about p{font-size:15px}
   .popular-card img{height:115px}.popular-card-body{padding:10px 7px}
+.popular-card{transition:transform .18s ease,box-shadow .18s ease}
+.popular-card:active{transform:scale(.985)}
+.popular-card-body{min-height:82px;display:flex;flex-direction:column;justify-content:center}
+.popular-badge{white-space:nowrap}
+@media(max-width:700px){
+  .popular{padding:20px 0}
+  .popular h2{font-size:25px;margin-bottom:14px}
+  .popular-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .popular-card{border-radius:13px}
+  .popular-card img{height:145px;padding:6px}
+  .popular-card-body{padding:9px 6px;min-height:78px}
+  .popular-card h3{font-size:15px;line-height:1.15;margin-bottom:4px}
+  .popular-card p{font-size:11px;line-height:1.25}
+  .popular-badge{font-size:9px;padding:3px 6px;margin-bottom:5px}
+}
   .detail{padding:27px 0}.detail h2{font-size:27px}.wrap{width:min(100% - 24px,1360px)}
   .items{gap:10px}.item{padding:13px;border-radius:12px}.item img.product-label{height:155px;margin-bottom:10px}.item h3{font-size:18px}.item p{font-size:14px}
   .info-gallery{gap:8px}.info-gallery img{height:120px}
