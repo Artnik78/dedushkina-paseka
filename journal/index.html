@@ -1069,7 +1069,6 @@ document.querySelectorAll('.honey-batch-card').forEach(b=>b.onclick=()=>openHone
   document.querySelectorAll('.disinfection-edit').forEach(b=>b.onclick=()=>editDisinfection(b.dataset.id));
   document.querySelectorAll('.disinfection-delete').forEach(b=>b.onclick=()=>deleteDisinfection(b.dataset.id));
 
-  const disToday=new Date(today()+'T00:00:00');
   const homeDisUpcoming=state.disinfection.map(x=>{
     if(!x.next_date)return null;
     const days=Math.ceil((new Date(String(x.next_date).slice(0,10)+'T00:00:00')-disToday)/86400000);
