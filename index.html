@@ -84,6 +84,18 @@
 @media(max-width:700px){.honeycomb-info-box{padding:17px 12px}.honeycomb-info-grid,.honeycomb-benefits{grid-template-columns:1fr}.honeycomb-info-card{padding:14px}}
 
 .detail-info-modal{display:none;position:fixed;inset:0;z-index:10020;background:rgba(20,15,10,.78);align-items:center;justify-content:center;padding:18px;overflow:auto}.detail-info-modal.open{display:flex}.detail-info-modal .detail-info-box{max-height:94vh;overflow:auto;width:min(1050px,96vw);background:#fffaf0;border-radius:18px;box-shadow:0 20px 70px rgba(0,0,0,.3)}
+</style><style>
+/* Поиск по каталогу */
+.product-search{padding:18px 0 8px;background:#fff8eb}
+.product-search-box{max-width:760px;margin:0 auto;position:relative}
+.product-search-box label{display:block;text-align:center;font-weight:700;font-size:18px;margin-bottom:9px;color:#5a3d22}
+.product-search-input{width:100%;padding:13px 48px 13px 18px;border:1px solid #d8bd8c;border-radius:28px;background:#fff;font:16px Arial,sans-serif;color:#392514;box-shadow:0 3px 10px rgba(70,45,20,.08)}
+.product-search-input:focus{outline:2px solid #d9c39a;outline-offset:1px}
+.product-search-clear{position:absolute;right:8px;bottom:5px;width:38px;height:38px;border:0;border-radius:50%;background:#ead7ad;color:#5a3d22;font-size:22px;cursor:pointer}
+.search-result{display:none;text-align:center;margin:9px 0 0;color:#806f5b;font:14px Arial,sans-serif}
+.search-no-results{display:none;text-align:center;padding:18px;color:#806f5b}
+.detail.search-hidden{display:none}
+.item.search-hidden,.gift-card.search-hidden{display:none!important}
 </style></head><body>
 <div class="top"><div class="wrap topinner"><a class="brand" href="#home"><span class="bee">🐝</span><span><strong>Дедушкина пасека</strong><small>НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</small></span></a><nav class="nav"><a href="#home">Главная</a><a href="#catalog">Каталог</a><a href="#about">О пасеке</a><a href="#gifts">🎁 Подарочные наборы</a><a href="#info">Полезная информация</a><a href="#contacts">Контакты</a></nav><a class="phone" href="tel:+375445748112">☎ +375 44 574 81 12</a></div></div>
 <header class="hero" id="home"><div class="herobox"><h1>Дедушкина пасека</h1><div class="ornament">── 🐝 ──</div><p class="sub">НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</p><p class="motto">С заботой о природе и вашем здоровье</p><div class="virtues"><div><span>♧</span>Натурально<br/>и полезно</div><div><span>⬡</span>Собственное<br/>производство</div><div><span>♡</span>Традиции<br/>и качество</div></div></div></header>
@@ -97,7 +109,17 @@
 <a class="tile" href="#infusions"><img alt="Настои" src="images/infusions.jpg"/><span class="name">Настои <span class="arrow">›</span></span></a>
 <a class="tile" href="#other"><img alt="Другие продукты пасеки" src="images/other.jpg"/><span class="name">Другие продукты <span class="arrow">›</span></span></a>
 </div></div></section>
-<section class="about" id="about"><img alt="Пчела на цветке" src="images/bee.jpg"/><div class="copy"><h2>О нашей пасеке</h2><p>«Дедушкина пасека» расположена в Голынке, Клецком районе Минской области. Мы бережно относимся к пчёлам и традициям пчеловодства.</p><a class="btn" href="#contacts">Связаться с нами →</a></div><img alt="Ульи на пасеке" src="images/about-apiary.jpg"/></section>
+<section class="product-search" id="search">
+<div class="wrap">
+<div class="product-search-box">
+<label for="productSearch">🔎 Найти товар</label>
+<input class="product-search-input" id="productSearch" type="search" placeholder="Например: мёд, мыло, свеча, крем-мёд…" autocomplete="off">
+<button class="product-search-clear" id="productSearchClear" type="button" aria-label="Очистить поиск">×</button>
+<div class="search-result" id="searchResult"></div>
+<div class="search-no-results" id="searchNoResults">Ничего не найдено. Попробуйте другое название.</div>
+</div>
+</div>
+</section><section class="about" id="about"><img alt="Пчела на цветке" src="images/bee.jpg"/><div class="copy"><h2>О нашей пасеке</h2><p>«Дедушкина пасека» расположена в Голынке, Клецком районе Минской области. Мы бережно относимся к пчёлам и традициям пчеловодства.</p><a class="btn" href="#contacts">Связаться с нами →</a></div><img alt="Ульи на пасеке" src="images/about-apiary.jpg"/></section>
 <section class="detail" id="honey"><div class="wrap"><h2>🍯 Натуральный мёд</h2><p class="cream-intro">Нажмите на изображение товара, чтобы выбрать вариант и заказать.</p><div class="items">
 <div class="item choice-item"><img alt="Майский мёд" class="product-label choice-trigger" data-choice="honey" data-options="0,1 л — 5 руб.|0,28 л — 7 руб.|0,5 л — 12,50 руб.|1 л — 25 руб." src="images/honey-may.png"/><h3>Майский мёд</h3><p style="margin:0">0,1 л — 5 руб.; 0,28 л — 7 руб.; 0,5 л — 12,50 руб.; 1 л — 25 руб.</p><a href="майский-мед/">Цифровой паспорт</a></div>
 <div class="item choice-item"><img alt="Лесной мёд" class="product-label choice-trigger" data-choice="honey" data-options="0,1 л — 5 руб.|0,28 л — 7 руб.|0,5 л — 12,50 руб.|1 л — 25 руб." src="images/honey-forest.png"/><h3>Лесной мёд</h3><p style="margin:0">0,1 л — 5 руб.; 0,28 л — 7 руб.; 0,5 л — 12,50 руб.; 1 л — 25 руб.</p><a href="2026-002/">Цифровой паспорт</a></div>
@@ -153,7 +175,17 @@
 <div class="item"><h3>🌼 Мёд разнотравье</h3><img alt="Листовка Мёд разнотравье" class="product-label" src="images/flyer-meadow.png"/><a class="viber-order" href="images/flyer-meadow.png" target="_blank">Открыть листовку</a></div>
 <div class="item"><h3>🐝 Забрус</h3><img alt="Листовка Забрус — натуральный дар пчёл" class="product-label" src="images/flyer-zabrus.png"/><a class="viber-order" href="images/flyer-zabrus.png" target="_blank">Открыть листовку</a></div>
 </div></div></section>
-<section class="detail" id="reviews">
+<section class="detail" id="how-order">
+<div class="wrap">
+<h2>📦 Как заказать</h2>
+<div class="items">
+<div class="item"><h3>1️⃣ Выберите товар</h3><p>Откройте нужную категорию и нажмите на фотографию товара, чтобы посмотреть варианты и цены.</p></div>
+<div class="item"><h3>2️⃣ Добавьте в корзину</h3><p>Выберите подходящий объём или вариант и нажмите «Заказать». Товар появится в корзине.</p></div>
+<div class="item"><h3>3️⃣ Оформите заказ</h3><p>Откройте корзину, проверьте количество и отправьте заказ через Viber.</p></div>
+</div>
+<p style="text-align:center;margin:18px auto 0;max-width:760px;line-height:1.6;color:#675644">После получения заказа мы свяжемся с вами, чтобы уточнить наличие, способ получения и детали оплаты.</p>
+</div>
+</section><section class="detail" id="reviews">
   <div class="wrap">
     <h2>💬 Отзывы покупателей</h2>
     <p>Оставьте свой отзыв о продукции «Дедушкина пасека».</p>
@@ -615,4 +647,36 @@
   });
 })();
 </script>
-</body></html>
+<script>
+(function(){
+  const input=document.getElementById('productSearch');
+  const clear=document.getElementById('productSearchClear');
+  const result=document.getElementById('searchResult');
+  const empty=document.getElementById('searchNoResults');
+  if(!input)return;
+  const searchable=[...document.querySelectorAll('.item,.gift-card')];
+  function run(){
+    const q=input.value.trim().toLocaleLowerCase('ru-RU');
+    let matches=0;
+    searchable.forEach(function(card){
+      const text=(card.innerText||'').toLocaleLowerCase('ru-RU');
+      const ok=!q || text.indexOf(q)!==-1;
+      card.classList.toggle('search-hidden',!ok);
+      if(ok&&q)matches++;
+    });
+    document.querySelectorAll('.detail').forEach(function(section){
+      if(section.id==='how-order'||section.id==='reviews')return;
+      const cards=section.querySelectorAll('.item,.gift-card');
+      if(!cards.length)return;
+      const visible=[...cards].some(function(c){return !c.classList.contains('search-hidden');});
+      section.classList.toggle('search-hidden',!!q&&!visible);
+    });
+    if(!q){result.style.display='none';empty.style.display='none';return;}
+    result.textContent='Найдено товаров: '+matches;
+    result.style.display='block';
+    empty.style.display=matches?'none':'block';
+  }
+  input.addEventListener('input',run);
+  clear.addEventListener('click',function(){input.value='';run();input.focus();});
+})();
+</script></body></html>
