@@ -20,7 +20,7 @@ table{width:100%;border-collapse:collapse;background:#fff}.tablewrap{overflow:au
 th,td{padding:11px;border-bottom:1px solid #e7edf2;text-align:left;white-space:nowrap}
 .auth{max-width:420px;margin:70px auto}.muted{color:#64748b;font-size:13px}.hidden{display:none!important}
 @media(max-width:700px){.grid{grid-template-columns:repeat(2,1fr)}.formgrid{grid-template-columns:1fr}.formgrid .full{grid-column:auto}header{align-items:flex-start}.grid b{font-size:23px}}
-</style>
+.barcodeRow{display:flex;gap:8px;align-items:stretch}.barcodeRow input{flex:1}.scanBtn{white-space:nowrap}.barcodeInfo{grid-column:1/-1;padding:10px 12px;border-radius:9px;background:#eef6ff;color:#17324d;font-size:13px;min-height:0}.barcodeInfo:empty{display:none}.scannerModal{position:fixed;inset:0;background:#000b;display:flex;align-items:center;justify-content:center;z-index:9999;padding:18px}.scannerBox{background:#fff;border-radius:16px;padding:16px;max-width:520px;width:100%}.scannerBox video{width:100%;border-radius:12px;background:#111;max-height:55vh;object-fit:cover}.scannerActions{display:flex;gap:8px;margin-top:10px}.scannerMsg{font-size:13px;color:#64748b;margin-top:8px}</style>
 </head>
 <body>
 <div id="auth" class="auth card">
@@ -80,11 +80,11 @@ th,td{padding:11px;border-bottom:1px solid #e7edf2;text-align:left;white-space:n
 </div></section>
 
 <section id="equipment"><div class="card"><h2>Оргтехника и ПЭВМ</h2><p class="muted">Каждая единица техники привязывается к конкретному клиенту.</p>
-<form id="equipmentForm" class="formgrid"><input type="hidden" name="id"><select name="client_id" id="equipmentClient" required><option value="">Выберите клиента</option></select><input name="barcode" placeholder="Штрихкод"><input name="inventory_number" placeholder="Инвентарный номер"><select name="equipment_type"><option value="printer">Принтер</option><option value="mfu">МФУ</option><option value="copier">Копировальный аппарат</option><option value="scanner">Сканер</option><option value="computer">Компьютер</option><option value="laptop">Ноутбук</option><option value="monitor">Монитор</option><option value="other_office">Другая оргтехника</option><option value="other">Другое</option></select><input name="manufacturer" placeholder="Производитель"><input name="model" placeholder="Модель"><input name="serial_number" placeholder="Серийный номер"><input name="location" placeholder="Место установки"><input name="responsible_person" placeholder="Ответственный"><div class="toolbar"><button id="equipmentSaveBtn" class="primary">Сохранить технику</button><button type="button" class="light hidden" id="equipmentCancelBtn" onclick="cancelEquipmentEdit()">Отмена</button></div></form></div>
+<form id="equipmentForm" class="formgrid"><input type="hidden" name="id"><select name="client_id" id="equipmentClient" required><option value="">Выберите клиента</option></select><div class="barcodeRow"><input name="barcode" id="equipmentBarcode" placeholder="Штрихкод"><button type="button" class="light scanBtn" onclick="openScanner('equipmentBarcode')">📷 Сканировать</button></div><input name="inventory_number" placeholder="Инвентарный номер"><select name="equipment_type"><option value="printer">Принтер</option><option value="mfu">МФУ</option><option value="copier">Копировальный аппарат</option><option value="scanner">Сканер</option><option value="computer">Компьютер</option><option value="laptop">Ноутбук</option><option value="monitor">Монитор</option><option value="other_office">Другая оргтехника</option><option value="other">Другое</option></select><input name="manufacturer" placeholder="Производитель"><input name="model" placeholder="Модель"><input name="serial_number" placeholder="Серийный номер"><input name="location" placeholder="Место установки"><input name="responsible_person" placeholder="Ответственный"><div class="toolbar"><button id="equipmentSaveBtn" class="primary">Сохранить технику</button><button type="button" class="light hidden" id="equipmentCancelBtn" onclick="cancelEquipmentEdit()">Отмена</button></div></form></div>
 <div class="card" style="margin-top:14px"><div class="tablewrap"><table><thead><tr><th>Клиент</th><th>Штрихкод</th><th>Инвентарный номер</th><th>Тип</th><th>Производитель</th><th>Модель</th><th>Серийный номер</th><th>Действия</th></tr></thead><tbody id="equipmentRows"></tbody></table></div></div></section>
 
 <section id="cartridges"><div class="card"><h2>Картриджи</h2><p class="muted">Каждый картридж привязывается к конкретному клиенту.</p>
-<form id="cartridgeForm" class="formgrid"><input type="hidden" name="id"><select name="client_id" id="cartridgeClient" required><option value="">Выберите клиента</option></select><input name="barcode" placeholder="Штрихкод"><input name="model" placeholder="Модель картриджа" required><input name="manufacturer" placeholder="Производитель"><input name="cartridge_type" placeholder="Тип"><input name="serial_number" placeholder="Серийный номер"><input name="fill_count" type="number" min="0" value="0" placeholder="Количество заправок"><textarea class="full" name="notes" placeholder="Примечание"></textarea><div class="toolbar"><button id="cartridgeSaveBtn" class="primary">Сохранить картридж</button><button type="button" class="light hidden" id="cartridgeCancelBtn" onclick="cancelCartridgeEdit()">Отмена</button></div></form></div>
+<form id="cartridgeForm" class="formgrid"><input type="hidden" name="id"><select name="client_id" id="cartridgeClient" required><option value="">Выберите клиента</option></select><div class="barcodeRow"><input name="barcode" id="cartridgeBarcode" placeholder="Штрихкод"><button type="button" class="light scanBtn" onclick="openScanner('cartridgeBarcode')">📷 Сканировать</button></div><div id="cartridgeBarcodeInfo" class="barcodeInfo"></div><input name="model" placeholder="Модель картриджа" required><input name="manufacturer" placeholder="Производитель"><input name="cartridge_type" placeholder="Тип"><input name="serial_number" placeholder="Серийный номер"><input name="fill_count" type="number" min="0" value="0" placeholder="Количество заправок"><textarea class="full" name="notes" placeholder="Примечание"></textarea><div class="toolbar"><button id="cartridgeSaveBtn" class="primary">Сохранить картридж</button><button type="button" class="light hidden" id="cartridgeCancelBtn" onclick="cancelCartridgeEdit()">Отмена</button></div></form></div>
 <div class="card" style="margin-top:14px"><div class="tablewrap"><table><thead><tr><th>Клиент</th><th>Штрихкод</th><th>Модель</th><th>Производитель</th><th>Заправок</th><th>Серийный номер</th><th>Действия</th></tr></thead><tbody id="cartridgeRows"></tbody></table></div></div></section>
 
 <section id="orders"><div class="card"><h2>Новый заказ</h2>
@@ -167,12 +167,51 @@ window.editContract=async id=>{
 };
 window.cancelContractEdit=()=>{$('contractForm').reset();$('contractSaveBtn').textContent='Сохранить договор';$('contractCancelBtn').classList.add('hidden')};
 window.deleteContract=async id=>{if(!confirm('Удалить этот договор из истории?'))return;const {error}=await sb.from('service_client_contracts').delete().eq('id',id);if(error)alert(error.message);else refresh()};
-$('contractClient').onchange=()=>refresh();window.editEquipment=async id=>{const {data,error}=await sb.from('service_equipment').select('*').eq('id',id).single();if(error){alert(error.message);return}const f=$('equipmentForm');Object.keys(data).forEach(k=>{if(f.elements[k])f.elements[k].value=data[k]??''});$('equipmentSaveBtn').textContent='Сохранить изменения';$('equipmentCancelBtn').classList.remove('hidden');show('equipment');window.scrollTo({top:$('equipment').offsetTop,behavior:'smooth'});};window.cancelEquipmentEdit=()=>{$('equipmentForm').reset();$('equipmentSaveBtn').textContent='Сохранить технику';$('equipmentCancelBtn').classList.add('hidden')};window.deleteEquipment=async id=>{if(!confirm('Удалить эту единицу техники?'))return;const {error}=await sb.from('service_equipment').delete().eq('id',id);if(error)alert('Не удалось удалить технику: '+error.message);else refresh()};window.editCartridge=async id=>{const {data,error}=await sb.from('service_cartridges').select('*').eq('id',id).single();if(error){alert(error.message);return}const f=$('cartridgeForm');Object.keys(data).forEach(k=>{if(f.elements[k])f.elements[k].value=data[k]??''});$('cartridgeSaveBtn').textContent='Сохранить изменения';$('cartridgeCancelBtn').classList.remove('hidden');show('cartridges');window.scrollTo({top:$('cartridges').offsetTop,behavior:'smooth'});};window.cancelCartridgeEdit=()=>{$('cartridgeForm').reset();$('cartridgeSaveBtn').textContent='Сохранить картридж';$('cartridgeCancelBtn').classList.add('hidden')};window.deleteCartridge=async id=>{if(!confirm('Удалить этот картридж?'))return;const {error}=await sb.from('service_cartridges').delete().eq('id',id);if(error)alert('Не удалось удалить картридж: '+error.message);else refresh()};
+$('contractClient').onchange=()=>refresh();window.editEquipment=async id=>{const {data,error}=await sb.from('service_equipment').select('*').eq('id',id).single();if(error){alert(error.message);return}const f=$('equipmentForm');Object.keys(data).forEach(k=>{if(f.elements[k])f.elements[k].value=data[k]??''});$('equipmentSaveBtn').textContent='Сохранить изменения';$('equipmentCancelBtn').classList.remove('hidden');show('equipment');window.scrollTo({top:$('equipment').offsetTop,behavior:'smooth'});};window.cancelEquipmentEdit=()=>{$('equipmentForm').reset();$('equipmentSaveBtn').textContent='Сохранить технику';$('equipmentCancelBtn').classList.add('hidden')};window.deleteEquipment=async id=>{if(!confirm('Удалить эту единицу техники?'))return;const {error}=await sb.from('service_equipment').delete().eq('id',id);if(error)alert('Не удалось удалить технику: '+error.message);else refresh()};window.editCartridge=async id=>{const {data,error}=await sb.from('service_cartridges').select('*').eq('id',id).single();if(error){alert(error.message);return}const f=$('cartridgeForm');Object.keys(data).forEach(k=>{if(f.elements[k])f.elements[k].value=data[k]??''});$('cartridgeSaveBtn').textContent='Сохранить изменения';$('cartridgeCancelBtn').classList.remove('hidden');show('cartridges');window.scrollTo({top:$('cartridges').offsetTop,behavior:'smooth'});};window.cancelCartridgeEdit=()=>{$('cartridgeForm').reset();$('cartridgeSaveBtn').textContent='Сохранить картридж';$('cartridgeCancelBtn').classList.add('hidden');$('cartridgeBarcodeInfo').textContent=''};window.deleteCartridge=async id=>{if(!confirm('Удалить этот картридж?'))return;const {error}=await sb.from('service_cartridges').delete().eq('id',id);if(error)alert('Не удалось удалить картридж: '+error.message);else refresh()};
 $('orderClient').onchange=()=>refresh();
 $('equipmentClient').onchange=()=>{};
 $('cartridgeClient').onchange=()=>{};
 function fillSelect(id,data,label,first){const s=$(id);s.innerHTML='<option value="">'+(first||'Выберите')+'</option>'+data.map(x=>`<option value="${x.id}">${esc(typeof label==='function'?label(x):x[label])}</option>`).join('')}
 function esc(v){return String(v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function showCartridgeByBarcode(value){
+ const info=$('cartridgeBarcodeInfo'); if(!info)return;
+ const code=String(value||'').trim(); if(!code){info.textContent='';return}
+ sb.from('service_cartridges').select('*,service_clients(name)').eq('barcode',code).limit(1).maybeSingle().then(({data,error})=>{
+  if(error){info.textContent='';return}
+  if(data){info.textContent='✓ Этот штрихкод уже есть в журнале: '+(data.model||'картридж')+' · Клиент: '+(data.service_clients?.name||'—')+' · Заправок: '+(data.fill_count??0);}
+  else info.textContent='Штрихкод новый — картридж с таким кодом не найден.';
+ });
+}
+$('cartridgeBarcode').addEventListener('input',e=>showCartridgeByBarcode(e.target.value));
+function closeScanner(){const m=$('scannerModal');if(m){m.remove();}if(window._scannerStream){window._scannerStream.getTracks().forEach(t=>t.stop());window._scannerStream=null}window._scannerTimer=null}
+async function openScanner(targetId){
+ closeScanner();
+ const modal=document.createElement('div');modal.id='scannerModal';modal.className='scannerModal';
+ modal.innerHTML='<div class="scannerBox"><h2 style="margin-top:0">Сканирование штрихкода</h2><video id="scannerVideo" autoplay playsinline></video><div id="scannerMsg" class="scannerMsg">Наведите камеру на штрихкод…</div><div class="scannerActions"><button type="button" class="light" onclick="closeScanner()">Закрыть</button></div></div>';
+ document.body.appendChild(modal);
+ try{
+  if(!navigator.mediaDevices?.getUserMedia)throw new Error('Браузер не поддерживает доступ к камере.');
+  if(!('BarcodeDetector' in window))throw new Error('Этот браузер не поддерживает распознавание штрихкодов. Попробуйте Chrome на телефоне или компьютере.');
+  const formats=await BarcodeDetector.getSupportedFormats();
+  const wanted=['ean_13','ean_8','code_128','code_39','itf','upc_a','upc_e'].filter(x=>formats.includes(x));
+  const detector=new BarcodeDetector({formats:wanted.length?wanted:formats});
+  const video=$('scannerVideo');
+  window._scannerStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
+  video.srcObject=window._scannerStream; await video.play();
+  const scan=async()=>{
+   if(!document.getElementById('scannerModal'))return;
+   try{
+    const codes=await detector.detect(video);
+    if(codes.length&&codes[0].rawValue){
+     $(targetId).value=codes[0].rawValue; $(targetId).dispatchEvent(new Event('input',{bubbles:true}));
+     closeScanner(); return;
+    }
+   }catch(e){}
+   window._scannerTimer=setTimeout(scan,250);
+  }; scan();
+ }catch(e){$('scannerMsg').textContent='Не удалось запустить сканер: '+(e.message||e);}
+}
+
 window.show=id=>{document.querySelectorAll('section').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');refresh()}
 window.login=async()=>{const msg=$('authmsg');if(!sb){msg.textContent='Supabase не загружен. Нажмите Ctrl+F5 и попробуйте ещё раз.';return}msg.textContent='Выполняется вход…';try{const {error}=await sb.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error)msg.textContent='Ошибка входа: '+error.message;else msg.textContent='';}catch(e){msg.textContent='Ошибка подключения: '+(e?.message||e)}}
 window.signup=async()=>{const msg=$('authmsg');if(!sb){msg.textContent='Supabase не загружен. Нажмите Ctrl+F5 и попробуйте ещё раз.';return}try{const {error}=await sb.auth.signUp({email:$('email').value.trim(),password:$('password').value});msg.textContent=error?error.message:'Проверьте почту для подтверждения регистрации.'}catch(e){msg.textContent='Ошибка подключения: '+(e?.message||e)}}
