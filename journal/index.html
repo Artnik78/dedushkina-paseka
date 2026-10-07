@@ -3,12 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#d8a32b">\n<meta name="mobile-web-app-capable" content="yes">\n<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#d8a32b">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="description" content="Цифровой журнал пасечника — Дедушкина пасека">
 <link rel="manifest" href="manifest-pwa.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <title>Дедушкина пасека — Цифровой журнал</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{scope:"./"}).catch(()=>{}));}</script>
 <style id="pwa-install-style">
 #pwaInstallBtn{position:fixed;right:16px;bottom:16px;z-index:9999;border:0;border-radius:14px;padding:13px 16px;background:#d8a32b;color:#2f220f;font:700 15px system-ui,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.22);display:none}
 #pwaInstallBtn.show{display:block}
