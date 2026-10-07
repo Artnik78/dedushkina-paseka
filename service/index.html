@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#17324d">
+<title>Журнал сервисного обслуживания</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Inter,Arial,sans-serif;background:#f3f6f9;color:#17212b}
+header{background:#17324d;color:#fff;padding:18px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+header h1{font-size:20px;margin:0}button{border:0;border-radius:10px;padding:11px 15px;font-weight:600;cursor:pointer}
+.primary{background:#1769aa;color:#fff}.light{background:#fff;color:#17324d}.danger{background:#9b2c2c;color:#fff}
+main{max-width:1100px;margin:auto;padding:18px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.card{background:#fff;border-radius:14px;padding:18px;box-shadow:0 2px 12px #0000000d}.card b{font-size:28px;display:block;margin-top:6px}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}nav button{background:#fff;border:1px solid #dbe3ea}
+section{display:none}.active{display:block}.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+input,select,textarea{width:100%;padding:11px;border:1px solid #ccd7e0;border-radius:9px;font:inherit}textarea{min-height:80px}
+.formgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.formgrid .full{grid-column:1/-1}
+table{width:100%;border-collapse:collapse;background:#fff}.tablewrap{overflow:auto;border-radius:12px}
+th,td{padding:11px;border-bottom:1px solid #e7edf2;text-align:left;white-space:nowrap}
+.auth{max-width:420px;margin:70px auto}.muted{color:#64748b;font-size:13px}.hidden{display:none!important}
+@media(max-width:700px){.grid{grid-template-columns:repeat(2,1fr)}.formgrid{grid-template-columns:1fr}.formgrid .full{grid-column:auto}header{align-items:flex-start}.grid b{font-size:23px}}
+</style>
+</head>
+<body>
+<div id="auth" class="auth card">
+<h1>Журнал сервисного обслуживания</h1><p class="muted">Оргтехника, ПЭВМ, картриджи и заказы</p>
+<input id="email" type="email" placeholder="E-mail"><br><br>
+<input id="password" type="password" placeholder="Пароль"><br><br>
+<div class="toolbar"><button class="primary" onclick="login()">Войти</button><button class="light" onclick="signup()">Регистрация</button></div>
+<div id="authmsg" class="muted"></div>
+</div>
+
+<div id="app" class="hidden">
+<header><h1>🖥 Журнал сервисного обслуживания</h1><button class="light" onclick="logout()">Выйти</button></header>
+<main>
+<nav>
+<button onclick="show('home')">Главная</button><button onclick="show('clients')">Клиенты</button>
+<button onclick="show('equipment')">Оргтехника и ПЭВМ</button><button onclick="show('cartridges')">Картриджи</button>
+<button onclick="show('orders')">Заказы</button>
+</nav>
+
+<section id="home" class="active">
+<div class="grid">
+<div class="card">Клиенты<b id="cntClients">0</b></div><div class="card">Техника<b id="cntEquipment">0</b></div>
+<div class="card">Картриджи<b id="cntCartridges">0</b></div><div class="card">Заказы<b id="cntOrders">0</b></div>
+</div>
+<div class="card" style="margin-top:14px"><h2>Быстрые действия</h2><div class="toolbar">
+<button class="primary" onclick="show('clients')">+ Новый клиент</button>
+<button class="primary" onclick="show('equipment')">+ Добавить технику</button>
+<button class="primary" onclick="show('cartridges')">+ Добавить картридж</button>
+<button class="primary" onclick="show('orders')">+ Новый заказ</button>
+</div><p class="muted">Штрихкод уже предусмотрен в карточках техники и картриджей. Сканирование камерой добавим следующим этапом.</p></div>
+</section>
+
+<section id="clients"><div class="card"><h2>Клиенты</h2>
+<form id="clientForm" class="formgrid"><input name="name" placeholder="Название организации / ФИО" required><select name="client_type"><option value="organization">Организация</option><option value="ip">ИП</option><option value="person">Физлицо</option></select>
+<input name="tax_id" placeholder="УНП / идентификатор"><input name="phone" placeholder="Телефон"><input name="email" placeholder="E-mail"><input name="contact_person" placeholder="Контактное лицо"><input class="full" name="address" placeholder="Адрес"><textarea class="full" name="notes" placeholder="Примечание"></textarea><button class="primary">Сохранить клиента</button></form></div>
+<div class="card" style="margin-top:14px"><div class="tablewrap"><table><thead><tr><th>Название</th><th>УНП</th><th>Телефон</th><th>E-mail</th></tr></thead><tbody id="clientsRows"></tbody></table></div></div></section>
+
+<section id="equipment"><div class="card"><h2>Оргтехника и ПЭВМ</h2>
+<form id="equipmentForm" class="formgrid"><input name="barcode" placeholder="Штрихкод"><input name="inventory_number" placeholder="Инвентарный номер"><select name="equipment_type"><option>Принтер</option><option>МФУ</option><option>Копир</option><option>Сканер</option><option>Компьютер</option><option>Ноутбук</option><option>Монитор</option><option>Другая оргтехника</option><option>Другое</option></select><input name="manufacturer" placeholder="Производитель"><input name="model" placeholder="Модель"><input name="serial_number" placeholder="Серийный номер"><input name="location" placeholder="Место установки"><input name="responsible_person" placeholder="Ответственный"><button class="primary">Сохранить технику</button></form></div>
+<div class="card" style="margin-top:14px"><div class="tablewrap"><table><thead><tr><th>Штрихкод</th><th>Тип</th><th>Производитель</th><th>Модель</th><th>Серийный №</th></tr></thead><tbody id="equipmentRows"></tbody></table></div></div></section>
+
+<section id="cartridges"><div class="card"><h2>Картриджи</h2>
+<form id="cartridgeForm" class="formgrid"><input name="barcode" placeholder="Штрихкод"><input name="model" placeholder="Модель картриджа" required><input name="manufacturer" placeholder="Производитель"><input name="cartridge_type" placeholder="Тип"><input name="serial_number" placeholder="Серийный номер"><input name="fill_count" type="number" min="0" value="0" placeholder="Количество заправок"><textarea class="full" name="notes" placeholder="Примечание"></textarea><button class="primary">Сохранить картридж</button></form></div>
+<div class="card" style="margin-top:14px"><div class="tablewrap"><table><thead><tr><th>Штрихкод</th><th>Модель</th><th>Производитель</th><th>Заправок</th><th>Серийный №</th></tr></thead><tbody id="cartridgeRows"></tbody></table></div></div></section>
+
+<section id="orders"><div class="card"><h2>Новый заказ</h2>
+<form id="orderForm" class="formgrid"><select name="client_id" id="orderClient" required><option value="">Выберите клиента</option></select><select name="status"><option value="received">Принят</option><option value="in_work">В работе</option><option value="ready">Готов</option><option value="issued">Выдан</option><option value="paid">Оплачен</option></select><select name="equipment_id" id="orderEquipment"><option value="">Оргтехника не выбрана</option></select><select name="cartridge_id" id="orderCartridge"><option value="">Картридж не выбран</option></select><input name="total_amount" type="number" step="0.01" value="0" placeholder="Сумма"><textarea class="full" name="work_description" placeholder="Выполненные работы / заявка"></textarea><textarea class="full" name="diagnosis" placeholder="Диагностика"></textarea><button class="primary">Создать заказ</button></form></div>
+<div class="card" style="margin-top:14px"><div class="tablewrap"><table><thead><tr><th>№</th><th>Дата</th><th>Статус</th><th>Сумма</th></tr></thead><tbody id="orderRows"></tbody></table></div></div></section>
+</main></div>
+
+<script type="module">
+import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+const sb=createClient('https://owpzcjvseleqeqibwuqj.supabase.co','sb_publishable_1eM3o5IehFq-IvjWkHLiCA_RMXGHfw5');
+window.sb=sb;
+const $=id=>document.getElementById(id);
+async function refresh(){
+ const [c,e,k,o]=await Promise.all([
+  sb.from('service_clients').select('*').order('created_at',{ascending:false}),
+  sb.from('service_equipment').select('*').order('created_at',{ascending:false}),
+  sb.from('service_cartridges').select('*').order('created_at',{ascending:false}),
+  sb.from('service_orders').select('*').order('created_at',{ascending:false})
+ ]);
+ if(c.error||e.error||k.error||o.error){console.error(c.error,e.error,k.error,o.error);return}
+ $('cntClients').textContent=c.data.length;$('cntEquipment').textContent=e.data.length;$('cntCartridges').textContent=k.data.length;$('cntOrders').textContent=o.data.length;
+ $('clientsRows').innerHTML=c.data.map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.tax_id||'')}</td><td>${esc(x.phone||'')}</td><td>${esc(x.email||'')}</td></tr>`).join('');
+ $('equipmentRows').innerHTML=e.data.map(x=>`<tr><td>${esc(x.barcode||'')}</td><td>${esc(x.equipment_type)}</td><td>${esc(x.manufacturer||'')}</td><td>${esc(x.model||'')}</td><td>${esc(x.serial_number||'')}</td></tr>`).join('');
+ $('cartridgeRows').innerHTML=k.data.map(x=>`<tr><td>${esc(x.barcode||'')}</td><td>${esc(x.model)}</td><td>${esc(x.manufacturer||'')}</td><td>${x.fill_count}</td><td>${esc(x.serial_number||'')}</td></tr>`).join('');
+ $('orderRows').innerHTML=o.data.map(x=>`<tr><td>${x.order_number}</td><td>${x.order_date}</td><td>${esc(x.status)}</td><td>${Number(x.total_amount).toFixed(2)}</td></tr>`).join('');
+ fillSelect('orderClient',c.data,'name');fillSelect('orderEquipment',e.data,x=>((x.manufacturer||'')+' '+(x.model||'')+' '+(x.barcode||'')).trim(),'Оргтехника не выбрана');fillSelect('orderCartridge',k.data,x=>((x.model||'')+' '+(x.barcode||'')).trim(),'Картридж не выбран');
+}
+function fillSelect(id,data,label,first){const s=$(id);s.innerHTML='<option value="">'+(first||'Выберите')+'</option>'+data.map(x=>`<option value="${x.id}">${esc(typeof label==='function'?label(x):x[label])}</option>`).join('')}
+function esc(v){return String(v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+window.show=id=>{document.querySelectorAll('section').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');refresh()}
+window.login=async()=>{const {error}=await sb.auth.signInWithPassword({email:$('email').value,password:$('password').value});$('authmsg').textContent=error?error.message:''}
+window.signup=async()=>{const {error}=await sb.auth.signUp({email:$('email').value,password:$('password').value});$('authmsg').textContent=error?error.message:'Проверьте почту для подтверждения регистрации.'}
+window.logout=async()=>await sb.auth.signOut();
+function formData(f){return Object.fromEntries(new FormData(f).entries())}
+$('clientForm').onsubmit=async ev=>{ev.preventDefault();const d=formData(ev.target);const {error}=await sb.from('service_clients').insert(d);if(error)alert(error.message);else{ev.target.reset();refresh()}}
+$('equipmentForm').onsubmit=async ev=>{ev.preventDefault();const d=formData(ev.target);const {error}=await sb.from('service_equipment').insert(d);if(error)alert(error.message);else{ev.target.reset();refresh()}}
+$('cartridgeForm').onsubmit=async ev=>{ev.preventDefault();const d=formData(ev.target);d.fill_count=Number(d.fill_count||0);const {error}=await sb.from('service_cartridges').insert(d);if(error)alert(error.message);else{ev.target.reset();refresh()}}
+$('orderForm').onsubmit=async ev=>{ev.preventDefault();const d=formData(ev.target);d.total_amount=Number(d.total_amount||0);for(const k of ['equipment_id','cartridge_id'])if(!d[k])d[k]=null;const {error}=await sb.from('service_orders').insert(d);if(error)alert(error.message);else{ev.target.reset();refresh()}}
+sb.auth.onAuthStateChange((event,session)=>{if(session){$('auth').classList.add('hidden');$('app').classList.remove('hidden');refresh()}else{$('auth').classList.remove('hidden');$('app').classList.add('hidden')}});
+const {data:{session}}=await sb.auth.getSession();if(session){$('auth').classList.add('hidden');$('app').classList.remove('hidden');refresh()}
+</script>
+</body></html>
