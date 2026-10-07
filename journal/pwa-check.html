@@ -19,12 +19,18 @@ small{color:#708078}
 <main>
 <h1>🐝 Проверка установки</h1>
 <div class="card" id="result">Проверяем...</div>
+<div class="card" id="installCard" style="display:none;background:#fff8df;border-color:#d8a32b">
+<b>🎉 Chrome разрешил установку!</b><br>
+<button id="installBtn" style="margin-top:12px;background:#d8a32b;color:#2f220f;font-weight:700">📲 Установить «Дедушкина пасека»</button>
+<div id="installStatus" style="margin-top:8px;color:#708078"></div>
+</div>
 <div class="card"><b>Если здесь все пункты зелёные</b><br>пришлите мне скриншот этой страницы — по нему определим, что именно блокирует установку.</div>
 <a href="./">← Вернуться в журнал</a>
 <button onclick="location.reload()">Повторить проверку</button>
 </main>
 <script>
 const out=document.getElementById('result');
+let deferredInstallPrompt=null;
 const rows=[];
 function row(name,ok,detail=''){rows.push('<div style="padding:7px 0;border-bottom:1px solid #eee"><b class="'+(ok?'ok':'bad')+'">'+(ok?'✓':'✗')+' '+name+'</b>'+(detail?' — '+detail:'')+'</div>');}
 async function check(){
@@ -60,7 +66,25 @@ async function check(){
  row('Установка уже выполнена',window.matchMedia('(display-mode: standalone)').matches,'нет — это нормально');
  out.innerHTML=rows.join('');
 }
-window.addEventListener('beforeinstallprompt',()=>row('Chrome разрешил установку',true,'событие beforeinstallprompt получено'));
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();
+  deferredInstallPrompt=e;
+  row('Chrome разрешил установку',true,'событие beforeinstallprompt получено');
+  document.getElementById('installCard').style.display='block';
+});
+document.getElementById('installBtn').onclick=async()=>{
+  if(!deferredInstallPrompt){
+    document.getElementById('installStatus').textContent='Chrome пока не передал окно установки. Обновите страницу и повторите проверку.';
+    return;
+  }
+  deferredInstallPrompt.prompt();
+  const choice=await deferredInstallPrompt.userChoice;
+  document.getElementById('installStatus').textContent=choice.outcome==='accepted'?'Установка запущена.':'Установка отменена.';
+  deferredInstallPrompt=null;
+};
+window.addEventListener('appinstalled',()=>{
+  document.getElementById('installStatus').textContent='Приложение установлено.';
+});
 check();
 </script>
 </body>
