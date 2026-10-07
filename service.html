@@ -20,7 +20,7 @@ table{width:100%;border-collapse:collapse;background:#fff}.tablewrap{overflow:au
 th,td{padding:11px;border-bottom:1px solid #e7edf2;text-align:left;white-space:nowrap}
 .auth{max-width:420px;margin:70px auto}.muted{color:#64748b;font-size:13px}.hidden{display:none!important}
 @media(max-width:700px){.grid{grid-template-columns:repeat(2,1fr)}.formgrid{grid-template-columns:1fr}.formgrid .full{grid-column:auto}header{align-items:flex-start}.grid b{font-size:23px}}
-.barcodeRow{display:flex;gap:8px;align-items:stretch}.barcodeRow input{flex:1}.scanBtn{white-space:nowrap}.barcodeInfo{grid-column:1/-1;padding:10px 12px;border-radius:9px;background:#eef6ff;color:#17324d;font-size:13px;min-height:0}.barcodeInfo:empty{display:none}.scannerModal{position:fixed;inset:0;background:#000b;display:flex;align-items:center;justify-content:center;z-index:9999;padding:18px}.scannerBox{background:#fff;border-radius:16px;padding:16px;max-width:520px;width:100%}.scannerBox video{width:100%;border-radius:12px;background:#111;max-height:55vh;object-fit:cover}.scannerActions{display:flex;gap:8px;margin-top:10px}.scannerMsg{font-size:13px;color:#64748b;margin-top:8px}</style>
+.workSummary{white-space:normal;line-height:1.45}.barcodeRow{display:flex;gap:8px;align-items:stretch}.barcodeRow input{flex:1}.scanBtn{white-space:nowrap}.barcodeInfo{grid-column:1/-1;padding:10px 12px;border-radius:9px;background:#eef6ff;color:#17324d;font-size:13px;min-height:0}.barcodeInfo:empty{display:none}.scannerModal{position:fixed;inset:0;background:#000b;display:flex;align-items:center;justify-content:center;z-index:9999;padding:18px}.scannerBox{background:#fff;border-radius:16px;padding:16px;max-width:520px;width:100%}.scannerBox video{width:100%;border-radius:12px;background:#111;max-height:55vh;object-fit:cover}.scannerActions{display:flex;gap:8px;margin-top:10px}.scannerMsg{font-size:13px;color:#64748b;margin-top:8px}</style>
 </head>
 <body>
 <div id="auth" class="auth card">
@@ -237,7 +237,7 @@ async function loadCartridgeWorkSummaries(cartridges){
   const el=$('workSummary-'+x.id); if(!el)continue;
   const {data,error}=await sb.from('service_cartridge_maintenance').select('component,service_date').eq('cartridge_id',x.id).order('service_date',{ascending:false}).limit(4);
   if(error){el.textContent='Ошибка';continue}
-  el.textContent=data?.length?data.map(h=>names[h.component]+' — '+h.service_date).join(' · '):'Работ не было';
+  el.textContent=data?.length?[...new Set(data.map(h=>names[h.component]||h.component))].join(' · '):'Работ не было';
  }
 }
 async function loadCartridgeMaintenance(cartridgeId){
