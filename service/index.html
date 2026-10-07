@@ -92,9 +92,9 @@ th,td{padding:11px;border-bottom:1px solid #e7edf2;text-align:left;white-space:n
 <div class="card" style="margin-top:14px"><div class="tablewrap"><table><thead><tr><th>№</th><th>Дата</th><th>Статус</th><th>Сумма</th></tr></thead><tbody id="orderRows"></tbody></table></div></div></section>
 </main></div>
 
-<script type="module">
-import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-const sb=createClient('https://owpzcjvseleqeqibwuqj.supabase.co','sb_publishable_1eM3o5IehFq-IvjWkHLiCA_RMXGHfw5');
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const sb=supabase.createClient('https://owpzcjvseleqeqibwuqj.supabase.co','sb_publishable_1eM3o5IehFq-IvjWkHLiCA_RMXGHfw5');
 window.sb=sb;
 const $=id=>document.getElementById(id);
 async function refresh(){
@@ -163,8 +163,8 @@ $('cartridgeClient').onchange=()=>{};
 function fillSelect(id,data,label,first){const s=$(id);s.innerHTML='<option value="">'+(first||'Выберите')+'</option>'+data.map(x=>`<option value="${x.id}">${esc(typeof label==='function'?label(x):x[label])}</option>`).join('')}
 function esc(v){return String(v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 window.show=id=>{document.querySelectorAll('section').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');refresh()}
-window.login=async()=>{const {error}=await sb.auth.signInWithPassword({email:$('email').value,password:$('password').value});$('authmsg').textContent=error?error.message:''}
-window.signup=async()=>{const {error}=await sb.auth.signUp({email:$('email').value,password:$('password').value});$('authmsg').textContent=error?error.message:'Проверьте почту для подтверждения регистрации.'}
+window.login=async()=>{const msg=$('authmsg');msg.textContent='Выполняется вход…';try{const {error}=await sb.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error)msg.textContent='Ошибка входа: '+error.message;else msg.textContent='';}catch(e){msg.textContent='Ошибка подключения: '+(e?.message||e)}}
+window.signup=async()=>{const msg=$('authmsg');try{const {error}=await sb.auth.signUp({email:$('email').value.trim(),password:$('password').value});msg.textContent=error?error.message:'Проверьте почту для подтверждения регистрации.'}catch(e){msg.textContent='Ошибка подключения: '+(e?.message||e)}}
 window.logout=async()=>await sb.auth.signOut();
 function formData(f){return Object.fromEntries(new FormData(f).entries())}
 $('clientForm').onsubmit=async ev=>{
