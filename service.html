@@ -92,9 +92,12 @@ th,td{padding:11px;border-bottom:1px solid #e7edf2;text-align:left;white-space:n
 <div class="card" style="margin-top:14px"><div class="tablewrap"><table><thead><tr><th>№</th><th>Дата</th><th>Статус</th><th>Сумма</th></tr></thead><tbody id="orderRows"></tbody></table></div></div></section>
 </main></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">\n})();\n</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+})();
+</script>
 <script>
-(async()=>{\nlet sb=null;
+(async()=>{
+let sb=null;
 window.addEventListener('error',e=>{const m=document.getElementById('authmsg');if(m)m.textContent='Ошибка загрузки: '+(e.message||'неизвестная ошибка')});
 try{
  if(!window.supabase) throw new Error('Не загрузилась библиотека Supabase. Обновите страницу.');
