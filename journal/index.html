@@ -255,7 +255,23 @@ h1{margin:0 0 6px;font-size:28px}.sub{color:var(--muted);margin:0 0 22px}
           <div class="actions"><button class="btn" id="hiveSaveBtn">Сохранить улей</button><button type="button" class="btn secondary" id="hiveCancelBtn" style="display:none">Отмена</button></div>
         </form>
       </div>
-      <div class="panel"><h3>Список ульев</h3><div id="hivesList" class="table-wrap"></div></div>
+      <div class="panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+          <h3 style="margin:0">Список ульев</h3>
+          <span class="muted" id="hivesCountLabel">0 ульев</span>
+        </div>
+        <div class="form" style="margin-top:14px">
+          <div class="field"><label>Поиск по номеру / месту / заметкам</label><input id="hiveSearch" placeholder="Например, 125 или Ряд 3"></div>
+          <div class="field"><label>Пасека</label><select id="hiveApiaryFilter"><option value="">Все пасеки</option></select></div>
+          <div class="field"><label>Состояние</label><select id="hiveStatusFilter"><option value="">Все состояния</option><option>Активен</option><option>Зимовка</option><option>Пустой</option></select></div>
+        </div>
+        <div id="hivesList" class="table-wrap"></div>
+        <div class="actions" style="justify-content:center;margin-top:14px">
+          <button type="button" class="btn secondary" id="hivesPrevBtn">← Назад</button>
+          <span class="muted" id="hivesPageLabel">Страница 1</span>
+          <button type="button" class="btn secondary" id="hivesNextBtn">Вперёд →</button>
+        </div>
+      </div>
       <div class="panel" id="hiveHistoryPanel" style="display:none">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
           <h3 id="hiveHistoryTitle">История перемещений</h3>
@@ -761,6 +777,12 @@ function renderAll(){
   document.querySelectorAll('.apiary-delete').forEach(b=>b.onclick=()=>deleteApiary(b.dataset.id));
 
   const apiaryMap=Object.fromEntries(state.apiaries.map(a=>[a.id,a.name]));
+  const apiaryFilter=$('hiveApiaryFilter'), statusFilter=$('hiveStatusFilter'), searchInput=$('hiveSearch');
+  if(apiaryFilter){
+    const current=apiaryFilter.value;
+    apiaryFilter.innerHTML='<option value="">Все пасеки</option>'+state.apiaries.map(a=>'<option value="'+esc(a.id)+'">'+esc(a.name)+'</option>').join('');
+    if(state.apiaries.some(a=>String(a.id)===String(current))) apiaryFilter.value=current;
+  }
   const latestInspectionForHive=id=>state.inspections
     .filter(i=>String(i.hive_id)===String(id))
     .sort((a,b)=>String(b.inspection_date||'').localeCompare(String(a.inspection_date||'')))[0]||null;
@@ -769,7 +791,25 @@ function renderAll(){
     const nb=Number.parseInt(String(b.hive_number||'').match(/\d+/)?.[0]||'0',10);
     return na-nb || String(a.hive_number||'').localeCompare(String(b.hive_number||''));
   });
-  $('hivesList').innerHTML=sortedHives.length?sortedHives.map(h=>'<div class="card" style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px"><div><button type="button" class="hive-family-link" data-id="'+esc(h.id)+'" style="border:0;background:none;padding:0;color:var(--green2);font-size:18px;font-weight:750;text-align:left;cursor:pointer">⬡ Улей №'+esc(h.hive_number)+'</button><div class="muted" style="margin-top:5px">🐝 '+esc(apiaryMap[h.apiary_id]||'Пасека не указана')+' • '+esc(h.hive_type||'Тип не указан')+'</div></div><div class="actions" style="margin:0"><button type="button" class="btn secondary hive-edit" data-id="'+esc(h.id)+'">Изменить</button><button type="button" class="btn secondary hive-history" data-id="'+esc(h.id)+'">История</button><button type="button" class="btn danger hive-delete" data-id="'+esc(h.id)+'">Удалить</button></div></div><p style="margin:10px 0 5px">📍 '+esc(h.location||'Место не указано')+' • <b>'+esc(h.status||'')+'</b></p><div class="muted">'+esc(h.notes||'Без примечания')+'</div></div>').join(''):'<div class="empty">Ульев пока нет. Добавьте первый улей выше.</div>';
+  const hiveSearchValue=String(searchInput?.value||'').trim().toLowerCase();
+  const hiveApiaryValue=String(apiaryFilter?.value||'');
+  const hiveStatusValue=String(statusFilter?.value||'');
+  const filteredHives=sortedHives.filter(h=>{
+    const text=[h.hive_number,h.location,h.notes,h.hive_type,h.queen_breed].map(v=>String(v||'').toLowerCase()).join(' ');
+    return (!hiveSearchValue||text.includes(hiveSearchValue))
+      && (!hiveApiaryValue||String(h.apiary_id||'')===hiveApiaryValue)
+      && (!hiveStatusValue||String(h.status||'')===hiveStatusValue);
+  });
+  const pageSize=50;
+  const pageKey='__hivePage';
+  window[pageKey]=Math.min(Math.max(Number(window[pageKey]||1),1),Math.max(1,Math.ceil(filteredHives.length/pageSize)));
+  const start=(window[pageKey]-1)*pageSize;
+  const visibleHives=filteredHives.slice(start,start+pageSize);
+  setText('hivesCountLabel',filteredHives.length+' '+(filteredHives.length===1?'улей':'ульев')+(filteredHives.length!==state.hives.length?' найдено':''));
+  setText('hivesPageLabel','Страница '+window[pageKey]+' из '+Math.max(1,Math.ceil(filteredHives.length/pageSize)));
+  if($('hivesPrevBtn'))$('hivesPrevBtn').disabled=window[pageKey]<=1;
+  if($('hivesNextBtn'))$('hivesNextBtn').disabled=window[pageKey]>=Math.max(1,Math.ceil(filteredHives.length/pageSize));
+  $('hivesList').innerHTML=visibleHives.length?visibleHives.map(h=>'<div class="card" style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px"><div><button type="button" class="hive-family-link" data-id="'+esc(h.id)+'" style="border:0;background:none;padding:0;color:var(--green2);font-size:18px;font-weight:750;text-align:left;cursor:pointer">⬡ Улей №'+esc(h.hive_number)+'</button><div class="muted" style="margin-top:5px">🐝 '+esc(apiaryMap[h.apiary_id]||'Пасека не указана')+' • '+esc(h.hive_type||'Тип не указан')+'</div></div><div class="actions" style="margin:0;flex-wrap:wrap"><button type="button" class="btn secondary hive-edit" data-id="'+esc(h.id)+'">Изменить</button><button type="button" class="btn secondary hive-history" data-id="'+esc(h.id)+'">История</button><button type="button" class="btn danger hive-delete" data-id="'+esc(h.id)+'">Удалить</button></div></div><p style="margin:10px 0 5px">📍 '+esc(h.location||'Место не указано')+' • <b>'+esc(h.status||'')+'</b></p><div class="muted">'+esc(h.notes||'Без примечания')+'</div></div>').join(''):'<div class="empty">'+(state.hives.length?'По заданным фильтрам ульев не найдено.':'Ульев пока нет. Добавьте первый улей выше.')+'</div>';
   document.querySelectorAll('.hive-family-link').forEach(b=>b.onclick=()=>showHiveFamily(b.dataset.id));
   document.querySelectorAll('.hive-edit').forEach(b=>b.onclick=()=>editHive(b.dataset.id));
   document.querySelectorAll('.hive-delete').forEach(b=>b.onclick=()=>deleteHive(b.dataset.id));
@@ -912,6 +952,13 @@ $('closeHiveHistoryBtn').onclick=()=>{$('hiveHistoryPanel').style.display='none'
 $('closeHiveFamilyBtn').onclick=closeHiveFamily;
 $('closeHiveFamilyBtn2').onclick=closeHiveFamily;
 $('hiveFamilyModal').onclick=e=>{if(e.target.id==='hiveFamilyModal')closeHiveFamily()};
+['hiveSearch','hiveApiaryFilter','hiveStatusFilter'].forEach(id=>{
+  const el=$(id);
+  if(el) el.oninput=()=>{window.__hivePage=1;renderAll()};
+});
+$('hivesPrevBtn').onclick=()=>{window.__hivePage=Math.max(1,Number(window.__hivePage||1)-1);renderAll()};
+$('hivesNextBtn').onclick=()=>{window.__hivePage=Number(window.__hivePage||1)+1;renderAll()};
+
 $('hiveForm').onsubmit=async e=>{
   e.preventDefault();
   const f=e.target,d=formData(f);
