@@ -122,7 +122,7 @@ h1{margin:0 0 6px;font-size:28px}.sub{color:var(--muted);margin:0 0 22px}
 .honey-batch-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:12px 0}.honey-batch-meta span{padding:8px;border-radius:10px;background:#fff}.honey-batch-meta small,.honey-passport-grid small{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}.honey-batch-meta b{font-size:12px}
 .honey-passport{background:#fffaf0;border:1px solid #e1d2ae;border-radius:14px;padding:16px}.honey-passport-main{padding-bottom:14px;border-bottom:1px solid #eadfca}.honey-passport-main span{display:block;font-size:11px;color:var(--muted);letter-spacing:1px}.honey-passport-main b{display:block;font-size:24px;color:#a16d10;margin:3px 0}.honey-passport-main strong{font-size:20px;color:#49301a}.honey-passport-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}.honey-passport-grid>div{padding:10px;border-radius:10px;background:#fff}
 </style>
-<style id="finance-style">.finance-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:0 0 14px}.finance-card{padding:16px;border-radius:14px;border:1px solid #e1d6bd;background:#fffdf7;box-shadow:0 4px 12px rgba(75,55,20,.07)}.finance-card small{display:block;color:var(--muted);margin-bottom:7px}.finance-card b{font-size:24px}.finance-card.income{border-top:4px solid #4a9b57}.finance-card.expense{border-top:4px solid #c74b38}.finance-card.balance{border-top:4px solid #d5a72b}.finance-type{display:inline-block;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:700}.finance-type.in{background:#e8f4e9;color:#26713a}.finance-type.out{background:#fde8e4;color:#9d3325}@media(max-width:700px){.finance-summary{grid-template-columns:1fr}.finance-card{padding:13px}.finance-card b{font-size:21px}}</style></head>
+<style id="finance-style">.finance-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:0 0 14px}.finance-card{padding:16px;border-radius:14px;border:1px solid #e1d6bd;background:#fffdf7;box-shadow:0 4px 12px rgba(75,55,20,.07)}.finance-card small{display:block;color:var(--muted);margin-bottom:7px}.finance-card b{font-size:24px}.finance-card.income{border-top:4px solid #4a9b57}.finance-card.expense{border-top:4px solid #c74b38}.finance-card.balance{border-top:4px solid #d5a72b}.finance-type{display:inline-block;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:700}.finance-type.in{background:#e8f4e9;color:#26713a}.finance-type.out{background:#fde8e4;color:#9d3325}@media(max-width:700px){.finance-summary{grid-template-columns:1fr}.finance-card{padding:13px}.finance-card b{font-size:21px}}</style><style id="home-status-compact">.home-status-summary{margin-top:12px}.home-status-summary .status-box{border:1px solid var(--line);text-align:left;cursor:pointer}.home-status-summary .status-box:hover{transform:translateY(-1px)}.home-status-summary .status-ok{border-top:4px solid #4a9b57}.home-status-summary .status-warn{border-top:4px solid #d5a72b}.home-status-summary .status-danger{border-top:4px solid #c74b38}.home-status-caption{margin:10px 0 2px;color:var(--muted);font-size:12px}.home-status-ok{margin-top:10px;padding:12px;border-radius:10px;background:#edf5ee;color:var(--green2)}.home-status-more{margin-top:9px;padding:10px 12px;border-radius:10px;background:#faf8ef;color:var(--muted);font-size:12px}.home-status-more .btn{margin-left:6px;padding:6px 9px;font-size:11px}@media(max-width:700px){.home-status-summary{grid-template-columns:repeat(3,1fr);gap:7px}.home-status-summary .status-box{padding:9px}.home-status-summary .num{font-size:19px}.home-status-summary small{font-size:10px}}</style></head>
 <body>
 
 <div id="auth">
@@ -829,17 +829,28 @@ function renderAll(){
     ['💪',weakFamilies,'отметок о слабой семье'],
     ['📅',todayTasksAll.length,'дел на сегодня']
   ];
+  const statusCounts={ok:0,warn:0,danger:0};
   const statusRows=state.hives.map(h=>{
     const last=hiveLast[String(h.id)];
     const days=last?.inspection_date?Math.floor((todayDate-new Date(String(last.inspection_date).slice(0,10)+'T00:00:00'))/86400000):999;
     const strength=String(last?.colony_strength||'').toLowerCase();
     const level=!last?'danger':days>=14?'danger':strength.includes('слаб')?'warn':'ok';
+    statusCounts[level]++;
     const icon=level==='ok'?'🟢':level==='warn'?'🟡':'🔴';
     const text=!last?'нет осмотра':days>=14?'осмотр '+days+' дн. назад':strength.includes('слаб')?'слабая семья':'состояние в норме';
-    return {number:h.hive_number,icon,text,level};
+    return {id:h.id,number:h.hive_number,icon,text,level};
   }).sort((a,b)=>Number(a.number)-Number(b.number));
-  $('homeHiveStatus').innerHTML=warningHtml+'<div class="status-grid" style="margin-top:12px">'+statusCards.map(x=>'<div class="status-box"><div class="num">'+x[0]+' '+x[1]+'</div><small>'+x[2]+'</small></div>').join('')+'</div>'+
-    (statusRows.length?'<div class="hive-health-list">'+statusRows.map(x=>'<button type="button" class="hive-health-row '+x.level+'" data-page="hives"><span class="hive-health-icon">'+x.icon+'</span><span><b>Улей №'+esc(x.number)+'</b><small>'+esc(x.text)+'</small></span><span class="hive-arrow">›</span></button>').join('')+'</div>':'<div class="muted" style="margin-top:12px">Ульев пока нет.</div>');
+  const attentionRows=statusRows.filter(x=>x.level!=='ok').slice(0,6);
+  const hiddenAttention=Math.max(0,statusRows.filter(x=>x.level!=='ok').length-attentionRows.length);
+  const statusSummary='<div class="status-grid home-status-summary">'+
+    '<button type="button" class="status-box status-ok" data-page="hives"><div class="num">🟢 '+statusCounts.ok+'</div><small>Состояние в норме</small></button>'+
+    '<button type="button" class="status-box status-warn" data-page="hives"><div class="num">🟡 '+statusCounts.warn+'</div><small>Проверить семью</small></button>'+
+    '<button type="button" class="status-box status-danger" data-page="hives"><div class="num">🔴 '+statusCounts.danger+'</div><small>Требуют внимания</small></button></div>';
+  const attentionList=attentionRows.length
+    ? '<div class="hive-health-list">'+attentionRows.map(x=>'<button type="button" class="hive-health-row '+x.level+' home-hive-open" data-id="'+esc(x.id)+'"><span class="hive-health-icon">'+x.icon+'</span><span><b>Улей №'+esc(x.number)+'</b><small>'+esc(x.text)+'</small></span><span class="hive-arrow">›</span></button>').join('')+'</div>'
+    : '<div class="home-status-ok">✅ Все семьи в норме. Ульев без замечаний: '+statusRows.length+'.</div>';
+  const moreAttention=hiddenAttention?'<div class="home-status-more">И ещё '+hiddenAttention+' '+(hiddenAttention===1?'улей':'улья')+' требуют внимания. <button type="button" class="btn secondary" data-page="hives">Открыть все ульи →</button></div>':'';
+  $('homeHiveStatus').innerHTML=warningHtml+statusSummary+'<div class="home-status-caption">Показываем только ульи, которым сейчас нужна проверка. Остальные скрыты, чтобы главная страница оставалась компактной.</div>'+attentionList+moreAttention;
   document.querySelectorAll('#homeHiveStatus [data-page]').forEach(b=>b.onclick=()=>showPage(b.dataset.page));
   document.querySelectorAll('.home-hive-warning').forEach(b=>b.onclick=()=>showHiveFamily(b.dataset.id));
   const honeyRows=[...state.honey].sort((a,b)=>String(b.collection_date||'').localeCompare(String(a.collection_date||''))).slice(0,4);
