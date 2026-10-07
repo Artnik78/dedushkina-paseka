@@ -925,15 +925,21 @@ async function deleteApiary(id){
 $('apiaryCancelBtn').onclick=resetApiaryForm;
 function showHiveFamily(id){
   const h=state.hives.find(x=>String(x.id)===String(id)); if(!h)return;
-  const last=state.inspections
-    .filter(i=>String(i.hive_id)===String(id))
-    .sort((a,b)=>String(b.inspection_date||'').localeCompare(String(a.inspection_date||'')))[0]||null;
+  const inspections=state.inspections.filter(i=>String(i.hive_id)===String(id)).sort((a,b)=>String(b.inspection_date||'').localeCompare(String(a.inspection_date||'')));
+  const last=inspections[0]||null;
+  const apiaryMap=Object.fromEntries(state.apiaries.map(a=>[a.id,a.name]));
   const queenBreed=h.queen_breed||last?.queen_breed||'';
   const queenYear=h.queen_year?Number(h.queen_year):null;
   const queenAge=queenYear?Math.max(0,new Date().getFullYear()-queenYear):null;
-  const apiaryMap=Object.fromEntries(state.apiaries.map(a=>[a.id,a.name]));
+  const days=last?.inspection_date?Math.max(0,Math.floor((new Date(today()+'T00:00:00')-new Date(String(last.inspection_date).slice(0,10)+'T00:00:00'))/86400000)):null;
+  const recent=inspections.slice(0,5);
   $('hiveFamilyTitle').textContent='🐝 Пчелиная семья — улей №'+(h.hive_number||'');
-  $('hiveFamilyInfo').innerHTML='<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px"><div class="card"><div class="muted">👑 Матка</div><b>'+esc(last?.queen_status||'Нет данных')+'</b><div class="muted" style="margin-top:6px">Порода: <b style="color:var(--ink)">'+esc(queenBreed||'Не указана')+'</b></div><div class="muted" style="margin-top:4px">Год вывода: <b style="color:var(--ink)">'+esc(queenYear||'Не указан')+'</b>'+(queenAge!==null?' • Возраст: <b style="color:var(--ink)">'+queenAge+' '+(queenAge===1?'год':(queenAge>=2&&queenAge<=4?'года':'лет'))+'</b>':'')+'</div></div><div class="card"><div class="muted">💪 Сила семьи</div><b>'+esc(last?.colony_strength||'Нет данных')+'</b></div><div class="card"><div class="muted">🥚 Расплод</div><b>'+esc(last?.brood||'Нет данных')+'</b></div><div class="card"><div class="muted">🍯 Корм</div><b>'+esc(last?.feed||'Нет данных')+'</b></div></div><div class="panel" style="margin-top:14px"><b>📅 Последний осмотр:</b> '+esc(last?.inspection_date||'Нет данных')+'<br><span class="muted">🐝 Пасека: '+esc(apiaryMap[h.apiary_id]||'Не указана')+' • 📍 '+esc(h.location||'Место не указано')+'</span>'+(last?.notes?'<p style="margin-bottom:0"><b>Заметки:</b> '+esc(last.notes)+'</p>':'')+'</div>';
+  $('hiveFamilyInfo').innerHTML=
+    '<div class="card"><div class="muted">🐝 УЛЕЙ</div><b style="font-size:25px;color:var(--green)">№ '+esc(h.hive_number||'—')+'</b><div class="muted" style="margin-top:5px">🐝 '+esc(apiaryMap[h.apiary_id]||'Пасека не указана')+' • 📍 '+esc(h.location||'Место не указано')+' • '+esc(h.status||'Состояние не указано')+'</div></div>'+
+    '<div class="status-grid" style="margin-top:12px"><div class="status-box"><div class="muted">👑 Матка</div><b>'+esc(last?.queen_status||'Нет данных')+'</b></div><div class="status-box"><div class="muted">💪 Сила семьи</div><b>'+esc(last?.colony_strength||'Нет данных')+'</b></div><div class="status-box"><div class="muted">🥚 Расплод</div><b>'+esc(last?.brood||'Нет данных')+'</b></div><div class="status-box"><div class="muted">🍯 Корм</div><b>'+esc(last?.feed||'Нет данных')+'</b></div></div>'+
+    '<div class="panel" style="margin-top:14px"><b>👑 Матка</b><div style="margin-top:7px">Порода: <b>'+esc(queenBreed||'Не указана')+'</b> • Год вывода: <b>'+esc(queenYear||'Не указан')+'</b>'+(queenAge!==null?' • Возраст: <b>'+queenAge+' '+(queenAge===1?'год':(queenAge>=2&&queenAge<=4?'года':'лет'))+'</b>':'')+'</div><div class="muted" style="margin-top:8px">'+esc(days===null?'Осмотров ещё не было':days>=14?'⚠️ Последний осмотр был '+days+' дн. назад':'Последний осмотр '+days+' дн. назад')+'</div></div>'+
+    (last?.notes?'<div class="panel" style="margin-top:14px"><b>📝 Заметки последнего осмотра</b><p style="margin-bottom:0">'+esc(last.notes)+'</p></div>':'')+
+    (recent.length?'<div class="panel" style="margin-top:14px"><b>📋 Последние осмотры</b><div class="table-wrap" style="margin-top:8px"><table class="table"><thead><tr><th>Дата</th><th>Семья</th><th>Матка</th><th>Расплод</th><th>Корм</th></tr></thead><tbody>'+recent.map(i=>'<tr><td>'+esc(i.inspection_date||'—')+'</td><td>'+esc(i.colony_strength||'—')+'</td><td>'+esc(i.queen_status||'—')+'</td><td>'+esc(i.brood||'—')+'</td><td>'+esc(i.feed||'—')+'</td></tr>').join('')+'</tbody></table></div></div>':'<div class="panel" style="margin-top:14px"><div class="empty">Осмотров по этому улью пока нет.</div></div>');
   $('hiveFamilyModal').style.display='flex';
 }
 function closeHiveFamily(){ $('hiveFamilyModal').style.display='none'; }
