@@ -113,7 +113,7 @@ let sb=null;
 window.addEventListener('error',e=>{const m=document.getElementById('authmsg');if(m)m.textContent='Ошибка загрузки: '+(e.message||'неизвестная ошибка')});
 try{
  if(!window.supabase) throw new Error('Не загрузилась библиотека Supabase. Обновите страницу.');
- sb=supabase.createClient('https://owpzcjvseleqeqibwuqj.supabase.co','sb_publishable_1eM3o5IehFq-IvjWkHLiCA_RMXGHfw5');
+ sb=supabase.createClient('https://owpzcjvseleqeqibwuqj.supabase.co','sb_publishable_1eM3o5IehFq-IvjWkHLiCA_RMXGHfw5',{auth:{storageKey:'dedushkina-paseka-service-auth'}});
 }catch(e){
  const m=document.getElementById('authmsg'); if(m)m.textContent=e.message;
 }
