@@ -183,8 +183,8 @@ function showCartridgeByBarcode(value){
  });
 }
 $('cartridgeBarcode').addEventListener('input',e=>showCartridgeByBarcode(e.target.value));
-function closeScanner(){const m=$('scannerModal');if(m){m.remove();}if(window._scannerStream){window._scannerStream.getTracks().forEach(t=>t.stop());window._scannerStream=null}window._scannerTimer=null}
-async function openScanner(targetId){
+window.closeScanner=function(){const m=$('scannerModal');if(m){m.remove();}if(window._scannerStream){window._scannerStream.getTracks().forEach(t=>t.stop());window._scannerStream=null}window._scannerTimer=null}
+window.openScanner=async function(targetId){
  closeScanner();
  const modal=document.createElement('div');modal.id='scannerModal';modal.className='scannerModal';
  modal.innerHTML='<div class="scannerBox"><h2 style="margin-top:0">Сканирование штрихкода</h2><video id="scannerVideo" autoplay playsinline></video><div id="scannerMsg" class="scannerMsg">Наведите камеру на штрихкод…</div><div class="scannerActions"><button type="button" class="light" onclick="closeScanner()">Закрыть</button></div></div>';
