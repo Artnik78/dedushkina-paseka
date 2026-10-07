@@ -9,48 +9,6 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <title>Дедушкина пасека — Цифровой журнал</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style id="pwa-install-style">
-#pwaInstallBtn{position:fixed;right:16px;bottom:16px;z-index:9999;border:0;border-radius:14px;padding:13px 16px;background:#d8a32b;color:#2f220f;font:700 15px system-ui,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.22);display:none}
-#pwaInstallBtn.show{display:block}
-</style>
-<script>
-let deferredInstallPrompt=null;
-function showPwaInstallButton(){
-  let b=document.getElementById("pwaInstallBtn");
-  if(!b){
-    b=document.createElement("button");
-    b.id="pwaInstallBtn";
-    b.type="button";
-    b.textContent="📲 Установить приложение";
-    b.addEventListener("click",async()=>{
-      if(!deferredInstallPrompt)return;
-      deferredInstallPrompt.prompt();
-      const choice=await deferredInstallPrompt.userChoice;
-      deferredInstallPrompt=null;
-      b.classList.remove("show");
-      if(choice&&choice.outcome==="accepted") b.remove();
-    });
-    document.body.appendChild(b);
-  }
-  b.classList.add("show");
-}
-window.addEventListener("beforeinstallprompt",e=>{
-  e.preventDefault();
-  deferredInstallPrompt=e;
-  if(document.body) showPwaInstallButton();
-  else window.addEventListener("DOMContentLoaded",showPwaInstallButton,{once:true});
-});
-window.addEventListener("appinstalled",()=>{
-  deferredInstallPrompt=null;
-  const b=document.getElementById("pwaInstallBtn");
-  if(b)b.remove();
-});
-if("serviceWorker" in navigator){
-  window.addEventListener("load",()=>{
-    navigator.serviceWorker.register("/dedushkina-paseka/journal/sw-pwa.js",{scope:"/dedushkina-paseka/journal/",updateViaCache:"none"}).catch(err=>console.warn("PWA Service Worker:",err));
-  });
-}
-</script>
 <style>
 :root{--green:#103a27;--green2:#1d6337;--gold:#d5a72b;--cream:#fffaf0;--paper:#fff;--ink:#25352b;--muted:#708078;--line:#e5e0d5;--danger:#b23a2b}
 *{box-sizing:border-box}
