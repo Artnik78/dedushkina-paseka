@@ -586,39 +586,86 @@ function guestDatePlus(days){
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 }
 function renderGuestMode(){
-  const t=today(), next=guestDatePlus(30);
-  state.apiaries=[{id:'guest-apiary-1',name:'Дедушкина пасека',location:'Клецкий район',description:'Демонстрационная запись'}];
-  state.hives=[{id:'guest-hive-1',apiary_id:'guest-apiary-1',hive_number:'1',hive_type:'Дадан',queen_breed:'Карника',queen_year:2025,location:'Ряд 1, место 1',status:'Активен',notes:'Демонстрационный улей'}];
-  state.inspections=[{id:'guest-inspection-1',hive_id:'guest-hive-1',inspection_date:t,colony_strength:'Сильная',queen_status:'Есть',queen_breed:'Карника',brood:'Хороший',feed:'Мёд и перга',notes:'Семья спокойная, матка работает хорошо.'}];
-  state.honey=[{id:'guest-honey-1',batch_number:'2026-001',honey_type:'Мёд разнотравье',collection_date:t,quantity_kg:25,price_per_kg:25,collection_place:'Клецкий район',notes:'Демонстрационная партия'}];
-  state.finance=[{id:'guest-finance-1',operation_date:t,operation_type:'Расход',amount:35,category:'Инвентарь',description:'Покупка инвентаря'}];
-  state.tasks=[{id:'guest-task-1',title:'[Подкормка] Проверить корм',due_date:guestDatePlus(1),priority:'Обычный',status:'Открыта',description:'[Напоминание:За 1 день] Проверить запасы корма.'}];
-  state.medicines=[{id:'guest-medicine-1',name:'Бипин-Т',volume:'10 мл',quantity:3,min_quantity:1,expiry_date:guestDatePlus(120),expiry_warning_days:30,notes:'Демонстрационная запись'}];
-  state.disinfection=[{id:'guest-disinfection-1',target_type:'Улей',apiary_id:'guest-apiary-1',hive_id:'guest-hive-1',frames_count:10,disinfection_date:t,agent:'Сода + вода',treatment_method:'Обмывание',reason:'Плановая',responsible:'Пасечник',next_date:next,notes:'Демонстрационная запись'}];
+  const t=today(), d=(n)=>guestDatePlus(n);
+  state.apiaries=[
+    {id:'guest-apiary-1',name:'Дедушкина пасека',location:'Клецкий район',description:'Основная пасека'},
+    {id:'guest-apiary-2',name:'Лесная пасека',location:'Клецкий район, лесной массив',description:'Демонстрационная вторая пасека'}
+  ];
+  state.hives=[
+    {id:'guest-hive-1',apiary_id:'guest-apiary-1',hive_number:'1',hive_type:'Дадан',queen_breed:'Карника',queen_year:2025,location:'Ряд 1, место 1',status:'Активен',notes:'Сильная семья'},
+    {id:'guest-hive-2',apiary_id:'guest-apiary-1',hive_number:'2',hive_type:'Дадан',queen_breed:'Бакфаст',queen_year:2024,location:'Ряд 1, место 2',status:'Активен',notes:'Хорошо развивается'},
+    {id:'guest-hive-3',apiary_id:'guest-apiary-1',hive_number:'3',hive_type:'Рута',queen_breed:'Карника',queen_year:2025,location:'Ряд 1, место 3',status:'Активен',notes:'Подготовить магазин'},
+    {id:'guest-hive-4',apiary_id:'guest-apiary-1',hive_number:'4',hive_type:'Дадан',queen_breed:'Мешанка',queen_year:2023,location:'Ряд 2, место 1',status:'Активен',notes:'Контроль корма'},
+    {id:'guest-hive-5',apiary_id:'guest-apiary-1',hive_number:'5',hive_type:'Дадан',queen_breed:'Карника',queen_year:2025,location:'Ряд 2, место 2',status:'Активен',notes:'Молодая матка'},
+    {id:'guest-hive-6',apiary_id:'guest-apiary-1',hive_number:'6',hive_type:'Рута',queen_breed:'Бакфаст',queen_year:2024,location:'Ряд 2, место 3',status:'Активен',notes:'Нужен контроль расплода'},
+    {id:'guest-hive-7',apiary_id:'guest-apiary-2',hive_number:'7',hive_type:'Дадан',queen_breed:'Карника',queen_year:2022,location:'Ряд 1, место 1',status:'Активен',notes:'Лесной медосбор'},
+    {id:'guest-hive-8',apiary_id:'guest-apiary-2',hive_number:'8',hive_type:'Дадан',queen_breed:'Бакфаст',queen_year:2025,location:'Ряд 1, место 2',status:'Активен',notes:'Сильная семья'},
+    {id:'guest-hive-9',apiary_id:'guest-apiary-2',hive_number:'9',hive_type:'Рута',queen_breed:'Мешанка',queen_year:2023,location:'Ряд 1, место 3',status:'Активен',notes:'Проверить корм'},
+    {id:'guest-hive-10',apiary_id:'guest-apiary-2',hive_number:'10',hive_type:'Дадан',queen_breed:'Карника',queen_year:2024,location:'Ряд 2, место 1',status:'Активен',notes:'Семья средняя'},
+    {id:'guest-hive-11',apiary_id:'guest-apiary-2',hive_number:'11',hive_type:'Дадан',queen_breed:'Бакфаст',queen_year:2025,location:'Ряд 2, место 2',status:'Активен',notes:'Подготовка к медосбору'},
+    {id:'guest-hive-12',apiary_id:'guest-apiary-2',hive_number:'12',hive_type:'Рута',queen_breed:'Карника',queen_year:2021,location:'Ряд 2, место 3',status:'На проверке',notes:'Требует внимания'}
+  ];
+  const strengths=['Сильная','Сильная','Средняя','Слабая','Сильная','Средняя','Сильная','Сильная','Средняя','Сильная','Средняя','Слабая'];
+  const queens=['Есть','Молодая','Есть','Нет','Есть','Есть','Есть','Молодая','Есть','Есть','Есть','Трутневая'];
+  const broods=['Хороший','Хороший','Нормальный','Слабый','Хороший','Нормальный','Хороший','Хороший','Нормальный','Хороший','Нормальный','Слабый'];
+  const feeds=['Мёд и перга','Достаточно','Достаточно','Мало','Мёд и перга','Достаточно','Мёд и перга','Достаточно','Мало','Мёд и перга','Достаточно','Мало'];
+  state.inspections=state.hives.map((h,i)=>({
+    id:'guest-inspection-'+(i+1),hive_id:h.id,inspection_date:i===11?d(-18):i===3?d(-16):d(-1),
+    colony_strength:strengths[i],queen_status:queens[i],queen_breed:h.queen_breed,brood:broods[i],feed:feeds[i],
+    notes:i===3?'Семья ослаблена, требуется подкормка и контроль матки.':i===11?'Обратить внимание на матку и корм.':'Состояние семьи удовлетворительное.'
+  }));
+  state.inspections.push(
+    {id:'guest-inspection-old-1',hive_id:'guest-hive-1',inspection_date:d(-20),colony_strength:'Средняя',queen_status:'Есть',queen_breed:'Карника',brood:'Нормальный',feed:'Достаточно',notes:'Предыдущий осмотр'},
+    {id:'guest-inspection-old-2',hive_id:'guest-hive-2',inspection_date:d(-15),colony_strength:'Средняя',queen_status:'Есть',queen_breed:'Бакфаст',brood:'Нормальный',feed:'Достаточно',notes:'Предыдущий осмотр'},
+    {id:'guest-inspection-old-3',hive_id:'guest-hive-3',inspection_date:d(-12),colony_strength:'Сильная',queen_status:'Есть',queen_breed:'Карника',brood:'Хороший',feed:'Мёд и перга',notes:'Хорошее развитие'}
+  );
+  state.beeFamilies=state.hives.map((h,i)=>({id:'guest-family-'+(i+1),hive_id:h.id,queen_year:h.queen_year,queen_breed:h.queen_breed,strength:strengths[i],notes:h.notes}));
+  state.honey=[
+    {id:'guest-honey-1',batch_number:'2026-001',honey_type:'Мёд разнотравье',collection_date:d(-90),quantity_kg:25,price_per_kg:25,collection_place:'Клецкий район',notes:'Полифлорный мёд, демонстрационная партия'},
+    {id:'guest-honey-2',batch_number:'2026-002',honey_type:'Лесной мёд',collection_date:d(-70),quantity_kg:18,price_per_kg:28,collection_place:'Клецкий район, лесной массив',notes:'Партия лесного мёда'},
+    {id:'guest-honey-3',batch_number:'2026-003',honey_type:'Майский мёд',collection_date:d(-120),quantity_kg:14,price_per_kg:30,collection_place:'Клецкий район',notes:'Ранний весенний сбор'},
+    {id:'guest-honey-4',batch_number:'2026-004',honey_type:'Гречишный мёд',collection_date:d(-45),quantity_kg:22,price_per_kg:27,collection_place:'Клецкий район',notes:'Насыщенный гречишный мёд'}
+  ];
+  state.finance=[
+    {id:'guest-fin-1',operation_date:d(-80),operation_type:'Расход',amount:120,category:'Инвентарь',description:'Покупка рамок и мелкого инвентаря'},
+    {id:'guest-fin-2',operation_date:d(-65),operation_type:'Расход',amount:85,category:'Лекарства',description:'Препараты для обработки'},
+    {id:'guest-fin-3',operation_date:d(-50),operation_type:'Доход',amount:420,category:'Мёд',description:'Продажа мёда разнотравье'},
+    {id:'guest-fin-4',operation_date:d(-35),operation_type:'Расход',amount:70,category:'Упаковка',description:'Банки и этикетки'},
+    {id:'guest-fin-5',operation_date:d(-20),operation_type:'Доход',amount:360,category:'Мёд',description:'Продажа лесного мёда'},
+    {id:'guest-fin-6',operation_date:d(-10),operation_type:'Расход',amount:55,category:'Корм',description:'Сахар для подкормки'},
+    {id:'guest-fin-7',operation_date:d(-4),operation_type:'Доход',amount:280,category:'Мёд',description:'Продажа майского мёда'},
+    {id:'guest-fin-8',operation_date:t,operation_type:'Расход',amount:40,category:'Транспорт',description:'Поездка на лесную пасеку'}
+  ];
+  state.tasks=[
+    {id:'guest-task-1',title:'[Осмотр] Проверить улей №4',due_date:t,priority:'Высокий',status:'Открыта',description:'[Напоминание:Сегодня] Проверить корм и состояние матки.'},
+    {id:'guest-task-2',title:'[Подкормка] Проверить корм',due_date:d(1),priority:'Обычный',status:'Открыта',description:'[Напоминание:За 1 день] Проверить запасы корма.'},
+    {id:'guest-task-3',title:'[Осмотр] Контроль слабых семей',due_date:d(3),priority:'Высокий',status:'Открыта',description:'[Напоминание:За 3 дня] Повторно осмотреть ульи №4 и №12.'},
+    {id:'guest-task-4',title:'[Обработка] Весенняя обработка',due_date:d(7),priority:'Обычный',status:'Открыта',description:'[Напоминание:За 7 дней] Провести плановую обработку.'},
+    {id:'guest-task-5',title:'[Откачка мёда] Разнотравье',due_date:d(-8),priority:'Обычный',status:'Выполнена',description:'[Напоминание:Без напоминания] Откачка партии 2026-001.'},
+    {id:'guest-task-6',title:'[Покупка] Банки и этикетки',due_date:d(5),priority:'Низкий',status:'Открыта',description:'[Напоминание:За 3 дня] Подготовить упаковку.'},
+    {id:'guest-task-7',title:'[Перестановка рамок] Улей №6',due_date:d(10),priority:'Обычный',status:'Открыта',description:'[Напоминание:За 7 дней] Проверить необходимость расширения.'},
+    {id:'guest-task-8',title:'[Другое] Проверить журнал лекарств',due_date:d(-2),priority:'Обычный',status:'Выполнена',description:'[Напоминание:Без напоминания] Проверка выполнена.'}
+  ];
+  state.medicines=[
+    {id:'guest-med-1',name:'Бипин-Т',volume:'10 мл',quantity:3,min_quantity:1,expiry_date:d(120),expiry_warning_days:30,notes:'Для обработки семей'},
+    {id:'guest-med-2',name:'Муравьиная кислота',volume:'100 мл',quantity:2,min_quantity:2,expiry_date:d(18),expiry_warning_days:30,notes:'Запас для сезонной обработки'},
+    {id:'guest-med-3',name:'Апиварол',volume:'25 таблеток',quantity:1,min_quantity:2,expiry_date:d(240),expiry_warning_days:30,notes:'Остаток ниже минимального'},
+    {id:'guest-med-4',name:'Витаминная подкормка',volume:'500 г',quantity:5,min_quantity:1,expiry_date:d(300),expiry_warning_days:30,notes:'Для весенней подкормки'}
+  ];
+  state.disinfection=[
+    {id:'guest-dis-1',target_type:'Улей',apiary_id:'guest-apiary-1',hive_id:'guest-hive-1',frames_count:10,disinfection_date:d(-30),agent:'Сода + вода',treatment_method:'Обмывание',reason:'Плановая',responsible:'Пасечник',next_date:d(150),notes:'Плановая санитарная обработка'},
+    {id:'guest-dis-2',target_type:'Рамки',apiary_id:'guest-apiary-1',hive_id:null,frames_count:24,disinfection_date:d(-20),agent:'Сода кальцинированная',treatment_method:'Замачивание',reason:'Санитарная',responsible:'Пасечник',next_date:d(160),notes:'Обработаны запасные рамки'},
+    {id:'guest-dis-3',target_type:'Улей',apiary_id:'guest-apiary-2',hive_id:'guest-hive-9',frames_count:10,disinfection_date:d(-12),agent:'Перекись + сода',treatment_method:'Орошение',reason:'После болезни',responsible:'Пасечник',next_date:d(30),notes:'Усиленный контроль'},
+    {id:'guest-dis-4',target_type:'Инвентарь',apiary_id:'guest-apiary-2',hive_id:null,frames_count:null,disinfection_date:t,agent:'Сода + вода',treatment_method:'Обмывание',reason:'Плановая',responsible:'Пасечник',next_date:d(30),notes:'Рабочий инвентарь'}
+  ];
 
   renderAll();
 
-  // В гостевом режиме показываем примерные записи, но не даём их изменять.
-  $('hivesList').innerHTML='<div class="card"><b style="font-size:18px">⬡ Улей №1</b><div class="muted" style="margin-top:6px">Дедушкина пасека • Дадан • Ряд 1, место 1</div><p style="margin:10px 0 5px">🟢 Активен</p><div class="muted">Порода матки: Карника • Год вывода: 2025</div></div>';
-  $('inspectionsList').innerHTML='<table class="table"><thead><tr><th>Дата</th><th>Улей</th><th>Семья</th><th>Матка</th><th>Заметки</th></tr></thead><tbody><tr><td>'+esc(t)+'</td><td>№ 1</td><td>Сильная</td><td>Есть</td><td>Семья спокойная, матка работает хорошо.</td></tr></tbody></table>';
-  $('honeyList').innerHTML='<table class="table"><thead><tr><th>Партия</th><th>Мёд</th><th>Дата</th><th>Кг</th><th>Цена/кг</th></tr></thead><tbody><tr><td>2026-001</td><td>Мёд разнотравье</td><td>'+esc(t)+'</td><td>25</td><td>25</td></tr></tbody></table>';
-  const financeIncome=state.finance.filter(f=>String(f.operation_type).toLowerCase()==='доход').reduce((s,f)=>s+(Number(f.amount)||0),0);
-  const financeExpense=state.finance.filter(f=>String(f.operation_type).toLowerCase()==='расход').reduce((s,f)=>s+(Number(f.amount)||0),0);
-  setText('financeIncome',financeIncome.toFixed(2)); setText('financeExpense',financeExpense.toFixed(2)); setText('financeBalance',(financeIncome-financeExpense).toFixed(2));
-  $('financeList').innerHTML=state.finance.length?'<table class="table"><thead><tr><th>Дата</th><th>Тип</th><th>Сумма</th><th>Категория</th><th>Описание</th></tr></thead><tbody>'+state.finance.map(f=>'<tr><td>'+esc(f.operation_date)+'</td><td><span class="finance-type '+(String(f.operation_type).toLowerCase()==='доход'?'in':'out')+'">'+esc(f.operation_type)+'</span></td><td><b>'+esc(Number(f.amount||0).toFixed(2))+'</b></td><td>'+esc(f.category)+'</td><td>'+esc(f.description)+'</td></tr>').join('')+'</tbody></table>':'<div class="empty">Операций пока нет.</div>';
-
-  $('homeMedicineAlerts').innerHTML='<h3>💊 Лекарства</h3><div style="padding:7px 0">Бипин-Т — 3 шт. · срок '+esc(guestDatePlus(120))+'</div>';
-  $('homeDisinfectionAlerts').innerHTML='<div class="reminders-head"><div><span class="eyebrow">КОНТРОЛЬ ПАСЕКИ</span><h3>🧴 Дезинфекция</h3></div><button type="button" class="btn secondary" data-page="disinfection">Все</button></div><div style="padding:7px 0">🧽 Улей №1 — обработан '+esc(t)+'</div><div class="muted">Следующая обработка: '+esc(next)+'</div>';
-  document.querySelectorAll('#homeDisinfectionAlerts [data-page]').forEach(b=>b.onclick=()=>showPage(b.dataset.page));
-  $('homeReminderAlerts').innerHTML='<div class="reminder-list"><div class="reminder-row"><div>🟡 <b>Проверить корм</b><div class="muted">'+esc(guestDatePlus(1))+'</div></div><span class="warning-badge">скоро</span></div></div>';
-
-  const photoPanel=document.querySelector('#page-photos .panel');
-  if(photoPanel) photoPanel.innerHTML='<div class="card"><b>📷 Фото пасеки</b><div class="muted">Демонстрационный раздел гостевого режима.</div></div>';
-
+  // Гостевой режим — только просмотр: формы и операции изменения скрыты.
   document.querySelectorAll('#page-apiaries form,#page-hives form,#page-inspections form,#page-calendar form,#page-honey form,#page-finances form,#page-tasks form,#page-medicines form,#page-disinfection form').forEach(f=>{const p=f.closest('.panel');if(p)p.style.display='none';});
   document.querySelectorAll('#page-home .actions button,#addCalendarEventBtn,.apiary-edit,.apiary-delete,.hive-edit,.hive-history,.hive-delete,.disinfection-edit,.disinfection-delete,.medicine-edit,.medicine-delete').forEach(b=>b.style.display='none');
-  setText('countHives',1); setText('countInspections',1); setText('countHoney',1); setText('countTasks',1);
-  setText('statHives',1); setText('statInspections',1); setText('statHoney',1); setText('statFinance',1);
+  setText('countHives',state.hives.length); setText('countInspections',state.inspections.length); setText('countHoney',state.honey.length); setText('countTasks',state.tasks.filter(x=>x.status!=='Выполнена').length);
+  setText('statHives',state.hives.length); setText('statInspections',state.inspections.length); setText('statHoney',state.honey.length); setText('statFinance',state.finance.length);
 }
 
 async function authInit(){
