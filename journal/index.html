@@ -534,6 +534,13 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
         <p><b>Мои ульи:</b> <span id="settingsHiveCount">0</span></p>
         <div class="actions"><button class="btn secondary" id="refreshBtn">Обновить данные</button></div>
       </div>
+      <div class="panel" id="userAccessPanel" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+          <div><h3 style="margin-bottom:4px">👥 Пользователи журнала</h3><p class="muted">Только владелец может разрешать и блокировать доступ.</p></div>
+          <button class="btn secondary" type="button" id="refreshUsersBtn">Обновить</button>
+        </div>
+        <div id="userAccessList" class="empty">Загрузка...</div>
+      </div>
     </section>
   </div>
 </main>
@@ -738,10 +745,31 @@ async function authInit(){
 }
 async function showApp(user){
   guestMode=false;
+  const email=(user.email||'').toLowerCase();
+  try{
+    const {data:profile,error}=await db.from('journal_users').select('allowed,display_name').eq('user_id',user.id).maybeSingle();
+    if(error) throw error;
+    if(!profile || !profile.allowed){
+      await db.auth.signOut({scope:'local'});
+      $('auth').style.display='flex';
+      $('app').style.display='none';
+      $('authMessage').textContent='Доступ к журналу пока не разрешён владельцем. После одобрения войдите снова.';
+      return;
+    }
+  }catch(e){
+    console.error(e);
+    $('auth').style.display='flex';
+    $('app').style.display='none';
+    $('authMessage').textContent='Не удалось проверить доступ: '+e.message;
+    return;
+  }
   $('auth').style.display='none';
   $('app').style.display='';
   $('userEmail').textContent=user.email||'Пользователь';
   syncHomeUser(user.email);
+  const owner=email==='78art@gmail.com';
+  const p=$('userAccessPanel'); if(p)p.style.display=owner?'block':'none';
+  if(owner) loadJournalUsers();
   try{ await loadAll(); }
   catch(e){ console.error(e); toast('Ошибка загрузки данных: '+e.message); }
 }
@@ -784,6 +812,30 @@ $('logoutBtn').onclick=async()=>{
 };
 $('homeLogoutBtn').onclick=()=>$('logoutBtn').click();
 $('refreshBtn').onclick=()=>loadAll().catch(e=>toast('Ошибка загрузки: '+e.message));
+async function loadJournalUsers(){
+  const box=$('userAccessList'); if(!box)return;
+  const {data,error}=await db.from('journal_users').select('*').order('created_at',{ascending:true});
+  if(error){box.innerHTML='<div class="empty">Ошибка: '+esc(error.message)+'</div>';return}
+  box.innerHTML=(data||[]).map(u=>{
+    const owner=(String(u.email||'').toLowerCase()==='78art@gmail.com');
+    const active=!!u.allowed;
+    return '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 0;border-bottom:1px solid var(--line)">'+
+      '<div><b>'+esc(u.email||'—')+'</b><div class="muted">'+(owner?'Владелец':'Пользователь')+' · '+(active?'🟢 Доступ разрешён':'🔴 Доступ заблокирован')+'</div></div>'+
+      (owner?'':'<button type="button" class="btn '+(active?'danger':'gold')+'" data-user-access="'+esc(u.user_id)+'" data-user-allowed="'+(active?'1':'0')+'">'+(active?'Заблокировать':'Разрешить доступ')+'</button>')+
+      '</div>';
+  }).join('')||'<div class="empty">Пользователей пока нет.</div>';
+}
+$('refreshUsersBtn').onclick=loadJournalUsers;
+document.addEventListener('click',async e=>{
+  const b=e.target.closest('[data-user-access]'); if(!b)return;
+  const id=b.dataset.userAccess, allow=b.dataset.userAllowed!=='1';
+  b.disabled=true;
+  const {error}=await db.from('journal_users').update({allowed:allow}).eq('user_id',id);
+  b.disabled=false;
+  if(error){toast('Ошибка: '+error.message);return}
+  toast(allow?'Доступ разрешён':'Пользователь заблокирован');
+  loadJournalUsers();
+});
 
 async function getTable(table,order='created_at'){
   const q=db.from(table).select('*');
