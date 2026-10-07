@@ -187,6 +187,7 @@ async function loadCartridgeMaintenance(cartridgeId){
  const box=$('cartridgeMaintenance'); if(!box)return;
  box.classList.remove('hidden');
  $('maintenanceForm').elements.cartridge_id.value=cartridgeId;
+ if(!$('maintenanceForm').elements.service_date.value)$('maintenanceForm').elements.service_date.value=new Date().toISOString().slice(0,10);
  const {data,error}=await sb.from('service_cartridge_maintenance').select('*').eq('cartridge_id',cartridgeId).order('service_date',{ascending:false}).order('created_at',{ascending:false});
  if(error){$('maintenanceRows').innerHTML='<tr><td colspan="4">Ошибка загрузки истории: '+esc(error.message)+'</td></tr>';return}
  $('maintenanceRows').innerHTML=(data||[]).map(x=>'<tr><td>'+esc(x.service_date||'')+'</td><td>'+esc(maintenanceNames[x.component]||x.component)+'</td><td>'+esc(x.notes||'')+'</td><td><button type="button" class="danger" onclick="deleteMaintenance(\''+x.id+'\')">Удалить</button></td></tr>').join('') || '<tr><td colspan="4" class="muted">История обслуживания пока пустая.</td></tr>';
