@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#d8a32b">
+<meta name="theme-color" content="#d8a32b">\n<meta name="mobile-web-app-capable" content="yes">\n<meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="description" content="Цифровой журнал пасечника — Дедушкина пасека">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
@@ -12,7 +12,7 @@
 <script>
 if("serviceWorker" in navigator){
   window.addEventListener("load",()=>{
-    navigator.serviceWorker.register("./sw.js",{scope:"./",updateViaCache:"none"}).catch(err=>console.warn("PWA Service Worker:",err));
+    navigator.serviceWorker.register("/dedushkina-paseka/journal/sw.js",{scope:"/dedushkina-paseka/journal/",updateViaCache:"none"}).catch(err=>console.warn("PWA Service Worker:",err));
   });
 }
 </script>
