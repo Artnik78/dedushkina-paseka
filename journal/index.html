@@ -1065,6 +1065,7 @@ document.querySelectorAll('.honey-batch-card').forEach(b=>b.onclick=()=>openHone
   $('disinfectionAlerts').innerHTML=disAlerts.length
     ? '<div class="panel" style="margin:0 0 14px;background:#fff7e8;border-color:#e4c77a"><b>⚠️ Ближайшие обработки</b>'+disAlerts.slice(0,6).map(a=>'<div style="margin-top:8px">🧴 <b>'+esc(a.x.target_type||'')+'</b> — '+esc(a.x.next_date)+(a.days<0?' — 🔴 просрочено':a.days===0?' — 🟠 сегодня':' — 🟡 через '+a.days+' дн.')+'</div>').join('')+'</div>'
     : '<div class="muted" style="margin-bottom:12px">Ближайших обработок пока нет.</div>';
+  const homeDisToday=new Date(today()+'T00:00:00');
   const disApiaryMap=Object.fromEntries(state.apiaries.map(a=>[a.id,a.name]));
   const disHiveMap=Object.fromEntries(state.hives.map(h=>[h.id,'№ '+h.hive_number]));
   $('disinfectionList').innerHTML=state.disinfection.length
@@ -1073,7 +1074,6 @@ document.querySelectorAll('.honey-batch-card').forEach(b=>b.onclick=()=>openHone
   document.querySelectorAll('.disinfection-edit').forEach(b=>b.onclick=()=>editDisinfection(b.dataset.id));
   document.querySelectorAll('.disinfection-delete').forEach(b=>b.onclick=()=>deleteDisinfection(b.dataset.id));
 
-  const homeDisToday=new Date(today()+'T00:00:00');
   const homeDisUpcoming=state.disinfection.map(x=>{
     if(!x.next_date)return null;
     const days=Math.ceil((new Date(String(x.next_date).slice(0,10)+'T00:00:00')-homeDisToday)/86400000);
