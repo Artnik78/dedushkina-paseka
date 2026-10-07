@@ -197,7 +197,8 @@ window.openScanner=async function(targetId){
   const detector=wanted.length?new BarcodeDetector({formats:wanted}):new BarcodeDetector();
   const video=$('scannerVideo');
   window._scannerStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
-  video.srcObject=window._scannerStream; await video.play();
+  video.srcObject=window._scannerStream;
+  video.muted=true;
   const scan=async()=>{
    if(!document.getElementById('scannerModal'))return;
    try{
