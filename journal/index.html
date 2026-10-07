@@ -675,12 +675,17 @@ async function getTable(table,order='created_at'){
   return data||[];
 }
 async function loadAll(){
-  try{
-    [state.apiaries,state.hives,state.inspections,state.honey,state.tasks,state.finance,state.medicines,state.disinfection,state.beeFamilies]=await Promise.all([
-      getTable('apiaries'),getTable('hives'),getTable('inspections'),getTable('honey_batches'),getTable('tasks'),getTable('finances'),getTable('medicines'),getTable('disinfection_logs'),getTable('bee_families')
-    ]);
-    renderAll();
-  }catch(e){console.error(e);toast('Ошибка загрузки данных: '+e.message);throw e}
+  const names=[
+    ['apiaries','apiaries'],['hives','hives'],['inspections','inspections'],['honey','honey_batches'],
+    ['tasks','tasks'],['finance','finances'],['medicines','medicines'],['disinfection','disinfection_logs'],['beeFamilies','bee_families']
+  ];
+  const errors=[];
+  for(const [key,table] of names){
+    try{ state[key]=await getTable(table); }
+    catch(e){ console.error(table,e); state[key]=[]; errors.push(e.message||String(e)); }
+  }
+  renderAll();
+  if(errors.length) toast('Ошибка загрузки: '+errors.join(' | '));
 }
 function renderAll(){
   setText('homeWorkHives',state.hives.length+' '+(state.hives.length===1?'улей':'ульев'));
