@@ -954,6 +954,20 @@ async function editBeeFamily(id){
     await loadAll(); showHiveFamily(id);
   };
 }
+function renderStrengthGraph(inspections){
+  const items=inspections.slice(0,12).reverse();
+  if(!items.length)return '<div class="empty">Для графика нужны результаты осмотров.</div>';
+  const W=640,H=230,L=55,R=18,T=28,B=42,PH=140;
+  const y=v=>T+(3-v)*(PH/2);
+  const level=s=>{s=String(s||'').toLowerCase();return s.includes('силь')?3:s.includes('сред')?2:s.includes('слаб')?1:0};
+  const pts=items.map((i,n)=>({x:L+(items.length===1?(W-L-R)/2:n*(W-L-R)/(items.length-1)),y:y(level(i.colony_strength)),v:level(i.colony_strength),d:String(i.inspection_date||'').slice(5,10)}));
+  const known=pts.filter(p=>p.v);
+  let s='<div style="overflow:auto;margin-top:10px"><svg viewBox="0 0 '+W+' '+H+'" width="100%">';
+  [3,2,1].forEach(v=>{const yy=y(v);s+='<line x1="'+L+'" y1="'+yy+'" x2="'+(W-R)+'" y2="'+yy+'" stroke="#e5e0d5"/><text x="2" y="'+(yy+4)+'" font-size="12" fill="#708078">'+(v===3?'Сильная':v===2?'Средняя':'Слабая')+'</text>';});
+  if(known.length>1)s+='<polyline points="'+known.map(p=>p.x.toFixed(1)+','+p.y.toFixed(1)).join(' ')+'" fill="none" stroke="#1d6337" stroke-width="3"/>';
+  pts.forEach(p=>{s+='<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="5" fill="'+(p.v?'#d5a72b':'#aaa')+'"/><text x="'+p.x.toFixed(1)+'" y="'+(H-12)+'" text-anchor="middle" font-size="10" fill="#708078">'+esc(p.d||'—')+'</text>';});
+  return s+'</svg></div><div class="muted" style="margin-top:4px">Сильная → Средняя → Слабая. Серые точки — сила не указана.</div>';
+}
 function showHiveFamily(id){
   const h=state.hives.find(x=>String(x.id)===String(id)); if(!h)return;
   const inspections=state.inspections.filter(i=>String(i.hive_id)===String(id)).sort((a,b)=>String(b.inspection_date||'').localeCompare(String(a.inspection_date||'')));
@@ -972,6 +986,7 @@ function showHiveFamily(id){
     (last?.notes?'<div class="panel" style="margin-top:14px"><b>📝 Заметки последнего осмотра</b><p style="margin-bottom:0">'+esc(last.notes)+'</p></div>':'')+
     (recent.length?'<div class="panel" style="margin-top:14px"><b>📋 Последние осмотры</b><div class="table-wrap" style="margin-top:8px"><table class="table"><thead><tr><th>Дата</th><th>Семья</th><th>Матка</th><th>Расплод</th><th>Корм</th><th></th></tr></thead><tbody>'+recent.map(i=>'<tr><td>'+esc(i.inspection_date||'—')+'</td><td>'+esc(i.colony_strength||'—')+'</td><td>'+esc(i.queen_status||'—')+'</td><td>'+esc(i.brood||'—')+'</td><td>'+esc(i.feed||'—')+'</td><td><button type="button" class="btn secondary hive-inspection-open" data-id="'+esc(i.id)+'">Открыть</button></td></tr>').join('')+'</tbody></table></div></div>':'<div class="panel" style="margin-top:14px"><div class="empty">Осмотров по этому улью пока нет.</div></div>')+
     '<div class="panel" style="margin-top:14px"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><b>📈 Хронология семьи</b><span class="muted">Последние изменения по осмотрам</span></div>'+
+    renderStrengthGraph(inspections)+
     (inspections.length?'<div class="table-wrap" style="margin-top:10px"><table class="table"><thead><tr><th>Дата</th><th>Сила</th><th>Матка</th><th>Расплод</th><th>Корм</th></tr></thead><tbody>'+inspections.slice(0,12).map(i=>'<tr><td>'+esc(i.inspection_date||'—')+'</td><td>'+esc(i.colony_strength||'—')+'</td><td>'+esc(i.queen_status||'—')+'</td><td>'+esc(i.brood||'—')+'</td><td>'+esc(i.feed||'—')+'</td></tr>').join('')+'</tbody></table></div>':'<div class="empty">История пока пуста.</div>')+
     '</div>';
   $('hiveFamilyInfo').innerHTML += '<div class="actions" style="margin-top:14px"><button type="button" class="btn gold" id="hiveFamilyNewInspection">📋 Новый осмотр</button><button type="button" class="btn secondary" id="hiveFamilyEditFamily">🐝 Данные семьи</button><button type="button" class="btn secondary" id="hiveFamilyEdit">✏️ Изменить улей</button><button type="button" class="btn secondary" id="hiveFamilyHistory">↔️ История перемещений</button></div>';
