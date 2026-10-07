@@ -403,7 +403,18 @@ h1{margin:0 0 6px;font-size:28px}.sub{color:var(--muted);margin:0 0 22px}
           <div><button class="btn">Сохранить</button></div>
         </form>
       </div>
-      <div class="panel"><h3>Список задач</h3><div id="tasksList" class="table-wrap"></div></div>
+      <div class="reminder-summary" id="reminderSummary">
+        <button type="button" class="reminder-stat overdue" data-task-filter="overdue"><b id="taskOverdueCount">0</b><span>Просрочено</span></button>
+        <button type="button" class="reminder-stat today" data-task-filter="today"><b id="taskTodayCount">0</b><span>Сегодня</span></button>
+        <button type="button" class="reminder-stat upcoming" data-task-filter="upcoming"><b id="taskUpcomingCount">0</b><span>Ближайшие</span></button>
+        <button type="button" class="reminder-stat done" data-task-filter="done"><b id="taskDoneCount">0</b><span>Выполнено</span></button>
+      </div>
+      <div class="panel">
+        <div class="reminder-list-head"><div><h3 style="margin:0">Мои напоминания</h3><div class="muted">Просроченные и ближайшие дела находятся сверху.</div></div>
+          <select id="taskFilter" class="task-filter"><option value="all">Все</option><option value="overdue">Просроченные</option><option value="today">Сегодня</option><option value="upcoming">Ближайшие</option><option value="done">Выполненные</option></select>
+        </div>
+        <div id="tasksList" class="reminder-cards"></div>
+      </div>
     </section>
 
     <section id="page-photos" class="section">
@@ -974,7 +985,25 @@ document.querySelectorAll('.honey-batch-card').forEach(b=>b.onclick=()=>openHone
 
   $('financeList').innerHTML=state.finance.length?`<table class="table"><thead><tr><th>Дата</th><th>Тип</th><th>Сумма</th><th>Категория</th><th>Описание</th></tr></thead><tbody>${state.finance.map(f=>`<tr><td>${esc(f.operation_date)}</td><td>${esc(f.operation_type)}</td><td>${esc(f.amount)}</td><td>${esc(f.category)}</td><td>${esc(f.description)}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">Операций пока нет.</div>';
 
-  $('tasksList').innerHTML=state.tasks.length?`<table class="table"><thead><tr><th>Дата</th><th>Задача</th><th>Приоритет</th><th>Статус</th></tr></thead><tbody>${state.tasks.map(t=>`<tr><td>${esc(t.due_date)}</td><td>${esc(t.title)}</td><td>${esc(t.priority)}</td><td>${esc(t.status)}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">Напоминаний пока нет.</div>';
+  const taskOpen=state.tasks.filter(t=>t.status!=='Выполнена');
+  const taskOverdue=taskOpen.filter(t=>t.due_date&&String(t.due_date).slice(0,10)<today());
+  const taskToday=taskOpen.filter(t=>String(t.due_date||'').slice(0,10)===today());
+  const taskUpcoming=taskOpen.filter(t=>t.due_date&&String(t.due_date).slice(0,10)>today());
+  const taskDone=state.tasks.filter(t=>t.status==='Выполнена');
+  setText('taskOverdueCount',taskOverdue.length); setText('taskTodayCount',taskToday.length); setText('taskUpcomingCount',taskUpcoming.length); setText('taskDoneCount',taskDone.length);
+  const taskFilter=$('taskFilter'), currentTaskFilter=taskFilter?.value||'all';
+  let taskView=state.tasks.slice();
+  if(currentTaskFilter==='overdue')taskView=taskOverdue.slice();
+  else if(currentTaskFilter==='today')taskView=taskToday.slice();
+  else if(currentTaskFilter==='upcoming')taskView=taskUpcoming.slice();
+  else if(currentTaskFilter==='done')taskView=taskDone.slice();
+  taskView.sort((a,b)=>{if(a.status==='Выполнена'&&b.status!=='Выполнена')return 1;if(a.status!=='Выполнена'&&b.status==='Выполнена')return -1;return String(a.due_date||'9999-12-31').localeCompare(String(b.due_date||'9999-12-31'))});
+  $('tasksList').innerHTML=taskView.length?taskView.map(t=>{
+    const ds=String(t.due_date||'').slice(0,10),done=t.status==='Выполнена',kind=done?'done':ds<today()?'overdue':ds===today()?'today':'upcoming';
+    const icon=done?'✅':kind==='overdue'?'🔴':kind==='today'?'🟠':'🟡',label=done?'Выполнено':kind==='overdue'?'Просрочено':kind==='today'?'Сегодня':'Предстоящее';
+    return '<div class="task-card '+kind+'"><span class="task-card-icon">'+icon+'</span><div><div class="task-card-title">'+esc(eventTitle(t))+'</div><div class="task-card-meta"><span>'+esc(t.due_date||'Без даты')+'</span><span class="task-badge '+(t.priority==='Высокий'?'high':'')+'">'+esc(t.priority||'Обычный')+'</span><span class="task-badge">'+label+'</span></div></div><div class="task-card-actions"><button type="button" class="btn secondary task-open-btn" data-task-id="'+esc(t.id)+'">Открыть</button></div></div>';
+  }).join(''):'<div class="empty">Для выбранного раздела напоминаний нет.</div>';
+  document.querySelectorAll('.task-open-btn').forEach(b=>b.onclick=()=>openEventModal(b.dataset.taskId));
   renderCalendar();
 
   $('recentInspections').innerHTML=state.inspections.slice(0,5).map(i=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>${esc(i.inspection_date)}</b> — улей ${esc(hiveMap[i.hive_id]||'')}</div>`).join('')||'<div class="empty">Осмотров пока нет.</div>';
@@ -1328,6 +1357,8 @@ $('inspectionForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);i
 $('honeyForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);insert('honey_batches',{batch_number:d.batch_number,honey_type:d.honey_type,collection_date:d.collection_date||null,quantity_kg:d.quantity_kg?Number(d.quantity_kg):null,price_per_kg:d.price_per_kg?Number(d.price_per_kg):null,collection_place:d.collection_place,notes:d.notes},e.target)};
 $('financeForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);insert('finances',{operation_date:d.operation_date,operation_type:d.operation_type,amount:Number(d.amount),category:d.category,description:d.description},e.target)};
 $('taskForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);insert('tasks',{title:d.title,due_date:d.due_date||null,priority:d.priority,status:d.status,description:d.description},e.target)};
+$('taskFilter').onchange=()=>renderAll();
+document.querySelectorAll('[data-task-filter]').forEach(b=>b.onclick=()=>{$('taskFilter').value=b.dataset.taskFilter;renderAll()});
 function eventTitle(t){const m=String(t.title||'').match(/^\[([^\]]+)\]\s*(.*)$/);return m?m[2]:t.title||''}
 function eventType(t){const m=String(t.title||'').match(/^\[([^\]]+)\]/);return m?m[1]:'Работа'}
 function eventReminder(t){const m=String(t.description||'').match(/^\[Напоминание:([^\]]+)\]\s*/);return m?m[1]:'Без напоминания'}
