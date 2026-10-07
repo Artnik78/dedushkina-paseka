@@ -96,6 +96,16 @@
 .search-no-results{display:none;text-align:center;padding:18px;color:#806f5b}
 .detail.search-hidden{display:none}
 .item.search-hidden,.gift-card.search-hidden{display:none!important}
+</style><style>
+.mobile-bottom-nav{display:none}
+@media(max-width:700px){
+  body{padding-bottom:68px}
+  .mobile-bottom-nav{position:fixed;display:grid;grid-template-columns:repeat(5,1fr);left:0;right:0;bottom:0;z-index:10000;background:rgba(255,248,235,.98);border-top:1px solid #d8c29d;box-shadow:0 -4px 16px rgba(55,35,15,.14);backdrop-filter:blur(8px)}
+  .mobile-bottom-nav a{min-width:0;text-decoration:none;text-align:center;color:#5a3d22;font:600 11px Arial,sans-serif;padding:8px 2px 7px}
+  .mobile-bottom-nav a span{display:block;font-size:21px;line-height:23px;margin-bottom:2px}
+  .mobile-bottom-nav a.active{color:#665cac}
+  .mobile-bottom-nav .mobile-cart-count{display:inline-grid;place-items:center;min-width:17px;height:17px;padding:0 4px;border-radius:10px;background:#665cac;color:#fff;font-size:10px;vertical-align:top;margin-left:-4px}
+}
 </style></head><body>
 <div class="top"><div class="wrap topinner"><a class="brand" href="#home"><span class="bee">🐝</span><span><strong>Дедушкина пасека</strong><small>НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</small></span></a><nav class="nav"><a href="#home">Главная</a><a href="#catalog">Каталог</a><a href="#about">О пасеке</a><a href="#gifts">🎁 Подарочные наборы</a><a href="#info">Полезная информация</a><a href="#delivery">Доставка</a><a href="#contacts">Контакты</a></nav><a class="phone" href="tel:+375445748112">☎ +375 44 574 81 12</a></div></div>
 <header class="hero" id="home"><div class="herobox"><h1>Дедушкина пасека</h1><div class="ornament">── 🐝 ──</div><p class="sub">НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</p><p class="motto">С заботой о природе и вашем здоровье</p><div class="virtues"><div><span>♧</span>Натурально<br/>и полезно</div><div><span>⬡</span>Собственное<br/>производство</div><div><span>♡</span>Традиции<br/>и качество</div></div></div></header>
@@ -689,5 +699,31 @@
   }
   input.addEventListener('input',run);
   clear.addEventListener('click',function(){input.value='';run();input.focus();});
+})();
+</script><nav class="mobile-bottom-nav" aria-label="Мобильная навигация">
+<a href="#home"><span>🏠</span>Главная</a>
+<a href="#catalog"><span>🛍️</span>Каталог</a>
+<a href="#search"><span>🔎</span>Поиск</a>
+<a href="#cart"><span>🛒<b class="mobile-cart-count" id="mobileCartCount">0</b></span>Корзина</a>
+<a href="viber://chat?number=%2B375445748112"><span>💬</span>Viber</a>
+</nav><script>
+(function(){
+  const nav=document.querySelector('.mobile-bottom-nav');
+  if(!nav)return;
+  const cartBtn=document.getElementById('cartFab');
+  const count=document.getElementById('mobileCartCount');
+  const fabCount=document.getElementById('cartCount');
+  function sync(){if(count&&fabCount)count.textContent=fabCount.textContent||'0';}
+  const cartLink=nav.querySelector('a[href="#cart"]');
+  if(cartLink)cartLink.addEventListener('click',function(e){
+    e.preventDefault();
+    if(typeof window.openCart==='function')window.openCart();
+    else if(cartBtn)cartBtn.click();
+  });
+  nav.querySelectorAll('a[href^="#"]').forEach(function(a){
+    a.addEventListener('click',function(){nav.querySelectorAll('a').forEach(x=>x.classList.remove('active'));a.classList.add('active');});
+  });
+  sync();
+  setInterval(sync,500);
 })();
 </script></body></html>
