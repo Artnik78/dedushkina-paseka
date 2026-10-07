@@ -579,7 +579,22 @@ $('signupBtn').onclick=async()=>{
   if(data.session){$('authMessage').textContent='Регистрация выполнена. Открываем ваш журнал...';}
   else{$('authMessage').textContent='Аккаунт создан. Проверьте почту для подтверждения, затем войдите.';}
 };
-$('logoutBtn').onclick=()=>{location.reload()};
+$('logoutBtn').onclick=async()=>{
+  $('logoutBtn').disabled=true;
+  const {error}=await db.auth.signOut();
+  if(error){
+    $('logoutBtn').disabled=false;
+    $('authMessage').textContent='Ошибка выхода: '+error.message;
+    $('auth').style.display='flex';
+    return;
+  }
+  guestMode=false;
+  $('userEmail').textContent='...';
+  $('authEmail').value='';
+  $('authPassword').value='';
+  $('authMessage').textContent='';
+  $('auth').style.display='flex';
+};
 $('homeLogoutBtn').onclick=()=>$('logoutBtn').click();
 $('refreshBtn').onclick=loadAll;
 
