@@ -483,7 +483,7 @@ const SUPABASE_KEY = 'sb_publishable_1eM3o5IehFq-IvjWkHLiCA_RMXGHfw5';
 const { createClient } = window.supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const state = {hives:[], inspections:[], honey:[], tasks:[], finance:[], apiaries:[], medicines:[], disinfection:[]};
+const state = {hives:[], inspections:[], honey:[], tasks:[], finance:[], apiaries:[], medicines:[], disinfection:[], beeFamilies:[]};
 let guestMode=false;
 let calendarMonth = new Date();
 calendarMonth.setDate(1);
@@ -659,8 +659,8 @@ async function getTable(table,order='created_at'){
 }
 async function loadAll(){
   try{
-    [state.apiaries,state.hives,state.inspections,state.honey,state.tasks,state.finance,state.medicines,state.disinfection]=await Promise.all([
-      getTable('apiaries'),getTable('hives'),getTable('inspections'),getTable('honey_batches'),getTable('tasks'),getTable('finances'),getTable('medicines'),getTable('disinfection_logs')
+    [state.apiaries,state.hives,state.inspections,state.honey,state.tasks,state.finance,state.medicines,state.disinfection,state.beeFamilies]=await Promise.all([
+      getTable('apiaries'),getTable('hives'),getTable('inspections'),getTable('honey_batches'),getTable('tasks'),getTable('finances'),getTable('medicines'),getTable('disinfection_logs'),getTable('bee_families')
     ]);
     renderAll();
   }catch(e){console.error(e);toast('Ошибка загрузки данных: '+e.message)}
@@ -923,6 +923,37 @@ async function deleteApiary(id){
   toast('Пасека удалена'); await loadAll();
 }
 $('apiaryCancelBtn').onclick=resetApiaryForm;
+async function editBeeFamily(id){
+  const h=state.hives.find(x=>String(x.id)===String(id)); if(!h)return;
+  const existing=state.beeFamilies.find(x=>String(x.hive_id)===String(id));
+  const currentStrength=existing?.strength||state.inspections.filter(i=>String(i.hive_id)===String(id)).sort((a,b)=>String(b.inspection_date||'').localeCompare(String(a.inspection_date||'')))[0]?.colony_strength||'';
+  $('hiveFamilyInfo').innerHTML=
+    '<div class="panel" style="margin-top:0"><h3 style="margin-bottom:14px">🐝 Данные пчелиной семьи</h3>'+
+    '<form id="beeFamilyForm" class="form">'+
+    '<div class="field"><label>Год вывода матки</label><input name="queen_year" type="number" min="2000" max="2100" value="'+esc(existing?.queen_year||h.queen_year||'')+'"></div>'+
+    '<div class="field"><label>Порода матки</label><select name="queen_breed"><option value="">Не указана</option><option>Карника</option><option>Бакфаст</option><option>Мешанка</option><option>Итальянка</option><option>Среднерусская</option><option>Кавказская</option><option>Другая</option></select></div>'+
+    '<div class="field"><label>Сила семьи</label><input name="strength" value="'+esc(currentStrength)+'" placeholder="Сильная / средняя / слабая"></div>'+
+    '<div class="field full"><label>Примечание о семье</label><textarea name="notes" placeholder="Особенности семьи, характер, зимовка, происхождение...">'+esc(existing?.notes||'')+'</textarea></div>'+
+    '<div class="actions"><button class="btn gold" type="submit">💾 Сохранить данные семьи</button><button class="btn secondary" type="button" id="cancelBeeFamilyEdit">Отмена</button></div>'+
+    '</form></div>';
+  const f=$('beeFamilyForm');
+  if(f)f.elements.queen_breed.value=existing?.queen_breed||h.queen_breed||'';
+  $('cancelBeeFamilyEdit').onclick=()=>showHiveFamily(id);
+  f.onsubmit=async e=>{
+    e.preventDefault();
+    const d=formData(e.target);
+    const payload={hive_id:id,queen_year:d.queen_year?Number(d.queen_year):null,queen_breed:d.queen_breed||null,strength:d.strength||null,notes:d.notes||null};
+    let result;
+    if(existing) result=await db.from('bee_families').update(payload).eq('id',existing.id);
+    else result=await db.from('bee_families').insert(payload);
+    if(result.error){toast('Ошибка: '+result.error.message);return}
+    const hiveUpdate={queen_year:payload.queen_year,queen_breed:payload.queen_breed};
+    const hu=await db.from('hives').update(hiveUpdate).eq('id',id);
+    if(hu.error){toast('Данные семьи сохранены, но данные матки в улье не обновились: '+hu.error.message);}
+    else toast('Данные пчелиной семьи сохранены');
+    await loadAll(); showHiveFamily(id);
+  };
+}
 function showHiveFamily(id){
   const h=state.hives.find(x=>String(x.id)===String(id)); if(!h)return;
   const inspections=state.inspections.filter(i=>String(i.hive_id)===String(id)).sort((a,b)=>String(b.inspection_date||'').localeCompare(String(a.inspection_date||'')));
@@ -940,7 +971,7 @@ function showHiveFamily(id){
     '<div class="panel" style="margin-top:14px"><b>👑 Матка</b><div style="margin-top:7px">Порода: <b>'+esc(queenBreed||'Не указана')+'</b> • Год вывода: <b>'+esc(queenYear||'Не указан')+'</b>'+(queenAge!==null?' • Возраст: <b>'+queenAge+' '+(queenAge===1?'год':(queenAge>=2&&queenAge<=4?'года':'лет'))+'</b>':'')+'</div><div class="muted" style="margin-top:8px">'+esc(days===null?'Осмотров ещё не было':days>=14?'⚠️ Последний осмотр был '+days+' дн. назад':'Последний осмотр '+days+' дн. назад')+'</div></div>'+
     (last?.notes?'<div class="panel" style="margin-top:14px"><b>📝 Заметки последнего осмотра</b><p style="margin-bottom:0">'+esc(last.notes)+'</p></div>':'')+
     (recent.length?'<div class="panel" style="margin-top:14px"><b>📋 Последние осмотры</b><div class="table-wrap" style="margin-top:8px"><table class="table"><thead><tr><th>Дата</th><th>Семья</th><th>Матка</th><th>Расплод</th><th>Корм</th><th></th></tr></thead><tbody>'+recent.map(i=>'<tr><td>'+esc(i.inspection_date||'—')+'</td><td>'+esc(i.colony_strength||'—')+'</td><td>'+esc(i.queen_status||'—')+'</td><td>'+esc(i.brood||'—')+'</td><td>'+esc(i.feed||'—')+'</td><td><button type="button" class="btn secondary hive-inspection-open" data-id="'+esc(i.id)+'">Открыть</button></td></tr>').join('')+'</tbody></table></div></div>':'<div class="panel" style="margin-top:14px"><div class="empty">Осмотров по этому улью пока нет.</div></div>');
-  $('hiveFamilyInfo').innerHTML += '<div class="actions" style="margin-top:14px"><button type="button" class="btn gold" id="hiveFamilyNewInspection">📋 Новый осмотр</button><button type="button" class="btn secondary" id="hiveFamilyEdit">✏️ Изменить улей</button><button type="button" class="btn secondary" id="hiveFamilyHistory">↔️ История перемещений</button></div>';
+  $('hiveFamilyInfo').innerHTML += '<div class="actions" style="margin-top:14px"><button type="button" class="btn gold" id="hiveFamilyNewInspection">📋 Новый осмотр</button><button type="button" class="btn secondary" id="hiveFamilyEditFamily">🐝 Данные семьи</button><button type="button" class="btn secondary" id="hiveFamilyEdit">✏️ Изменить улей</button><button type="button" class="btn secondary" id="hiveFamilyHistory">↔️ История перемещений</button></div>';
     document.querySelectorAll('.hive-inspection-open').forEach(b=>b.onclick=()=>showInspectionDetails(b.dataset.id));
 $('hiveFamilyModal').style.display='flex';
   $('hiveFamilyNewInspection').onclick=()=>{
@@ -949,6 +980,7 @@ $('hiveFamilyModal').style.display='flex';
     const f=$('inspectionForm');
     if(f){f.elements.hive_id.value=h.id;f.elements.inspection_date.value=today();f.scrollIntoView({behavior:'smooth',block:'center'});}
   };
+  $('hiveFamilyEditFamily').onclick=()=>editBeeFamily(h.id);
   $('hiveFamilyEdit').onclick=()=>{closeHiveFamily();showPage('hives');editHive(h.id);};
   $('hiveFamilyHistory').onclick=()=>{closeHiveFamily();showPage('hives');showHiveHistory(h.id);};
 }
