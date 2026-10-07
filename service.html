@@ -25,7 +25,7 @@ th,td{padding:11px;border-bottom:1px solid #e7edf2;text-align:left;white-space:n
 <body>
 <div id="auth" class="auth card">
 <h1>Журнал сервисного обслуживания</h1><p class="muted">Оргтехника, ПЭВМ, картриджи и заказы</p>
-<input id="email" type="email" placeholder="E-mail"><br><br>
+<input id="email" type="email" placeholder="Электронная почта"><br><br>
 <input id="password" type="password" placeholder="Пароль"><br><br>
 <div class="toolbar"><button class="primary" onclick="login()">Войти</button><button class="light" onclick="signup()">Регистрация</button></div>
 <div id="authmsg" class="muted"></div>
@@ -58,7 +58,7 @@ th,td{padding:11px;border-bottom:1px solid #e7edf2;text-align:left;white-space:n
 <input type="hidden" name="id">
 <input name="name" placeholder="Название" required>
 <input name="tax_id" placeholder="УНП">
-<input name="bank_account" placeholder="Р/с">
+<input name="bank_account" placeholder="Расчётный счёт">
 <input name="bank" placeholder="Банк">
 
 <input name="phone" placeholder="Телефон">
@@ -79,8 +79,8 @@ th,td{padding:11px;border-bottom:1px solid #e7edf2;text-align:left;white-space:n
 </div></section>
 
 <section id="equipment"><div class="card"><h2>Оргтехника и ПЭВМ</h2><p class="muted">Каждая единица техники привязывается к конкретному клиенту.</p>
-<form id="equipmentForm" class="formgrid"><select name="client_id" id="equipmentClient" required><option value="">Выберите клиента</option></select><input name="barcode" placeholder="Штрихкод"><input name="inventory_number" placeholder="Инвентарный номер"><select name="equipment_type"><option>Принтер</option><option>МФУ</option><option>Копир</option><option>Сканер</option><option>Компьютер</option><option>Ноутбук</option><option>Монитор</option><option>Другая оргтехника</option><option>Другое</option></select><input name="manufacturer" placeholder="Производитель"><input name="model" placeholder="Модель"><input name="serial_number" placeholder="Серийный номер"><input name="location" placeholder="Место установки"><input name="responsible_person" placeholder="Ответственный"><button class="primary">Сохранить технику</button></form></div>
-<div class="card" style="margin-top:14px"><div class="tablewrap"><table><thead><tr><th>Клиент</th><th>Штрихкод</th><th>Тип</th><th>Производитель</th><th>Модель</th><th>Серийный №</th></tr></thead><tbody id="equipmentRows"></tbody></table></div></div></section>
+<form id="equipmentForm" class="formgrid"><select name="client_id" id="equipmentClient" required><option value="">Выберите клиента</option></select><input name="barcode" placeholder="Штрихкод"><input name="inventory_number" placeholder="Инвентарный номер"><select name="equipment_type"><option>Принтер</option><option>МФУ</option><option>Копировальный аппарат</option><option>Сканер</option><option>Компьютер</option><option>Ноутбук</option><option>Монитор</option><option>Другая оргтехника</option><option>Другое</option></select><input name="manufacturer" placeholder="Производитель"><input name="model" placeholder="Модель"><input name="serial_number" placeholder="Серийный номер"><input name="location" placeholder="Место установки"><input name="responsible_person" placeholder="Ответственный"><button class="primary">Сохранить технику</button></form></div>
+<div class="card" style="margin-top:14px"><div class="tablewrap"><table><thead><tr><th>Клиент</th><th>Штрихкод</th><th>Тип</th><th>Производитель</th><th>Модель</th><th>Серийный номер</th></tr></thead><tbody id="equipmentRows"></tbody></table></div></div></section>
 
 <section id="cartridges"><div class="card"><h2>Картриджи</h2><p class="muted">Каждый картридж привязывается к конкретному клиенту.</p>
 <form id="cartridgeForm" class="formgrid"><select name="client_id" id="cartridgeClient" required><option value="">Выберите клиента</option></select><input name="barcode" placeholder="Штрихкод"><input name="model" placeholder="Модель картриджа" required><input name="manufacturer" placeholder="Производитель"><input name="cartridge_type" placeholder="Тип"><input name="serial_number" placeholder="Серийный номер"><input name="fill_count" type="number" min="0" value="0" placeholder="Количество заправок"><textarea class="full" name="notes" placeholder="Примечание"></textarea><button class="primary">Сохранить картридж</button></form></div>
@@ -125,8 +125,8 @@ renderContracts(ct.data);
 function updateOrderLinkedLists(e,k,clientId){
  const eq=clientId?e.filter(x=>x.client_id===clientId):[];
  const ca=clientId?k.filter(x=>x.client_id===clientId):[];
- fillSelect('orderEquipment',eq,x=>((x.manufacturer||'')+' '+(x.model||'')+' '+(x.barcode||'')).trim(),'Оргтехника клиента не выбрана');
- fillSelect('orderCartridge',ca,x=>((x.model||'')+' '+(x.barcode||'')).trim(),'Картридж клиента не выбран');
+ fillSelect('orderEquipment',eq,x=>((x.manufacturer||'')+' '+(x.model||'')+' '+(x.barcode||'')).trim(),'Оргтехника не выбрана');
+ fillSelect('orderCartridge',ca,x=>((x.model||'')+' '+(x.barcode||'')).trim(),'Картридж не выбран');
 }
 function renderContracts(data){
  const selected=$('contractClient').value;
