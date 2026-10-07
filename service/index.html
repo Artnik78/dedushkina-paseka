@@ -175,13 +175,35 @@ function fillSelect(id,data,label,first){const s=$(id);s.innerHTML='<option valu
 function esc(v){return String(v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 function showCartridgeByBarcode(value){
  const info=$('cartridgeBarcodeInfo'); if(!info)return;
- const code=String(value||'').trim(); if(!code){info.textContent='';return}
+ const code=String(value||'').trim();
+ if(!code){info.innerHTML='';return}
+ info.textContent='Проверяем штрихкод…';
  sb.from('service_cartridges').select('*,service_clients(name)').eq('barcode',code).limit(1).maybeSingle().then(({data,error})=>{
-  if(error){info.textContent='';return}
-  if(data){info.textContent='✓ Этот штрихкод уже есть в журнале: '+(data.model||'картридж')+' · Клиент: '+(data.service_clients?.name||'—')+' · Заправок: '+(data.fill_count??0);}
-  else info.textContent='Штрихкод новый — картридж с таким кодом не найден.';
+  if(error){info.textContent='Не удалось проверить штрихкод: '+error.message;return}
+  if(data){
+   const client=data.service_clients?.name||'—';
+   info.innerHTML='<div style="font-weight:700;margin-bottom:5px">✓ Картридж уже есть в журнале</div>'+
+    '<div><b>Модель:</b> '+esc(data.model||'—')+'</div>'+
+    '<div><b>Клиент:</b> '+esc(client)+'</div>'+
+    '<div><b>Производитель:</b> '+esc(data.manufacturer||'—')+'</div>'+
+    '<div><b>Серийный номер:</b> '+esc(data.serial_number||'—')+'</div>'+
+    '<div><b>Количество заправок:</b> '+(data.fill_count??0)+'</div>'+
+    '<div class="toolbar" style="margin:8px 0 0"><button type="button" class="light" onclick="openExistingCartridge(\''+data.id+'\')">Открыть карточку</button></div>';
+  }else{
+   info.innerHTML='<div>Штрихкод новый — картридж с таким кодом не найден.</div>';
+  }
  });
 }
+window.openExistingCartridge=async id=>{
+ const {data,error}=await sb.from('service_cartridges').select('*').eq('id',id).single();
+ if(error){alert(error.message);return}
+ const f=$('cartridgeForm');
+ Object.keys(data).forEach(k=>{if(f.elements[k])f.elements[k].value=data[k]??''});
+ $('cartridgeSaveBtn').textContent='Сохранить изменения';
+ $('cartridgeCancelBtn').classList.remove('hidden');
+ show('cartridges');
+ window.scrollTo({top:$('cartridges').offsetTop,behavior:'smooth'});
+};
 $('cartridgeBarcode').addEventListener('input',e=>showCartridgeByBarcode(e.target.value));
 window.closeScanner=function(){try{window._scannerControls?.stop?.()}catch(e){}try{window._zxingReader?.reset?.()}catch(e){}const m=$('scannerModal');if(m)m.remove();if(window._scannerStream){window._scannerStream.getTracks().forEach(t=>t.stop());window._scannerStream=null}window._scannerControls=null;window._zxingReader=null;window._scannerTimer=null}
 window.openScanner=async function(targetId){
