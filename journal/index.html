@@ -850,7 +850,9 @@ $('apiaryForm').onsubmit=async e=>{
 };
 function resetApiaryForm(){
   const f=$('apiaryForm');
-  f.reset(); f.elements.id.value=''; f.elements.queen_breed.value=''; f.elements.queen_year.value=''; f.elements.hive_count.value='';
+  f.reset();
+  f.elements.id.value='';
+  f.elements.hive_count.value='';
   $('apiarySaveBtn').textContent='Сохранить пасеку';
   $('apiaryCancelBtn').style.display='none';
   f.closest('.panel').querySelector('h3').textContent='Добавить пасеку';
@@ -870,19 +872,17 @@ function editApiary(id){
 }
 async function deleteApiary(id){
   const a=state.apiaries.find(x=>String(x.id)===String(id)); if(!a)return;
+  const hiveCount=state.hives.filter(h=>String(h.apiary_id||'')===String(id)).length;
+  if(hiveCount){
+    toast('Нельзя удалить пасеку: сначала переместите или удалите её ульи.');
+    return;
+  }
   if(!confirm('Удалить пасеку «'+(a.name||'')+'»?'))return;
   const {error}=await db.from('apiaries').delete().eq('id',id);
   if(error){toast('Ошибка: '+error.message);return}
   toast('Пасека удалена'); await loadAll();
 }
 $('apiaryCancelBtn').onclick=resetApiaryForm;
-async function deleteApiary(id){
-  const a=state.apiaries.find(x=>String(x.id)===String(id)); if(!a)return;
-  if(!confirm('Удалить пасеку «'+(a.name||'')+'»?'))return;
-  const {error}=await db.from('apiaries').delete().eq('id',id);
-  if(error){toast('Ошибка: '+error.message);return}
-  toast('Пасека удалена'); await loadAll();
-}
 function showHiveFamily(id){
   const h=state.hives.find(x=>String(x.id)===String(id)); if(!h)return;
   const last=state.inspections
@@ -915,6 +915,8 @@ $('hiveFamilyModal').onclick=e=>{if(e.target.id==='hiveFamilyModal')closeHiveFam
 $('hiveForm').onsubmit=async e=>{
   e.preventDefault();
   const f=e.target,d=formData(f);
+  const duplicate=state.hives.find(h=>String(h.id)!==String(d.id||'') && String(h.apiary_id||'')===String(d.apiary_id||'') && String(h.hive_number||'').trim().toLowerCase()===String(d.hive_number||'').trim().toLowerCase());
+  if(duplicate){toast('На этой пасеке уже есть улей №'+d.hive_number+'. Выберите другой номер.');return}
   if(d.id){
     const old=state.hives.find(x=>String(x.id)===String(d.id));
     const moved=old && String(old.apiary_id||'')!==String(d.apiary_id||'');
