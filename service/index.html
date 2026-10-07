@@ -22,6 +22,8 @@ th,td{padding:11px;border-bottom:1px solid #e7edf2;text-align:left;white-space:n
 @media(max-width:700px){.grid{grid-template-columns:repeat(2,1fr)}.formgrid{grid-template-columns:1fr}.formgrid .full{grid-column:auto}header{align-items:flex-start}.grid b{font-size:23px}}
 
 .scanner{position:fixed;inset:0;background:#000b;display:none;align-items:center;justify-content:center;z-index:1000;padding:18px}.scanner.open{display:flex}.scannerBox{background:#fff;border-radius:16px;padding:16px;width:min(520px,100%)}.scanner video{width:100%;border-radius:12px;background:#111;max-height:60vh;object-fit:cover}.scanMsg{margin:8px 0;color:#475569}.scanClose{margin-top:10px}
+
+.scanField{display:flex;gap:8px;align-items:center;grid-column:1/-1}.scanField input{flex:1}.scanField button{white-space:nowrap}@media(max-width:700px){.scanField{grid-column:auto;flex-wrap:wrap}.scanField button{width:100%}}
 </style>
 </head>
 <body>
@@ -164,7 +166,7 @@ $('orderClient').onchange=()=>refresh();
 $('equipmentClient').onchange=()=>{};
 $('cartridgeClient').onchange=()=>{};
 function fillSelect(id,data,label,first){const s=$(id);s.innerHTML='<option value="">'+(first||'Выберите')+'</option>'+data.map(x=>`<option value="${x.id}">${esc(typeof label==='function'?label(x):x[label])}</option>`).join('')}
-.scanField{display:flex;gap:8px;align-items:center;grid-column:1/-1}.scanField input{flex:1}.scanField button{white-space:nowrap}@media(max-width:700px){.scanField{grid-column:auto;flex-wrap:wrap}.scanField button{width:100%}}
+
 async function startScanner(targetId){window._scanTarget=targetId;const box=document.getElementById('scanner'),video=document.getElementById('scanVideo'),msg=document.getElementById('scanMsg');box.classList.add('open');msg.textContent='Разрешите доступ к камере и наведите её на штрихкод.';try{if(!('BarcodeDetector' in window)){msg.textContent='Этот браузер не поддерживает встроенное сканирование. Используйте Chrome на Android или Safari на iPhone.';return}const detector=new BarcodeDetector({formats:['ean_13','ean_8','code_128','code_39','itf']});const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}}});window._scanStream=stream;video.srcObject=stream;await video.play();const scan=async()=>{if(!window._scanStream)return;try{const codes=await detector.detect(video);if(codes.length){document.getElementById(window._scanTarget).value=codes[0].rawValue;stopScanner();return}}catch(e){}requestAnimationFrame(scan)};scan()}catch(e){msg.textContent='Не удалось открыть камеру: '+(e.message||e)}}
 function stopScanner(){if(window._scanStream){window._scanStream.getTracks().forEach(t=>t.stop());window._scanStream=null}document.getElementById('scanVideo').srcObject=null;document.getElementById('scanner').classList.remove('open')}
 function esc(v){return String(v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
