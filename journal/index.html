@@ -940,7 +940,16 @@ function showHiveFamily(id){
     '<div class="panel" style="margin-top:14px"><b>👑 Матка</b><div style="margin-top:7px">Порода: <b>'+esc(queenBreed||'Не указана')+'</b> • Год вывода: <b>'+esc(queenYear||'Не указан')+'</b>'+(queenAge!==null?' • Возраст: <b>'+queenAge+' '+(queenAge===1?'год':(queenAge>=2&&queenAge<=4?'года':'лет'))+'</b>':'')+'</div><div class="muted" style="margin-top:8px">'+esc(days===null?'Осмотров ещё не было':days>=14?'⚠️ Последний осмотр был '+days+' дн. назад':'Последний осмотр '+days+' дн. назад')+'</div></div>'+
     (last?.notes?'<div class="panel" style="margin-top:14px"><b>📝 Заметки последнего осмотра</b><p style="margin-bottom:0">'+esc(last.notes)+'</p></div>':'')+
     (recent.length?'<div class="panel" style="margin-top:14px"><b>📋 Последние осмотры</b><div class="table-wrap" style="margin-top:8px"><table class="table"><thead><tr><th>Дата</th><th>Семья</th><th>Матка</th><th>Расплод</th><th>Корм</th></tr></thead><tbody>'+recent.map(i=>'<tr><td>'+esc(i.inspection_date||'—')+'</td><td>'+esc(i.colony_strength||'—')+'</td><td>'+esc(i.queen_status||'—')+'</td><td>'+esc(i.brood||'—')+'</td><td>'+esc(i.feed||'—')+'</td></tr>').join('')+'</tbody></table></div></div>':'<div class="panel" style="margin-top:14px"><div class="empty">Осмотров по этому улью пока нет.</div></div>');
+  $('hiveFamilyInfo').innerHTML += '<div class="actions" style="margin-top:14px"><button type="button" class="btn gold" id="hiveFamilyNewInspection">📋 Новый осмотр</button><button type="button" class="btn secondary" id="hiveFamilyEdit">✏️ Изменить улей</button><button type="button" class="btn secondary" id="hiveFamilyHistory">↔️ История перемещений</button></div>';
   $('hiveFamilyModal').style.display='flex';
+  $('hiveFamilyNewInspection').onclick=()=>{
+    closeHiveFamily();
+    showPage('inspections');
+    const f=$('inspectionForm');
+    if(f){f.elements.hive_id.value=h.id;f.elements.inspection_date.value=today();f.scrollIntoView({behavior:'smooth',block:'center'});}
+  };
+  $('hiveFamilyEdit').onclick=()=>{closeHiveFamily();showPage('hives');editHive(h.id);};
+  $('hiveFamilyHistory').onclick=()=>{closeHiveFamily();showPage('hives');showHiveHistory(h.id);};
 }
 function closeHiveFamily(){ $('hiveFamilyModal').style.display='none'; }
 async function showHiveHistory(id){
