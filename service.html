@@ -186,6 +186,31 @@ $('orderClient').onchange=()=>refresh();
 $('equipmentClient').onchange=()=>{};
 $('cartridgeClient').onchange=()=>{};
 const defaultCartridgeModelsHtml=$('cartridgeModelSelect').innerHTML;
+window.addCartridgeModel=async()=>{
+ const s=$('cartridgeModelSelect');
+ const manufacturer=prompt('Производитель картриджа:','Другие');
+ if(manufacturer===null)return;
+ const model=prompt('Модель картриджа:');
+ if(model===null)return;
+ const m=manufacturer.trim(), v=model.trim();
+ if(!m||!v){alert('Производитель и модель обязательны.');return}
+ const {error}=await sb.from('service_cartridge_models').insert({manufacturer:m,model:v});
+ if(error){alert('Не удалось добавить модель: '+error.message);return}
+ await refresh();
+ s.value=v;
+};
+window.deleteSelectedCartridgeModel=async()=>{
+ const s=$('cartridgeModelSelect');
+ const model=(s?.value||'').trim();
+ if(!model){alert('Сначала выберите модель.');return}
+ const {data,error}=await sb.from('service_cartridge_models').select('id,manufacturer,model').eq('model',model);
+ if(error){alert('Не удалось проверить модель: '+error.message);return}
+ if(!data?.length){alert('Эта модель встроенная и не может быть удалена.');return}
+ if(!confirm('Удалить пользовательскую модель «'+model+'» из списка? Уже добавленные картриджи не удалятся.'))return;
+ const {error:delError}=await sb.from('service_cartridge_models').delete().eq('id',data[0].id);
+ if(delError){alert('Не удалось удалить модель: '+delError.message);return}
+ await refresh();
+};
 function renderCartridgeModels(data){
  $('cartridgeModelsRows').innerHTML=(data||[]).map(x=>"<tr><td>"+esc(x.manufacturer)+"</td><td>"+esc(x.model)+"</td><td><button type='button' class='danger' onclick=\"deleteCartridgeModel('"+x.id+"')\">Удалить</button></td></tr>").join('')||'<tr><td colspan="3" class="muted">Пользовательских моделей пока нет.</td></tr>';
  const s=$('cartridgeModelSelect'); if(!s)return;
