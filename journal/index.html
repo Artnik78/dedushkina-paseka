@@ -423,13 +423,18 @@ h1{margin:0 0 6px;font-size:28px}.sub{color:var(--muted);margin:0 0 22px}
     </section>
 
     <section id="page-settings" class="section">
-      <h1>Настройки</h1><p class="sub">Подключение и информация о журнале.</p>
+      <h1>Настройки</h1><p class="sub">Ваш личный журнал и подключение к облаку.</p>
       <div class="panel">
-        <h3>Общие сведения</h3>
-        <p><b>Пасека:</b> Дедушкина пасека</p>
-        <p><b>Район:</b> Клецкий район</p>
+        <h3>Моя учётная запись</h3>
+        <p><b>Email:</b> <span id="settingsUserEmail">—</span></p>
+        <p><b>Мои пасеки:</b> <span id="settingsApiaryCount">0</span></p>
+        <p><b>Мои ульи:</b> <span id="settingsHiveCount">0</span></p>
+      </div>
+      <div class="panel">
+        <h3>Подключение</h3>
         <p><b>База данных:</b> Supabase</p>
         <p><b>Режим:</b> облачный журнал</p>
+        <p class="muted">Каждый пользователь видит только свои данные.</p>
         <button class="btn secondary" id="refreshBtn">Обновить данные</button>
       </div>
     </section>
@@ -473,7 +478,12 @@ function today(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth
   const d=new Date();
   const el=$('homeDateLabel'); if(el) el.textContent=d.toLocaleDateString('ru-RU',{day:'2-digit',month:'long',year:'numeric'});
 }
-function syncHomeUser(email){const el=$('homeUserEmail');if(el)el.textContent=email||'Гостевой просмотр';}
+function syncHomeUser(email){
+  const el=$('homeUserEmail');if(el)el.textContent=email||'Гостевой просмотр';
+  const se=$('settingsUserEmail');if(se)se.textContent=email||'Гостевой просмотр';
+  const ac=$('settingsApiaryCount');if(ac)ac.textContent=state.apiaries?.length||0;
+  const hc=$('settingsHiveCount');if(hc)hc.textContent=state.hives?.length||0;
+}
 formatHomeDate();
 
 function formData(form){return Object.fromEntries(new FormData(form).entries())}
