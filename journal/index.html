@@ -548,55 +548,80 @@ function renderGuestMode(){
 }
 
 async function authInit(){
-  const {data:{session}} = await db.auth.getSession();
-  if(session && !guestMode){showApp(session.user)}
-  else if(!guestMode) $('auth').style.display='flex';
-  db.auth.onAuthStateChange((_event,session)=>{
-    if(guestMode)return;
-    if(session) showApp(session.user); else $('auth').style.display='flex';
-  });
+  try{
+    const {data:{session},error}=await db.auth.getSession();
+    if(error)throw error;
+    if(session && !guestMode) await showApp(session.user);
+    else if(!guestMode) $('auth').style.display='flex';
+
+    db.auth.onAuthStateChange((event,session)=>{
+      if(guestMode)return;
+      if(session){
+        setTimeout(()=>showApp(session.user).catch(e=>{
+          console.error(e);
+          $('authMessage').textContent='Ошибка загрузки журнала: '+e.message;
+          $('auth').style.display='flex';
+        }),0);
+      }else{
+        $('app').style.display='';
+        $('auth').style.display='flex';
+        $('userEmail').textContent='...';
+      }
+    });
+  }catch(e){
+    console.error(e);
+    $('auth').style.display='flex';
+    $('authMessage').textContent='Ошибка подключения: '+e.message;
+  }
 }
 async function showApp(user){
   guestMode=false;
   $('auth').style.display='none';
+  $('app').style.display='';
   $('userEmail').textContent=user.email||'Пользователь';
   syncHomeUser(user.email);
-  await loadAll();
+  try{ await loadAll(); }
+  catch(e){ console.error(e); toast('Ошибка загрузки данных: '+e.message); }
 }
 $('guestBtn').onclick=showGuest;
 $('loginBtn').onclick=async()=>{
   $('authMessage').textContent='';
   const email=$('authEmail').value.trim(), password=$('authPassword').value;
-  const {error}=await db.auth.signInWithPassword({email,password});
-  if(error)$('authMessage').textContent=error.message;
+  if(!email || !password){$('authMessage').textContent='Введите email и пароль.';return}
+  $('loginBtn').disabled=true;
+  const {data,error}=await db.auth.signInWithPassword({email,password});
+  $('loginBtn').disabled=false;
+  if(error){$('authMessage').textContent='Ошибка входа: '+error.message;return}
+  if(data&&data.user) $('authMessage').textContent='Вход выполнен...';
 };
 $('signupBtn').onclick=async()=>{
   $('authMessage').textContent='';
   const email=$('authEmail').value.trim(), password=$('authPassword').value;
   if(!email || password.length<6){$('authMessage').textContent='Введите email и пароль не менее 6 символов.';return}
+  $('signupBtn').disabled=true;
   const {data,error}=await db.auth.signUp({email,password});
-  if(error){$('authMessage').textContent=error.message;return}
+  $('signupBtn').disabled=false;
+  if(error){$('authMessage').textContent='Ошибка регистрации: '+error.message;return}
   if(data.session){$('authMessage').textContent='Регистрация выполнена. Открываем ваш журнал...';}
   else{$('authMessage').textContent='Аккаунт создан. Проверьте почту для подтверждения, затем войдите.';}
 };
 $('logoutBtn').onclick=async()=>{
   $('logoutBtn').disabled=true;
-  const {error}=await db.auth.signOut();
-  if(error){
-    $('logoutBtn').disabled=false;
-    $('authMessage').textContent='Ошибка выхода: '+error.message;
-    $('auth').style.display='flex';
-    return;
-  }
+  const {error}=await db.auth.signOut({scope:'local'});
+  $('logoutBtn').disabled=false;
   guestMode=false;
-  $('userEmail').textContent='...';
-  $('authEmail').value='';
-  $('authPassword').value='';
-  $('authMessage').textContent='';
+  if(error){
+    console.error(error);
+    $('authMessage').textContent='Ошибка выхода: '+error.message;
+  }else{
+    $('authEmail').value='';
+    $('authPassword').value='';
+    $('authMessage').textContent='Вы вышли из журнала.';
+  }
   $('auth').style.display='flex';
 };
 $('homeLogoutBtn').onclick=()=>$('logoutBtn').click();
-$('refreshBtn').onclick=loadAll;
+$('refreshBtn').onclick=()=>loadAll().catch(e=>toast('Ошибка загрузки: '+e.message));
 
 async function getTable(table,order='created_at'){
   const q=db.from(table).select('*');
