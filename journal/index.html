@@ -939,9 +939,10 @@ function showHiveFamily(id){
     '<div class="status-grid" style="margin-top:12px"><div class="status-box"><div class="muted">👑 Матка</div><b>'+esc(last?.queen_status||'Нет данных')+'</b></div><div class="status-box"><div class="muted">💪 Сила семьи</div><b>'+esc(last?.colony_strength||'Нет данных')+'</b></div><div class="status-box"><div class="muted">🥚 Расплод</div><b>'+esc(last?.brood||'Нет данных')+'</b></div><div class="status-box"><div class="muted">🍯 Корм</div><b>'+esc(last?.feed||'Нет данных')+'</b></div></div>'+
     '<div class="panel" style="margin-top:14px"><b>👑 Матка</b><div style="margin-top:7px">Порода: <b>'+esc(queenBreed||'Не указана')+'</b> • Год вывода: <b>'+esc(queenYear||'Не указан')+'</b>'+(queenAge!==null?' • Возраст: <b>'+queenAge+' '+(queenAge===1?'год':(queenAge>=2&&queenAge<=4?'года':'лет'))+'</b>':'')+'</div><div class="muted" style="margin-top:8px">'+esc(days===null?'Осмотров ещё не было':days>=14?'⚠️ Последний осмотр был '+days+' дн. назад':'Последний осмотр '+days+' дн. назад')+'</div></div>'+
     (last?.notes?'<div class="panel" style="margin-top:14px"><b>📝 Заметки последнего осмотра</b><p style="margin-bottom:0">'+esc(last.notes)+'</p></div>':'')+
-    (recent.length?'<div class="panel" style="margin-top:14px"><b>📋 Последние осмотры</b><div class="table-wrap" style="margin-top:8px"><table class="table"><thead><tr><th>Дата</th><th>Семья</th><th>Матка</th><th>Расплод</th><th>Корм</th></tr></thead><tbody>'+recent.map(i=>'<tr><td>'+esc(i.inspection_date||'—')+'</td><td>'+esc(i.colony_strength||'—')+'</td><td>'+esc(i.queen_status||'—')+'</td><td>'+esc(i.brood||'—')+'</td><td>'+esc(i.feed||'—')+'</td></tr>').join('')+'</tbody></table></div></div>':'<div class="panel" style="margin-top:14px"><div class="empty">Осмотров по этому улью пока нет.</div></div>');
+    (recent.length?'<div class="panel" style="margin-top:14px"><b>📋 Последние осмотры</b><div class="table-wrap" style="margin-top:8px"><table class="table"><thead><tr><th>Дата</th><th>Семья</th><th>Матка</th><th>Расплод</th><th>Корм</th><th></th></tr></thead><tbody>'+recent.map(i=>'<tr><td>'+esc(i.inspection_date||'—')+'</td><td>'+esc(i.colony_strength||'—')+'</td><td>'+esc(i.queen_status||'—')+'</td><td>'+esc(i.brood||'—')+'</td><td>'+esc(i.feed||'—')+'</td><td><button type="button" class="btn secondary hive-inspection-open" data-id="'+esc(i.id)+'">Открыть</button></td></tr>').join('')+'</tbody></table></div></div>':'<div class="panel" style="margin-top:14px"><div class="empty">Осмотров по этому улью пока нет.</div></div>');
   $('hiveFamilyInfo').innerHTML += '<div class="actions" style="margin-top:14px"><button type="button" class="btn gold" id="hiveFamilyNewInspection">📋 Новый осмотр</button><button type="button" class="btn secondary" id="hiveFamilyEdit">✏️ Изменить улей</button><button type="button" class="btn secondary" id="hiveFamilyHistory">↔️ История перемещений</button></div>';
-  $('hiveFamilyModal').style.display='flex';
+    document.querySelectorAll('.hive-inspection-open').forEach(b=>b.onclick=()=>showInspectionDetails(b.dataset.id));
+$('hiveFamilyModal').style.display='flex';
   $('hiveFamilyNewInspection').onclick=()=>{
     closeHiveFamily();
     showPage('inspections');
@@ -950,6 +951,14 @@ function showHiveFamily(id){
   };
   $('hiveFamilyEdit').onclick=()=>{closeHiveFamily();showPage('hives');editHive(h.id);};
   $('hiveFamilyHistory').onclick=()=>{closeHiveFamily();showPage('hives');showHiveHistory(h.id);};
+}
+function showInspectionDetails(id){
+  const i=state.inspections.find(x=>String(x.id)===String(id)); if(!i)return;
+  const h=state.hives.find(x=>String(x.id)===String(i.hive_id));
+  $('hiveFamilyTitle').textContent='📋 Осмотр — улей №'+(h?.hive_number||'');
+  $('hiveFamilyInfo').innerHTML='<div class="panel" style="margin-top:0"><div class="status-grid"><div class="status-box"><div class="muted">📅 Дата</div><b>'+esc(i.inspection_date||'—')+'</b></div><div class="status-box"><div class="muted">💪 Сила семьи</div><b>'+esc(i.colony_strength||'Нет данных')+'</b></div><div class="status-box"><div class="muted">👑 Матка</div><b>'+esc(i.queen_status||'Нет данных')+'</b></div><div class="status-box"><div class="muted">🥚 Расплод</div><b>'+esc(i.brood||'Нет данных')+'</b></div></div><div style="margin-top:14px"><b>🍯 Корм:</b> '+esc(i.feed||'Нет данных')+'</div>'+(i.queen_breed?'<div style="margin-top:8px"><b>Порода матки:</b> '+esc(i.queen_breed)+'</div>':'')+(i.notes?'<div style="margin-top:14px"><b>📝 Заметки</b><p>'+esc(i.notes)+'</p></div>':'<div class="muted" style="margin-top:14px">Заметок нет.</div>')+'</div><div class="actions" style="margin-top:14px"><button type="button" class="btn secondary" id="backToHiveFamily">← К семье</button></div>';
+  $('hiveFamilyModal').style.display='flex';
+  $('backToHiveFamily').onclick=()=>showHiveFamily(i.hive_id);
 }
 function closeHiveFamily(){ $('hiveFamilyModal').style.display='none'; }
 async function showHiveHistory(id){
