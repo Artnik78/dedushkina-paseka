@@ -709,9 +709,9 @@ function renderAll(){
   const todayDate=new Date(today()+'T00:00:00');
   const hiveLast={};
   state.inspections.forEach(i=>{const id=String(i.hive_id||'');if(!id)return;if(!hiveLast[id]||String(i.inspection_date)>String(hiveLast[id].inspection_date))hiveLast[id]=i});
-  const noInspection=state.hives.filter(h=>{const x=hiveLast[String(h.id)];if(!x)return true;return Math.floor((todayDate-new Date(String(x.inspection_date).slice(0,10)+'T00:00:00'))/86400000)>=14});
+  const noInspectionHome=state.hives.filter(h=>{const x=hiveLast[String(h.id)];if(!x)return true;return Math.floor((todayDate-new Date(String(x.inspection_date).slice(0,10)+'T00:00:00'))/86400000)>=14});
   const weakFamilies=state.inspections.filter(i=>String(i.colony_strength||'').toLowerCase().includes('слаб')).length;
-  const inspectionWarnings=noInspection.map(h=>{
+  const inspectionWarnings=noInspectionHome.map(h=>{
     const last=hiveLast[String(h.id)];
     const days=last?.inspection_date?Math.floor((todayDate-new Date(String(last.inspection_date).slice(0,10)+'T00:00:00'))/86400000):null;
     return {h,days};
@@ -767,9 +767,9 @@ function renderAll(){
   const strengthCount={strong:0,medium:0,weak:0};
   Object.values(latest).forEach(i=>{const s=String(i.colony_strength||'').toLowerCase();if(s.includes('силь'))strengthCount.strong++;else if(s.includes('сред'))strengthCount.medium++;else if(s.includes('слаб'))strengthCount.weak++;});
   const youngQueens=Object.values(latest).filter(i=>String(i.queen_status||'').toLowerCase().includes('молод')).length;
-  const noInspection=state.hives.filter(h=>{const i=latest[String(h.id)];if(!i)return true;return Math.floor((statsToday-new Date(String(i.inspection_date).slice(0,10)+'T00:00:00'))/86400000)>=14}).length;
+  const noInspectionStat=state.hives.filter(h=>{const i=latest[String(h.id)];if(!i)return true;return Math.floor((statsToday-new Date(String(i.inspection_date).slice(0,10)+'T00:00:00'))/86400000)>=14}).length;
   const attention=state.hives.filter(h=>{const i=latest[String(h.id)];if(!i)return true;const s=String(i.colony_strength||'').toLowerCase(),q=String(i.queen_status||'').toLowerCase(),f=String(i.feed||'').toLowerCase();return s.includes('слаб')||q==='нет'||q.includes('трутне')||f.includes('мало')}).length;
-  setText('statStrong',strengthCount.strong);setText('statMedium',strengthCount.medium);setText('statWeak',strengthCount.weak);setText('statYoungQueens',youngQueens);setText('statNoInspection',noInspection);setText('statAttention',attention);
+  setText('statStrong',strengthCount.strong);setText('statMedium',strengthCount.medium);setText('statWeak',strengthCount.weak);setText('statYoungQueens',youngQueens);setText('statNoInspection',noInspectionStat);setText('statAttention',attention);
   const statRows=state.hives.map(h=>{const i=latest[String(h.id)];const s=String(i?.colony_strength||'').toLowerCase();const level=s.includes('силь')?'🟢 Сильная':s.includes('сред')?'🟡 Средняя':s.includes('слаб')?'🔴 Слабая':'⚪ Нет данных';return {h,i,level};}).sort((a,b)=>Number(a.h.hive_number)-Number(b.h.hive_number));
   $('familyStatsList').innerHTML=statRows.length?'<div class="table-wrap"><table class="table"><thead><tr><th>Улей</th><th>Последний осмотр</th><th>Сила</th><th>Матка</th><th>Корм</th></tr></thead><tbody>'+statRows.map(x=>'<tr><td><b>№ '+esc(x.h.hive_number)+'</b></td><td>'+esc(x.i?.inspection_date||'—')+'</td><td>'+x.level+'</td><td>'+esc(x.i?.queen_status||'—')+'</td><td>'+esc(x.i?.feed||'—')+'</td></tr>').join('')+'</tbody></table></div>':'<div class="empty">Добавьте ульи и осмотры — здесь появится статистика семей.</div>';
 
