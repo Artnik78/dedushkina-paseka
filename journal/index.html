@@ -506,7 +506,7 @@ let calendarMonth = new Date();
 calendarMonth.setDate(1);
 
 function $(id){return document.getElementById(id)}
-function toast(msg){const t=$('toast');t.textContent=msg;t.style.display='block';setTimeout(()=>t.style.display='none',2500)}
+function toast(msg){const t=$('toast');t.textContent=msg;t.style.display='block';clearTimeout(window.__toastTimer);window.__toastTimer=setTimeout(()=>t.style.display='none',12000)}
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
 function today(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}function formatHomeDate(){
   const d=new Date();
@@ -680,7 +680,7 @@ async function loadAll(){
       getTable('apiaries'),getTable('hives'),getTable('inspections'),getTable('honey_batches'),getTable('tasks'),getTable('finances'),getTable('medicines'),getTable('disinfection_logs'),getTable('bee_families')
     ]);
     renderAll();
-  }catch(e){console.error(e);toast('Ошибка загрузки данных: '+e.message)}
+  }catch(e){console.error(e);toast('Ошибка загрузки данных: '+e.message);throw e}
 }
 function renderAll(){
   setText('homeWorkHives',state.hives.length+' '+(state.hives.length===1?'улей':'ульев'));
