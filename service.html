@@ -53,10 +53,19 @@ th,td{padding:11px;border-bottom:1px solid #e7edf2;text-align:left;white-space:n
 </div><p class="muted">Штрихкод уже предусмотрен в карточках техники и картриджей. Сканирование камерой добавим следующим этапом.</p></div>
 </section>
 
-<section id="clients"><div class="card"><h2>Клиенты</h2>
-<form id="clientForm" class="formgrid"><input name="name" placeholder="Название организации / ФИО" required><select name="client_type"><option value="organization">Организация</option><option value="ip">ИП</option><option value="person">Физлицо</option></select>
-<input name="tax_id" placeholder="УНП / идентификатор"><input name="phone" placeholder="Телефон"><input name="email" placeholder="E-mail"><input name="contact_person" placeholder="Контактное лицо"><input class="full" name="address" placeholder="Адрес"><textarea class="full" name="notes" placeholder="Примечание"></textarea><button class="primary">Сохранить клиента</button></form></div>
-<div class="card" style="margin-top:14px"><div class="tablewrap"><table><thead><tr><th>Название</th><th>УНП</th><th>Телефон</th><th>E-mail</th></tr></thead><tbody id="clientsRows"></tbody></table></div></div></section>
+<section id="clients"><div class="card"><h2>Клиенты</h2><p class="muted">Название, УНП, расчётный счёт, банк, договор, телефон, электронная почта и ответственное лицо.</p>
+<form id="clientForm" class="formgrid">
+<input name="name" placeholder="Название" required>
+<input name="tax_id" placeholder="УНП">
+<input name="bank_account" placeholder="Р/с">
+<input name="bank" placeholder="Банк">
+<input name="contract" placeholder="Договор">
+<input name="phone" placeholder="Телефон">
+<input name="email" type="email" placeholder="Электронная почта">
+<input name="responsible_person" placeholder="Ответственное лицо">
+<button class="primary">Сохранить клиента</button>
+</form></div>
+<div class="card" style="margin-top:14px"><div class="tablewrap"><table><thead><tr><th>Название</th><th>УНП</th><th>Р/с</th><th>Банк</th><th>Договор</th><th>Телефон</th><th>Электронная почта</th><th>Ответственное лицо</th></tr></thead><tbody id="clientsRows"></tbody></table></div></div></section>
 
 <section id="equipment"><div class="card"><h2>Оргтехника и ПЭВМ</h2>
 <form id="equipmentForm" class="formgrid"><input name="barcode" placeholder="Штрихкод"><input name="inventory_number" placeholder="Инвентарный номер"><select name="equipment_type"><option>Принтер</option><option>МФУ</option><option>Копир</option><option>Сканер</option><option>Компьютер</option><option>Ноутбук</option><option>Монитор</option><option>Другая оргтехника</option><option>Другое</option></select><input name="manufacturer" placeholder="Производитель"><input name="model" placeholder="Модель"><input name="serial_number" placeholder="Серийный номер"><input name="location" placeholder="Место установки"><input name="responsible_person" placeholder="Ответственный"><button class="primary">Сохранить технику</button></form></div>
@@ -85,7 +94,7 @@ async function refresh(){
  ]);
  if(c.error||e.error||k.error||o.error){console.error(c.error,e.error,k.error,o.error);return}
  $('cntClients').textContent=c.data.length;$('cntEquipment').textContent=e.data.length;$('cntCartridges').textContent=k.data.length;$('cntOrders').textContent=o.data.length;
- $('clientsRows').innerHTML=c.data.map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.tax_id||'')}</td><td>${esc(x.phone||'')}</td><td>${esc(x.email||'')}</td></tr>`).join('');
+ $('clientsRows').innerHTML=c.data.map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.tax_id||'')}</td><td>${esc(x.bank_account||'')}</td><td>${esc(x.bank||'')}</td><td>${esc(x.contract||'')}</td><td>${esc(x.phone||'')}</td><td>${esc(x.email||'')}</td><td>${esc(x.responsible_person||'')}</td></tr>`).join('');
  $('equipmentRows').innerHTML=e.data.map(x=>`<tr><td>${esc(x.barcode||'')}</td><td>${esc(x.equipment_type)}</td><td>${esc(x.manufacturer||'')}</td><td>${esc(x.model||'')}</td><td>${esc(x.serial_number||'')}</td></tr>`).join('');
  $('cartridgeRows').innerHTML=k.data.map(x=>`<tr><td>${esc(x.barcode||'')}</td><td>${esc(x.model)}</td><td>${esc(x.manufacturer||'')}</td><td>${x.fill_count}</td><td>${esc(x.serial_number||'')}</td></tr>`).join('');
  $('orderRows').innerHTML=o.data.map(x=>`<tr><td>${x.order_number}</td><td>${x.order_date}</td><td>${esc(x.status)}</td><td>${Number(x.total_amount).toFixed(2)}</td></tr>`).join('');
