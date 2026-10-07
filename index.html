@@ -324,7 +324,22 @@
   .delivery-grid{gap:18px}
   .contact-actions{gap:15px}
 }
-</style></head><body>
+<style>
+@media(min-width:1101px){
+  .catalog{padding:32px 0 38px}
+  .catalog .wrap{width:min(1500px,94%)}
+  .heading{font-size:36px;margin-bottom:22px}
+  .cards{grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
+  .tile,.tile.wide{grid-column:auto;height:205px;border-radius:14px;box-shadow:0 5px 16px rgba(56,35,12,.12)}
+  .tile img{transition:transform .28s ease,filter .28s ease}
+  .tile:hover img{transform:scale(1.045);filter:saturate(1.04)}
+  .tile .name{padding:38px 17px 14px;font-size:20px;font-weight:700}
+  .arrow{width:29px;height:29px;font-size:20px;transition:transform .2s ease,background .2s ease}
+  .tile:hover .arrow{transform:translateX(3px);background:rgba(255,255,255,.16)}
+  .product-search{padding:26px 0}
+  .product-search-box{max-width:760px;margin:auto}
+}
+</style></style></head><body>
 <div class="top"><div class="wrap topinner"><a class="brand" href="#home"><span class="bee">🐝</span><span><strong>Дедушкина пасека</strong><small>НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</small></span></a><nav class="nav"><a href="#home">Главная</a><a href="#catalog">Каталог</a><a href="#about">О пасеке</a><a href="#gifts">🎁 Подарочные наборы</a><a href="#info">Полезная информация</a><a href="#delivery">Доставка</a><a href="#contacts">Контакты</a></nav></div></div>
 <header class="hero" id="home"><div class="herobox"><div class="hero-kicker">🐝 СЕМЕЙНАЯ ПАСЕКА · КЛЕЦКИЙ РАЙОН</div><h1>Дедушкина пасека</h1><div class="ornament">── 🐝 ──</div><p class="sub">НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</p><p class="motto">Мёд и продукты пчеловодства с заботой о природе</p><div class="virtues"><div><span>♧</span>Натурально<br/>и полезно</div><div><span>⬡</span>Собственное<br/>производство</div><div><span>♡</span>Традиции<br/>и качество</div></div></div></header>
 <section class="catalog" id="catalog"><div class="wrap"><h2 class="heading">── Каталог продукции ──</h2><div class="cards">
