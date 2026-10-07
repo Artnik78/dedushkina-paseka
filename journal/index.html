@@ -122,7 +122,7 @@ h1{margin:0 0 6px;font-size:28px}.sub{color:var(--muted);margin:0 0 22px}
 .honey-batch-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:12px 0}.honey-batch-meta span{padding:8px;border-radius:10px;background:#fff}.honey-batch-meta small,.honey-passport-grid small{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}.honey-batch-meta b{font-size:12px}
 .honey-passport{background:#fffaf0;border:1px solid #e1d2ae;border-radius:14px;padding:16px}.honey-passport-main{padding-bottom:14px;border-bottom:1px solid #eadfca}.honey-passport-main span{display:block;font-size:11px;color:var(--muted);letter-spacing:1px}.honey-passport-main b{display:block;font-size:24px;color:#a16d10;margin:3px 0}.honey-passport-main strong{font-size:20px;color:#49301a}.honey-passport-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}.honey-passport-grid>div{padding:10px;border-radius:10px;background:#fff}
 </style>
-</head>
+<style id="finance-style">.finance-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:0 0 14px}.finance-card{padding:16px;border-radius:14px;border:1px solid #e1d6bd;background:#fffdf7;box-shadow:0 4px 12px rgba(75,55,20,.07)}.finance-card small{display:block;color:var(--muted);margin-bottom:7px}.finance-card b{font-size:24px}.finance-card.income{border-top:4px solid #4a9b57}.finance-card.expense{border-top:4px solid #c74b38}.finance-card.balance{border-top:4px solid #d5a72b}.finance-type{display:inline-block;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:700}.finance-type.in{background:#e8f4e9;color:#26713a}.finance-type.out{background:#fde8e4;color:#9d3325}@media(max-width:700px){.finance-summary{grid-template-columns:1fr}.finance-card{padding:13px}.finance-card b{font-size:21px}}</style></head>
 <body>
 
 <div id="auth">
@@ -387,7 +387,7 @@ h1{margin:0 0 6px;font-size:28px}.sub{color:var(--muted);margin:0 0 22px}
           <div><button class="btn">Сохранить</button></div>
         </form>
       </div>
-      <div class="panel"><h3>Операции</h3><div id="financeList" class="table-wrap"></div></div>
+      <div class="finance-summary" id="financeSummary"><div class="finance-card income"><small>Доходы</small><b id="financeIncome">0</b></div><div class="finance-card expense"><small>Расходы</small><b id="financeExpense">0</b></div><div class="finance-card balance"><small>Баланс</small><b id="financeBalance">0</b></div></div><div class="panel"><h3>Операции</h3><div id="financeList" class="table-wrap"></div></div>
     </section>
 
     <section id="page-tasks" class="section">
@@ -602,12 +602,10 @@ function renderGuestMode(){
   $('hivesList').innerHTML='<div class="card"><b style="font-size:18px">⬡ Улей №1</b><div class="muted" style="margin-top:6px">Дедушкина пасека • Дадан • Ряд 1, место 1</div><p style="margin:10px 0 5px">🟢 Активен</p><div class="muted">Порода матки: Карника • Год вывода: 2025</div></div>';
   $('inspectionsList').innerHTML='<table class="table"><thead><tr><th>Дата</th><th>Улей</th><th>Семья</th><th>Матка</th><th>Заметки</th></tr></thead><tbody><tr><td>'+esc(t)+'</td><td>№ 1</td><td>Сильная</td><td>Есть</td><td>Семья спокойная, матка работает хорошо.</td></tr></tbody></table>';
   $('honeyList').innerHTML='<table class="table"><thead><tr><th>Партия</th><th>Мёд</th><th>Дата</th><th>Кг</th><th>Цена/кг</th></tr></thead><tbody><tr><td>2026-001</td><td>Мёд разнотравье</td><td>'+esc(t)+'</td><td>25</td><td>25</td></tr></tbody></table>';
-  $('financeList').innerHTML='<table class="table"><thead><tr><th>Дата</th><th>Тип</th><th>Сумма</th><th>Категория</th><th>Описание</th></tr></thead><tbody><tr><td>'+esc(t)+'</td><td>Расход</td><td>35</td><td>Инвентарь</td><td>Покупка инвентаря</td></tr></tbody></table>';
-  $('tasksList').innerHTML='<table class="table"><thead><tr><th>Дата</th><th>Задача</th><th>Приоритет</th><th>Статус</th></tr></thead><tbody><tr><td>'+esc(guestDatePlus(1))+'</td><td>Проверить корм</td><td>Обычный</td><td>Открыта</td></tr></tbody></table>';
-  $('medicinesList').innerHTML='<table class="table"><thead><tr><th>Наименование</th><th>Объём</th><th>Количество</th><th>Мин. остаток</th><th>Срок годности</th><th>Статус</th></tr></thead><tbody><tr><td><b>Бипин-Т</b></td><td>10 мл</td><td>3</td><td>1</td><td>'+esc(guestDatePlus(120))+'</td><td>Норма</td></tr></tbody></table>';
-  $('disinfectionList').innerHTML='<table class="table"><thead><tr><th>Дата</th><th>Что</th><th>Пасека</th><th>Улей</th><th>Рамок</th><th>Средство</th><th>Способ</th><th>Причина</th><th>Ответственный</th><th>Следующая</th></tr></thead><tbody><tr><td>'+esc(t)+'</td><td>Улей</td><td>Дедушкина пасека</td><td>№ 1</td><td>10</td><td>Сода + вода</td><td>Обмывание</td><td>Плановая</td><td>Пасечник</td><td>'+esc(next)+'</td></tr></tbody></table>';
-  $('apiariesList').innerHTML='<div class="card"><b style="font-size:18px">🐝 Дедушкина пасека</b><div class="muted" style="margin-top:6px">Клецкий район • 1 демонстрационный улей</div></div>';
-  $('calendarTasks').innerHTML='<table class="table"><thead><tr><th>Дата</th><th>Тип</th><th>Событие</th><th>Приоритет</th><th>Статус</th></tr></thead><tbody><tr><td>'+esc(guestDatePlus(1))+'</td><td>Подкормка</td><td>Проверить корм</td><td>Обычный</td><td>Открыта</td></tr></tbody></table>';
+  const financeIncome=state.finance.filter(f=>String(f.operation_type).toLowerCase()==='доход').reduce((s,f)=>s+(Number(f.amount)||0),0);
+  const financeExpense=state.finance.filter(f=>String(f.operation_type).toLowerCase()==='расход').reduce((s,f)=>s+(Number(f.amount)||0),0);
+  setText('financeIncome',financeIncome.toFixed(2)); setText('financeExpense',financeExpense.toFixed(2)); setText('financeBalance',(financeIncome-financeExpense).toFixed(2));
+  $('financeList').innerHTML=state.finance.length?'<table class="table"><thead><tr><th>Дата</th><th>Тип</th><th>Сумма</th><th>Категория</th><th>Описание</th></tr></thead><tbody>'+state.finance.map(f=>'<tr><td>'+esc(f.operation_date)+'</td><td><span class="finance-type '+(String(f.operation_type).toLowerCase()==='доход'?'in':'out')+'">'+esc(f.operation_type)+'</span></td><td><b>'+esc(Number(f.amount||0).toFixed(2))+'</b></td><td>'+esc(f.category)+'</td><td>'+esc(f.description)+'</td></tr>').join('')+'</tbody></table>':'<div class="empty">Операций пока нет.</div>';
 
   $('homeMedicineAlerts').innerHTML='<h3>💊 Лекарства</h3><div style="padding:7px 0">Бипин-Т — 3 шт. · срок '+esc(guestDatePlus(120))+'</div>';
   $('homeDisinfectionAlerts').innerHTML='<div class="reminders-head"><div><span class="eyebrow">КОНТРОЛЬ ПАСЕКИ</span><h3>🧴 Дезинфекция</h3></div><button type="button" class="btn secondary" data-page="disinfection">Все</button></div><div style="padding:7px 0">🧽 Улей №1 — обработан '+esc(t)+'</div><div class="muted">Следующая обработка: '+esc(next)+'</div>';
