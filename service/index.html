@@ -88,7 +88,7 @@ th,td{padding:11px;border-bottom:1px solid #e7edf2;text-align:left;white-space:n
 <div id="cartridgeMaintenance" class="card hidden" style="margin-top:14px"><h2>Обслуживание картриджа</h2><p class="muted">Здесь сохраняем не только заправки, но и замену барабана, вала заряда, магнитного вала, ракеля и чипа.</p>
 <form id="maintenanceForm" class="formgrid">
 <input type="hidden" name="cartridge_id">
-<select name="component" required><option value="refill">Заправка</option><option value="drum">Барабан</option><option value="charge_roller">Вал заряда</option><option value="magnetic_roller">Магнитный вал</option><option value="wiper">Ракель</option><option value="chip">Чип</option></select>
+<select name="component" required><option value="refill">Заправка</option><option value="toner">Тонер</option><option value="drum">Барабан</option><option value="charge_roller">Вал заряда</option><option value="magnetic_roller">Магнитный вал</option><option value="wiper">Ракель</option><option value="chip">Чип</option></select>
 <input name="service_date" type="date" required>
 <textarea class="full" name="notes" placeholder="Что сделано / примечание"></textarea>
 <div class="toolbar"><button class="primary">Добавить в историю</button></div>
@@ -249,9 +249,9 @@ window.deleteSelectedCartridgeModel=async()=>{
 window.deleteCartridgeModel=async id=>{if(!confirm('Удалить модель из списка? Уже созданные картриджи не будут удалены.'))return;const {error}=await sb.from('service_cartridge_models').delete().eq('id',id);if(error)alert(error.message);else refresh()};
 function fillSelect(id,data,label,first){const s=$(id);s.innerHTML='<option value="">'+(first||'Выберите')+'</option>'+data.map(x=>`<option value="${x.id}">${esc(typeof label==='function'?label(x):x[label])}</option>`).join('')}
 function esc(v){return String(v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
-const maintenanceNames={refill:'Заправка',drum:'Барабан',charge_roller:'Вал заряда',magnetic_roller:'Магнитный вал',wiper:'Ракель',chip:'Чип'};
+const maintenanceNames={refill:'Заправка',toner:'Тонер',drum:'Барабан',charge_roller:'Вал заряда',magnetic_roller:'Магнитный вал',wiper:'Ракель',chip:'Чип'};
 async function loadCartridgeWorkSummaries(cartridges){
- const names={refill:'Заправка',drum:'Барабан',charge_roller:'Вал заряда',magnetic_roller:'Магнитный вал',wiper:'Ракель',chip:'Чип'};
+ const names={refill:'Заправка',toner:'Тонер',drum:'Барабан',charge_roller:'Вал заряда',magnetic_roller:'Магнитный вал',wiper:'Ракель',chip:'Чип'};
  for(const x of (cartridges||[])){
   const el=$('workSummary-'+x.id); if(!el)continue;
   const {data,error}=await sb.from('service_cartridge_maintenance').select('component,service_date').eq('cartridge_id',x.id).order('service_date',{ascending:false}).limit(4);
@@ -287,7 +287,7 @@ async function showCartridgeByBarcode(value){
   '<div><b>Серийный номер:</b> '+esc(data.serial_number||'—')+'</div>'+
   '<div><b>Заправок:</b> '+(data.fill_count??0)+'</div>'+
   '<div style="margin-top:7px"><b>Последнее обслуживание:</b><br>'+
-  'Заправка: '+esc(latest.refill||'—')+' · Барабан: '+esc(latest.drum||'—')+' · Вал заряда: '+esc(latest.charge_roller||'—')+'<br>'+
+  'Заправка: '+esc(latest.refill||'—')+' · Тонер: '+esc(latest.toner||'—')+' · Барабан: '+esc(latest.drum||'—')+' · Вал заряда: '+esc(latest.charge_roller||'—')+'<br>'+
   'Магнитный вал: '+esc(latest.magnetic_roller||'—')+' · Ракель: '+esc(latest.wiper||'—')+' · Чип: '+esc(latest.chip||'—')+'</div>'+
   '<div class="toolbar" style="margin:8px 0 0"><button type="button" class="light" onclick="openExistingCartridge(\''+data.id+'\')">Открыть карточку</button></div>';
 }
