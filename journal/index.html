@@ -750,9 +750,11 @@ async function authInit(){
 async function showApp(user){
   guestMode=false;
   const email=(user.email||'').toLowerCase();
+  let profile=null;
   try{
-    const {data:profile,error}=await db.from('journal_users').select('allowed,display_name').eq('user_id',user.id).maybeSingle();
+    const {data,error}=await db.from('journal_users').select('allowed,display_name').eq('user_id',user.id).maybeSingle();
     if(error) throw error;
+    profile=data;
     if(!profile || !profile.allowed){
       await db.auth.signOut({scope:'local'});
       $('auth').style.display='flex';
