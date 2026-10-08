@@ -313,6 +313,22 @@ $('contractForm').onsubmit=async ev=>{
 $('equipmentForm').onsubmit=async ev=>{ev.preventDefault();const d=formData(ev.target);const id=d.id;delete d.id;const q=id?sb.from('service_equipment').update(d).eq('id',id):sb.from('service_equipment').insert(d);const {error}=await q;if(error)alert(error.message);else{ev.target.reset();$('equipmentSaveBtn').textContent='Сохранить технику';$('equipmentCancelBtn').classList.add('hidden');refresh()}}
 $('cartridgeForm').onsubmit=async ev=>{ev.preventDefault();const d=formData(ev.target);delete d.id;d.fill_count=0;const {error}=await sb.from('service_cartridges').insert(d);if(error)alert(error.message);else{ev.target.reset();refresh()}}
 $('modelForm').onsubmit=async ev=>{ev.preventDefault();const d=formData(ev.target);d.manufacturer=d.manufacturer.trim();d.model=d.model.trim();const {error}=await sb.from('service_cartridge_models').insert(d);if(error)alert(error.message);else{ev.target.reset();refresh()}}
+window.changeOrderStatus=async function(id,status){
+ const {data:o,error}=await sb.from('service_orders').select('id,client_id,cartridge_id,equipment_id').eq('id',id).single();
+ if(error){alert(error.message);return}
+ const {error:oe}=await sb.from('service_orders').update({status}).eq('id',id);
+ if(oe){alert('Не удалось изменить статус заказа: '+oe.message);return}
+ let targetError=null;
+ if(o.cartridge_id){
+   const map={received:'received',in_work:'in_work',ready:'refilled',issued:'issued'};
+   if(map[status]){const q=await sb.from('service_cartridge_jobs').update({status:map[status],...(status==='ready'?{completed_at:new Date().toISOString().slice(0,10)}:{}),...(status==='issued'?{completed_at:new Date().toISOString().slice(0,10),issued_at:new Date().toISOString().slice(0,10)}:{})}).eq('cartridge_id',o.cartridge_id).in('status',['received','in_work','refilled']);targetError=q.error}
+ }else if(o.equipment_id){
+   const map={received:'received',in_work:'in_repair',ready:'ready',issued:'issued'};
+   if(map[status]){const q=await sb.from('service_repair_jobs').update({status:map[status],...(status==='issued'?{issued_at:new Date().toISOString().slice(0,10)}:{})}).eq('equipment_id',o.equipment_id).in('status',['received','diagnostics','in_repair','ready']);targetError=q.error}
+ }
+ if(targetError)alert('Заказ изменён, но журнал не синхронизирован: '+targetError.message);
+ refresh(); if($('orderCard')&&!$('orderCard').classList.contains('hidden'))openOrder(id);
+};
 window.openOrder=async id=>{
   const {data:x,error}=await sb.from('service_orders').select('*').eq('id',id).single();
   if(error){alert(error.message);return}
@@ -322,7 +338,7 @@ window.openOrder=async id=>{
   const type=cart?'Заправка картриджа':eq?'Ремонт техники':'Сервис';
   const obj=cart?(cart.model||'—'):eq?((eq.manufacturer||'')+' '+(eq.model||'')).trim():'—';
   $('orderCardTitle').textContent='Заказ № '+x.order_number;
-  $('orderCardBody').innerHTML='<div class="grid" style="grid-template-columns:repeat(2,1fr)"><div><b>Клиент</b><p>'+esc(client?.name||'—')+'</p><p class="muted">'+esc(client?.client_type==='individual'?'Частное лицо':'Организация')+'</p></div><div><b>Направление</b><p>'+type+'</p><p class="muted">Дата: '+esc(x.order_date||'—')+'</p></div><div><b>Объект</b><p>'+esc(obj)+'</p><p class="muted">'+esc(cart?.barcode||eq?.serial_number||eq?.inventory_number||'')+'</p></div><div><b>Статус</b><p>'+esc({received:'Принят',in_work:'В работе',ready:'Готов',issued:'Выдан',paid:'Оплачен'}[x.status]||x.status)+'</p><p class="muted">Сумма: '+Number(x.total_amount||0).toFixed(2)+'</p></div></div><hr><h3>Работа</h3><p>'+esc(x.work_description||'—')+'</p><h3>Диагностика</h3><p>'+esc(x.diagnosis||'—')+'</p><h3>Примечание</h3><p>'+esc(x.notes||'—')+'</p>';
+  $('orderCardBody').innerHTML='<div class="grid" style="grid-template-columns:repeat(2,1fr)"><div><b>Клиент</b><p>'+esc(client?.name||'—')+'</p><p class="muted">'+esc(client?.client_type==='individual'?'Частное лицо':'Организация')+'</p></div><div><b>Направление</b><p>'+type+'</p><p class="muted">Дата: '+esc(x.order_date||'—')+'</p></div><div><b>Объект</b><p>'+esc(obj)+'</p><p class="muted">'+esc(cart?.barcode||eq?.serial_number||eq?.inventory_number||'')+'</p></div><div><b>Статус</b><select onchange="changeOrderStatus(\''+x.id+'\',this.value)"><option value="received" '+(x.status==='received'?'selected':'')+'>Принят</option><option value="in_work" '+(x.status==='in_work'?'selected':'')+'>В работе</option><option value="ready" '+(x.status==='ready'?'selected':'')+'>Готов</option><option value="issued" '+(x.status==='issued'?'selected':'')+'>Выдан</option><option value="paid" '+(x.status==='paid'?'selected':'')+'>Оплачен</option></select><p class="muted">Сумма: '+Number(x.total_amount||0).toFixed(2)+'</p></div></div><hr><h3>Работа</h3><p>'+esc(x.work_description||'—')+'</p><h3>Диагностика</h3><p>'+esc(x.diagnosis||'—')+'</p><h3>Примечание</h3><p>'+esc(x.notes||'—')+'</p>';
   show('orderCard');
 };
 $('orderForm').onsubmit=async ev=>{ev.preventDefault();const d=formData(ev.target);d.total_amount=Number(d.total_amount||0);for(const k of ['equipment_id','cartridge_id'])if(!d[k])d[k]=null;const {error}=await sb.from('service_orders').insert(d);if(error)alert(error.message);else{ev.target.reset();refresh()}}
