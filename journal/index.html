@@ -1088,6 +1088,12 @@ function renderAll(){
     }
     return alerts.length?{m,alerts}:null;
   }).filter(Boolean);
+  const lowMedicineNames=state.medicines.filter(m=>Number(m.quantity||0)<=Number(m.min_quantity||0)).map(m=>m.name||'Препарат');
+  const homeLowMedicine=$('homeMedicineAlerts');
+  if(homeLowMedicine && lowMedicineNames.length){
+    const old=homeLowMedicine.innerHTML;
+    homeLowMedicine.innerHTML='<div style="padding:8px 10px;margin-bottom:8px;border-radius:9px;background:#fff7e8;border:1px solid #e4c77a;color:#6d5520">💊 <b>Заканчиваются препараты:</b> '+esc(lowMedicineNames.join(', '))+'</div>'+old;
+  }
   $('medicineAlerts').innerHTML=medicineAlerts.length
     ? '<div class="panel" style="margin:0 0 14px;background:#fff7e8;border-color:#e4c77a"><b>⚠️ Требуют внимания</b>'+medicineAlerts.map(x=>'<div style="margin-top:8px">💊 <b>'+esc(x.m.name)+'</b> — '+esc(x.alerts.join('; '))+'</div>').join('')+'</div>'
     : '<div class="muted" style="margin-bottom:12px">✅ Просроченных лекарств и критически низких остатков нет.</div>';
