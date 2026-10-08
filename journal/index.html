@@ -1028,13 +1028,14 @@ async function loadAll(){
     ['apiaries','apiaries'],['hives','hives'],['inspections','inspections'],['health','hive_health_records'],['treatments','hive_treatments'],['queens','hive_queens'],['photos','photos'],['honey','honey_batches'],
     ['tasks','tasks'],['finance','finances'],['medicines','medicines'],['disinfection','disinfection_logs'],['beeFamilies','bee_families']
   ];
+  const results=await Promise.all(names.map(async([key,table])=>{
+    try{return {key,data:await getTable(table),error:null}}
+    catch(e){console.error(table,e);return {key,data:[],error:e.message||String(e)}}
+  }));
   const errors=[];
-  for(const [key,table] of names){
-    try{ state[key]=await getTable(table); }
-    catch(e){ console.error(table,e); state[key]=[]; errors.push(e.message||String(e)); }
-  }
-  try{ renderAll(); renderPhotos(); }catch(e){ console.error(e); showJournalError('Ошибка отображения журнала: '+(e.message||e)); }
-  if(errors.length) showJournalError('Ошибка загрузки данных:\n'+errors.join('\n'));
+  results.forEach(r=>{state[r.key]=r.data;if(r.error)errors.push(r.error)});
+  try{ renderAll(); renderPhotos(); }catch(e){console.error(e);showJournalError('Ошибка отображения журнала: '+(e.message||e))}
+  if(errors.length)showJournalError('Ошибка загрузки данных:\n'+errors.join('\n'));
 }
 async function renderPhotos(){
   const box=$('photosList'); if(!box)return;
