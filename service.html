@@ -242,6 +242,11 @@ $('requestForm').onsubmit=async ev=>{
  const {data:req,error}=await sb.from('service_requests').insert(d).select().single();
  if(error){alert(error.message);return}
  let workError=null;
+ // Каждая принятая заявка сразу получает единый заказ сервиса.
+ const orderData={client_id:d.client_id,equipment_id:d.equipment_id||null,cartridge_id:d.cartridge_id||null,status:'received',order_date:new Date().toISOString().slice(0,10),work_description:d.request_type==='refill'?'Заправка картриджа':'Ремонт техники',notes:'Создано из заявки'};
+ const order=await sb.from('service_orders').insert(orderData).select('id,order_number').single();
+ if(order.error){await sb.from('service_requests').delete().eq('id',req.id);alert('Не удалось создать заказ: '+order.error.message);return}
+ 
  if(d.request_type==='refill'){
    const active=await sb.from('service_cartridge_jobs').select('id').eq('cartridge_id',d.cartridge_id).in('status',['received','in_work']).limit(1);
    if(active.data?.length){await sb.from('service_requests').delete().eq('id',req.id);alert('Этот картридж уже находится в журнале заправки.');return}
@@ -251,7 +256,7 @@ $('requestForm').onsubmit=async ev=>{
    const r=await sb.from('service_repair_jobs').insert({client_id:d.client_id,equipment_id:d.equipment_id,status:'received',received_at:new Date().toISOString().slice(0,10),problem:'Заявка клиента',notes:'Создано из заявки'});
    workError=r.error;
  }
- if(workError){await sb.from('service_requests').update({status:'new'}).eq('id',req.id);alert('Заявка сохранена, но не удалось передать её в журнал: '+workError.message);return}
+ if(workError){await sb.from('service_requests').update({status:'new'}).eq('id',req.id);await sb.from('service_orders').delete().eq('id',order.data.id);alert('Заявка сохранена, но не удалось передать её в журнал: '+workError.message);return}
  await sb.from('service_requests').update({status:'in_work'}).eq('id',req.id);
  ev.target.reset();$('requestType').value='refill';$('requestCartridge').disabled=false;$('requestEquipment').disabled=false;await loadRequestAssets();loadRequests();
  alert(d.request_type==='refill'?'Заявка принята в журнал заправки картриджей.':'Заявка принята в журнал ремонта техники.');
