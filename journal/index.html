@@ -485,8 +485,24 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
     </section>
 
     <section id="page-photos" class="section">
-      <h1>Фото</h1><p class="sub">Раздел подготовлен для хранения фотографий ульев, семей и партий.</p>
-      <div class="panel"><div class="empty">Загрузка фотографий будет добавлена следующим этапом.</div></div>
+      <h1>Фото</h1><p class="sub">Фотографии ульев и осмотров хранятся отдельно в вашем журнале.</p>
+      <div class="panel">
+        <h3>📷 Добавить фотографию</h3>
+        <form id="photoForm" class="form" style="margin-top:10px">
+          <div class="field"><label>Улей</label><select name="hive_id" id="photoHive"><option value="">Без привязки</option></select></div>
+          <div class="field"><label>Осмотр</label><select name="inspection_id" id="photoInspection"><option value="">Без привязки</option></select></div>
+          <div class="field full"><label>Подпись</label><input name="caption" placeholder="Например, состояние семьи после осмотра"></div>
+          <div class="field full"><label>Файл фотографии *</label><input name="file" type="file" accept="image/*" required></div>
+          <div class="actions"><button class="btn gold" id="photoSaveBtn">Загрузить фото</button></div>
+        </form>
+        <div class="muted" style="margin-top:8px">Фото сохраняется в закрытом хранилище и доступно только владельцу журнала.</div>
+      </div>
+      <div class="panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+          <h3 style="margin:0">📷 Мои фотографии</h3><span class="muted" id="photosCountLabel">0 фото</span>
+        </div>
+        <div id="photosList" class="photo-grid" style="margin-top:14px"></div>
+      </div>
     </section>
 
     <section id="page-stats" class="section">
@@ -619,7 +635,7 @@ const SUPABASE_KEY = 'sb_publishable_1eM3o5IehFq-IvjWkHLiCA_RMXGHfw5';
 const { createClient } = window.supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { storageKey: 'dedushkina-paseka-journal-auth' } });
 
-const state = {hives:[], inspections:[], health:[], treatments:[], queens:[], honey:[], tasks:[], finance:[], apiaries:[], medicines:[], disinfection:[], beeFamilies:[]};
+const state = {hives:[], inspections:[], health:[], treatments:[], queens:[], photos:[], honey:[], tasks:[], finance:[], apiaries:[], medicines:[], disinfection:[], beeFamilies:[]};
 let guestMode=false;
 let calendarMonth = new Date();
 calendarMonth.setDate(1);
@@ -685,6 +701,10 @@ function renderGuestMode(){
   state.apiaries=[
     {id:'guest-apiary-1',name:'Дедушкина пасека',location:'Клецкий район',description:'Основная пасека'},
     {id:'guest-apiary-2',name:'Лесная пасека',location:'Клецкий район, лесной массив',description:'Демонстрационная вторая пасека'}
+  ];
+  state.photos=[
+    {id:'guest-photo-1',hive_id:'guest-hive-1',inspection_id:'guest-inspection-1',file_path:'',caption:'Пример фотографии улья №1',created_at:t},
+    {id:'guest-photo-2',hive_id:'guest-hive-4',inspection_id:'guest-inspection-4',file_path:'',caption:'Пример состояния семьи',created_at:d(-3)}
   ];
   state.hives=[
     {id:'guest-hive-1',apiary_id:'guest-apiary-1',hive_number:'1',hive_type:'Дадан',queen_breed:'Карника',queen_year:2025,location:'Ряд 1, место 1',status:'Активен',notes:'Сильная семья'},
@@ -838,6 +858,33 @@ async function showApp(user){
   try{ await loadAll(); openHiveFromUrl(); }
   catch(e){ console.error(e); toast('Ошибка загрузки данных: '+e.message); }
 }
+$('photoForm').onsubmit=async e=>{
+  e.preventDefault();
+  if(guestMode){toast('Гостевой режим — только просмотр');return}
+  const f=e.target,d=formData(f),file=f.elements.file.files?.[0];
+  if(!file){toast('Выберите фотографию');return}
+  if(!file.type.startsWith('image/')){toast('Нужен файл изображения');return}
+  if(file.size>10*1024*1024){toast('Файл слишком большой. Максимум 10 МБ');return}
+  const btn=$('photoSaveBtn');if(btn)btn.disabled=true;
+  const {data:{user}}=await db.auth.getUser();
+  if(!user){if(btn)btn.disabled=false;toast('Необходимо войти в журнал');return}
+  const ext=(file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'')||'jpg';
+  const path=user.id+'/'+Date.now()+'-'+crypto.randomUUID()+'.'+ext;
+  const up=await db.storage.from('journal-photos').upload(path,file,{contentType:file.type,upsert:false});
+  if(up.error){if(btn)btn.disabled=false;toast('Ошибка загрузки: '+up.error.message);return}
+  const ins=await db.from('photos').insert({hive_id:d.hive_id||null,inspection_id:d.inspection_id||null,file_path:path,caption:d.caption.trim()||null});
+  if(ins.error){
+    await db.storage.from('journal-photos').remove([path]);
+    if(btn)btn.disabled=false;toast('Фото загружено, но запись не сохранилась: '+ins.error.message);return
+  }
+  if(btn)btn.disabled=false;
+  e.target.reset();toast('Фотография сохранена');await loadAll();
+};
+document.getElementById('photoHive')?.addEventListener('change',e=>{
+  const id=e.target.value,sel=$('photoInspection');if(!sel)return;
+  const rows=state.inspections.filter(x=>!id||String(x.hive_id)===String(id)).sort((a,b)=>String(b.inspection_date||'').localeCompare(String(a.inspection_date||'')));
+  sel.innerHTML='<option value="">Без привязки</option>'+rows.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.inspection_date||'—')+' · улей №'+esc(state.hives.find(h=>String(h.id)===String(x.hive_id))?.hive_number||'')+'</option>').join('');
+});
 $('saveJournalDisplayNameBtn').onclick=async()=>{
   const input=$('journalDisplayName');
   const value=(input?.value||'').trim();
@@ -922,7 +969,7 @@ async function getTable(table,order='created_at'){
 }
 async function loadAll(){
   const names=[
-    ['apiaries','apiaries'],['hives','hives'],['inspections','inspections'],['health','hive_health_records'],['treatments','hive_treatments'],['queens','hive_queens'],['honey','honey_batches'],
+    ['apiaries','apiaries'],['hives','hives'],['inspections','inspections'],['health','hive_health_records'],['treatments','hive_treatments'],['queens','hive_queens'],['photos','photos'],['honey','honey_batches'],
     ['tasks','tasks'],['finance','finances'],['medicines','medicines'],['disinfection','disinfection_logs'],['beeFamilies','bee_families']
   ];
   const errors=[];
@@ -930,8 +977,40 @@ async function loadAll(){
     try{ state[key]=await getTable(table); }
     catch(e){ console.error(table,e); state[key]=[]; errors.push(e.message||String(e)); }
   }
-  try{ renderAll(); }catch(e){ console.error(e); showJournalError('Ошибка отображения журнала: '+(e.message||e)); }
+  try{ renderAll(); renderPhotos(); }catch(e){ console.error(e); showJournalError('Ошибка отображения журнала: '+(e.message||e)); }
   if(errors.length) showJournalError('Ошибка загрузки данных:\n'+errors.join('\n'));
+}
+async function renderPhotos(){
+  const box=$('photosList'); if(!box)return;
+  const rows=state.photos||[];
+  setText('photosCountLabel',rows.length+' '+(rows.length===1?'фото':'фото'));
+  if(!rows.length){box.innerHTML='<div class="empty">Фотографий пока нет.</div>';return}
+  const apiaryMap=Object.fromEntries(state.apiaries.map(a=>[a.id,a.name]));
+  const hiveMap=Object.fromEntries(state.hives.map(h=>[h.id,h.hive_number]));
+  const items=await Promise.all(rows.map(async p=>{
+    let url='';
+    if(!guestMode){
+      const r=await db.storage.from('journal-photos').createSignedUrl(p.file_path,3600);
+      url=r.data?.signedUrl||'';
+    }
+    return {p,url};
+  }));
+  box.innerHTML=items.map(({p,url})=>{
+    const hive=p.hive_id?('Улей №'+esc(hiveMap[p.hive_id]||'—')):'Без привязки';
+    return '<div class="card" style="padding:10px;overflow:hidden">'+
+      (url?'<img src="'+esc(url)+'" alt="'+esc(p.caption||'Фото')+'" style="width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:9px;background:#f3f0e6">':'<div style="aspect-ratio:4/3;border-radius:9px;background:#f3f0e6;display:flex;align-items:center;justify-content:center;font-size:38px">📷</div>')+
+      '<div style="margin-top:8px"><b>'+hive+'</b><div class="muted">'+esc(p.caption||'Без подписи')+'</div><div class="muted" style="font-size:11px">'+esc(p.created_at?String(p.created_at).slice(0,10):'')+'</div></div>'+
+      (guestMode?'':'<div class="actions" style="margin-top:8px"><button type="button" class="btn danger photo-delete" data-id="'+esc(p.id)+'" data-path="'+esc(p.file_path)+'">Удалить</button></div>')+
+      '</div>';
+  }).join('');
+  box.querySelectorAll('.photo-delete').forEach(b=>b.onclick=async()=>{
+    if(!confirm('Удалить эту фотографию?'))return;
+    const {error}=await db.storage.from('journal-photos').remove([b.dataset.path]);
+    if(error){toast('Ошибка удаления файла: '+error.message);return}
+    const {error:dbError}=await db.from('photos').delete().eq('id',b.dataset.id);
+    if(dbError){toast('Файл удалён, но запись не удалена: '+dbError.message);return}
+    toast('Фотография удалена');await loadAll();
+  });
 }
 function renderAll(){
   setText('homeWorkHives',state.hives.length+' '+(state.hives.length===1?'улей':'ульев'));
