@@ -848,6 +848,12 @@ function renderGuestMode(){
 
 async function authInit(){
   try{
+    const inviteMode=new URLSearchParams(window.location.search).get('invite')==='1';
+    if(inviteMode){
+      $('authMessage').textContent='Вас пригласили в цифровой журнал. Зарегистрируйтесь или войдите, после чего владелец сможет разрешить доступ.';
+      $('signupBtn')?.classList.add('gold');
+      $('loginBtn')?.classList.remove('gold');
+    }
     const {data:{session},error}=await db.auth.getSession();
     if(error)throw error;
     if(session && !guestMode) await showApp(session.user);
