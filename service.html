@@ -232,16 +232,17 @@ $('contractClient').onchange=()=>refresh();window.editEquipment=async id=>{const
 async function loadRequestAssets(){
  const clientId=$('requestClient').value;
  const [k,e]=await Promise.all([
-  sb.from('service_cartridges').select('id,client_id,model,barcode').eq('status','active').order('model'),
-  sb.from('service_equipment').select('id,client_id,manufacturer,model,serial_number,barcode').eq('status','active').order('model')
+  sb.from('service_cartridges').select('id,client_id,model,barcode,status').order('model'),
+  sb.from('service_equipment').select('id,client_id,manufacturer,model,serial_number,barcode,status').order('model')
  ]);
+ if(k.error||e.error){console.error(k.error,e.error);return}
  const cartridges=(k.data||[]).filter(x=>!clientId||x.client_id===clientId);
  const equipment=(e.data||[]).filter(x=>!clientId||x.client_id===clientId);
  window._requestCartridges=cartridges; window._requestEquipment=equipment;
- fillSelect('requestCartridge',cartridges,x=>((x.model||'')+' — '+(x.barcode||'')).trim(),'Выберите картридж');
+ fillSelect('requestCartridge',cartridges,x=>((x.model||'')+(x.barcode?' — '+x.barcode:'')).trim(),'Выберите картридж');
  fillSelect('requestEquipment',equipment,x=>((x.manufacturer||'')+' '+(x.model||'')+(x.serial_number?' — '+x.serial_number:'')).trim(),'Выберите технику');
 }
-$('requestClient').onchange=()=>loadRequestAssets();
+$('requestClient').onchange=async()=>{await loadRequestAssets();};
 $('requestType').onchange=()=>{};
 $('requestCartridge').onchange=()=>{const o=$('requestCartridge').selectedOptions[0];$('requestCartridgeName').value=o?.textContent||'';const x=window._requestCartridges?.find?.(z=>z.id===$('requestCartridge').value);if(x&&!$('requestBarcode').value)$('requestBarcode').value=x.barcode||'';};
 $('requestEquipment').onchange=()=>{const o=$('requestEquipment').selectedOptions[0];$('requestEquipmentName').value=o?.textContent||'';const x=window._requestEquipment?.find?.(z=>z.id===$('requestEquipment').value);if(x&&!$('requestBarcode').value)$('requestBarcode').value=x.barcode||'';};
