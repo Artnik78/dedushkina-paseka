@@ -35,8 +35,13 @@ th,td{padding:11px;border-bottom:1px solid #e7edf2;text-align:left;white-space:n
 <header><h1>🖥 Журнал сервисного обслуживания</h1><button class="light" onclick="logout()">Выйти</button></header>
 <main>
 <nav>
-<button onclick="show('home')">Главная</button><button onclick="show('requests')">Заявка</button><button onclick="show('directory')">Справочник</button>
-<button onclick="show('cartridgeJobs')">Заправка картриджей</button><button onclick="show('repairJobs')">Ремонт техники</button><button onclick="show('orders')">Заказы</button>
+<button onclick="show('home')">🏠 Главная</button>
+<button onclick="show('requests')">📥 Заявки</button>
+<button onclick="show('cartridgeJobs')">🖨 Заправка</button>
+<button onclick="show('repairJobs')">🔧 Ремонт</button>
+<button onclick="show('orders')">📋 Заказы</button>
+<button onclick="show('clients')">👥 Клиенты</button>
+<button onclick="show('directory')">📚 Справочник</button>
 </nav>
 
 <section id="directory"><div class="card"><h2>📚 Справочник</h2><p class="muted">Все основные данные сервисного обслуживания хранятся здесь отдельно. Заявка использует эти справочники для выбора клиента, картриджа и техники.</p>
@@ -48,19 +53,21 @@ th,td{padding:11px;border-bottom:1px solid #e7edf2;text-align:left;white-space:n
 </div></div></section>
 
 <section id="home" class="active">
+<div class="card" style="margin-bottom:14px"><h2>Сервисный центр</h2><p class="muted">Все обращения клиента проходят единый путь: заявка → работа → готовность → выдача.</p>
+<div class="toolbar"><button class="primary" onclick="show('requests')">📥 Новая заявка</button><button class="light" onclick="show('cartridgeJobs')">🖨 Заправки</button><button class="light" onclick="show('repairJobs')">🔧 Ремонты</button></div></div>
 <div class="grid">
-<div class="card">Клиенты<b id="cntClients">0</b></div><div class="card">Техника<b id="cntEquipment">0</b></div>
-<div class="card">Картриджи<b id="cntCartridges">0</b></div><div class="card">Заказы<b id="cntOrders">0</b></div>
+<div class="card">Новые заявки<b id="cntRequests">0</b><span class="muted">требуют обработки</span></div>
+<div class="card">Заправка<b id="cntCartridgeJobs">0</b><span class="muted">в работе</span></div>
+<div class="card">Ремонт<b id="cntRepairJobs">0</b><span class="muted">в работе</span></div>
+<div class="card">Готово<b id="cntReady">0</b><span class="muted">можно выдавать</span></div>
 </div>
-<div class="card" style="margin-top:14px"><h2>Быстрые действия</h2><div class="toolbar">
-<button class="primary" onclick="show('clients')">+ Новый клиент</button>
-<button class="primary" onclick="show('equipment')">+ Добавить технику</button>
-<button class="primary" onclick="show('cartridges')">+ Добавить картридж</button>
-<button class="primary" onclick="show('orders')">+ Новый заказ</button>
-</div><p class="muted">Штрихкод уже предусмотрен в карточках техники и картриджей. Сканирование камерой добавим следующим этапом.</p></div>
+<div class="card" style="margin-top:14px"><h2>Быстрый доступ</h2><div class="grid" style="grid-template-columns:repeat(2,1fr)">
+<button class="light" onclick="show('clients')">👥 Клиенты</button><button class="light" onclick="show('equipment')">🖥 Техника</button>
+<button class="light" onclick="show('cartridges')">🖨 Картриджи</button><button class="light" onclick="show('orders')">📋 Заказы</button>
+</div></div>
 </section>
 
-<section id="requests"><div class="card"><h2>Заявка</h2><p class="muted">Первичная регистрация обращения клиента. Клиент выбирается из базы организаций и частных лиц.</p>
+<section id="requests"><div class="card"><h2>📥 Новая заявка</h2><p class="muted">Сначала выберите клиента и тип обращения. После приёма заявка автоматически передаётся в нужный журнал.</p>
 <form id="requestForm" class="formgrid"><select name="client_id" id="requestClient" required><option value="">Выберите клиента</option></select><select name="request_type" id="requestType" required><option value="refill">Заправка картриджа</option><option value="repair">Ремонт техники</option></select><select name="cartridge_id" id="requestCartridge"><option value="">Выберите картридж</option></select><select name="equipment_id" id="requestEquipment"><option value="">Выберите технику</option></select><input type="hidden" name="cartridge_name" id="requestCartridgeName"><input type="hidden" name="equipment_name" id="requestEquipmentName"><div class="barcodeRow"><input name="barcode" id="requestBarcode" placeholder="Штрихкод"><button type="button" class="light scanBtn" onclick="openScanner('requestBarcode')">📷 Сканировать</button></div><div class="toolbar"><button class="primary">Принять заявку в работу</button></div></form></div>
 <div class="card" style="margin-top:14px"><h2>Последние заявки</h2><div class="tablewrap"><table><thead><tr><th>Дата</th><th>Клиент</th><th>Направление</th><th>Картридж</th><th>Техника</th><th>Штрихкод</th><th>Статус</th></tr></thead><tbody id="requestRows"></tbody></table></div></div></section>
 
