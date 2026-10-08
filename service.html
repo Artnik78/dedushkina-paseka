@@ -236,11 +236,11 @@ async function loadRequestAssets(){
   sb.from('service_equipment').select('id,client_id,manufacturer,model,serial_number,barcode,status').order('model')
  ]);
  if(k.error||e.error){console.error(k.error,e.error);return}
- const cartridges=(k.data||[]).filter(x=>!clientId||x.client_id===clientId);
- const equipment=(e.data||[]).filter(x=>!clientId||x.client_id===clientId);
+ const cartridges=(k.data||[]).filter(x=>x.status!=='inactive').sort((a,b)=>(a.client_id===clientId?0:1)-(b.client_id===clientId?0:1));
+ const equipment=(e.data||[]).filter(x=>x.status!=='inactive').sort((a,b)=>(a.client_id===clientId?0:1)-(b.client_id===clientId?0:1));
  window._requestCartridges=cartridges; window._requestEquipment=equipment;
- fillSelect('requestCartridge',cartridges,x=>((x.model||'')+(x.barcode?' — '+x.barcode:'')).trim(),'Выберите картридж');
- fillSelect('requestEquipment',equipment,x=>((x.manufacturer||'')+' '+(x.model||'')+(x.serial_number?' — '+x.serial_number:'')).trim(),'Выберите технику');
+ fillSelect('requestCartridge',cartridges,x=>((x.model||'')+(x.barcode?' — '+x.barcode:'')+(clientId&&x.client_id===clientId?' — этот клиент':'')).trim(),'Выберите картридж');
+ fillSelect('requestEquipment',equipment,x=>((x.manufacturer||'')+' '+(x.model||'')+(x.serial_number?' — '+x.serial_number:'')+(clientId&&x.client_id===clientId?' — этот клиент':'')).trim(),'Выберите технику');
 }
 $('requestClient').onchange=async()=>{await loadRequestAssets();};
 $('requestType').onchange=()=>{};
