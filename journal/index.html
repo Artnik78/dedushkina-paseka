@@ -660,6 +660,7 @@ document.querySelectorAll('[data-page]').forEach(b=>b.addEventListener('click',(
 function showGuest(){
   guestMode=true;
   $('auth').style.display='none';
+  $('app').style.display='';
   $('userEmail').textContent='Гостевой просмотр';
   syncHomeUser('Гостевой просмотр','Дедушкина пасека');
   document.querySelectorAll('.nav button').forEach(b=>b.disabled=false);
