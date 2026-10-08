@@ -235,11 +235,12 @@ async function loadRequestAssets(){
  fillSelect('requestEquipment',equipment,x=>((x.manufacturer||'')+' '+(x.model||'')+(x.serial_number?' — '+x.serial_number:'')).trim(),'Выберите технику');
 }
 $('requestClient').onchange=()=>loadRequestAssets();
-$('requestType').onchange=()=>{const t=$('requestType').value;$('requestCartridge').disabled=t!=='refill';$('requestEquipment').disabled=t!=='repair';if(t==='refill')$('requestEquipment').value='';else $('requestCartridge').value='';};
+$('requestType').onchange=()=>{};
 $('requestCartridge').onchange=()=>{const o=$('requestCartridge').selectedOptions[0];$('requestCartridgeName').value=o?.textContent||'';const x=window._requestCartridges?.find?.(z=>z.id===$('requestCartridge').value);if(x&&!$('requestBarcode').value)$('requestBarcode').value=x.barcode||'';};
 $('requestEquipment').onchange=()=>{const o=$('requestEquipment').selectedOptions[0];$('requestEquipmentName').value=o?.textContent||'';const x=window._requestEquipment?.find?.(z=>z.id===$('requestEquipment').value);if(x&&!$('requestBarcode').value)$('requestBarcode').value=x.barcode||'';};
 $('repairClient').onchange=()=>refresh();
-$('requestEquipment').disabled=true;
+$('requestEquipment').disabled=false;
+$('requestCartridge').disabled=false;
 $('requestForm').onsubmit=async ev=>{
  ev.preventDefault();
  const d=formData(ev.target); d.status='new';
@@ -260,7 +261,7 @@ $('requestForm').onsubmit=async ev=>{
  }
  if(workError){await sb.from('service_requests').update({status:'new'}).eq('id',req.id);alert('Заявка сохранена, но не удалось передать её в журнал: '+workError.message);return}
  await sb.from('service_requests').update({status:'in_work'}).eq('id',req.id);
- ev.target.reset();$('requestType').value='refill';$('requestCartridge').disabled=false;$('requestEquipment').disabled=true;await loadRequestAssets();loadRequests();
+ ev.target.reset();$('requestType').value='refill';$('requestCartridge').disabled=false;$('requestEquipment').disabled=false;await loadRequestAssets();loadRequests();
  alert(d.request_type==='refill'?'Заявка принята в журнал заправки картриджей.':'Заявка принята в журнал ремонта техники.');
 };
 $('repairForm').onsubmit=async ev=>{ev.preventDefault();const d=formData(ev.target);d.labor_amount=Number(d.labor_amount||0);d.parts_amount=Number(d.parts_amount||0);if(!d.equipment_id)d.equipment_id=null;const {error}=await sb.from('service_repair_jobs').insert(d);if(error)alert(error.message);else{ev.target.reset();loadRepairJournal()}};
