@@ -591,6 +591,22 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
         <p><b>Мои ульи:</b> <span id="settingsHiveCount">0</span></p>
         <div class="actions"><button class="btn secondary" id="refreshBtn">Обновить данные</button></div>
       </div>
+      <div class="panel">
+        <h3>📦 Экспорт данных</h3>
+        <p class="muted">Скачать копию журнала для хранения или переноса. Фотографии отдельно не входят в JSON/CSV.</p>
+        <div class="actions" style="flex-wrap:wrap">
+          <button type="button" class="btn gold" id="exportJsonBtn">⬇️ Полная копия JSON</button>
+          <button type="button" class="btn secondary export-csv" data-export="hives">Ульи CSV</button>
+          <button type="button" class="btn secondary export-csv" data-export="inspections">Осмотры CSV</button>
+          <button type="button" class="btn secondary export-csv" data-export="health">Здоровье CSV</button>
+          <button type="button" class="btn secondary export-csv" data-export="treatments">Лечение CSV</button>
+          <button type="button" class="btn secondary export-csv" data-export="queens">Матки CSV</button>
+          <button type="button" class="btn secondary export-csv" data-export="honey">Мёд CSV</button>
+          <button type="button" class="btn secondary export-csv" data-export="tasks">Напоминания CSV</button>
+          <button type="button" class="btn secondary export-csv" data-export="finance">Финансы CSV</button>
+          <button type="button" class="btn secondary export-csv" data-export="medicines">Лекарства CSV</button>
+        </div>
+      </div>
       <div class="panel" id="userAccessPanel" style="display:none">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
           <div><h3 style="margin-bottom:4px">👥 Пользователи журнала</h3><p class="muted">Только владелец может разрешать и блокировать доступ.</p></div>
@@ -640,6 +656,29 @@ let guestMode=false;
 let calendarMonth = new Date();
 calendarMonth.setDate(1);
 
+function downloadFile(name,text,type){
+  const blob=new Blob([text],{type}); const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function csvCell(v){
+  const s=String(v??''); return '"'+s.replace(/"/g,'""')+'"';
+}
+function exportCsv(key){
+  const rows=state[key]||[];
+  if(!rows.length){toast('Нет данных для экспорта');return}
+  const keys=[...new Set(rows.flatMap(r=>Object.keys(r)))];
+  const csv='\uFEFF'+keys.map(csvCell).join(';')+'\n'+rows.map(r=>keys.map(k=>csvCell(r[k])).join(';')).join('\n');
+  const labels={hives:'ули',inspections:'осмотры',health:'здоровье',treatments:'лечение',queens:'матки',honey:'мёд',tasks:'напоминания',finance:'финансы',medicines:'лекарства'};
+  downloadFile('dedushkina-paseka-'+(labels[key]||key)+'-'+today()+'.csv',csv,'text/csv;charset=utf-8');
+}
+function exportJson(){
+  const copy={exported_at:new Date().toISOString(),journal_name:$('sidebarJournalName')?.textContent||'Дедушкина пасека',
+    apiaries:state.apiaries,hives:state.hives,inspections:state.inspections,health:state.health,treatments:state.treatments,queens:state.queens,
+    honey:state.honey,tasks:state.tasks,finance:state.finance,medicines:state.medicines,disinfection:state.disinfection,beeFamilies:state.beeFamilies,photos:state.photos};
+  downloadFile('dedushkina-paseka-backup-'+today()+'.json',JSON.stringify(copy,null,2),'application/json;charset=utf-8');
+  toast('Копия журнала подготовлена');
+}
 function $(id){return document.getElementById(id)}
 function showJournalError(msg){const el=$('journalError');if(el){el.textContent=String(msg);el.style.display='block'}}
 window.addEventListener('error',e=>showJournalError('Ошибка JavaScript: '+(e.message||e.error||'неизвестная ошибка')));
@@ -885,6 +924,8 @@ document.getElementById('photoHive')?.addEventListener('change',e=>{
   const rows=state.inspections.filter(x=>!id||String(x.hive_id)===String(id)).sort((a,b)=>String(b.inspection_date||'').localeCompare(String(a.inspection_date||'')));
   sel.innerHTML='<option value="">Без привязки</option>'+rows.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.inspection_date||'—')+' · улей №'+esc(state.hives.find(h=>String(h.id)===String(x.hive_id))?.hive_number||'')+'</option>').join('');
 });
+$('exportJsonBtn')?.addEventListener('click',exportJson);
+document.querySelectorAll('.export-csv').forEach(b=>b.addEventListener('click',()=>exportCsv(b.dataset.export)));
 $('saveJournalDisplayNameBtn').onclick=async()=>{
   const input=$('journalDisplayName');
   const value=(input?.value||'').trim();
