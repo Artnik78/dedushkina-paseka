@@ -172,7 +172,7 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
 
 <div class="app" id="app">
 <aside class="sidebar">
-  <div class="brand"><div class="brand-b">🐝</div><div><strong>Дедушкина пасека</strong><span>Цифровой журнал пасечника</span></div></div>
+  <div class="brand"><div class="brand-b">🐝</div><div><strong id="sidebarJournalName">Дедушкина пасека</strong><span>Цифровой журнал пасечника</span></div></div>
   <nav class="nav">
     <button class="active" data-page="home">🏠 Главная</button>
     <button data-page="apiaries">🍯 Мои пасеки</button>
@@ -528,6 +528,8 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
       <div class="panel">
         <h3>Моя учётная запись</h3>
         <p><b>Email:</b> <span id="settingsUserEmail">—</span></p>
+        <div class="field" style="max-width:520px;margin:12px 0"><label>Название пасечника</label><input id="journalDisplayName" maxlength="80" placeholder="Например, Дедушкина пасека"><small class="muted">Это название будет показываться слева вверху журнала.</small></div>
+        <div class="actions"><button class="btn" type="button" id="saveJournalDisplayNameBtn">Сохранить название</button></div>
         <p><b>Мои пасеки:</b> <span id="settingsApiaryCount">0</span></p>
         <p><b>Мои ульи:</b> <span id="settingsHiveCount">0</span></p>
         <div class="actions"><button class="btn secondary" id="refreshBtn">Обновить данные</button></div>
@@ -591,9 +593,12 @@ function today(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth
   const d=new Date();
   const el=$('homeDateLabel'); if(el) el.textContent=d.toLocaleDateString('ru-RU',{day:'2-digit',month:'long',year:'numeric'});
 }
-function syncHomeUser(email){
+function syncHomeUser(email,displayName){
   const el=$('homeUserEmail');if(el)el.textContent=email||'Гостевой просмотр';
   const se=$('settingsUserEmail');if(se)se.textContent=email||'Гостевой просмотр';
+  const name=displayName||'Дедушкина пасека';
+  const sn=$('sidebarJournalName');if(sn)sn.textContent=name;
+  const dn=$('journalDisplayName');if(dn)dn.value=displayName||'';
   const ac=$('settingsApiaryCount');if(ac)ac.textContent=state.apiaries?.length||0;
   const hc=$('settingsHiveCount');if(hc)hc.textContent=state.hives?.length||0;
 }
@@ -614,7 +619,7 @@ function showGuest(){
   guestMode=true;
   $('auth').style.display='none';
   $('userEmail').textContent='Гостевой просмотр';
-  syncHomeUser('Гостевой просмотр');
+  syncHomeUser('Гостевой просмотр','Дедушкина пасека');
   document.querySelectorAll('.nav button').forEach(b=>b.disabled=false);
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   $('page-home').classList.add('active');
@@ -765,13 +770,24 @@ async function showApp(user){
   $('auth').style.display='none';
   $('app').style.display='';
   $('userEmail').textContent=user.email||'Пользователь';
-  syncHomeUser(user.email);
+  syncHomeUser(user.email,profile.display_name);
   const owner=email==='78artnik@gmail.com';
   const p=$('userAccessPanel'); if(p)p.style.display=owner?'block':'none';
   if(owner) loadJournalUsers();
   try{ await loadAll(); }
   catch(e){ console.error(e); toast('Ошибка загрузки данных: '+e.message); }
 }
+$('saveJournalDisplayNameBtn').onclick=async()=>{
+  const input=$('journalDisplayName');
+  const value=(input?.value||'').trim();
+  if(value.length<2){toast('Введите название минимум из 2 символов');return}
+  const btn=$('saveJournalDisplayNameBtn'); if(btn)btn.disabled=true;
+  const {error}=await db.rpc('set_journal_display_name',{p_display_name:value});
+  if(btn)btn.disabled=false;
+  if(error){toast('Ошибка сохранения: '+error.message);return}
+  const nameEl=$('sidebarJournalName');if(nameEl)nameEl.textContent=value;
+  toast('Название сохранено');
+};
 $('guestBtn').onclick=showGuest;
 $('loginBtn').onclick=async()=>{
   $('authMessage').textContent='';
