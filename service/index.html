@@ -105,9 +105,7 @@ th,td{padding:11px;border-bottom:1px solid #e7edf2;text-align:left;white-space:n
 <div class="card" style="margin-top:14px"><div class="tablewrap"><table><thead><tr><th>№</th><th>Дата</th><th>Статус</th><th>Сумма</th></tr></thead><tbody id="orderRows"></tbody></table></div></div></section>
 </main></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
-})();
-</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (async()=>{
 let sb=null;
@@ -121,7 +119,20 @@ try{
 
 window.sb=sb;
 window.loadRefillJournal=async function(){const {data,error}=await sb.from('service_cartridge_jobs').select('id,received_at,status,completed_at,issued_at,notes,service_clients(name),service_cartridges(model,barcode)').order('created_at',{ascending:false});if(error){alert(error.message);return}const names={received:'Принят',in_work:'В работе',refilled:'Заправлен',issued:'Выдан'};$('refillJournalRows').innerHTML=(data||[]).map(x=>{let b='';if(x.status==='received')b='<button class="light" onclick="changeRefillStatus(\''+x.id+'\',\'in_work\')">В работу</button>';if(x.status==='in_work')b='<button class="light" onclick="changeRefillStatus(\''+x.id+'\',\'refilled\')">Заправлен</button>';if(x.status==='refilled')b='<button class="light" onclick="changeRefillStatus(\''+x.id+'\',\'issued\')">Выдан</button>';return '<tr><td>'+esc(x.received_at||'')+'</td><td>'+esc(x.service_clients?.name||'—')+'</td><td>'+esc(x.service_cartridges?.model||'')+'</td><td>'+esc(x.service_cartridges?.barcode||'')+'</td><td>'+esc(names[x.status]||x.status)+'</td><td>'+esc(x.completed_at||'—')+'</td><td>'+b+' <button class="danger" onclick="deleteRefillJob(\''+x.id+'\')">Удалить</button></td></tr>'}).join('')||'<tr><td colspan="7" class="muted">Записей нет.</td></tr>'};
-window.changeRefillStatus=async function(id,status){const p={status};if(status==='refilled'||status==='issued')p.completed_at=new Date().toISOString().slice(0,10);const {error}=await sb.from('service_cartridge_jobs').update(p).eq('id',id);if(error)alert(error.message);else loadRefillJournal()};
+window.receiveRefillJob=async function(cartridgeId){
+ const {data:cartridge,error:cartridgeError}=await sb.from('service_cartridges').select('id,client_id,model,barcode').eq('id',cartridgeId).single();
+ if(cartridgeError){alert(cartridgeError.message);return}
+ if(!cartridge.client_id){alert('У картриджа не указан клиент. Сначала привяжите картридж к клиенту.');return}
+ const {data:active,error:activeError}=await sb.from('service_cartridge_jobs').select('id,status').eq('cartridge_id',cartridgeId).in('status',['received','in_work']).limit(1);
+ if(activeError){alert(activeError.message);return}
+ if(active?.length){alert('Этот картридж уже принят на заправку и находится в работе.');show('cartridgeJobs');return}
+ const {error}=await sb.from('service_cartridge_jobs').insert({cartridge_id:cartridgeId,client_id:cartridge.client_id,status:'received'});
+ if(error){alert('Не удалось принять картридж: '+error.message);return}
+ alert('Картридж '+(cartridge.model||'')+' принят на заправку.');
+ show('cartridgeJobs');
+ loadRefillJournal();
+};
+window.changeRefillStatus=async function(id,status){const p={status};if(status==='refilled')p.completed_at=new Date().toISOString().slice(0,10);if(status==='issued'){p.completed_at=p.completed_at||new Date().toISOString().slice(0,10);p.issued_at=new Date().toISOString().slice(0,10)}const {error}=await sb.from('service_cartridge_jobs').update(p).eq('id',id);if(error)alert(error.message);else loadRefillJournal()};
 window.deleteRefillJob=async function(id){if(!confirm('Удалить запись?'))return;const {error}=await sb.from('service_cartridge_jobs').delete().eq('id',id);if(error)alert(error.message);else loadRefillJournal()};
 
 const $=id=>document.getElementById(id);
@@ -144,7 +155,7 @@ async function refresh(){
  $('clientsRows').innerHTML=c.data.map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.tax_id||'')}</td><td>${esc(x.bank_account||'')}</td><td>${esc(x.bik||'')}</td><td>${esc(x.bank||'')}</td><td>${esc(x.phone||'')}</td><td>${esc(x.email||'')}</td><td>${esc(x.responsible_person||'')}</td><td><button class="light" onclick="editClient('${x.id}')">Изменить</button> <button class="light" onclick="selectContracts('${x.id}')">Договоры</button> <button class="danger" onclick="deleteClient('${x.id}')">Удалить</button></td></tr>`).join('');
 fillSelect('contractClient',c.data,'name'); if(selectedContractClient && c.data.some(x=>x.id===selectedContractClient)) $('contractClient').value=selectedContractClient;
  $('equipmentRows').innerHTML=e.data.map(x=>`<tr><td>${esc(c.data.find(cl=>cl.id===x.client_id)?.name||'—')}</td><td>${esc(x.barcode||'')}</td><td>${esc(x.inventory_number||'')}</td><td>${esc(({printer:'Принтер',mfu:'МФУ',copier:'Копировальный аппарат',scanner:'Сканер',computer:'Компьютер',laptop:'Ноутбук',monitor:'Монитор',other_office:'Другая оргтехника',other:'Другое'}[x.equipment_type]||x.equipment_type||''))}</td><td>${esc(x.manufacturer||'')}</td><td>${esc(x.model||'')}</td><td>${esc(x.serial_number||'')}</td><td><button class="light" onclick="editEquipment('${x.id}')">Изменить</button> <button class="danger" onclick="deleteEquipment('${x.id}')">Удалить</button></td></tr>`).join('');
- $('cartridgeRows').innerHTML=k.data.map(x=>`<tr><td>${esc(c.data.find(cl=>cl.id===x.client_id)?.name||'—')}</td><td>${esc(x.barcode||'')}</td><td>${esc(x.model)}</td><td>${x.fill_count}</td><td><span id="workSummary-${x.id}" class="muted">Загрузка…</span></td><td><button class="light" onclick="openExistingCartridge('${x.id}')">🔧 Работы</button> <button class="light" onclick="editCartridge('${x.id}')">Изменить</button> <button class="danger" onclick="deleteCartridge('${x.id}')">Удалить</button></td></tr>`).join('');
+ $('cartridgeRows').innerHTML=k.data.map(x=>`<tr><td>${esc(c.data.find(cl=>cl.id===x.client_id)?.name||'—')}</td><td>${esc(x.barcode||'')}</td><td>${esc(x.model)}</td><td>${x.fill_count}</td><td><span id="workSummary-${x.id}" class="muted">Загрузка…</span></td><td><button class="primary" onclick="receiveRefillJob('${x.id}')">📥 Принять на заправку</button> <button class="light" onclick="openExistingCartridge('${x.id}')">🔧 Работы</button> <button class="light" onclick="editCartridge('${x.id}')">Изменить</button> <button class="danger" onclick="deleteCartridge('${x.id}')">Удалить</button></td></tr>`).join('');
 loadCartridgeWorkSummaries(k.data);
  $('orderRows').innerHTML=o.data.map(x=>`<tr><td>${x.order_number}</td><td>${x.order_date}</td><td>${esc({received:'Принят',in_work:'В работе',ready:'Готов',issued:'Выдан',paid:'Оплачен'}[x.status]||x.status)}</td><td>${Number(x.total_amount).toFixed(2)}</td></tr>`).join('');
 renderContracts(ct.data);
