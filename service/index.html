@@ -85,7 +85,6 @@ th,td{padding:11px;border-bottom:1px solid #e7edf2;text-align:left;white-space:n
 <input type="hidden" name="id"><select name="client_id" id="contractClient" required><option value="">Выберите клиента</option></select>
 <input name="contract_number" placeholder="Номер договора" required><input name="contract_year" type="number" min="2000" max="2100" placeholder="Год" required>
 <input name="contract_date" type="date" placeholder="Дата договора"><input name="valid_until" type="date" placeholder="Действует до">
-<textarea class="full" name="notes" placeholder="Примечание"></textarea>
 <div class="toolbar"><button id="contractSaveBtn" class="primary">Сохранить договор</button><button type="button" class="light hidden" id="contractCancelBtn" onclick="cancelContractEdit()">Отмена</button></div>
 </form>
 <div class="tablewrap" style="margin-top:14px"><table><thead><tr><th>Год</th><th>№ договора</th><th>Дата</th><th>Действует до</th><th>Действия</th></tr></thead><tbody id="contractsRows"></tbody></table></div>
@@ -98,6 +97,7 @@ th,td{padding:11px;border-bottom:1px solid #e7edf2;text-align:left;white-space:n
 <section id="cartridges"><div class="card"><h2>Новый картридж</h2><p class="muted">Здесь выполняется только добавление нового картриджа в справочник.</p>
 <form id="cartridgeForm" class="formgrid">
 <div class="barcodeRow"><input name="barcode" id="cartridgeBarcode" placeholder="Штрихкод"><button type="button" class="light scanBtn" onclick="openScanner('cartridgeBarcode')">📷 Сканировать</button></div>
+<input name="model" id="cartridgeModelSelect" placeholder="Наименование картриджа" required>
 <input name="fill_count" type="number" min="0" value="0" placeholder="Количество заправок">
 <textarea class="full" name="notes" placeholder="Примечание"></textarea>
 <div class="toolbar"><button id="cartridgeSaveBtn" class="primary">Добавить картридж</button><button type="button" class="danger" onclick="deleteAllCartridges()">Удалить все</button></div>
