@@ -370,7 +370,10 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
           <div class="field full"><label>Признаки / симптомы</label><textarea name="symptoms" placeholder="Что обнаружено при осмотре"></textarea></div>
           <div class="field"><label>Принятые меры</label><input name="action_taken" placeholder="Например, поставлены полоски"></div>
           <div class="field"><label>Препарат</label><input name="treatment_product" placeholder="Название препарата, если применялся"></div>
-          <div class="field"><label>Доза / способ</label><input name="treatment_dose" placeholder="Доза или способ применения"></div>
+          <div class="field"><label>Препарат из моего склада</label><select name="medicine_id" id="healthMedicine"><option value="">Не списывать со склада</option></select></div>
+          <div class="field"><label>Доза / способ</label><input name="treatment_dose" placeholder="Например, 1 мл на 10 рамок"></div>
+          <div class="field"><label>Количество израсходовано</label><input name="quantity_used" type="number" min="0" step="0.01" placeholder="Например, 1"></div>
+          <div class="field"><label>Способ обработки</label><select name="treatment_method"><option value="">Не указан</option><option>Полоски</option><option>Капельный метод</option><option>Орошение</option><option>Испарение</option><option>Другое</option></select></div>
           <div class="field full"><label>Примечание</label><textarea name="notes"></textarea></div>
           <div class="actions"><button class="btn gold">Сохранить запись</button></div>
         </form>
@@ -378,6 +381,11 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
       <div class="panel">
         <h3>История здоровья семей</h3>
         <div id="healthList" class="table-wrap"></div>
+      </div>
+      <div class="panel">
+        <h3>💊 История лечения по ульям</h3>
+        <div class="muted" style="margin-bottom:10px">Каждая обработка с препаратом автоматически попадает сюда и связывается с конкретным ульем. Если выбран препарат со склада, его расход уменьшается.</div>
+        <div id="treatmentList" class="table-wrap"></div>
       </div>
     </section>
 
@@ -610,7 +618,7 @@ const SUPABASE_KEY = 'sb_publishable_1eM3o5IehFq-IvjWkHLiCA_RMXGHfw5';
 const { createClient } = window.supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { storageKey: 'dedushkina-paseka-journal-auth' } });
 
-const state = {hives:[], inspections:[], health:[], honey:[], tasks:[], finance:[], apiaries:[], medicines:[], disinfection:[], beeFamilies:[]};
+const state = {hives:[], inspections:[], health:[], treatments:[], honey:[], tasks:[], finance:[], apiaries:[], medicines:[], disinfection:[], beeFamilies:[]};
 let guestMode=false;
 let calendarMonth = new Date();
 calendarMonth.setDate(1);
@@ -741,6 +749,10 @@ function renderGuestMode(){
     {id:'guest-health-1',hive_id:'guest-hive-1',check_date:d(-5),varroa_method:'Сахарная пудра',varroa_result:2,varroa_unit:'клещей / 100 пчёл',disease:null,severity:'Нет признаков',symptoms:'Признаков заболевания не обнаружено',action_taken:'Контроль через 14 дней',treatment_product:'',treatment_dose:'',notes:'Контрольная проверка'},
     {id:'guest-health-2',hive_id:'guest-hive-4',check_date:d(-3),varroa_method:'Естественный осыпь',varroa_result:7,varroa_unit:'клещей / сутки',disease:'Варроатоз',severity:'Средняя',symptoms:'Повышенный осыпь клеща',action_taken:'Запланирована обработка',treatment_product:'Бипин-Т',treatment_dose:'По инструкции',notes:'Повторный контроль после обработки'},
     {id:'guest-health-3',hive_id:'guest-hive-9',check_date:d(-10),varroa_method:'Визуальная оценка',varroa_result:null,varroa_unit:null,disease:'Аскосфероз',severity:'Лёгкая',symptoms:'Отдельные мумифицированные личинки',action_taken:'Удалены поражённые соты',treatment_product:'',treatment_dose:'',notes:'Наблюдение'}
+  ];
+  state.treatments=[
+    {id:'guest-treatment-1',hive_id:'guest-hive-4',treatment_date:d(-3),purpose:'Варроатоз',product_name:'Бипин-Т',dose:'По инструкции',method:'Капельный метод',quantity_used:1,notes:'Обработка после контрольной проверки'},
+    {id:'guest-treatment-2',hive_id:'guest-hive-1',treatment_date:d(-35),purpose:'Профилактика варроа',product_name:'Муравьиная кислота',dose:'По инструкции',method:'Испарение',quantity_used:1,notes:'Сезонная обработка'}
   ];
   state.disinfection=[
     {id:'guest-dis-1',target_type:'Улей',apiary_id:'guest-apiary-1',hive_id:'guest-hive-1',frames_count:10,disinfection_date:d(-30),agent:'Сода + вода',treatment_method:'Обмывание',reason:'Плановая',responsible:'Пасечник',next_date:d(150),notes:'Плановая санитарная обработка'},
@@ -901,7 +913,7 @@ async function getTable(table,order='created_at'){
 }
 async function loadAll(){
   const names=[
-    ['apiaries','apiaries'],['hives','hives'],['inspections','inspections'],['health','hive_health_records'],['honey','honey_batches'],
+    ['apiaries','apiaries'],['hives','hives'],['inspections','inspections'],['health','hive_health_records'],['treatments','hive_treatments'],['honey','honey_batches'],
     ['tasks','tasks'],['finance','finances'],['medicines','medicines'],['disinfection','disinfection_logs'],['beeFamilies','bee_families']
   ];
   const errors=[];
@@ -1152,6 +1164,12 @@ function renderAll(){
   const hiveMap=Object.fromEntries(state.hives.map(h=>[h.id,h.hive_number]));
   $('inspectionsList').innerHTML=state.inspections.length?'<div class="inspection-mobile-list">'+state.inspections.map(i=>{const s=String(i.colony_strength||'').toLowerCase(),q=String(i.queen_status||'').toLowerCase(),f=String(i.feed||'').toLowerCase();const cls=s.includes('слаб')||q==='нет'||q.includes('трутне')||f.includes('мало')?'danger':s.includes('силь')?'ok':'warn';return '<button type="button" class="inspection-mobile-card '+cls+'" data-inspection-id="'+esc(i.id)+'"><div class="inspection-mobile-top"><b>📋 Улей №'+esc(hiveMap[i.hive_id]||'—')+'</b><span>'+esc(i.inspection_date||'—')+'</span></div><div class="inspection-mobile-meta"><span>🐝 '+esc(i.colony_strength||'Не указано')+'</span><span>👑 '+esc(i.queen_status||'Не указано')+'</span><span>🍯 '+esc(i.feed||'Не указано')+'</span></div><div class="muted">'+esc(i.notes||'Без заметок')+'</div></button>'}).join('')+'</div><div class="inspection-desktop-table"><table class="table"><thead><tr><th>Дата</th><th>Улей</th><th>Семья</th><th>Матка</th><th>Заметки</th></tr></thead><tbody>'+state.inspections.map(i=>'<tr><td>'+esc(i.inspection_date)+'</td><td>'+esc(hiveMap[i.hive_id]||i.hive_id||'')+'</td><td>'+esc(i.colony_strength)+'</td><td>'+esc(i.queen_status)+'</td><td>'+esc(i.notes)+'</td></tr>').join('')+'</tbody></table></div>':'<div class="empty">Осмотров пока нет.</div>';
 
+  const healthMedicine=$('healthMedicine');
+  if(healthMedicine){
+    const current=healthMedicine.value;
+    healthMedicine.innerHTML='<option value="">Не списывать со склада</option>'+state.medicines.map(m=>'<option value="'+esc(m.id)+'">'+esc(m.name||'Препарат')+' — остаток '+esc(m.quantity??0)+(m.volume?' '+esc(m.volume):'')+'</option>').join('');
+    if(current && state.medicines.some(m=>String(m.id)===String(current)))healthMedicine.value=current;
+  }
   const healthHiveMap=Object.fromEntries(state.hives.map(h=>[h.id,h.hive_number]));
   $('healthList').innerHTML=state.health.length
     ? '<div class="health-mobile-list">'+state.health.map(x=>{
@@ -1163,6 +1181,14 @@ function renderAll(){
       }).join('')
     : '<div class="empty">Записей о здоровье пока нет. Добавьте первую проверку варроа или заболевание выше.</div>';
   document.querySelectorAll('.health-delete').forEach(b=>b.onclick=()=>deleteHealthRecord(b.dataset.id));
+
+  const treatmentHiveMap=Object.fromEntries(state.hives.map(h=>[h.id,h.hive_number]));
+  const medicineMap=Object.fromEntries(state.medicines.map(m=>[m.id,m.name]));
+  $('treatmentList').innerHTML=state.treatments.length
+    ? '<div class="health-mobile-list">'+state.treatments.map(x=>{
+        return '<div class="card" style="margin-bottom:10px;border-left:4px solid #d5a72b"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><b>💊 Улей №'+esc(treatmentHiveMap[x.hive_id]||'—')+'</b><span class="muted">'+esc(x.treatment_date||'—')+'</span></div><div class="hive-card-grid"><div><small>Препарат</small><b>'+esc(x.product_name||medicineMap[x.medicine_id]||'—')+'</b></div><div><small>Цель</small><b>'+esc(x.purpose||'—')+'</b></div><div><small>Доза / способ</small><b>'+esc(x.dose||'—')+(x.method?' · '+esc(x.method):'')+'</b></div><div><small>Расход</small><b>'+esc(x.quantity_used??'—')+'</b></div></div>'+(x.notes?'<div class="muted" style="margin-top:8px">'+esc(x.notes)+'</div>':'')+'</div>';
+      }).join('')
+    : '<div class="empty">Обработок пока нет. Укажите препарат в новой записи о здоровье.</div>';
 
   $('honeyList').innerHTML=state.honey.length
     ? state.honey.map(h=>{
@@ -1551,7 +1577,11 @@ $('inspectionForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);i
 $('healthForm').onsubmit=async e=>{
   e.preventDefault();
   const d=formData(e.target);
-  const payload={
+  const treatmentProduct=(d.treatment_product||'').trim();
+  const selectedMedicine=state.medicines.find(m=>String(m.id)===String(d.medicine_id||''));
+  const productName=treatmentProduct||selectedMedicine?.name||'';
+  const quantityUsed=d.quantity_used===''?null:Number(d.quantity_used);
+  const healthPayload={
     hive_id:d.hive_id,
     check_date:d.check_date,
     varroa_method:d.varroa_method||null,
@@ -1561,14 +1591,34 @@ $('healthForm').onsubmit=async e=>{
     severity:d.severity||null,
     symptoms:d.symptoms.trim(),
     action_taken:d.action_taken.trim(),
-    treatment_product:d.treatment_product.trim(),
+    treatment_product:productName||null,
     treatment_dose:d.treatment_dose.trim(),
     notes:d.notes.trim()
   };
-  const {error}=await db.from('hive_health_records').insert(payload);
+  const {data:healthRow,error}=await db.from('hive_health_records').insert(healthPayload).select('id').single();
   if(error){toast('Ошибка: '+error.message);return}
+  if(productName){
+    const {error:trError}=await db.from('hive_treatments').insert({
+      hive_id:d.hive_id,
+      health_record_id:healthRow?.id||null,
+      medicine_id:d.medicine_id||null,
+      treatment_date:d.check_date,
+      purpose:d.disease||'Обработка',
+      product_name:productName,
+      dose:d.treatment_dose.trim()||null,
+      method:d.treatment_method||null,
+      quantity_used:quantityUsed,
+      notes:d.notes.trim()||null
+    });
+    if(trError){toast('Здоровье сохранено, но история лечения не записалась: '+trError.message);await loadAll();return}
+    if(selectedMedicine && quantityUsed!==null && quantityUsed>0){
+      const newQuantity=Math.max(0,Number(selectedMedicine.quantity||0)-quantityUsed);
+      const {error:medError}=await db.from('medicines').update({quantity:newQuantity}).eq('id',selectedMedicine.id);
+      if(medError){toast('Обработка записана, но остаток препарата не обновился: '+medError.message);await loadAll();return}
+    }
+  }
   e.target.reset(); e.target.elements.check_date.value=today();
-  toast('Запись о здоровье сохранена'); await loadAll();
+  toast(productName?'Запись о здоровье и обработка сохранены':'Запись о здоровье сохранена'); await loadAll();
 };
 async function deleteHealthRecord(id){
   if(guestMode){toast('Гостевой режим — только просмотр');return}
