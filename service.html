@@ -271,99 +271,6 @@ $('repairForm').onsubmit=async ev=>{ev.preventDefault();const d=formData(ev.targ
 $('orderClient').onchange=()=>refresh();
 $('equipmentClient').onchange=()=>{};
 $('cartridgeClient').onchange=()=>{};
-const defaultCartridgeModelsHtml=$('cartridgeModelSelect').innerHTML;
-function renderCartridgeModels(data){
- $('cartridgeModelsRows').innerHTML=(data||[]).map(x=>'<tr><td>'+esc(x.manufacturer)+'</td><td>'+esc(x.model)+'</td><td><button type="button" class="danger" onclick="deleteCartridgeModel(\''+x.id+'\')">Удалить</button></td></tr>').join('')||'<tr><td colspan="3" class="muted">Пользовательских моделей пока нет.</td></tr>';
- const s=$('cartridgeModelSelect'); if(!s)return;
- const current=s.value;
- s.innerHTML=defaultCartridgeModelsHtml;
- const groups={};
- (data||[]).forEach(x=>{const m=(x.manufacturer||'Другие / совместимые').trim();(groups[m]??=[]).push(x.model)});
- Object.keys(groups).forEach(m=>{const og=document.createElement('optgroup');og.label=m;groups[m].forEach(model=>{if([...s.options].some(o=>o.value===model))return;const o=document.createElement('option');o.value=model;o.textContent=model;og.appendChild(o)});if(og.children.length)s.appendChild(og)});
- if(current)s.value=current;
-}
-window.addCartridgeModel=async()=>{
- const manufacturer=prompt('Производитель:','');
- if(manufacturer===null)return;
- const model=prompt('Модель картриджа:','');
- if(model===null)return;
- const m=manufacturer.trim(),md=model.trim();
- if(!m||!md){alert('Укажите производителя и модель.');return}
- const {error}=await sb.from('service_cartridge_models').insert({manufacturer:m,model:md});
- if(error)alert(error.code==='23505'?'Такая модель уже есть.':error.message);else refresh();
-};
-window.deleteSelectedCartridgeModel=async()=>{
- const s=$('cartridgeModelSelect'),model=s?.value;
- if(!model){alert('Сначала выберите модель.');return}
- const {data,error}=await sb.from('service_cartridge_models').select('id,manufacturer,model').eq('model',model);
- if(error){alert(error.message);return}
- if(!data?.length){alert('Это встроенная модель. Её нельзя удалить из стандартного списка.');return}
- if(!confirm('Удалить пользовательскую модель «'+model+'» из списка? Уже созданные картриджи не будут удалены.'))return;
- const {error:delError}=await sb.from('service_cartridge_models').delete().eq('id',data[0].id);
- if(delError)alert(delError.message);else refresh();
-};
-window.deleteCartridgeModel=async id=>{if(!confirm('Удалить модель из списка? Уже созданные картриджи не будут удалены.'))return;const {error}=await sb.from('service_cartridge_models').delete().eq('id',id);if(error)alert(error.message);else refresh()};
-function fillSelect(id,data,label,first){const s=$(id);s.innerHTML='<option value="">'+(first||'Выберите')+'</option>'+data.map(x=>`<option value="${x.id}">${esc(typeof label==='function'?label(x):x[label])}</option>`).join('')}
-function esc(v){return String(v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
-const maintenanceNames={refill:'Заправка',toner:'Тонер',drum:'Барабан',charge_roller:'Вал заряда',magnetic_roller:'Магнитный вал',wiper:'Ракель',chip:'Чип'};
-async function loadCartridgeWorkSummaries(cartridges){
- const names={refill:'Заправка',toner:'Тонер',drum:'Барабан',charge_roller:'Вал заряда',magnetic_roller:'Магнитный вал',wiper:'Ракель',chip:'Чип'};
- for(const x of (cartridges||[])){
-  const el=$('workSummary-'+x.id); if(!el)continue;
-  const {data,error}=await sb.from('service_cartridge_maintenance').select('component,service_date').eq('cartridge_id',x.id).order('service_date',{ascending:false}).limit(4);
-  if(error){el.textContent='Ошибка';continue}
-  el.textContent=data?.length?data.map(h=>names[h.component]+' — '+h.service_date).join(' · '):'Работ не было';
- }
-}
-async function loadCartridgeMaintenance(cartridgeId){
- const box=$('cartridgeMaintenance'); if(!box)return;
- box.classList.remove('hidden');
- $('maintenanceForm').elements.cartridge_id.value=cartridgeId;
- if(!$('maintenanceForm').elements.service_date.value)$('maintenanceForm').elements.service_date.value=new Date().toISOString().slice(0,10);
- const {data,error}=await sb.from('service_cartridge_maintenance').select('*').eq('cartridge_id',cartridgeId).order('service_date',{ascending:false}).order('created_at',{ascending:false});
- if(error){$('maintenanceRows').innerHTML='<tr><td colspan="4">Ошибка загрузки истории: '+esc(error.message)+'</td></tr>';return}
- $('maintenanceRows').innerHTML=(data||[]).map(x=>'<tr><td>'+esc(x.service_date||'')+'</td><td>'+esc(maintenanceNames[x.component]||x.component)+'</td><td>'+esc(x.notes||'')+'</td><td><button type="button" class="danger" onclick="deleteMaintenance(\''+x.id+'\')">Удалить</button></td></tr>').join('') || '<tr><td colspan="4" class="muted">История обслуживания пока пустая.</td></tr>';
-}
-async function showCartridgeByBarcode(value){
- const info=$('cartridgeBarcodeInfo'); if(!info)return;
- const code=String(value||'').trim();
- if(!code){info.innerHTML='';return}
- info.textContent='Проверяем штрихкод…';
- const {data,error}=await sb.from('service_cartridges').select('*,service_clients(name)').eq('barcode',code).limit(1).maybeSingle();
- if(error){info.textContent='Не удалось проверить штрихкод: '+error.message;return}
- if(!data){info.innerHTML='<div>Штрихкод новый — картридж с таким кодом не найден.</div>';return}
- const {data:hist}=await sb.from('service_cartridge_maintenance').select('component,service_date').eq('cartridge_id',data.id).order('service_date',{ascending:false});
- const latest={};
- (hist||[]).forEach(x=>{if(!latest[x.component])latest[x.component]=x.service_date});
- const client=data.service_clients?.name||'—';
- info.innerHTML='<div style="font-weight:700;margin-bottom:5px">✓ Картридж уже есть в журнале</div>'+
-  '<div><b>Модель:</b> '+esc(data.model||'—')+'</div>'+
-  '<div><b>Клиент:</b> '+esc(client)+'</div>'+
-  '<div><b>Производитель:</b> '+esc(data.manufacturer||'—')+'</div>'+
-  '<div><b>Серийный номер:</b> '+esc(data.serial_number||'—')+'</div>'+
-  '<div><b>Заправок:</b> '+(data.fill_count??0)+'</div>'+
-  '<div style="margin-top:7px"><b>Последнее обслуживание:</b><br>'+
-  'Заправка: '+esc(latest.refill||'—')+' · Тонер: '+esc(latest.toner||'—')+' · Барабан: '+esc(latest.drum||'—')+' · Вал заряда: '+esc(latest.charge_roller||'—')+'<br>'+
-  'Магнитный вал: '+esc(latest.magnetic_roller||'—')+' · Ракель: '+esc(latest.wiper||'—')+' · Чип: '+esc(latest.chip||'—')+'</div>'+
-  '<div class="toolbar" style="margin:8px 0 0"><button type="button" class="light" onclick="openExistingCartridge(\''+data.id+'\')">Открыть карточку</button></div>';
-}
-window.openExistingCartridge=async id=>{
- const {data,error}=await sb.from('service_cartridges').select('*').eq('id',id).single();
- if(error){alert(error.message);return}
- const f=$('cartridgeForm');
- Object.keys(data).forEach(k=>{if(f.elements[k])f.elements[k].value=data[k]??''});
- $('cartridgeSaveBtn').textContent='Сохранить изменения';
- $('cartridgeCancelBtn').classList.remove('hidden');
- show('cartridges');
- await loadCartridgeMaintenance(id);
- window.scrollTo({top:$('cartridgeMaintenance').offsetTop,behavior:'smooth'});
-};
-window.deleteMaintenance=async id=>{
- if(!confirm('Удалить эту запись обслуживания?'))return;
- const {error}=await sb.from('service_cartridge_maintenance').delete().eq('id',id);
- if(error)alert(error.message);else{const id2=$('maintenanceForm').elements.cartridge_id.value;if(id2)loadCartridgeMaintenance(id2);}
-};
-$('cartridgeBarcode').addEventListener('input',e=>showCartridgeByBarcode(e.target.value));
 window.closeScanner=function(){try{window._scannerControls?.stop?.()}catch(e){}try{window._zxingReader?.reset?.()}catch(e){}const m=$('scannerModal');if(m)m.remove();if(window._scannerStream){window._scannerStream.getTracks().forEach(t=>t.stop());window._scannerStream=null}window._scannerControls=null;window._zxingReader=null;window._scannerTimer=null}
 window.openScanner=async function(targetId){
  closeScanner();
@@ -403,7 +310,6 @@ $('contractForm').onsubmit=async ev=>{
 }
 $('equipmentForm').onsubmit=async ev=>{ev.preventDefault();const d=formData(ev.target);const id=d.id;delete d.id;const q=id?sb.from('service_equipment').update(d).eq('id',id):sb.from('service_equipment').insert(d);const {error}=await q;if(error)alert(error.message);else{ev.target.reset();$('equipmentSaveBtn').textContent='Сохранить технику';$('equipmentCancelBtn').classList.add('hidden');refresh()}}
 $('cartridgeForm').onsubmit=async ev=>{ev.preventDefault();const d=formData(ev.target);delete d.id;d.fill_count=Number(d.fill_count||0);const {error}=await sb.from('service_cartridges').insert(d);if(error)alert(error.message);else{ev.target.reset();$('cartridgeSaveBtn').textContent='Добавить картридж';refresh()}}
-$('maintenanceForm').onsubmit=async ev=>{ev.preventDefault();const d=formData(ev.target);d.service_date=d.service_date||new Date().toISOString().slice(0,10);const {error}=await sb.from('service_cartridge_maintenance').insert(d);if(error)alert(error.message);else{const id=d.cartridge_id;ev.target.elements.notes.value='';await loadCartridgeMaintenance(id);showCartridgeByBarcode($('cartridgeBarcode').value)}}
 $('modelForm').onsubmit=async ev=>{ev.preventDefault();const d=formData(ev.target);d.manufacturer=d.manufacturer.trim();d.model=d.model.trim();const {error}=await sb.from('service_cartridge_models').insert(d);if(error)alert(error.message);else{ev.target.reset();refresh()}}
 $('orderForm').onsubmit=async ev=>{ev.preventDefault();const d=formData(ev.target);d.total_amount=Number(d.total_amount||0);for(const k of ['equipment_id','cartridge_id'])if(!d[k])d[k]=null;const {error}=await sb.from('service_orders').insert(d);if(error)alert(error.message);else{ev.target.reset();refresh()}}
 sb.auth.onAuthStateChange((event,session)=>{if(session){$('auth').classList.add('hidden');$('app').classList.remove('hidden');refresh()}else{$('auth').classList.remove('hidden');$('app').classList.add('hidden')}});
