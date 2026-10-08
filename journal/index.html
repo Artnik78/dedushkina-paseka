@@ -787,9 +787,16 @@ async function authInit(){
           $('auth').style.display='flex';
         }),0);
       }else{
-        $('app').style.display='';
+        guestMode=false;
+        $('app').style.display='none';
         $('auth').style.display='flex';
         $('userEmail').textContent='...';
+        const qrParam=new URLSearchParams(window.location.search).get('hive');
+        if(qrParam){
+          const clean=new URL(window.location.href);
+          clean.searchParams.delete('hive');
+          window.history.replaceState({},'',clean.pathname+clean.search+clean.hash);
+        }
       }
     });
   }catch(e){
