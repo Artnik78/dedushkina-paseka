@@ -54,8 +54,8 @@ th,td{padding:11px;border-bottom:1px solid #e7edf2;text-align:left;white-space:n
 </section>
 
 <section id="requests"><div class="card"><h2>Заявка</h2><p class="muted">Первичная регистрация обращения клиента. Клиент выбирается из базы организаций и частных лиц.</p>
-<form id="requestForm" class="formgrid"><select name="client_id" id="requestClient" required><option value="">Выберите клиента</option></select><select name="cartridge_id" id="requestCartridge"><option value="">Выберите картридж</option></select><select name="equipment_id" id="requestEquipment"><option value="">Выберите технику</option></select><input type="hidden" name="cartridge_name" id="requestCartridgeName"><input type="hidden" name="equipment_name" id="requestEquipmentName"><div class="barcodeRow"><input name="barcode" id="requestBarcode" placeholder="Штрихкод"><button type="button" class="light scanBtn" onclick="openScanner('requestBarcode')">📷 Сканировать</button></div><div class="toolbar"><button class="primary">Сохранить заявку</button></div></form></div>
-<div class="card" style="margin-top:14px"><h2>Последние заявки</h2><div class="tablewrap"><table><thead><tr><th>Дата</th><th>Клиент</th><th>Тип</th><th>Картридж</th><th>Техника</th><th>Штрихкод</th></tr></thead><tbody id="requestRows"></tbody></table></div></div></section>
+<form id="requestForm" class="formgrid"><select name="client_id" id="requestClient" required><option value="">Выберите клиента</option></select><select name="request_type" id="requestType" required><option value="refill">Заправка картриджа</option><option value="repair">Ремонт техники</option></select><select name="cartridge_id" id="requestCartridge"><option value="">Выберите картридж</option></select><select name="equipment_id" id="requestEquipment"><option value="">Выберите технику</option></select><input type="hidden" name="cartridge_name" id="requestCartridgeName"><input type="hidden" name="equipment_name" id="requestEquipmentName"><div class="barcodeRow"><input name="barcode" id="requestBarcode" placeholder="Штрихкод"><button type="button" class="light scanBtn" onclick="openScanner('requestBarcode')">📷 Сканировать</button></div><div class="toolbar"><button class="primary">Принять заявку в работу</button></div></form></div>
+<div class="card" style="margin-top:14px"><h2>Последние заявки</h2><div class="tablewrap"><table><thead><tr><th>Дата</th><th>Клиент</th><th>Направление</th><th>Картридж</th><th>Техника</th><th>Штрихкод</th><th>Статус</th></tr></thead><tbody id="requestRows"></tbody></table></div></div></section>
 
 <section id="clients"><div class="card"><h2>Клиенты</h2><p class="muted">Название, УНП, расчётный счёт, банк, телефон, электронная почта и ответственное лицо.</p>
 <form id="clientForm" class="formgrid">
@@ -174,8 +174,7 @@ async function refresh(){
  $('cntClients').textContent=c.data.length;loadRequests();$('cntEquipment').textContent=e.data.length;$('cntCartridges').textContent=k.data.length;$('cntOrders').textContent=o.data.length;
  $('clientsRows').innerHTML=c.data.map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.tax_id||'')}</td><td>${esc(x.bank_account||'')}</td><td>${esc(x.bik||'')}</td><td>${esc(x.bank||'')}</td><td>${esc(x.phone||'')}</td><td>${esc(x.email||'')}</td><td>${esc(x.responsible_person||'')}</td><td><button class="light" onclick="editClient('${x.id}')">Изменить</button> <button class="light" onclick="selectContracts('${x.id}')">Договоры</button> <button class="danger" onclick="deleteClient('${x.id}')">Удалить</button></td></tr>`).join('');
 fillSelect('requestClient',c.data,'name');
-fillSelect('requestCartridge',k.data,x=>((x.model||'')+' — '+(x.barcode||'')).trim(),'Выберите картридж');
-fillSelect('requestEquipment',e.data,x=>((x.manufacturer||'')+' '+(x.model||'')+(x.serial_number?' — '+x.serial_number:'')).trim(),'Выберите технику');
+await loadRequestAssets();
 fillSelect('contractClient',c.data,'name'); if(selectedContractClient && c.data.some(x=>x.id===selectedContractClient)) $('contractClient').value=selectedContractClient;
  $('equipmentRows').innerHTML=e.data.map(x=>`<tr><td>${esc(c.data.find(cl=>cl.id===x.client_id)?.name||'—')}</td><td>${esc(x.barcode||'')}</td><td>${esc(x.inventory_number||'')}</td><td>${esc(({printer:'Принтер',mfu:'МФУ',copier:'Копировальный аппарат',scanner:'Сканер',computer:'Компьютер',laptop:'Ноутбук',monitor:'Монитор',other_office:'Другая оргтехника',other:'Другое'}[x.equipment_type]||x.equipment_type||''))}</td><td>${esc(x.manufacturer||'')}</td><td>${esc(x.model||'')}</td><td>${esc(x.serial_number||'')}</td><td><button class="light" onclick="editEquipment('${x.id}')">Изменить</button> <button class="danger" onclick="deleteEquipment('${x.id}')">Удалить</button></td></tr>`).join('');
  $('cartridgeRows').innerHTML=k.data.map(x=>`<tr><td>${esc(c.data.find(cl=>cl.id===x.client_id)?.name||'—')}</td><td>${esc(x.barcode||'')}</td><td>${esc(x.model)}</td><td>${x.fill_count}</td><td><span id="workSummary-${x.id}" class="muted">Загрузка…</span></td><td><button class="primary" onclick="receiveRefillJob('${x.id}')">📥 Принять на заправку</button> <button class="light" onclick="openExistingCartridge('${x.id}')">🔧 Работы</button> <button class="light" onclick="editCartridge('${x.id}')">Изменить</button> <button class="danger" onclick="deleteCartridge('${x.id}')">Удалить</button></td></tr>`).join('');
@@ -223,11 +222,47 @@ window.editContract=async id=>{
 window.cancelContractEdit=()=>{$('contractForm').reset();$('contractSaveBtn').textContent='Сохранить договор';$('contractCancelBtn').classList.add('hidden')};
 window.deleteContract=async id=>{if(!confirm('Удалить этот договор из истории?'))return;const {error}=await sb.from('service_client_contracts').delete().eq('id',id);if(error)alert(error.message);else refresh()};
 $('contractClient').onchange=()=>refresh();window.editEquipment=async id=>{const {data,error}=await sb.from('service_equipment').select('*').eq('id',id).single();if(error){alert(error.message);return}const f=$('equipmentForm');Object.keys(data).forEach(k=>{if(f.elements[k])f.elements[k].value=data[k]??''});$('equipmentSaveBtn').textContent='Сохранить изменения';$('equipmentCancelBtn').classList.remove('hidden');show('equipment');window.scrollTo({top:$('equipment').offsetTop,behavior:'smooth'});};window.cancelEquipmentEdit=()=>{$('equipmentForm').reset();$('equipmentSaveBtn').textContent='Сохранить технику';$('equipmentCancelBtn').classList.add('hidden')};window.deleteEquipment=async id=>{if(!confirm('Удалить эту единицу техники?'))return;const {error}=await sb.from('service_equipment').delete().eq('id',id);if(error)alert('Не удалось удалить технику: '+error.message);else refresh()};window.editCartridge=async id=>{const {data,error}=await sb.from('service_cartridges').select('*').eq('id',id).single();if(error){alert(error.message);return}const f=$('cartridgeForm');Object.keys(data).forEach(k=>{if(f.elements[k])f.elements[k].value=data[k]??''});$('cartridgeSaveBtn').textContent='Сохранить изменения';$('cartridgeCancelBtn').classList.remove('hidden');show('cartridges');window.scrollTo({top:$('cartridges').offsetTop,behavior:'smooth'});};window.cancelCartridgeEdit=()=>{$('cartridgeForm').reset();$('cartridgeSaveBtn').textContent='Сохранить картридж';$('cartridgeCancelBtn').classList.add('hidden');$('cartridgeBarcodeInfo').textContent='';$('cartridgeMaintenance').classList.add('hidden');$('maintenanceRows').innerHTML=''};window.deleteCartridge=async id=>{if(!confirm('Удалить этот картридж?'))return;const {error}=await sb.from('service_cartridges').delete().eq('id',id);if(error)alert('Не удалось удалить картридж: '+error.message);else refresh()};
-$('requestClient').onchange=()=>refresh();
-$('requestCartridge').onchange=()=>{const o=$('requestCartridge').selectedOptions[0];$('requestCartridgeName').value=o?.textContent||'';};
-$('requestEquipment').onchange=()=>{const o=$('requestEquipment').selectedOptions[0];$('requestEquipmentName').value=o?.textContent||'';};
+async function loadRequestAssets(){
+ const clientId=$('requestClient').value;
+ const [k,e]=await Promise.all([
+  sb.from('service_cartridges').select('id,client_id,model,barcode').eq('status','active').order('model'),
+  sb.from('service_equipment').select('id,client_id,manufacturer,model,serial_number,barcode').eq('status','active').order('model')
+ ]);
+ const cartridges=(k.data||[]).filter(x=>!clientId||x.client_id===clientId);
+ const equipment=(e.data||[]).filter(x=>!clientId||x.client_id===clientId);
+ window._requestCartridges=cartridges; window._requestEquipment=equipment;
+ fillSelect('requestCartridge',cartridges,x=>((x.model||'')+' — '+(x.barcode||'')).trim(),'Выберите картридж');
+ fillSelect('requestEquipment',equipment,x=>((x.manufacturer||'')+' '+(x.model||'')+(x.serial_number?' — '+x.serial_number:'')).trim(),'Выберите технику');
+}
+$('requestClient').onchange=()=>loadRequestAssets();
+$('requestType').onchange=()=>{const t=$('requestType').value;$('requestCartridge').disabled=t!=='refill';$('requestEquipment').disabled=t!=='repair';if(t==='refill')$('requestEquipment').value='';else $('requestCartridge').value='';};
+$('requestCartridge').onchange=()=>{const o=$('requestCartridge').selectedOptions[0];$('requestCartridgeName').value=o?.textContent||'';const x=window._requestCartridges?.find?.(z=>z.id===$('requestCartridge').value);if(x&&!$('requestBarcode').value)$('requestBarcode').value=x.barcode||'';};
+$('requestEquipment').onchange=()=>{const o=$('requestEquipment').selectedOptions[0];$('requestEquipmentName').value=o?.textContent||'';const x=window._requestEquipment?.find?.(z=>z.id===$('requestEquipment').value);if(x&&!$('requestBarcode').value)$('requestBarcode').value=x.barcode||'';};
 $('repairClient').onchange=()=>refresh();
-$('requestForm').onsubmit=async ev=>{ev.preventDefault();const d=formData(ev.target);const {error}=await sb.from('service_requests').insert(d);if(error)alert(error.message);else{ev.target.reset();loadRequests();alert('Заявка сохранена.')}};
+$('requestEquipment').disabled=true;
+$('requestForm').onsubmit=async ev=>{
+ ev.preventDefault();
+ const d=formData(ev.target); d.status='new';
+ if(d.request_type==='refill'&&!d.cartridge_id){alert('Для заправки выберите картридж.');return}
+ if(d.request_type==='repair'&&!d.equipment_id){alert('Для ремонта выберите технику.');return}
+ if(d.request_type==='refill')d.equipment_id=null; else d.cartridge_id=null;
+ const {data:req,error}=await sb.from('service_requests').insert(d).select().single();
+ if(error){alert(error.message);return}
+ let workError=null;
+ if(d.request_type==='refill'){
+   const active=await sb.from('service_cartridge_jobs').select('id').eq('cartridge_id',d.cartridge_id).in('status',['received','in_work']).limit(1);
+   if(active.data?.length){await sb.from('service_requests').delete().eq('id',req.id);alert('Этот картридж уже находится в журнале заправки.');return}
+   const r=await sb.from('service_cartridge_jobs').insert({cartridge_id:d.cartridge_id,client_id:d.client_id,status:'received',received_at:new Date().toISOString().slice(0,10),notes:'Создано из заявки'});
+   workError=r.error;
+ }else{
+   const r=await sb.from('service_repair_jobs').insert({client_id:d.client_id,equipment_id:d.equipment_id,status:'received',received_at:new Date().toISOString().slice(0,10),problem:'Заявка клиента',notes:'Создано из заявки'});
+   workError=r.error;
+ }
+ if(workError){await sb.from('service_requests').update({status:'new'}).eq('id',req.id);alert('Заявка сохранена, но не удалось передать её в журнал: '+workError.message);return}
+ await sb.from('service_requests').update({status:'in_work'}).eq('id',req.id);
+ ev.target.reset();$('requestType').value='refill';$('requestCartridge').disabled=false;$('requestEquipment').disabled=true;await loadRequestAssets();loadRequests();
+ alert(d.request_type==='refill'?'Заявка принята в журнал заправки картриджей.':'Заявка принята в журнал ремонта техники.');
+};
 $('repairForm').onsubmit=async ev=>{ev.preventDefault();const d=formData(ev.target);d.labor_amount=Number(d.labor_amount||0);d.parts_amount=Number(d.parts_amount||0);if(!d.equipment_id)d.equipment_id=null;const {error}=await sb.from('service_repair_jobs').insert(d);if(error)alert(error.message);else{ev.target.reset();loadRepairJournal()}};
 $('orderClient').onchange=()=>refresh();
 $('equipmentClient').onchange=()=>{};
