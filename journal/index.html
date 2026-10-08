@@ -619,7 +619,7 @@ const SUPABASE_KEY = 'sb_publishable_1eM3o5IehFq-IvjWkHLiCA_RMXGHfw5';
 const { createClient } = window.supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { storageKey: 'dedushkina-paseka-journal-auth' } });
 
-const state = {hives:[], inspections:[], health:[], treatments:[], honey:[], tasks:[], finance:[], apiaries:[], medicines:[], disinfection:[], beeFamilies:[]};
+const state = {hives:[], inspections:[], health:[], treatments:[], queens:[], honey:[], tasks:[], finance:[], apiaries:[], medicines:[], disinfection:[], beeFamilies:[]};
 let guestMode=false;
 let calendarMonth = new Date();
 calendarMonth.setDate(1);
@@ -921,7 +921,7 @@ async function getTable(table,order='created_at'){
 }
 async function loadAll(){
   const names=[
-    ['apiaries','apiaries'],['hives','hives'],['inspections','inspections'],['health','hive_health_records'],['treatments','hive_treatments'],['honey','honey_batches'],
+    ['apiaries','apiaries'],['hives','hives'],['inspections','inspections'],['health','hive_health_records'],['treatments','hive_treatments'],['queens','hive_queens'],['honey','honey_batches'],
     ['tasks','tasks'],['finance','finances'],['medicines','medicines'],['disinfection','disinfection_logs'],['beeFamilies','bee_families']
   ];
   const errors=[];
@@ -1401,13 +1401,38 @@ function renderStrengthGraph(inspections){
   pts.forEach(p=>{s+='<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="5" fill="'+(p.v?'#d5a72b':'#aaa')+'"/><text x="'+p.x.toFixed(1)+'" y="'+(H-12)+'" text-anchor="middle" font-size="10" fill="#708078">'+esc(p.d||'—')+'</text>';});
   return s+'</svg></div><div class="muted" style="margin-top:4px">Сильная → Средняя → Слабая. Серые точки — сила не указана.</div>';
 }
+function queenHistoryForHive(id){
+  return (state.queens||[]).filter(q=>String(q.hive_id)===String(id)).sort((a,b)=>String(b.introduction_date||b.created_at||'').localeCompare(String(a.introduction_date||a.created_at||'')));
+}
+function queenPanelHtml(id){
+  const rows=queenHistoryForHive(id);
+  const current=rows.find(q=>String(q.status||'')==='Текущая')||rows[0]||null;
+  const history=rows.map(q=>'<tr><td>'+esc(q.introduction_date||'—')+'</td><td>'+esc(q.queen_identifier||'—')+'</td><td>'+esc(q.breed||'—')+'</td><td>'+esc(q.birth_year||'—')+'</td><td>'+esc(q.origin||'—')+'</td><td>'+esc(q.marking_color||'—')+'</td><td>'+esc(q.status||'—')+'</td><td>'+(guestMode?'':'<button type="button" class="btn secondary queen-delete" data-id="'+esc(q.id)+'">Удалить</button>')+'</td></tr>').join('');
+  const form=guestMode?'':'<div class="panel" style="margin-top:12px;background:#fbfaf4"><b>➕ Добавить матку / замену</b><form id="queenForm" class="form" style="margin-top:10px">'+
+    '<div class="field"><label>Идентификатор / номер</label><input name="queen_identifier" placeholder="Например, К-125"></div>'+
+    '<div class="field"><label>Порода</label><select name="breed"><option value="">Не указана</option><option>Карника</option><option>Бакфаст</option><option>Мешанка</option><option>Итальянка</option><option>Среднерусская</option><option>Кавказская</option><option>Другая</option></select></div>'+
+    '<div class="field"><label>Год вывода</label><input name="birth_year" type="number" min="2000" max="2100" placeholder="2026"></div>'+
+    '<div class="field"><label>Происхождение</label><input name="origin" placeholder="Своя, питомник, куплена"></div>'+
+    '<div class="field"><label>Цвет метки</label><input name="marking_color" placeholder="Белая, жёлтая, красная..."></div>'+
+    '<div class="field"><label>Дата подсадки</label><input name="introduction_date" type="date" value="'+today()+'"></div>'+
+    '<div class="field"><label>Статус</label><select name="status"><option>Текущая</option><option>Заменена</option><option>Погибла</option><option>Неизвестно</option></select></div>'+
+    '<div class="field"><label>Дата замены / выбытия</label><input name="replacement_date" type="date"></div>'+
+    '<div class="field full"><label>Причина замены</label><input name="replacement_reason" placeholder="Слабая, старая, потеряна, плановая замена..."></div>'+
+    '<div class="field full"><label>Примечание</label><textarea name="notes" placeholder="Дополнительные сведения о матке"></textarea></div>'+
+    '<div class="actions"><button class="btn gold">Сохранить матку</button></div></form></div>';
+  return '<div class="panel" style="margin-top:14px"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><b>👑 Карточка и история матки</b><span class="muted">'+esc(current?.status||'Нет записи')+'</span></div>'+
+    (current?'<div class="status-grid" style="margin-top:10px"><div class="status-box"><div class="muted">Порода</div><b>'+esc(current.breed||'Не указана')+'</b></div><div class="status-box"><div class="muted">Год вывода</div><b>'+esc(current.birth_year||'—')+'</b></div><div class="status-box"><div class="muted">Происхождение</div><b>'+esc(current.origin||'—')+'</b></div><div class="status-box"><div class="muted">Метка</div><b>'+esc(current.marking_color||'—')+'</b></div></div>':'<div class="empty" style="margin-top:10px">История маток по этому улью пока не заведена.</div>')+
+    (rows.length?'<div class="table-wrap" style="margin-top:10px"><table class="table"><thead><tr><th>Подсадка</th><th>№</th><th>Порода</th><th>Год</th><th>Происхождение</th><th>Метка</th><th>Статус</th><th></th></tr></thead><tbody>'+history+'</tbody></table></div>':'')+form+'</div>';
+}
 function showHiveFamily(id){
   const h=state.hives.find(x=>String(x.id)===String(id)); if(!h)return;
   const inspections=state.inspections.filter(i=>String(i.hive_id)===String(id)).sort((a,b)=>String(b.inspection_date||'').localeCompare(String(a.inspection_date||'')));
   const last=inspections[0]||null;
   const apiaryMap=Object.fromEntries(state.apiaries.map(a=>[a.id,a.name]));
-  const queenBreed=h.queen_breed||last?.queen_breed||'';
-  const queenYear=h.queen_year?Number(h.queen_year):null;
+  const queenRows=queenHistoryForHive(id);
+  const currentQueen=queenRows.find(q=>String(q.status||'')==='Текущая')||queenRows[0]||null;
+  const queenBreed=currentQueen?.breed||h.queen_breed||last?.queen_breed||'';
+  const queenYear=currentQueen?.birth_year?Number(currentQueen.birth_year):(h.queen_year?Number(h.queen_year):null);
   const queenAge=queenYear?Math.max(0,new Date().getFullYear()-queenYear):null;
   const days=last?.inspection_date?Math.max(0,Math.floor((new Date(today()+'T00:00:00')-new Date(String(last.inspection_date).slice(0,10)+'T00:00:00'))/86400000)):null;
   const recent=inspections.slice(0,5);
@@ -1415,7 +1440,7 @@ function showHiveFamily(id){
   $('hiveFamilyInfo').innerHTML=
     '<div class="card"><div class="muted">🐝 УЛЕЙ</div><b style="font-size:25px;color:var(--green)">№ '+esc(h.hive_number||'—')+'</b><div class="muted" style="margin-top:5px">🐝 '+esc(apiaryMap[h.apiary_id]||'Пасека не указана')+' • 📍 '+esc(h.location||'Место не указано')+' • '+esc(h.status||'Состояние не указано')+'</div></div>'+
     '<div class="status-grid" style="margin-top:12px"><div class="status-box"><div class="muted">👑 Матка</div><b>'+esc(last?.queen_status||'Нет данных')+'</b></div><div class="status-box"><div class="muted">💪 Сила семьи</div><b>'+esc(last?.colony_strength||'Нет данных')+'</b></div><div class="status-box"><div class="muted">🥚 Расплод</div><b>'+esc(last?.brood||'Нет данных')+'</b></div><div class="status-box"><div class="muted">🍯 Корм</div><b>'+esc(last?.feed||'Нет данных')+'</b></div></div>'+
-    '<div class="panel" style="margin-top:14px"><b>👑 Матка</b><div style="margin-top:7px">Порода: <b>'+esc(queenBreed||'Не указана')+'</b> • Год вывода: <b>'+esc(queenYear||'Не указан')+'</b>'+(queenAge!==null?' • Возраст: <b>'+queenAge+' '+(queenAge===1?'год':(queenAge>=2&&queenAge<=4?'года':'лет'))+'</b>':'')+'</div><div class="muted" style="margin-top:8px">'+esc(days===null?'Осмотров ещё не было':days>=14?'⚠️ Последний осмотр был '+days+' дн. назад':'Последний осмотр '+days+' дн. назад')+'</div></div>'+
+    '<div class="panel" style="margin-top:14px"><b>👑 Матка</b><div style="margin-top:7px">Порода: <b>'+esc(queenBreed||'Не указана')+'</b> • Год вывода: <b>'+esc(queenYear||'Не указан')+'</b>'+(queenAge!==null?' • Возраст: <b>'+queenAge+' '+(queenAge===1?'год':(queenAge>=2&&queenAge<=4?'года':'лет'))+'</b>':'')+'</div><div class="muted" style="margin-top:8px">'+esc(days===null?'Осмотров ещё не было':days>=14?'⚠️ Последний осмотр был '+days+' дн. назад':'Последний осмотр '+days+' дн. назад')+'</div></div>'+queenPanelHtml(id)+
     (last?.notes?'<div class="panel" style="margin-top:14px"><b>📝 Заметки последнего осмотра</b><p style="margin-bottom:0">'+esc(last.notes)+'</p></div>':'')+
     (recent.length?'<div class="panel" style="margin-top:14px"><b>📋 Последние осмотры</b><div class="table-wrap" style="margin-top:8px"><table class="table"><thead><tr><th>Дата</th><th>Семья</th><th>Матка</th><th>Расплод</th><th>Корм</th><th></th></tr></thead><tbody>'+recent.map(i=>'<tr><td>'+esc(i.inspection_date||'—')+'</td><td>'+esc(i.colony_strength||'—')+'</td><td>'+esc(i.queen_status||'—')+'</td><td>'+esc(i.brood||'—')+'</td><td>'+esc(i.feed||'—')+'</td><td><button type="button" class="btn secondary hive-inspection-open" data-id="'+esc(i.id)+'">Открыть</button></td></tr>').join('')+'</tbody></table></div></div>':'<div class="panel" style="margin-top:14px"><div class="empty">Осмотров по этому улью пока нет.</div></div>')+
     (()=>{const tx=(state.treatments||[]).filter(x=>String(x.hive_id)===String(id)).sort((a,b)=>String(b.treatment_date||'').localeCompare(String(a.treatment_date||''))).slice(0,8);return '<div class="panel" style="margin-top:14px"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><b>💊 История лечения</b><span class="muted">'+tx.length+' '+(tx.length===1?'обработка':'обработок')+'</span></div>'+(tx.length?'<div class="table-wrap" style="margin-top:8px"><table class="table"><thead><tr><th>Дата</th><th>Препарат</th><th>Цель</th><th>Доза</th><th>Способ</th><th>Расход</th></tr></thead><tbody>'+tx.map(x=>'<tr><td>'+esc(x.treatment_date||'—')+'</td><td>'+esc(x.product_name||'—')+'</td><td>'+esc(x.purpose||'—')+'</td><td>'+esc(x.dose||'—')+'</td><td>'+esc(x.method||'—')+'</td><td>'+esc(x.quantity_used??'—')+'</td></tr>').join('')+'</tbody></table></div>':'<div class="empty" style="padding:16px 0">Обработок по этому улью пока нет.</div>')+'</div>';})()+
@@ -1425,6 +1450,37 @@ function showHiveFamily(id){
     '</div>';
   $('hiveFamilyInfo').innerHTML += '<div class="actions" style="margin-top:14px"><button type="button" class="btn gold" id="hiveFamilyNewInspection">📋 Новый осмотр</button><button type="button" class="btn secondary" id="hiveFamilyEditFamily">🐝 Данные семьи</button><button type="button" class="btn secondary" id="hiveFamilyEdit">✏️ Изменить улей</button><button type="button" class="btn secondary" id="hiveFamilyHistory">↔️ История перемещений</button></div>';
     document.querySelectorAll('.hive-inspection-open').forEach(b=>b.onclick=()=>showInspectionDetails(b.dataset.id));
+  const qf=$('queenForm');
+  if(qf) qf.onsubmit=async e=>{
+    e.preventDefault();
+    if(guestMode){toast('Гостевой режим — только просмотр');return}
+    const d=formData(qf);
+    const payload={hive_id:id,queen_identifier:d.queen_identifier.trim()||null,breed:d.breed.trim()||null,birth_year:d.birth_year?Number(d.birth_year):null,origin:d.origin.trim()||null,marking_color:d.marking_color.trim()||null,introduction_date:d.introduction_date||null,status:d.status||'Текущая',replacement_date:d.replacement_date||null,replacement_reason:d.replacement_reason.trim()||null,notes:d.notes.trim()||null};
+    if(payload.status==='Текущая'){
+      const current=queenRows.find(q=>String(q.status||'')==='Текущая');
+      if(current){
+        const {error:updateError}=await db.from('hive_queens').update({status:'Заменена',replacement_date:payload.introduction_date||today(),replacement_reason:'Замена новой маткой'}).eq('id',current.id);
+        if(updateError){toast('Не удалось закрыть предыдущую матку: '+updateError.message);return}
+      }
+    }
+    const {error}=await db.from('hive_queens').insert(payload);
+    if(error){toast('Ошибка: '+error.message);await loadAll();return}
+    if(payload.breed||payload.birth_year){
+      const updateData={};
+      if(payload.breed)updateData.queen_breed=payload.breed;
+      if(payload.birth_year)updateData.queen_year=payload.birth_year;
+      const {error:hiveError}=await db.from('hives').update(updateData).eq('id',id);
+      if(hiveError){toast('Матка сохранена, но данные улья не обновились: '+hiveError.message);await loadAll();return}
+    }
+    toast('Карточка матки сохранена');await loadAll();showHiveFamily(id);
+  };
+  document.querySelectorAll('.queen-delete').forEach(b=>b.onclick=async()=>{
+    if(guestMode)return;
+    if(!confirm('Удалить запись об этой матке?'))return;
+    const {error}=await db.from('hive_queens').delete().eq('id',b.dataset.id);
+    if(error){toast('Ошибка: '+error.message);return}
+    toast('Запись о матке удалена');await loadAll();showHiveFamily(id);
+  });
 $('hiveFamilyModal').style.display='flex';
   $('hiveFamilyNewInspection').onclick=()=>{
     closeHiveFamily();
