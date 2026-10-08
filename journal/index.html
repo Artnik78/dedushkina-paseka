@@ -163,6 +163,20 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
   </div>
 </div>
 
+<div id="hiveMoveModal" class="event-modal" style="z-index:50">
+  <div class="event-modal-box" style="width:min(560px,100%)">
+    <div class="event-modal-head"><h3 id="hiveMoveTitle">↔️ Перемещение улья</h3><button type="button" class="close-btn" id="closeHiveMoveBtn">×</button></div>
+    <form id="hiveMoveForm" class="form">
+      <input type="hidden" name="hive_id">
+      <div class="field"><label>Откуда</label><input name="from_name" readonly></div>
+      <div class="field"><label>Куда *</label><select name="to_apiary_id" required></select></div>
+      <div class="field"><label>Дата перемещения *</label><input name="movement_date" type="date" required></div>
+      <div class="field"><label>Причина</label><select name="reason"><option>Перемещение улья</option><option>Медосбор</option><option>Зимовка</option><option>Объединение семей</option><option>Разделение семьи</option><option>Ремонт / обслуживание</option><option>Другое</option></select></div>
+      <div class="field full"><label>Примечание</label><textarea name="notes" placeholder="Например: перевезён на липовый медосбор"></textarea></div>
+      <div class="actions"><button class="btn gold">Сохранить перемещение</button><button type="button" class="btn secondary" id="closeHiveMoveBtn2">Отмена</button></div>
+    </form>
+  </div>
+</div>
 <div id="hiveFamilyModal" class="event-modal" style="z-index:45">
   <div class="event-modal-box">
     <div class="event-modal-head"><h3 id="hiveFamilyTitle">🐝 Пчелиная семья</h3><button type="button" class="close-btn" id="closeHiveFamilyBtn">×</button></div>
@@ -1579,7 +1593,7 @@ function showHiveFamily(id){
     renderStrengthGraph(inspections)+
     (inspections.length?'<div class="table-wrap" style="margin-top:10px"><table class="table"><thead><tr><th>Дата</th><th>Сила</th><th>Матка</th><th>Расплод</th><th>Корм</th></tr></thead><tbody>'+inspections.slice(0,12).map(i=>'<tr><td>'+esc(i.inspection_date||'—')+'</td><td>'+esc(i.colony_strength||'—')+'</td><td>'+esc(i.queen_status||'—')+'</td><td>'+esc(i.brood||'—')+'</td><td>'+esc(i.feed||'—')+'</td></tr>').join('')+'</tbody></table></div>':'<div class="empty">История пока пуста.</div>')+
     '</div>';
-  $('hiveFamilyInfo').innerHTML += '<div class="actions" style="margin-top:14px"><button type="button" class="btn gold" id="hiveFamilyNewInspection">📋 Новый осмотр</button><button type="button" class="btn secondary" id="hiveFamilyEditFamily">🐝 Данные семьи</button><button type="button" class="btn secondary" id="hiveFamilyEdit">✏️ Изменить улей</button><button type="button" class="btn secondary" id="hiveFamilyHistory">↔️ История перемещений</button></div>';
+  $('hiveFamilyInfo').innerHTML += '<div class="actions" style="margin-top:14px"><button type="button" class="btn gold" id="hiveFamilyNewInspection">📋 Новый осмотр</button><button type="button" class="btn secondary" id="hiveFamilyEditFamily">🐝 Данные семьи</button><button type="button" class="btn secondary" id="hiveFamilyEdit">✏️ Изменить улей</button><button type="button" class="btn secondary" id="hiveFamilyHistory">↔️ История перемещений</button><button type="button" class="btn secondary" id="hiveFamilyMove">🚚 Переместить</button></div>';
     document.querySelectorAll('.hive-inspection-open').forEach(b=>b.onclick=()=>showInspectionDetails(b.dataset.id));
   const qf=$('queenForm');
   if(qf) qf.onsubmit=async e=>{
@@ -1622,6 +1636,15 @@ $('hiveFamilyModal').style.display='flex';
   $('hiveFamilyEditFamily').onclick=()=>editBeeFamily(h.id);
   $('hiveFamilyEdit').onclick=()=>{closeHiveFamily();showPage('hives');editHive(h.id);};
   $('hiveFamilyHistory').onclick=()=>{closeHiveFamily();showPage('hives');showHiveHistory(h.id);};
+  $('hiveFamilyMove').onclick=()=>{
+    if(guestMode){toast('Гостевой режим — только просмотр');return}
+    const f=$('hiveMoveForm'); if(!f)return;
+    f.reset(); f.elements.hive_id.value=h.id; f.elements.from_name.value=apiaryMap[h.apiary_id]||'—'; f.elements.movement_date.value=today();
+    f.elements.to_apiary_id.innerHTML='<option value="">Выберите пасеку</option>'+state.apiaries.filter(a=>String(a.id)!==String(h.apiary_id)).map(a=>'<option value="'+esc(a.id)+'">'+esc(a.name)+'</option>').join('');
+    $('hiveMoveTitle').textContent='↔️ Перемещение улья №'+(h.hive_number||'');
+    $('hiveMoveModal').style.display='flex';
+  };
+
 }
 function showInspectionDetails(id){
   const i=state.inspections.find(x=>String(x.id)===String(id)); if(!i)return;
@@ -1644,6 +1667,21 @@ async function showHiveHistory(id){
   $('hiveHistoryList').innerHTML=data&&data.length?'<table class="table"><thead><tr><th>Дата</th><th>Откуда</th><th>Куда</th><th>Причина</th><th>Примечание</th></tr></thead><tbody>'+data.map(x=>'<tr><td>'+esc(x.movement_date)+'</td><td>'+esc(apiaryMap[x.from_apiary_id]||'—')+'</td><td>'+esc(apiaryMap[x.to_apiary_id]||'—')+'</td><td>'+esc(x.reason||'—')+'</td><td>'+esc(x.notes||'—')+'</td></tr>').join('')+'</tbody></table>':'<div class="empty">История перемещений пока пуста.</div>';
 }
 $('closeHiveHistoryBtn').onclick=()=>{$('hiveHistoryPanel').style.display='none'};
+$('closeHiveMoveBtn')?.addEventListener('click',()=>{ $('hiveMoveModal').style.display='none'; });
+$('closeHiveMoveBtn2')?.addEventListener('click',()=>{ $('hiveMoveModal').style.display='none'; });
+$('hiveMoveModal')?.addEventListener('click',e=>{if(e.target.id==='hiveMoveModal')$('hiveMoveModal').style.display='none'});
+$('hiveMoveForm').onsubmit=async e=>{
+  e.preventDefault();
+  if(guestMode){toast('Гостевой режим — только просмотр');return}
+  const f=e.target,d=formData(f),h=state.hives.find(x=>String(x.id)===String(d.hive_id));
+  if(!h){toast('Улей не найден');return}
+  if(String(h.apiary_id||'')===String(d.to_apiary_id||'')){toast('Выберите другую пасеку');return}
+  const {error}=await db.from('hive_movements').insert({hive_id:h.id,from_apiary_id:h.apiary_id||null,to_apiary_id:d.to_apiary_id,movement_date:d.movement_date,reason:d.reason||'Перемещение улья',notes:d.notes.trim()||null});
+  if(error){toast('Ошибка записи перемещения: '+error.message);return}
+  const {error:updateError}=await db.from('hives').update({apiary_id:d.to_apiary_id}).eq('id',h.id);
+  if(updateError){toast('История записана, но пасека улья не обновилась: '+updateError.message);await loadAll();return}
+  $('hiveMoveModal').style.display='none';toast('Улей перемещён');await loadAll();showHiveFamily(h.id);
+};
 $('closeHiveFamilyBtn').onclick=closeHiveFamily;
 $('closeHiveFamilyBtn2').onclick=closeHiveFamily;
 $('hiveFamilyModal').onclick=e=>{if(e.target.id==='hiveFamilyModal')closeHiveFamily()};
