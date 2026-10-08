@@ -178,6 +178,7 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
     <button data-page="apiaries">🍯 Мои пасеки</button>
     <button data-page="hives">⬡ Ульи</button>
     <button data-page="inspections">📋 Осмотры</button>
+    <button data-page="health">🩺 Здоровье</button>
     <button data-page="calendar">📅 Календарь</button>
     <button data-page="honey">🍯 Мёд / партии</button>
     <button data-page="finances">💰 Финансы</button>
@@ -349,6 +350,35 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
         </form>
       </div>
       <div class="panel"><h3>История осмотров</h3><div id="inspectionsList" class="table-wrap"></div></div>
+    </section>
+
+    <section id="page-health" class="section">
+      <h1>🩺 Здоровье семьи</h1>
+      <p class="sub">Контроль варроа, признаков заболеваний и проведённых обработок по каждому улью.</p>
+      <div class="panel">
+        <h3>Новая запись о здоровье</h3>
+        <form id="healthForm" class="form">
+          <div class="field"><label>Улей *</label><select name="hive_id" id="healthHive" required></select></div>
+          <div class="field"><label>Дата проверки *</label><input name="check_date" type="date" required></div>
+          <div class="field"><label>Метод контроля варроа</label><select name="varroa_method">
+            <option value="">Не проверялся</option><option>Сахарная пудра</option><option>Спиртовая смывка</option><option>Естественный осыпь</option><option>Поддон</option><option>Визуальная оценка</option><option>Другой</option>
+          </select></div>
+          <div class="field"><label>Результат варроа</label><input name="varroa_result" type="number" min="0" step="0.01" placeholder="Например, 3"></div>
+          <div class="field"><label>Единица результата</label><select name="varroa_unit"><option value="">Не указана</option><option>клещей / 100 пчёл</option><option>клещей / сутки</option><option>% поражения</option><option>условная оценка</option></select></div>
+          <div class="field"><label>Заболевание</label><select name="disease"><option value="">Не выявлено</option><option>Варроатоз</option><option>Нозематоз</option><option>Гнилец</option><option>Аскосфероз</option><option>Вирусное заболевание</option><option>Другое</option></select></div>
+          <div class="field"><label>Степень</label><select name="severity"><option value="">Не указана</option><option>Нет признаков</option><option>Лёгкая</option><option>Средняя</option><option>Тяжёлая</option></select></div>
+          <div class="field full"><label>Признаки / симптомы</label><textarea name="symptoms" placeholder="Что обнаружено при осмотре"></textarea></div>
+          <div class="field"><label>Принятые меры</label><input name="action_taken" placeholder="Например, поставлены полоски"></div>
+          <div class="field"><label>Препарат</label><input name="treatment_product" placeholder="Название препарата, если применялся"></div>
+          <div class="field"><label>Доза / способ</label><input name="treatment_dose" placeholder="Доза или способ применения"></div>
+          <div class="field full"><label>Примечание</label><textarea name="notes"></textarea></div>
+          <div class="actions"><button class="btn gold">Сохранить запись</button></div>
+        </form>
+      </div>
+      <div class="panel">
+        <h3>История здоровья семей</h3>
+        <div id="healthList" class="table-wrap"></div>
+      </div>
     </section>
 
     <section id="page-calendar" class="section">
@@ -578,7 +608,7 @@ const SUPABASE_KEY = 'sb_publishable_1eM3o5IehFq-IvjWkHLiCA_RMXGHfw5';
 const { createClient } = window.supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { storageKey: 'dedushkina-paseka-journal-auth' } });
 
-const state = {hives:[], inspections:[], honey:[], tasks:[], finance:[], apiaries:[], medicines:[], disinfection:[], beeFamilies:[]};
+const state = {hives:[], inspections:[], health:[], honey:[], tasks:[], finance:[], apiaries:[], medicines:[], disinfection:[], beeFamilies:[]};
 let guestMode=false;
 let calendarMonth = new Date();
 calendarMonth.setDate(1);
@@ -705,6 +735,11 @@ function renderGuestMode(){
     {id:'guest-med-3',name:'Апиварол',volume:'25 таблеток',quantity:1,min_quantity:2,expiry_date:d(240),expiry_warning_days:30,notes:'Остаток ниже минимального'},
     {id:'guest-med-4',name:'Витаминная подкормка',volume:'500 г',quantity:5,min_quantity:1,expiry_date:d(300),expiry_warning_days:30,notes:'Для весенней подкормки'}
   ];
+  state.health=[
+    {id:'guest-health-1',hive_id:'guest-hive-1',check_date:d(-5),varroa_method:'Сахарная пудра',varroa_result:2,varroa_unit:'клещей / 100 пчёл',disease:null,severity:'Нет признаков',symptoms:'Признаков заболевания не обнаружено',action_taken:'Контроль через 14 дней',treatment_product:'',treatment_dose:'',notes:'Контрольная проверка'},
+    {id:'guest-health-2',hive_id:'guest-hive-4',check_date:d(-3),varroa_method:'Естественный осыпь',varroa_result:7,varroa_unit:'клещей / сутки',disease:'Варроатоз',severity:'Средняя',symptoms:'Повышенный осыпь клеща',action_taken:'Запланирована обработка',treatment_product:'Бипин-Т',treatment_dose:'По инструкции',notes:'Повторный контроль после обработки'},
+    {id:'guest-health-3',hive_id:'guest-hive-9',check_date:d(-10),varroa_method:'Визуальная оценка',varroa_result:null,varroa_unit:null,disease:'Аскосфероз',severity:'Лёгкая',symptoms:'Отдельные мумифицированные личинки',action_taken:'Удалены поражённые соты',treatment_product:'',treatment_dose:'',notes:'Наблюдение'}
+  ];
   state.disinfection=[
     {id:'guest-dis-1',target_type:'Улей',apiary_id:'guest-apiary-1',hive_id:'guest-hive-1',frames_count:10,disinfection_date:d(-30),agent:'Сода + вода',treatment_method:'Обмывание',reason:'Плановая',responsible:'Пасечник',next_date:d(150),notes:'Плановая санитарная обработка'},
     {id:'guest-dis-2',target_type:'Рамки',apiary_id:'guest-apiary-1',hive_id:null,frames_count:24,disinfection_date:d(-20),agent:'Сода кальцинированная',treatment_method:'Замачивание',reason:'Санитарная',responsible:'Пасечник',next_date:d(160),notes:'Обработаны запасные рамки'},
@@ -715,7 +750,7 @@ function renderGuestMode(){
   renderAll();
 
   // Гостевой режим — только просмотр: формы и операции изменения скрыты.
-  document.querySelectorAll('#page-apiaries form,#page-hives form,#page-inspections form,#page-calendar form,#page-honey form,#page-finances form,#page-tasks form,#page-medicines form,#page-disinfection form').forEach(f=>{const p=f.closest('.panel');if(p)p.style.display='none';});
+  document.querySelectorAll('#page-apiaries form,#page-hives form,#page-inspections form,#page-health form,#page-calendar form,#page-honey form,#page-finances form,#page-tasks form,#page-medicines form,#page-disinfection form').forEach(f=>{const p=f.closest('.panel');if(p)p.style.display='none';});
   document.querySelectorAll('#page-home .actions button,#addCalendarEventBtn,.apiary-edit,.apiary-delete,.hive-edit,.hive-history,.hive-delete,.disinfection-edit,.disinfection-delete,.medicine-edit,.medicine-delete').forEach(b=>b.style.display='none');
   setText('countHives',state.hives.length); setText('countInspections',state.inspections.length); setText('countHoney',state.honey.length); setText('countTasks',state.tasks.filter(x=>x.status!=='Выполнена').length);
   setText('statHives',state.hives.length); setText('statInspections',state.inspections.length); setText('statHoney',state.honey.length); setText('statFinance',state.finance.length);
@@ -864,7 +899,7 @@ async function getTable(table,order='created_at'){
 }
 async function loadAll(){
   const names=[
-    ['apiaries','apiaries'],['hives','hives'],['inspections','inspections'],['honey','honey_batches'],
+    ['apiaries','apiaries'],['hives','hives'],['inspections','inspections'],['health','hive_health_records'],['honey','honey_batches'],
     ['tasks','tasks'],['finance','finances'],['medicines','medicines'],['disinfection','disinfection_logs'],['beeFamilies','bee_families']
   ];
   const errors=[];
@@ -1084,6 +1119,18 @@ function renderAll(){
   const hiveMap=Object.fromEntries(state.hives.map(h=>[h.id,h.hive_number]));
   $('inspectionsList').innerHTML=state.inspections.length?'<div class="inspection-mobile-list">'+state.inspections.map(i=>{const s=String(i.colony_strength||'').toLowerCase(),q=String(i.queen_status||'').toLowerCase(),f=String(i.feed||'').toLowerCase();const cls=s.includes('слаб')||q==='нет'||q.includes('трутне')||f.includes('мало')?'danger':s.includes('силь')?'ok':'warn';return '<button type="button" class="inspection-mobile-card '+cls+'" data-inspection-id="'+esc(i.id)+'"><div class="inspection-mobile-top"><b>📋 Улей №'+esc(hiveMap[i.hive_id]||'—')+'</b><span>'+esc(i.inspection_date||'—')+'</span></div><div class="inspection-mobile-meta"><span>🐝 '+esc(i.colony_strength||'Не указано')+'</span><span>👑 '+esc(i.queen_status||'Не указано')+'</span><span>🍯 '+esc(i.feed||'Не указано')+'</span></div><div class="muted">'+esc(i.notes||'Без заметок')+'</div></button>'}).join('')+'</div><div class="inspection-desktop-table"><table class="table"><thead><tr><th>Дата</th><th>Улей</th><th>Семья</th><th>Матка</th><th>Заметки</th></tr></thead><tbody>'+state.inspections.map(i=>'<tr><td>'+esc(i.inspection_date)+'</td><td>'+esc(hiveMap[i.hive_id]||i.hive_id||'')+'</td><td>'+esc(i.colony_strength)+'</td><td>'+esc(i.queen_status)+'</td><td>'+esc(i.notes)+'</td></tr>').join('')+'</tbody></table></div>':'<div class="empty">Осмотров пока нет.</div>';
 
+  const healthHiveMap=Object.fromEntries(state.hives.map(h=>[h.id,h.hive_number]));
+  $('healthList').innerHTML=state.health.length
+    ? '<div class="health-mobile-list">'+state.health.map(x=>{
+        const vr=x.varroa_result!==null&&x.varroa_result!==undefined&&x.varroa_result!=='' ? String(x.varroa_result)+' '+(x.varroa_unit||'') : 'не измерено';
+        const disease=x.disease||'Не выявлено';
+        const sev=x.severity||'';
+        const cls=(String(disease).toLowerCase()!=='не выявлено' || ['средняя','тяжёлая'].includes(String(sev).toLowerCase()))?'warn':'ok';
+        return '<div class="card" style="margin-bottom:10px;border-left:4px solid '+(cls==='warn'?'#d5a72b':'#4a9b57')+'"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><b>🩺 Улей №'+esc(healthHiveMap[x.hive_id]||'—')+'</b><span class="muted">'+esc(x.check_date||'—')+'</span></div><div class="hive-card-grid"><div><small>Варроа</small><b>'+esc(vr)+'</b></div><div><small>Заболевание</small><b>'+esc(disease)+'</b></div><div><small>Степень</small><b>'+esc(sev||'—')+'</b></div><div><small>Препарат</small><b>'+esc(x.treatment_product||'—')+'</b></div></div>'+(x.symptoms?'<div class="muted" style="margin-top:8px">Симптомы: '+esc(x.symptoms)+'</div>':'')+(x.action_taken?'<div class="muted" style="margin-top:5px">Меры: '+esc(x.action_taken)+'</div>':'')+'<div class="actions" style="margin:10px 0 0"><button type="button" class="btn danger health-delete" data-id="'+esc(x.id)+'">Удалить</button></div></div>';
+      }).join('')
+    : '<div class="empty">Записей о здоровье пока нет. Добавьте первую проверку варроа или заболевание выше.</div>';
+  document.querySelectorAll('.health-delete').forEach(b=>b.onclick=()=>deleteHealthRecord(b.dataset.id));
+
   $('honeyList').innerHTML=state.honey.length
     ? state.honey.map(h=>{
         const total=(Number(h.quantity_kg)||0)*(Number(h.price_per_kg)||0);
@@ -1160,6 +1207,7 @@ document.querySelectorAll('.honey-batch-card').forEach(b=>b.onclick=()=>openHone
   $('disinfectionForm').elements.apiary_id.innerHTML='<option value="">Не указана</option>'+state.apiaries.map(a=>'<option value="'+a.id+'">'+esc(a.name)+'</option>').join('');
   $('disinfectionForm').elements.hive_id.innerHTML='<option value="">Не указан</option>'+state.hives.map(h=>'<option value="'+h.id+'">№ '+esc(h.hive_number)+'</option>').join('');
   $('inspectionHive').innerHTML='<option value="">Выберите улей</option>'+state.hives.map(h=>'<option value="'+h.id+'">№ '+esc(h.hive_number)+'</option>').join('');
+  $('healthHive').innerHTML='<option value="">Выберите улей</option>'+state.hives.map(h=>'<option value="'+h.id+'">№ '+esc(h.hive_number)+'</option>').join('');
   $('hiveForm').elements.apiary_id.innerHTML='<option value="">Выберите пасеку</option>'+state.apiaries.map(a=>'<option value="'+a.id+'">'+esc(a.name)+'</option>').join('');
 }
 async function insert(table,payload,form){
@@ -1467,6 +1515,35 @@ async function deleteDisinfection(id){
 $('disinfectionCancelBtn').onclick=resetDisinfectionForm;
 
 $('inspectionForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);insert('inspections',{hive_id:d.hive_id,inspection_date:d.inspection_date,colony_strength:d.colony_strength,queen_status:d.queen_status,queen_breed:d.queen_breed,brood:d.brood,feed:d.feed,notes:d.notes},e.target)};
+$('healthForm').onsubmit=async e=>{
+  e.preventDefault();
+  const d=formData(e.target);
+  const payload={
+    hive_id:d.hive_id,
+    check_date:d.check_date,
+    varroa_method:d.varroa_method||null,
+    varroa_result:d.varroa_result===''?null:Number(d.varroa_result),
+    varroa_unit:d.varroa_unit||null,
+    disease:d.disease||null,
+    severity:d.severity||null,
+    symptoms:d.symptoms.trim(),
+    action_taken:d.action_taken.trim(),
+    treatment_product:d.treatment_product.trim(),
+    treatment_dose:d.treatment_dose.trim(),
+    notes:d.notes.trim()
+  };
+  const {error}=await db.from('hive_health_records').insert(payload);
+  if(error){toast('Ошибка: '+error.message);return}
+  e.target.reset(); e.target.elements.check_date.value=today();
+  toast('Запись о здоровье сохранена'); await loadAll();
+};
+async function deleteHealthRecord(id){
+  if(guestMode){toast('Гостевой режим — только просмотр');return}
+  if(!confirm('Удалить запись о здоровье семьи?'))return;
+  const {error}=await db.from('hive_health_records').delete().eq('id',id);
+  if(error){toast('Ошибка: '+error.message);return}
+  toast('Запись удалена'); await loadAll();
+}
 $('honeyForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);insert('honey_batches',{batch_number:d.batch_number,honey_type:d.honey_type,collection_date:d.collection_date||null,quantity_kg:d.quantity_kg?Number(d.quantity_kg):null,price_per_kg:d.price_per_kg?Number(d.price_per_kg):null,collection_place:d.collection_place,notes:d.notes},e.target)};
 $('financeForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);insert('finances',{operation_date:d.operation_date,operation_type:d.operation_type,amount:Number(d.amount),category:d.category,description:d.description},e.target)};
 $('taskForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);insert('tasks',{title:d.title,due_date:d.due_date||null,priority:d.priority,status:d.status,description:d.description},e.target)};
