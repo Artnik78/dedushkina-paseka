@@ -204,6 +204,26 @@ function renderContracts(data){
  $('contractsRows').innerHTML=rows.map(x=>`<tr><td>${x.contract_year}</td><td>${esc(x.contract_number)}</td><td>${esc(x.contract_date||'')}</td><td>${esc(x.valid_until||'')}</td><td><button class="light" onclick="editContract('${x.id}')">Изменить</button> <button class="danger" onclick="deleteContract('${x.id}')">Удалить</button></td></tr>`).join('');
 }
 window.selectContracts=id=>{$('contractClient').value=id;refresh()};
+window.openClient=async id=>{
+ const {data:cl,error}=await sb.from('service_clients').select('*').eq('id',id).single();
+ if(error){alert(error.message);return}
+ const eq=await sb.from('service_equipment').select('id,manufacturer,model,equipment_type').eq('client_id',id).order('created_at',{ascending:false});
+ const ca=await sb.from('service_cartridges').select('id,model,barcode,status').eq('client_id',id).order('created_at',{ascending:false});
+ const req=await sb.from('service_requests').select('id,created_at,request_type,status,cartridge_name,equipment_name').eq('client_id',id).order('created_at',{ascending:false}).limit(20);
+ const ord=await sb.from('service_orders').select('id,order_number,order_date,status,total_amount').eq('client_id',id).order('created_at',{ascending:false}).limit(20);
+ if(eq.error||ca.error||req.error||ord.error){alert((eq.error||ca.error||req.error||ord.error).message);return}
+ $('clientCardTitle').textContent=cl.name||'Карточка клиента';
+ let h='<h3>Основные данные</h3><p><b>Тип:</b> '+esc(cl.client_type==='individual'?'Частное лицо':'Организация')+' &nbsp; <b>УНП:</b> '+esc(cl.tax_id||'—')+'</p><p><b>Телефон:</b> '+esc(cl.phone||'—')+' &nbsp; <b>Email:</b> '+esc(cl.email||'—')+'</p><hr>';
+ h+='<h3>🖥 Техника ('+eq.data.length+')</h3>';
+ h+=eq.data.length?'<ul>'+eq.data.map(x=>'<li>'+esc(((x.manufacturer||'')+' '+(x.model||'')).trim())+'</li>').join('')+'</ul>':'<p class="muted">Техники пока нет.</p>';
+ h+='<h3>🖨 Картриджи ('+ca.data.length+')</h3>';
+ h+=ca.data.length?'<ul>'+ca.data.map(x=>'<li>'+esc(x.model||'')+(x.barcode?' — '+esc(x.barcode):'')+'</li>').join('')+'</ul>':'<p class="muted">Картриджей пока нет.</p>';
+ h+='<h3>📥 Последние заявки</h3>';
+ h+=req.data.length?'<div class="tablewrap"><table><tr><th>Дата</th><th>Направление</th><th>Объект</th><th>Статус</th></tr>'+req.data.map(x=>'<tr><td>'+esc((x.created_at||'').slice(0,10))+'</td><td>'+esc(x.request_type==='refill'?'Заправка':'Ремонт')+'</td><td>'+esc(x.cartridge_name||x.equipment_name||'—')+'</td><td>'+esc(x.status==='in_work'?'В работе':x.status==='completed'?'Завершена':'Новая')+'</td></tr>').join('')+'</table></div>':'<p class="muted">Заявок пока нет.</p>';
+ h+='<h3>📋 Последние заказы</h3>';
+ h+=ord.data.length?'<div class="tablewrap"><table><tr><th>№</th><th>Дата</th><th>Статус</th><th>Сумма</th></tr>'+ord.data.map(x=>'<tr><td>'+x.order_number+'</td><td>'+esc(x.order_date||'')+'</td><td>'+esc({received:'Принят',in_work:'В работе',ready:'Готов',issued:'Выдан',paid:'Оплачен'}[x.status]||x.status)+'</td><td>'+Number(x.total_amount||0).toFixed(2)+'</td></tr>').join('')+'</table></div>':'<p class="muted">Заказов пока нет.</p>';
+ $('clientCardBody').innerHTML=h;show('clientCard');
+};
 window.editClient=async id=>{
  const {data,error}=await sb.from('service_clients').select('*').eq('id',id).single();
  if(error){alert(error.message);return}
