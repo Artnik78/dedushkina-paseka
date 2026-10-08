@@ -199,7 +199,7 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
   <div class="content">
     <section id="page-home" class="section active">
       <div class="home-masthead">
-        <div class="mast-brand">🐝 <span>Дедушкина<br>пасека</span></div>
+        <div class="mast-brand">🐝 <span id="homeJournalName">Дедушкина<br>пасека</span></div>
         <div class="mast-title"><strong>Журнал пасечника</strong><span>Дедушкина пасека · Натуральный мёд с родных полей</span></div>
         <div class="mast-info">
           <span>📅 <b id="homeDateLabel">Сегодня</b></span>
@@ -598,6 +598,7 @@ function syncHomeUser(email,displayName){
   const se=$('settingsUserEmail');if(se)se.textContent=email||'Гостевой просмотр';
   const name=displayName||'Дедушкина пасека';
   const sn=$('sidebarJournalName');if(sn)sn.textContent=name;
+  const hn=$('homeJournalName');if(hn)hn.textContent=name;
   const dn=$('journalDisplayName');if(dn)dn.value=displayName||'';
   const ac=$('settingsApiaryCount');if(ac)ac.textContent=state.apiaries?.length||0;
   const hc=$('settingsHiveCount');if(hc)hc.textContent=state.hives?.length||0;
