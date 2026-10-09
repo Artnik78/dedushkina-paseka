@@ -1867,7 +1867,6 @@ function renderAll(){
   $('homeMedicineAlerts').innerHTML=homeMedicineAlerts.length
     ? '<h3 style="margin:0 0 10px">⚠️ Лекарства — требуют внимания</h3>'+homeMedicineAlerts.map(x=>'<div style="padding:7px 0;border-bottom:1px solid var(--line)">💊 <b>'+esc(x.m.name)+'</b> — '+esc(x.alerts.join('; '))+'</div>').join('')+'<div class="actions" style="margin-bottom:0"><button type="button" class="btn secondary" data-page="medicines">Открыть лекарства</button></div>'
     : '<div style="color:var(--green2)">✅ По лекарствам всё в порядке.</div>';
-  document.querySelectorAll('#homeMedicineAlerts [data-page]').forEach(b=>b.onclick=()=>showPage(b.dataset.page));
   const medicineAlerts=state.medicines.map(m=>{
     const alerts=[];
     const qty=Number(m.quantity||0), min=Number(m.min_quantity||0);
@@ -1887,6 +1886,8 @@ function renderAll(){
     const old=homeLowMedicine.innerHTML;
     homeLowMedicine.innerHTML='<div style="padding:8px 10px;margin-bottom:8px;border-radius:9px;background:#fff7e8;border:1px solid #e4c77a;color:#6d5520">💊 <b>Заканчиваются препараты:</b> '+esc(lowMedicineNames.join(', '))+'</div>'+old;
   }
+  // Bind after all home-widget HTML updates, because replacing innerHTML recreates its button.
+  document.querySelectorAll('#homeMedicineAlerts [data-page]').forEach(b=>b.onclick=()=>showPage(b.dataset.page));
   $('medicineAlerts').innerHTML=medicineAlerts.length
     ? '<div class="panel" style="margin:0 0 14px;background:#fff7e8;border-color:#e4c77a"><b>⚠️ Требуют внимания</b>'+medicineAlerts.map(x=>'<div style="margin-top:8px">💊 <b>'+esc(x.m.name)+'</b> — '+esc(x.alerts.join('; '))+'</div>').join('')+'</div>'
     : '<div class="muted" style="margin-bottom:12px">✅ Просроченных лекарств и критически низких остатков нет.</div>';
