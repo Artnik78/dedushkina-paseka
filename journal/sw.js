@@ -1,4 +1,4 @@
-const CACHE_NAME="dedushkina-paseka-v8";
+const CACHE_NAME="dedushkina-paseka-v9";
 const APP_SCOPE=new URL("./",self.location.href).pathname;
 const APP_SHELL=[
   new URL("./",self.location.href).href,
@@ -20,6 +20,35 @@ self.addEventListener("activate",event=>{
       .then(keys=>Promise.all(keys.filter(k=>k.startsWith("dedushkina-paseka-")&&k!==CACHE_NAME).map(k=>caches.delete(k))))
       .then(()=>self.clients.claim())
   );
+});
+
+self.addEventListener("push",event=>{
+  let payload={};
+  try{payload=event.data?event.data.json():{}}catch(_){payload={body:event.data?.text?.()||""}}
+  const title=payload.title||"Дедушкина пасека";
+  const options={
+    body:payload.body||"У вас новое напоминание из журнала пасечника.",
+    icon:new URL("./icon-192.png",self.location.href).href,
+    badge:new URL("./icon-192.png",self.location.href).href,
+    tag:payload.tag||"dedushkina-paseka-reminder",
+    data:{url:payload.url||new URL("./",self.location.href).href},
+    renotify:false
+  };
+  event.waitUntil(self.registration.showNotification(title,options));
+});
+
+self.addEventListener("notificationclick",event=>{
+  event.notification.close();
+  const target=new URL(event.notification.data?.url||"./",self.location.href).href;
+  event.waitUntil(clients.matchAll({type:"window",includeUncontrolled:true}).then(list=>{
+    for(const client of list){
+      if(client.url.startsWith(self.registration.scope)&&"focus" in client){
+        client.navigate(target);
+        return client.focus();
+      }
+    }
+    return clients.openWindow(target);
+  }));
 });
 
 self.addEventListener("fetch",event=>{
