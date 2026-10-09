@@ -323,23 +323,6 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
     <section id="page-hives" class="section">
       <h1>Ульи</h1><p class="sub">Учёт ульев и пчелиных семей.</p>
       <div class="panel">
-        <h3 id="hiveFormTitle">Новый улей</h3>
-        <form id="hiveForm" class="form">
-          <input type="hidden" name="id">
-          <div class="field"><label>Пасека *</label><select name="apiary_id" required></select></div>
-          <div class="field"><label>Номер улья *</label><input name="hive_number" required placeholder="Например, 1"></div>
-          <div class="field"><label>Тип</label><input name="hive_type" placeholder="Дадан / Рута"></div>
-          <div class="field"><label>Порода матки</label><select name="queen_breed"><option value="">Не указана</option><option>Карника</option><option>Бакфаст</option><option>Мешанка</option><option>Итальянка</option><option>Среднерусская</option><option>Кавказская</option><option>Другая</option></select></div>
-          <div class="field"><label>Год вывода матки</label><input name="queen_year" type="number" min="2000" max="2100" placeholder="Например, 2026"></div>
-          <div class="field"><label>Ряд на пасеке</label><input name="hive_row" type="number" min="1" step="1" placeholder="Например, 1"></div>
-          <div class="field"><label>Место в ряду</label><input name="hive_position" type="number" min="1" step="1" placeholder="Например, 3"></div>
-          <div class="field"><label>Дополнительное описание места</label><input name="location" placeholder="У края участка, возле дерева"></div>
-          <div class="field"><label>Состояние</label><select name="status"><option>Активен</option><option>Зимовка</option><option>Пустой</option></select></div>
-          <div class="field full"><label>Примечание</label><textarea name="notes"></textarea></div>
-          <div class="actions"><button class="btn" id="hiveSaveBtn">Сохранить улей</button><button type="button" class="btn secondary" id="hiveCancelBtn" style="display:none">Отмена</button></div>
-        </form>
-      </div>
-      <div class="panel">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
           <h3 style="margin:0">Список ульев</h3>
           <span class="muted" id="hivesCountLabel">0 ульев</span>
@@ -355,6 +338,23 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
           <span class="muted" id="hivesPageLabel">Страница 1</span>
           <button type="button" class="btn secondary" id="hivesNextBtn">Вперёд →</button>
         </div>
+      </div>
+      <div class="panel">
+        <h3 id="hiveFormTitle">Новый улей</h3>
+        <form id="hiveForm" class="form">
+          <input type="hidden" name="id">
+          <div class="field"><label>Пасека *</label><select name="apiary_id" required></select></div>
+          <div class="field"><label>Номер улья *</label><input name="hive_number" required placeholder="Например, 1"></div>
+          <div class="field"><label>Тип</label><input name="hive_type" placeholder="Дадан / Рута"></div>
+          <div class="field"><label>Порода матки</label><select name="queen_breed"><option value="">Не указана</option><option>Карника</option><option>Бакфаст</option><option>Мешанка</option><option>Итальянка</option><option>Среднерусская</option><option>Кавказская</option><option>Другая</option></select></div>
+          <div class="field"><label>Год вывода матки</label><input name="queen_year" type="number" min="2000" max="2100" placeholder="Например, 2026"></div>
+          <div class="field"><label>Ряд на пасеке</label><input name="hive_row" type="number" min="1" step="1" placeholder="Например, 1"></div>
+          <div class="field"><label>Место в ряду</label><input name="hive_position" type="number" min="1" step="1" placeholder="Например, 3"></div>
+          <div class="field"><label>Дополнительное описание места</label><input name="location" placeholder="У края участка, возле дерева"></div>
+          <div class="field"><label>Состояние</label><select name="status"><option>Активен</option><option>Зимовка</option><option>Пустой</option></select></div>
+          <div class="field full"><label>Примечание</label><textarea name="notes"></textarea></div>
+          <div class="actions"><button class="btn" id="hiveSaveBtn">Сохранить улей</button><button type="button" class="btn secondary" id="hiveCancelBtn" style="display:none">Отмена</button></div>
+        </form>
       </div>
       <div class="panel" id="hiveHistoryPanel" style="display:none">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
