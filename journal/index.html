@@ -3159,3 +3159,29 @@ document.addEventListener('click',e=>{if(e.target.closest('#closeHiveQr,#closeHi
 </html>
 
 <style>.home-view .nav button{background:rgba(255,247,222,.94);color:#3f2d1d;border:1px solid #e7c980;border-radius:12px;padding:11px 13px;margin:3px 0;box-shadow:0 3px 9px rgba(68,51,23,.12);font-weight:650}.home-view .nav button:hover,.home-view .nav button.active{background:linear-gradient(180deg,#e7b54a,#c98b1f);color:#33220f;border-color:#c48a21;box-shadow:0 4px 12px rgba(108,75,18,.20)}.home-view .brand{background:rgba(255,248,226,.94);border:1px solid #e1c57f;box-shadow:0 4px 14px rgba(68,51,23,.10)}.home-view .hero{border:2px solid rgba(255,255,255,.86);border-radius:18px;box-shadow:0 8px 24px rgba(50,41,24,.16)}.home-view .home-alerts-row .panel,.home-view .home-dashboard-row .panel{background:rgba(255,251,240,.93);border:2px solid rgba(255,255,255,.84);border-top-color:#e2b34b;border-radius:15px;box-shadow:0 6px 18px rgba(55,45,25,.12);padding:16px}.home-view .panel h3{font-size:20px;font-weight:800;color:#3d2516}.home-view .btn{border-radius:10px;border:1px solid #d4a13a;box-shadow:0 2px 5px rgba(70,50,18,.10);font-weight:650}.home-view .btn.secondary{background:linear-gradient(180deg,#fff7df,#efe6d0);color:#3d3024;border-color:#e0c888}.home-view .btn.secondary:hover{background:linear-gradient(180deg,#fff1bd,#ead8a9)}.home-view .btn.gold{background:linear-gradient(180deg,#e9b947,#cc8d1e);color:#39250e;border-color:#c88a1f}.home-view .reminder-row{background:rgba(255,250,237,.88);border:1px solid #ead7aa;border-radius:10px}.home-view .status-box{background:rgba(255,255,255,.82);border:1px solid #e4dccb;border-radius:12px;box-shadow:0 2px 7px rgba(60,50,30,.06)}.home-view .hive-health-row{background:rgba(255,255,255,.82);border:1px solid #e6dcc5;border-radius:11px;box-shadow:0 2px 6px rgba(60,50,30,.05)}.home-view .home-honey-table th{background:#f4eee2}.home-view .home-dashboard-row{gap:13px}</style>
+
+<style id="mobile-overflow-fix-v1">
+/* Keep form fields and long labels inside their cards on phones. */
+@media(max-width:700px){
+  #page-hives #hiveForm{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  #page-hives #hiveForm>.field,#page-hives #hiveForm>.actions,#page-hives #hiveForm .field{min-width:0;max-width:100%}
+  #page-hives #hiveForm input,#page-hives #hiveForm select,#page-hives #hiveForm textarea{width:100%;min-width:0;max-width:100%;box-sizing:border-box}
+  #page-hives #hiveForm .field label{display:block;white-space:normal;overflow-wrap:anywhere;word-break:normal;line-height:1.25}
+  #page-hives .panel,#page-hives .hive-filter-grid,#page-hives .hive-filter-grid .field{min-width:0;max-width:100%}
+  #page-hives .hive-filter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #page-hives .hive-filter-grid input,#page-hives .hive-filter-grid select{width:100%;min-width:0;max-width:100%;box-sizing:border-box}
+  .event-modal{padding:8px;overflow-y:auto}
+  .event-modal-box{width:calc(100vw - 16px)!important;max-width:calc(100vw - 16px)!important;min-width:0;box-sizing:border-box;overflow-x:hidden}
+  .event-modal-box input,.event-modal-box select,.event-modal-box textarea{width:100%;max-width:100%;min-width:0;box-sizing:border-box}
+  .event-modal-head,.event-modal-head h3{min-width:0;overflow-wrap:anywhere}
+  .actions{flex-wrap:wrap;min-width:0}
+  .actions .btn{max-width:100%;white-space:normal;overflow-wrap:anywhere}
+  .muted,.notice,.empty,.apiary-plan-row-title,.apiary-plan-hive small{overflow-wrap:anywhere;word-break:normal}
+}
+@media(max-width:390px){
+  #page-hives #hiveForm{grid-template-columns:minmax(0,1fr)!important}
+  #page-hives #hiveForm .field.full,#page-hives #hiveForm .actions{grid-column:1/-1}
+  #page-hives .hive-filter-grid{grid-template-columns:minmax(0,1fr)}
+  #page-hives .hive-filter-grid .field:first-child{grid-column:auto}
+}
+</style>
