@@ -606,6 +606,24 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
         <div class="section-head"><div><h3>Партии мёда</h3><div class="muted">Каждая партия хранится отдельно — её можно открыть и посмотреть подробности.</div></div></div>
         <div id="honeyList" class="honey-batch-list"></div>
       </div>
+      <div class="panel">
+        <h3>🍯 Продажи мёда</h3>
+        <p class="muted">Записывайте проданное количество и фактическую сумму. Остаток партии обновляется автоматически.</p>
+        <form id="honeySalesForm" class="form">
+          <input type="hidden" name="id">
+          <div class="field"><label>Дата продажи *</label><input name="sale_date" type="date" required></div>
+          <div class="field"><label>Партия мёда *</label><select name="honey_batch_id" required><option value="">Выберите партию</option></select></div>
+          <div class="field"><label>Продано, кг *</label><input name="quantity_kg" type="number" min="0.001" step="0.001" required placeholder="Например, 2.500"></div>
+          <div class="field"><label>Сумма продажи *</label><input name="sale_amount" type="number" min="0.01" step="0.01" required placeholder="Например, 62.50"></div>
+          <div class="field full"><label>Примечание / покупатель</label><input name="notes" placeholder="По желанию"></div>
+          <div class="actions"><button class="btn gold" id="honeySalesSaveBtn">💾 Записать продажу</button><button class="btn secondary" id="honeySalesCancelBtn" type="button">Очистить</button></div>
+        </form>
+        <div class="muted" style="margin-top:8px">Нельзя продать больше доступного остатка. Добавление дохода в «Финансы» выполняется отдельной кнопкой, чтобы не создавать дубли.</div>
+      </div>
+      <div class="panel">
+        <div class="section-head"><div><h3>История продаж мёда</h3><div class="muted">Продажи по партиям и связь с финансовым учётом.</div></div><button type="button" class="btn secondary" id="honeySalesExportBtn">Экспорт CSV</button></div>
+        <div id="honeySalesList"><div class="empty">Загрузка продаж...</div></div>
+      </div>
     </section>
 
     <section id="page-finances" class="section">
@@ -819,7 +837,7 @@ const SUPABASE_KEY = 'sb_publishable_1eM3o5IehFq-IvjWkHLiCA_RMXGHfw5';
 const { createClient } = window.supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { storageKey: 'dedushkina-paseka-journal-auth' } });
 
-const state = {hives:[], inspections:[], health:[], treatments:[], queens:[], queenBatches:[], colonyOperations:[], waxOperations:[], apiaryProductsOperations:[], photos:[], honey:[], tasks:[], finance:[], apiaries:[], medicines:[], disinfection:[], beeFamilies:[]};
+const state = {hives:[], inspections:[], health:[], treatments:[], queens:[], queenBatches:[], colonyOperations:[], waxOperations:[], apiaryProductsOperations:[], photos:[], honey:[], honeySales:[], tasks:[], finance:[], apiaries:[], medicines:[], disinfection:[], beeFamilies:[]};
 let guestMode=false;
 let calendarMonth = new Date();
 calendarMonth.setDate(1);
@@ -837,13 +855,13 @@ function exportCsv(key){
   if(!rows.length){toast('Нет данных для экспорта');return}
   const keys=[...new Set(rows.flatMap(r=>Object.keys(r)))];
   const csv='\uFEFF'+keys.map(csvCell).join(';')+'\n'+rows.map(r=>keys.map(k=>csvCell(r[k])).join(';')).join('\n');
-  const labels={hives:'ули',inspections:'осмотры',health:'здоровье',treatments:'лечение',queens:'матки',honey:'мёд',tasks:'напоминания',finance:'финансы',medicines:'лекарства',waxOperations:'учёт-воска',apiaryProductsOperations:'продукция-пасеки'};
+  const labels={hives:'ули',inspections:'осмотры',health:'здоровье',treatments:'лечение',queens:'матки',honey:'мёд',honeySales:'продажи-мёда',tasks:'напоминания',finance:'финансы',medicines:'лекарства',waxOperations:'учёт-воска',apiaryProductsOperations:'продукция-пасеки'};
   downloadFile('dedushkina-paseka-'+(labels[key]||key)+'-'+today()+'.csv',csv,'text/csv;charset=utf-8');
 }
 function exportJson(){
   const copy={exported_at:new Date().toISOString(),journal_name:$('sidebarJournalName')?.textContent||'Дедушкина пасека',
     apiaries:state.apiaries,hives:state.hives,inspections:state.inspections,health:state.health,treatments:state.treatments,queens:state.queens,queenBatches:state.queenBatches,colonyOperations:state.colonyOperations,waxOperations:state.waxOperations,apiaryProductsOperations:state.apiaryProductsOperations,
-    honey:state.honey,tasks:state.tasks,finance:state.finance,medicines:state.medicines,disinfection:state.disinfection,beeFamilies:state.beeFamilies,photos:state.photos};
+    honey:state.honey,honeySales:state.honeySales,tasks:state.tasks,finance:state.finance,medicines:state.medicines,disinfection:state.disinfection,beeFamilies:state.beeFamilies,photos:state.photos};
   downloadFile('dedushkina-paseka-backup-'+today()+'.json',JSON.stringify(copy,null,2),'application/json;charset=utf-8');
   toast('Копия журнала подготовлена');
 }
@@ -943,10 +961,14 @@ function renderGuestMode(){
     {id:'guest-honey-3',batch_number:'2026-003',honey_type:'Майский мёд',collection_date:d(-120),quantity_kg:14,price_per_kg:30,collection_place:'Клецкий район',notes:'Ранний весенний сбор'},
     {id:'guest-honey-4',batch_number:'2026-004',honey_type:'Гречишный мёд',collection_date:d(-45),quantity_kg:22,price_per_kg:27,collection_place:'Клецкий район',notes:'Насыщенный гречишный мёд'}
   ];
+  state.honeySales=[
+    {id:'guest-honey-sale-1',honey_batch_id:'guest-honey-1',sale_date:d(-50),quantity_kg:16.8,sale_amount:420,notes:'Продажа партии разнотравья',source_honey_sale_id:'guest-honey-sale-1'},
+    {id:'guest-honey-sale-2',honey_batch_id:'guest-honey-2',sale_date:d(-20),quantity_kg:4,sale_amount:112,notes:'Небольшая продажа лесного мёда'}
+  ];
   state.finance=[
     {id:'guest-fin-1',operation_date:d(-80),operation_type:'Расход',amount:120,category:'Инвентарь',description:'Покупка рамок и мелкого инвентаря'},
     {id:'guest-fin-2',operation_date:d(-65),operation_type:'Расход',amount:85,category:'Лекарства',description:'Препараты для обработки'},
-    {id:'guest-fin-3',operation_date:d(-50),operation_type:'Доход',amount:420,category:'Мёд',description:'Продажа мёда разнотравье'},
+    {id:'guest-fin-3',operation_date:d(-50),operation_type:'Доход',amount:420,category:'Продажа мёда',description:'Продажа мёда разнотравье',source_honey_sale_id:'guest-honey-sale-1'},
     {id:'guest-fin-4',operation_date:d(-35),operation_type:'Расход',amount:70,category:'Упаковка',description:'Банки и этикетки'},
     {id:'guest-fin-5',operation_date:d(-20),operation_type:'Доход',amount:360,category:'Мёд',description:'Продажа лесного мёда'},
     {id:'guest-fin-6',operation_date:d(-10),operation_type:'Расход',amount:55,category:'Корм',description:'Сахар для подкормки'},
@@ -1196,7 +1218,7 @@ async function getTable(table,order='created_at'){
 }
 async function loadAll(){
   const names=[
-    ['apiaries','apiaries'],['hives','hives'],['inspections','inspections'],['health','hive_health_records'],['treatments','hive_treatments'],['queens','hive_queens'],['queenBatches','queen_rearing_batches'],['colonyOperations','colony_operations'],['waxOperations','wax_operations'],['apiaryProductsOperations','apiary_products_operations'],['photos','photos'],['honey','honey_batches'],
+    ['apiaries','apiaries'],['hives','hives'],['inspections','inspections'],['health','hive_health_records'],['treatments','hive_treatments'],['queens','hive_queens'],['queenBatches','queen_rearing_batches'],['colonyOperations','colony_operations'],['waxOperations','wax_operations'],['apiaryProductsOperations','apiary_products_operations'],['photos','photos'],['honey','honey_batches'],['honeySales','honey_sales'],
     ['tasks','tasks'],['finance','finances'],['medicines','medicines'],['disinfection','disinfection_logs'],['beeFamilies','bee_families']
   ];
   const results=await Promise.all(names.map(async([key,table])=>{
@@ -1501,6 +1523,68 @@ $('apiaryProductsForm')?.addEventListener('submit',async e=>{
   $('apiaryProductsFormTitle').textContent='Новая операция с продукцией';$('apiaryProductsSaveBtn').textContent='💾 Сохранить операцию';updateApiaryProductQuantityLabel();
   toast(id?'Изменения сохранены':'Операция сохранена');await loadAll();
 });
+function renderHoneySalesAccounting(){
+  const form=$('honeySalesForm'),box=$('honeySalesList');if(!form||!box)return;
+  const oldBatch=form.elements.honey_batch_id.value;
+  form.elements.honey_batch_id.innerHTML='<option value="">Выберите партию</option>'+(state.honey||[]).map(h=>'<option value="'+esc(h.id)+'">'+esc(h.batch_number||'Без номера')+' — '+esc(h.honey_type||'Мёд')+' (остаток '+esc(h.remaining_kg??Math.max(0,(Number(h.quantity_kg)||0)-(Number(h.sold_kg)||0)))+' кг)</option>').join('');
+  if(state.honey.some(h=>String(h.id)===String(oldBatch)))form.elements.honey_batch_id.value=oldBatch;
+  if(!form.elements.id.value&&!form.elements.sale_date.value)form.elements.sale_date.value=today();
+  const rows=(state.honeySales||[]).slice().sort((a,b)=>String(b.sale_date||'').localeCompare(String(a.sale_date||''))||String(b.created_at||'').localeCompare(String(a.created_at||'')));
+  if(!rows.length){box.innerHTML='<div class="empty">Продаж пока нет. Добавьте первую продажу выше.</div>';return}
+  const batchFor=id=>state.honey.find(h=>String(h.id)===String(id));
+  box.innerHTML='<div class="table-wrap"><table class="table"><thead><tr><th>Дата</th><th>Партия</th><th>Продано</th><th>Сумма</th><th>Примечание</th><th>Финансы</th><th>Действия</th></tr></thead><tbody>'+rows.map(x=>{
+    const h=batchFor(x.honey_batch_id),linked=(state.finance||[]).some(f=>String(f.source_honey_sale_id||'')===String(x.id));
+    return '<tr><td>'+esc(x.sale_date||'—')+'</td><td><b>'+esc(h?.batch_number||'Партия удалена')+'</b><div class="muted">'+esc(h?.honey_type||'')+'</div></td><td>'+esc(Number(x.quantity_kg||0).toLocaleString('ru-RU',{minimumFractionDigits:3,maximumFractionDigits:3}))+' кг</td><td>'+esc(Number(x.sale_amount||0).toFixed(2))+'</td><td>'+esc(x.notes||'—')+'</td><td>'+(linked?'<span class="ok-badge">Доход учтён</span>':'<button type="button" class="btn gold honey-sale-finance" data-id="'+esc(x.id)+'">Добавить доход</button>')+'</td><td><div class="actions" style="margin:0;flex-wrap:wrap">'+(linked?'<span class="muted">Запись закреплена</span>':'<button type="button" class="btn secondary honey-sale-edit" data-id="'+esc(x.id)+'">Изменить</button><button type="button" class="btn danger honey-sale-delete" data-id="'+esc(x.id)+'">Удалить</button>')+'</div></td></tr>';
+  }).join('')+'</tbody></table></div>';
+  box.querySelectorAll('.honey-sale-finance').forEach(b=>b.onclick=async()=>{
+    if(guestMode)return;
+    const x=rows.find(r=>String(r.id)===String(b.dataset.id));if(!x)return;
+    if((state.finance||[]).some(f=>String(f.source_honey_sale_id||'')===String(x.id))){toast('Доход по этой продаже уже учтён.');await loadAll();return}
+    if(!confirm('Добавить в «Финансы» доход '+Number(x.sale_amount||0).toFixed(2)+' за продажу мёда?'))return;
+    const h=batchFor(x.honey_batch_id);
+    const description='Продажа мёда '+(h?.honey_type||'')+' ('+(h?.batch_number||'без номера')+'), '+Number(x.quantity_kg||0).toLocaleString('ru-RU',{maximumFractionDigits:3})+' кг'+(x.notes?' • '+x.notes:'');
+    const {error}=await db.from('finances').insert({operation_date:x.sale_date||today(),operation_type:'Доход',amount:Number(x.sale_amount),category:'Продажа мёда',description,source_honey_sale_id:x.id});
+    if(error){if(String(error.code)==='23505'){toast('Доход по этой продаже уже существует.');await loadAll();return}toast('Не удалось добавить доход: '+error.message);return}
+    toast('Доход от продажи мёда добавлен в «Финансы».');await loadAll();
+  });
+  box.querySelectorAll('.honey-sale-edit').forEach(b=>b.onclick=()=>{
+    if(guestMode)return;const x=rows.find(r=>String(r.id)===String(b.dataset.id));if(!x)return;
+    Object.keys(x).forEach(k=>{if(form.elements[k])form.elements[k].value=x[k]??''});
+    $('honeySalesSaveBtn').textContent='💾 Сохранить изменения';form.scrollIntoView({behavior:'smooth',block:'center'});
+  });
+  box.querySelectorAll('.honey-sale-delete').forEach(b=>b.onclick=async()=>{
+    if(guestMode)return;const x=rows.find(r=>String(r.id)===String(b.dataset.id));if(!x)return;
+    if(!confirm('Удалить продажу мёда от '+x.sale_date+' на '+Number(x.quantity_kg||0)+' кг?'))return;
+    const {error}=await db.from('honey_sales').delete().eq('id',x.id);
+    if(error){toast('Не удалось удалить продажу: '+error.message);return}
+    toast('Продажа удалена, остаток партии пересчитан.');await loadAll();
+  });
+}
+function resetHoneySalesForm(){
+  const f=$('honeySalesForm');if(!f)return;f.reset();f.elements.id.value='';f.elements.sale_date.value=today();
+  $('honeySalesSaveBtn').textContent='💾 Записать продажу';
+}
+$('honeySalesCancelBtn')?.addEventListener('click',resetHoneySalesForm);
+$('honeySalesExportBtn')?.addEventListener('click',()=>exportCsv('honeySales'));
+$('honeySalesForm')?.addEventListener('change',e=>{
+  const f=e.currentTarget;
+  if(e.target.name==='honey_batch_id'||e.target.name==='quantity_kg'){
+    const h=state.honey.find(x=>String(x.id)===String(f.elements.honey_batch_id.value));
+    const q=Number(f.elements.quantity_kg.value);
+    if(h&&q>0&&Number(h.price_per_kg)>0)f.elements.sale_amount.value=(q*Number(h.price_per_kg)).toFixed(2);
+  }
+});
+$('honeySalesForm')?.addEventListener('submit',async e=>{
+  e.preventDefault();if(guestMode){toast('Гостевой режим — только просмотр');return}
+  const f=e.target,d=formData(f),q=Number(d.quantity_kg),amount=Number(d.sale_amount),id=d.id;
+  if(!d.sale_date||!d.honey_batch_id){toast('Укажите дату продажи и партию мёда.');return}
+  if(!Number.isFinite(q)||q<=0||!Number.isFinite(amount)||amount<=0){toast('Количество и сумма продажи должны быть больше нуля.');return}
+  if(id&&(state.finance||[]).some(x=>String(x.source_honey_sale_id||'')===String(id))){toast('Продажа уже связана с финансами и не может быть изменена.');return}
+  const payload={sale_date:d.sale_date,honey_batch_id:d.honey_batch_id,quantity_kg:q,sale_amount:amount,notes:d.notes.trim()||null};
+  const result=id?await db.from('honey_sales').update(payload).eq('id',id):await db.from('honey_sales').insert(payload);
+  if(result.error){toast('Не удалось сохранить продажу: '+result.error.message);return}
+  resetHoneySalesForm();toast(id?'Продажа изменена, остаток партии пересчитан.':'Продажа записана, остаток партии пересчитан.');await loadAll();
+});
 function renderQueenCalendarReminders(){
   const box=$('homeQueenAlerts');
   if(!box)return;
@@ -1550,6 +1634,7 @@ function renderAll(){
   renderColonyOperations();
   renderWaxAccounting();
   renderApiaryProductsAccounting();
+  renderHoneySalesAccounting();
   renderQueenCalendarReminders();
   refreshPhotoSelectors();
   setText('homeWorkHives',state.hives.length+' '+(state.hives.length===1?'улей':'ульев'));
@@ -1831,7 +1916,7 @@ function renderAll(){
         return '<button type="button" class="honey-batch-card" data-honey-id="'+esc(h.id)+'">'
           +'<div class="honey-batch-top"><span class="honey-batch-number">'+esc(h.batch_number||'Без номера')+'</span><span class="honey-batch-date">'+esc(h.collection_date||'Дата не указана')+'</span></div>'
           +'<h3>🍯 '+esc(h.honey_type||'Мёд')+'</h3>'
-          +'<div class="honey-batch-meta"><span><small>Объём</small><b>'+esc(h.quantity_kg??'—')+' кг</b></span><span><small>Цена</small><b>'+esc(h.price_per_kg??'—')+' / кг</b></span><span><small>Сумма</small><b>'+esc(total?total.toFixed(2):'—')+'</b></span></div>'
+          +'<div class="honey-batch-meta"><span><small>Собрано</small><b>'+esc(h.quantity_kg??'—')+' кг</b></span><span><small>Остаток</small><b>'+esc(h.remaining_kg??Math.max(0,(Number(h.quantity_kg)||0)-(Number(h.sold_kg)||0)))+' кг</b></span><span><small>Цена</small><b>'+esc(h.price_per_kg??'—')+' / кг</b></span><span><small>Стоимость сбора</small><b>'+esc(total?total.toFixed(2):'—')+'</b></span></div>'
           +'<div class="muted">📍 '+esc(h.collection_place||'Место сбора не указано')+'</div>'
           +'</button>';
       }).join('')
@@ -2464,7 +2549,7 @@ function openHoneyBatch(id){
   const h=state.honey.find(x=>String(x.id)===String(id)); if(!h)return;
   const total=(Number(h.quantity_kg)||0)*(Number(h.price_per_kg)||0);
   $('honeyBatchTitle').textContent='🍯 Партия '+(h.batch_number||'');
-  $('honeyBatchInfo').innerHTML='<div class="honey-passport"><div class="honey-passport-main"><span>ПАРТИЯ</span><b>'+esc(h.batch_number||'—')+'</b><strong>'+esc(h.honey_type||'Мёд')+'</strong></div><div class="honey-passport-grid"><div><small>Дата сбора</small><b>'+esc(h.collection_date||'—')+'</b></div><div><small>Объём</small><b>'+esc(h.quantity_kg??'—')+' кг</b></div><div><small>Цена за кг</small><b>'+esc(h.price_per_kg??'—')+'</b></div><div><small>Стоимость</small><b>'+esc(total?total.toFixed(2):'—')+'</b></div><div><small>Место сбора</small><b>'+esc(h.collection_place||'—')+'</b></div><div><small>Примечание</small><b>'+esc(h.notes||'—')+'</b></div></div></div>';
+  $('honeyBatchInfo').innerHTML='<div class="honey-passport"><div class="honey-passport-main"><span>ПАРТИЯ</span><b>'+esc(h.batch_number||'—')+'</b><strong>'+esc(h.honey_type||'Мёд')+'</strong></div><div class="honey-passport-grid"><div><small>Дата сбора</small><b>'+esc(h.collection_date||'—')+'</b></div><div><small>Собрано</small><b>'+esc(h.quantity_kg??'—')+' кг</b></div><div><small>Продано</small><b>'+esc(h.sold_kg??0)+' кг</b></div><div><small>Остаток</small><b>'+esc(h.remaining_kg??Math.max(0,(Number(h.quantity_kg)||0)-(Number(h.sold_kg)||0)))+' кг</b></div><div><small>Цена за кг</small><b>'+esc(h.price_per_kg??'—')+'</b></div><div><small>Стоимость сбора</small><b>'+esc(total?total.toFixed(2):'—')+'</b></div><div><small>Место сбора</small><b>'+esc(h.collection_place||'—')+'</b></div><div><small>Примечание</small><b>'+esc(h.notes||'—')+'</b></div></div></div>';
   $('honeyBatchModal').style.display='flex';
 }
 function closeHoneyBatch(){$('honeyBatchModal').style.display='none'}
