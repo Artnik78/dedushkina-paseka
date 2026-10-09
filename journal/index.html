@@ -1996,14 +1996,39 @@ function renderAll(){
   const todayTasksAll=state.tasks.filter(t=>String(t.due_date||'').slice(0,10)===today() && t.status!=='Выполнена');
   const overdueTasks=state.tasks.filter(t=>t.status!=='Выполнена' && t.due_date && String(t.due_date).slice(0,10)<today());
   const upcomingTasksHome=state.tasks.filter(t=>t.status!=='Выполнена' && t.due_date && String(t.due_date).slice(0,10)>today()).sort((a,b)=>String(a.due_date).localeCompare(String(b.due_date))).slice(0,3);
-  const reminderRows=[
-    ...overdueTasks.slice(0,3).map(t=>({icon:'🔴',title:eventTitle(t),date:t.due_date,badge:'просрочено'})),
-    ...todayTasksAll.slice(0,3).map(t=>({icon:'🟠',title:eventTitle(t),date:t.due_date,badge:'сегодня'})),
-    ...upcomingTasksHome.map(t=>({icon:'🟡',title:eventTitle(t),date:t.due_date,badge:'скоро'}))
-  ].slice(0,6);
+  // Единый список умных напоминаний: используем существующие записи, без новых таблиц.
+  const smartReminders=[];
+  const addSmart=(item)=>{if(item&&item.date)smartReminders.push(item)};
+  overdueTasks.forEach(t=>addSmart({icon:'🔴',title:eventTitle(t),date:String(t.due_date).slice(0,10),badge:'просрочено',page:'tasks',rank:0,sortDate:String(t.due_date).slice(0,10)}));
+  todayTasksAll.forEach(t=>addSmart({icon:'🟠',title:eventTitle(t),date:String(t.due_date).slice(0,10),badge:'сегодня',page:'tasks',rank:1,sortDate:String(t.due_date).slice(0,10)}));
+  upcomingTasksHome.forEach(t=>addSmart({icon:'🟡',title:eventTitle(t),date:String(t.due_date).slice(0,10),badge:'скоро',page:'tasks',rank:2,sortDate:String(t.due_date).slice(0,10)}));
+  const smartToday=new Date(today()+'T12:00:00');
+  (state.medicines||[]).forEach(m=>{
+    const qty=Number(m.quantity),min=Number(m.min_quantity);
+    if(Number.isFinite(qty)&&Number.isFinite(min)&&qty<=min)
+      addSmart({icon:'💊',title:'Мало препарата: '+(m.name||'без названия'),date:today(),badge:'остаток '+qty+(m.volume?' '+m.volume:''),page:'medicines',rank:0,sortDate:today()});
+    if(m.expiry_date){
+      const expiry=String(m.expiry_date).slice(0,10),days=Math.ceil((new Date(expiry+'T12:00:00')-smartToday)/86400000);
+      const warning=Number(m.expiry_warning_days??30);
+      if(days<=warning)
+        addSmart({icon:'🧪',title:(days<0?'Истёк срок годности: ':'Скоро истекает срок: ')+(m.name||'препарат'),date:expiry,badge:days<0?'просрочено':days===0?'сегодня':'через '+days+' дн.',page:'medicines',rank:days<0?0:days===0?1:2,sortDate:expiry});
+    }
+  });
+  (state.disinfection||[]).forEach(x=>{
+    if(!x.next_date)return;
+    const date=String(x.next_date).slice(0,10),days=Math.ceil((new Date(date+'T12:00:00')-smartToday)/86400000);
+    addSmart({icon:'🧴',title:'Дезинфекция: '+(x.target_type||'объект')+' — '+(x.agent||'средство не указано'),date,badge:days<0?'просрочено':days===0?'сегодня':'через '+days+' дн.',page:'disinfection',rank:days<0?0:days===0?1:2,sortDate:date});
+  });
+  (state.queenBatches||[]).filter(x=>!['Завершена','Неудачная'].includes(x.status)).forEach(x=>{
+    if(x.emergence_date||!x.expected_emergence_date)return;
+    const date=String(x.expected_emergence_date).slice(0,10),days=Math.ceil((new Date(date+'T12:00:00')-smartToday)/86400000);
+    if(days<=14)addSmart({icon:'👑',title:(days<0?'Проверьте выход маток: ':'Выход маток: ')+(x.batch_code||'серия без номера'),date,badge:days<0?'просрочено':days===0?'сегодня':'через '+days+' дн.',page:'queens',rank:days<0?0:days===0?1:2,sortDate:date});
+  });
+  const reminderRows=smartReminders.sort((a,b)=>a.rank-b.rank||a.sortDate.localeCompare(b.sortDate)).slice(0,8);
   $('homeReminderAlerts').innerHTML=reminderRows.length
-    ? '<div class="reminder-list">'+reminderRows.map(r=>'<div class="reminder-row"><div>'+r.icon+' <b>'+esc(r.title)+'</b><div class="muted">'+esc(r.date)+'</div></div><span class="warning-badge">'+esc(r.badge)+'</span></div>').join('')+'</div>'
+    ? '<div class="reminder-list">'+reminderRows.map((r,i)=>'<button type="button" class="reminder-row smart-reminder-open" data-smart-page="'+esc(r.page)+'" style="width:100%;text-align:left;border:0;background:transparent;color:inherit;cursor:pointer"><div>'+r.icon+' <b>'+esc(r.title)+'</b><div class="muted">'+esc(r.date)+'</div></div><span class="warning-badge">'+esc(r.badge)+'</span></button>').join('')+'</div>'
     : '<div class="muted">✅ Просроченных и ближайших напоминаний нет.</div>';
+  $('homeReminderAlerts').querySelectorAll('.smart-reminder-open').forEach(b=>b.onclick=()=>showPage(b.dataset.smartPage));
   const todayDate=new Date(today()+'T00:00:00');
   const hiveLast={};
   state.inspections.forEach(i=>{const id=String(i.hive_id||'');if(!id)return;if(!hiveLast[id]||String(i.inspection_date)>String(hiveLast[id].inspection_date))hiveLast[id]=i});
