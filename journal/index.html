@@ -2768,12 +2768,28 @@ $('search').addEventListener('input',e=>{
   const old=state.hives; state.hives=old.filter(x=>JSON.stringify(x).toLowerCase().includes(q)); renderAll(); state.hives=old;
 });
 
+function renderHoneyJarQrCards(labels,run,batch,isDemo){
+  const modal=$('honeyJarQrModal'),box=$('honeyJarQrItems');
+  const base=new URL('trace.html',window.location.href);
+  box.innerHTML=(isDemo?'<div class="notice" style="margin-bottom:12px">ДЕМО-РЕЖИМ: это учебные QR-коды. Они не записываются в базу и не являются маркировкой реальной продукции.</div>':'<div class="muted" style="margin-bottom:12px">Каждая банка получает собственный код. Распечатайте карточки и наклейте QR на соответствующие банки. Коды ведут на публичную страницу происхождения мёда.</div>')+'<div class="honey-jar-qr-grid">'+labels.map(l=>'<div class="honey-jar-qr-card"><div class="honey-jar-qr-image" id="jarqr-'+esc(l.jar_number)+'"></div><b>Банка №'+esc(l.jar_number)+'</b><div class="muted">'+esc(batch?.batch_number||'Партия')+' · '+esc(run.jar_size_g)+' г</div><div class="honey-jar-qr-code">'+esc(l.public_code)+'</div><button type="button" class="btn secondary jar-qr-download" data-number="'+esc(l.jar_number)+'">Скачать QR</button></div>').join('')+'</div><div class="actions" style="justify-content:center"><button type="button" class="btn gold" id="honeyJarQrPrint">🖨️ Печать всех QR-кодов</button><button type="button" class="btn secondary" id="honeyJarQrClose">Закрыть</button></div>';
+  labels.forEach(l=>{const target=$('jarqr-'+l.jar_number);if(!target)return;const url=new URL(base);url.searchParams.set('code',l.public_code);if(isDemo)url.searchParams.set('demo','1');if(typeof QRCode!=='undefined')new QRCode(target,{text:url.toString(),width:116,height:116,colorDark:'#103a27',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});else target.innerHTML='<a href="'+esc(url.toString())+'">Открыть ссылку</a>'});
+  box.querySelectorAll('.jar-qr-download').forEach(b=>b.onclick=()=>{const target=$('jarqr-'+b.dataset.number),canvas=target?.querySelector('canvas'),img=target?.querySelector('img'),src=canvas?canvas.toDataURL('image/png'):img?.src;if(!src)return;const a=document.createElement('a');a.href=src;a.download=(isDemo?'DEMO-':'')+'dedushkina-paseka-jar-'+b.dataset.number+'.png';a.click()});
+  $('honeyJarQrPrint').onclick=()=>window.print();
+  $('honeyJarQrClose').onclick=()=>{modal.style.display='none'};
+  box.querySelectorAll('a').forEach(a=>a.target='_blank');
+}
 async function openHoneyJarLabels(packagingRunId){
-  if(guestMode){toast('В гостевом режиме QR-коды не создаются.');return}
   const run=(state.honeyPackagingRuns||[]).find(p=>String(p.id)===String(packagingRunId));if(!run)return;
   const modal=$('honeyJarQrModal'),box=$('honeyJarQrItems'),title=$('honeyJarQrTitle');
-  title.textContent='QR-коды банок · '+(run.label_code||run.jar_size_g+' г');
+  title.textContent=(guestMode?'ДЕМО · ':'')+'QR-коды банок · '+(run.label_code||run.jar_size_g+' г');
   box.innerHTML='<div class="empty">Подготавливаю индивидуальные коды банок…</div>';modal.style.display='flex';
+  const batch=state.honey.find(h=>String(h.id)===String(run.honey_batch_id));
+  if(guestMode){
+    const match=String(run.id).match(/^guest-pack-(\d+)$/),packIndex=match?Number(match[1]):1;
+    const labels=Array.from({length:Number(run.jar_count)||0},(_,index)=>({id:'demo-jar-'+packIndex+'-'+(index+1),packaging_run_id:run.id,jar_number:index+1,public_code:'d'+String(packIndex).padStart(3,'0')+String(index+1).padStart(4,'0')+'0'.repeat(24)}));
+    state.honeyJarLabels=(state.honeyJarLabels||[]).filter(x=>String(x.packaging_run_id)!==String(run.id)).concat(labels);
+    renderHoneyJarQrCards(labels,run,batch,true);return;
+  }
   const {data:existing,error:readError}=await db.from('honey_jar_labels').select('id,packaging_run_id,jar_number,public_code,created_at').eq('packaging_run_id',run.id).order('jar_number');
   if(readError){box.innerHTML='<div class="empty">Не удалось загрузить коды: '+esc(readError.message)+'</div>';return}
   let labels=existing||[];
@@ -2786,14 +2802,7 @@ async function openHoneyJarLabels(packagingRunId){
     labels=labels.concat(added||[]).sort((a,b)=>Number(a.jar_number)-Number(b.jar_number));
     state.honeyJarLabels=(state.honeyJarLabels||[]).filter(x=>String(x.packaging_run_id)!==String(run.id)).concat(labels);
   }
-  const batch=state.honey.find(h=>String(h.id)===String(run.honey_batch_id));
-  const base=new URL('trace.html',window.location.href);
-  box.innerHTML='<div class="muted" style="margin-bottom:12px">Каждая банка получает собственный код. Распечатайте карточки и наклейте QR на соответствующие банки. Коды ведут на публичную страницу происхождения мёда.</div><div class="honey-jar-qr-grid">'+labels.map(l=>'<div class="honey-jar-qr-card"><div class="honey-jar-qr-image" id="jarqr-'+esc(l.jar_number)+'"></div><b>Банка №'+esc(l.jar_number)+'</b><div class="muted">'+esc(batch?.batch_number||'Партия')+' · '+esc(run.jar_size_g)+' г</div><div class="honey-jar-qr-code">'+esc(l.public_code)+'</div><button type="button" class="btn secondary jar-qr-download" data-number="'+esc(l.jar_number)+'">Скачать QR</button></div>').join('')+'</div><div class="actions" style="justify-content:center"><button type="button" class="btn gold" id="honeyJarQrPrint">🖨️ Печать всех QR-кодов</button><button type="button" class="btn secondary" id="honeyJarQrClose">Закрыть</button></div>';
-  labels.forEach(l=>{const target=$('jarqr-'+l.jar_number);if(!target)return;const url=new URL(base);url.searchParams.set('code',l.public_code);if(typeof QRCode!=='undefined')new QRCode(target,{text:url.toString(),width:116,height:116,colorDark:'#103a27',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});else target.innerHTML='<a href="'+esc(url.toString())+'">Открыть ссылку</a>'});
-  box.querySelectorAll('.jar-qr-download').forEach(b=>b.onclick=()=>{const target=$('jarqr-'+b.dataset.number),canvas=target?.querySelector('canvas'),img=target?.querySelector('img'),src=canvas?canvas.toDataURL('image/png'):img?.src;if(!src)return;const a=document.createElement('a');a.href=src;a.download='dedushkina-paseka-jar-'+b.dataset.number+'.png';a.click()});
-  $('honeyJarQrPrint').onclick=()=>window.print();
-  $('honeyJarQrClose').onclick=()=>{modal.style.display='none'};
-  box.querySelectorAll('a').forEach(a=>a.target='_blank');
+  renderHoneyJarQrCards(labels,run,batch,false);
 }
 function openHiveQr(id){
   const h=state.hives.find(x=>String(x.id)===String(id)); if(!h)return;
