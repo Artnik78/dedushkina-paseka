@@ -237,6 +237,7 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
           <button class="btn secondary" data-page="inspections">📋 Записать осмотр</button>
           <button class="btn secondary" data-page="honey">🍯 Добавить партию мёда</button>
           <button class="btn secondary" data-page="honey">📄 Паспорт мёда</button>
+          <button class="btn secondary" id="homePackagingShortcut" type="button" onclick="showPage('honey');setTimeout(()=>document.getElementById('honeyPackagingPanel')?.scrollIntoView({behavior:'smooth',block:'start'}),100)">🫙 Фасовка и QR-коды</button>
           <button class="btn secondary" data-page="apiaries">🏡 Паспорт пасеки</button>
         </div>
       <div class="mobile-quick-actions">
@@ -612,8 +613,8 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
         <div class="section-head"><div><h3>Партии мёда</h3><div class="muted">Каждая партия хранится отдельно — её можно открыть и посмотреть подробности.</div></div></div>
         <div id="honeyList" class="honey-batch-list"></div>
       </div>
-      <div class="panel">
-        <h3>🫙 Фасовка мёда</h3>
+      <div class="panel" id="honeyPackagingPanel">
+         <h3>🫙 Фасовка мёда</h3>
         <p class="muted">Записывайте размер банки, количество и код этикетки. Каждая фасовка будет связана с исходной партией урожая.</p>
         <div id="honeyPackagingDemoNotice" class="notice" style="display:none;margin:12px 0">🐝 <b>Демо-пример фасовки.</b> Ниже показаны три учебные партии. Нажмите <b>«QR банок»</b>, чтобы увидеть индивидуальные QR-коды, скачать PNG или распечатать все карточки. Демо-коды не записываются в базу и не используются для реальной маркировки.</div>
         <form id="honeyPackagingForm" class="form">
@@ -827,8 +828,7 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
         <div id="userAccessList" class="empty">Загрузка...</div>
       </div>
     </section>
-    <footer class="journal-owner" style="margin:34px 0 10px;padding:14px 16px;text-align:center;color:#5b4630;font-size:12px;opacity:.9;border-top:1px solid rgba(91,70,48,.18);">Все права принадлежат Абрамович А.Н. «Дедушкина пасека» · +375 25 777-65-10</footer>
-  </div>
+    </div>
 </main>
 </div>
 
