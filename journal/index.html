@@ -811,7 +811,19 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
       <div class="panel" id="pushNotificationsPanel">
         <h3>🔔 Уведомления на телефон</h3>
         <p class="muted">Разрешите уведомления в Chrome на Android. После настройки push-уведомления смогут приходить, даже когда журнал закрыт.</p>
-        <div class="actions"><button class="btn gold" type="button" id="enablePushBtn">Включить и проверить уведомления</button></div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin:14px 0">
+          <div class="field"><label for="pushReminderFrequency">Когда напоминать</label><select id="pushReminderFrequency"><option value="daily">Каждый день</option><option value="weekdays">Только по будням</option><option value="weekly">Раз в неделю (понедельник)</option></select></div>
+          <div class="field"><label for="pushReminderTime">Время (Europe/Vilnius)</label><input id="pushReminderTime" type="time" step="900" value="11:00"></div>
+        </div>
+        <div style="display:grid;gap:9px;margin:12px 0">
+          <label style="display:flex;align-items:center;gap:9px"><input id="pushReminderEnabled" type="checkbox" checked> Получать push-напоминания</label>
+          <label style="display:flex;align-items:center;gap:9px"><input id="pushReminderLowStock" type="checkbox" checked> Остатки лекарств</label>
+          <label style="display:flex;align-items:center;gap:9px"><input id="pushReminderExpiry" type="checkbox" checked> Сроки годности препаратов</label>
+          <label style="display:flex;align-items:center;gap:9px"><input id="pushReminderTasks" type="checkbox" checked> Задачи и запланированные работы</label>
+          <label style="display:flex;align-items:center;gap:9px"><input id="pushReminderDisinfection" type="checkbox" checked> Плановая дезинфекция</label>
+        </div>
+        <div class="actions"><button class="btn gold" type="button" id="savePushReminderPreferencesBtn">Сохранить настройки напоминаний</button><button class="btn secondary" type="button" id="enablePushBtn">Включить и проверить уведомления</button></div>
+        <p id="pushPreferencesStatus" class="muted" role="status" aria-live="polite">Параметры по умолчанию показаны только для настройки формы и не сохранены в профиле.</p>
         <p id="pushStatus" class="muted" role="status" aria-live="polite">Push ещё не подключён на этом устройстве.</p>
       </div>
       <div class="panel" id="restoreJournalPanel">
@@ -1274,6 +1286,50 @@ async function enablePhonePush(){
     toast('Push: '+message);
   }finally{if(button)button.disabled=false}
 }
+async function loadPushReminderPreferences(){
+  const status=$('pushPreferencesStatus');
+  if(guestMode)return;
+  try{
+    const {data:{user},error:userError}=await db.auth.getUser();
+    if(userError||!user)throw new Error('Войдите в журнал, чтобы загрузить настройки.');
+    const {data,error}=await db.from('push_reminder_preferences').select('enabled,frequency,reminder_time,timezone,medicine_low_stock,medicine_expiry,tasks,disinfection').eq('user_id',user.id).maybeSingle();
+    if(error)throw error;
+    const p=data||{enabled:true,frequency:'daily',reminder_time:'11:00:00',timezone:'Europe/Vilnius',medicine_low_stock:true,medicine_expiry:true,tasks:true,disinfection:true};
+    $('pushReminderEnabled').checked=!!p.enabled;
+    $('pushReminderFrequency').value=p.frequency||'daily';
+    $('pushReminderTime').value=String(p.reminder_time||'11:00').slice(0,5);
+    $('pushReminderLowStock').checked=!!p.medicine_low_stock;
+    $('pushReminderExpiry').checked=!!p.medicine_expiry;
+    $('pushReminderTasks').checked=!!p.tasks;
+    $('pushReminderDisinfection').checked=!!p.disinfection;
+    if(status)status.textContent=data?'Сохранённые настройки загружены. Часовой пояс: Europe/Vilnius.':'Показаны настройки по умолчанию. Они ещё не сохранены — нажмите «Сохранить настройки напоминаний».';
+  }catch(e){console.error('Push preferences load:',e);if(status)status.textContent='Не удалось загрузить настройки: '+(e.message||e)}
+}
+async function savePushReminderPreferences(){
+  const btn=$('savePushReminderPreferencesBtn'),status=$('pushPreferencesStatus');
+  if(guestMode){toast('В гостевом режиме настройки не сохраняются.');return}
+  if(btn)btn.disabled=true;
+  if(status)status.textContent='Сохраняем настройки…';
+  try{
+    const {data:{user},error:userError}=await db.auth.getUser();
+    if(userError||!user)throw new Error('Сессия закончилась. Войдите в журнал повторно.');
+    const reminderTime=$('pushReminderTime').value||'11:00';
+    if(!/^([01]\\d|2[0-3]):(00|15|30|45)$/.test(reminderTime))throw new Error('Выберите время с шагом 15 минут.');
+    const row={
+      user_id:user.id,enabled:$('pushReminderEnabled').checked,frequency:$('pushReminderFrequency').value,
+      reminder_time:reminderTime,timezone:'Europe/Vilnius',
+      medicine_low_stock:$('pushReminderLowStock').checked,medicine_expiry:$('pushReminderExpiry').checked,
+      tasks:$('pushReminderTasks').checked,disinfection:$('pushReminderDisinfection').checked,
+      updated_at:new Date().toISOString()
+    };
+    const {error}=await db.from('push_reminder_preferences').upsert(row,{onConflict:'user_id'});
+    if(error)throw error;
+    if(status)status.textContent='Настройки сохранены для вашего аккаунта. Проверка выполняется каждые 15 минут; уведомление отправится в выбранное время по Литве.';
+    toast('Настройки напоминаний сохранены');
+  }catch(e){console.error('Push preferences save:',e);if(status)status.textContent='Не удалось сохранить настройки: '+(e.message||e);toast('Настройки: '+(e.message||e))}
+  finally{if(btn)btn.disabled=false}
+}
+$('savePushReminderPreferencesBtn')?.addEventListener('click',savePushReminderPreferences);
 $('enablePushBtn')?.addEventListener('click',enablePhonePush);
 
 async function showApp(user){
@@ -1305,7 +1361,7 @@ async function showApp(user){
   const owner=email==='78artnik@gmail.com';
   const p=$('userAccessPanel'); if(p)p.style.display=owner?'block':'none';
   if(owner) loadJournalUsers();
-  try{ await loadAll(); openHiveFromUrl(); }
+  try{ await loadAll(); await loadPushReminderPreferences(); openHiveFromUrl(); }
   catch(e){ console.error(e); toast('Ошибка загрузки данных: '+e.message); }
 }
 $('photoForm').onsubmit=async e=>{
