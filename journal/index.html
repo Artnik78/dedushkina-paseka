@@ -813,7 +813,7 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
         <p class="muted">Разрешите уведомления в Chrome на Android. После настройки push-уведомления смогут приходить, даже когда журнал закрыт.</p>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin:14px 0">
           <div class="field"><label for="pushReminderFrequency">Когда напоминать</label><select id="pushReminderFrequency"><option value="daily">Каждый день</option><option value="weekdays">Только по будням</option><option value="weekly">Раз в неделю (понедельник)</option></select></div>
-          <div class="field"><label for="pushReminderTime">Время (Europe/Vilnius)</label><input id="pushReminderTime" type="time" step="900" value="11:00"></div>
+          <div class="field"><label for="pushReminderTime">Время (Europe/Minsk)</label><input id="pushReminderTime" type="time" step="900" value="11:00"></div>
         </div>
         <div style="display:grid;gap:9px;margin:12px 0">
           <label style="display:flex;align-items:center;gap:9px"><input id="pushReminderEnabled" type="checkbox" checked> Получать push-напоминания</label>
@@ -1294,7 +1294,7 @@ async function loadPushReminderPreferences(){
     if(userError||!user)throw new Error('Войдите в журнал, чтобы загрузить настройки.');
     const {data,error}=await db.from('push_reminder_preferences').select('enabled,frequency,reminder_time,timezone,medicine_low_stock,medicine_expiry,tasks,disinfection').eq('user_id',user.id).maybeSingle();
     if(error)throw error;
-    const p=data||{enabled:true,frequency:'daily',reminder_time:'11:00:00',timezone:'Europe/Vilnius',medicine_low_stock:true,medicine_expiry:true,tasks:true,disinfection:true};
+    const p=data||{enabled:true,frequency:'daily',reminder_time:'11:00:00',timezone:'Europe/Minsk',medicine_low_stock:true,medicine_expiry:true,tasks:true,disinfection:true};
     $('pushReminderEnabled').checked=!!p.enabled;
     $('pushReminderFrequency').value=p.frequency||'daily';
     $('pushReminderTime').value=String(p.reminder_time||'11:00').slice(0,5);
@@ -1302,7 +1302,7 @@ async function loadPushReminderPreferences(){
     $('pushReminderExpiry').checked=!!p.medicine_expiry;
     $('pushReminderTasks').checked=!!p.tasks;
     $('pushReminderDisinfection').checked=!!p.disinfection;
-    if(status)status.textContent=data?'Сохранённые настройки загружены. Часовой пояс: Europe/Vilnius.':'Показаны настройки по умолчанию. Они ещё не сохранены — нажмите «Сохранить настройки напоминаний».';
+    if(status)status.textContent=data?'Сохранённые настройки загружены. Часовой пояс: Europe/Minsk.':'Показаны настройки по умолчанию. Они ещё не сохранены — нажмите «Сохранить настройки напоминаний».';
   }catch(e){console.error('Push preferences load:',e);if(status)status.textContent='Не удалось загрузить настройки: '+(e.message||e)}
 }
 async function savePushReminderPreferences(){
@@ -1317,7 +1317,7 @@ async function savePushReminderPreferences(){
     if(!/^([01]\\d|2[0-3]):(00|15|30|45)$/.test(reminderTime))throw new Error('Выберите время с шагом 15 минут.');
     const row={
       user_id:user.id,enabled:$('pushReminderEnabled').checked,frequency:$('pushReminderFrequency').value,
-      reminder_time:reminderTime,timezone:'Europe/Vilnius',
+      reminder_time:reminderTime,timezone:'Europe/Minsk',
       medicine_low_stock:$('pushReminderLowStock').checked,medicine_expiry:$('pushReminderExpiry').checked,
       tasks:$('pushReminderTasks').checked,disinfection:$('pushReminderDisinfection').checked,
       updated_at:new Date().toISOString()
