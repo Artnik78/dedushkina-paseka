@@ -1821,12 +1821,13 @@ async function deleteDisinfection(id){
 $('disinfectionCancelBtn').onclick=resetDisinfectionForm;
 
 $('inspectionForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);insert('inspections',{hive_id:d.hive_id,inspection_date:d.inspection_date,colony_strength:d.colony_strength,queen_status:d.queen_status,queen_breed:d.queen_breed,brood:d.brood,feed:d.feed,notes:d.notes},e.target)};
+$('healthMedicine')?.addEventListener('change',e=>{const m=state.medicines.find(x=>String(x.id)===String(e.target.value||''));const product=$('healthForm')?.elements.treatment_product;const quantity=$('healthForm')?.elements.quantity_used;if(m){if(product)product.value=m.name||'';if(quantity&&m.quantity!==undefined)quantity.max=String(Math.max(0,Number(m.quantity)||0));}else if(quantity)quantity.removeAttribute('max');});
 $('healthForm').onsubmit=async e=>{
   e.preventDefault();
   const d=formData(e.target);
   const treatmentProduct=(d.treatment_product||'').trim();
   const selectedMedicine=state.medicines.find(m=>String(m.id)===String(d.medicine_id||''));
-  const productName=treatmentProduct||selectedMedicine?.name||'';
+  const productName=selectedMedicine?.name||treatmentProduct;
   const quantityUsed=d.quantity_used===''?null:Number(d.quantity_used);
   const healthPayload={
     hive_id:d.hive_id,
@@ -1865,7 +1866,8 @@ $('healthForm').onsubmit=async e=>{
     }
   }
   e.target.reset(); e.target.elements.check_date.value=today();
-  toast(productName?'Запись о здоровье и обработка сохранены':'Запись о здоровье сохранена'); await loadAll();
+  toast(productName?'Обработка сохранена. Открываю историю лечения этого улья':'Запись о здоровье сохранена'); await loadAll();
+  if(productName)showHiveFamily(d.hive_id);
 };
 async function deleteHealthRecord(id){
   if(guestMode){toast('Гостевой режим — только просмотр');return}
