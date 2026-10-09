@@ -955,24 +955,33 @@ function renderGuestMode(){
     {id:'guest-inspection-old-3',hive_id:'guest-hive-3',inspection_date:d(-12),colony_strength:'Сильная',queen_status:'Есть',queen_breed:'Карника',brood:'Хороший',feed:'Мёд и перга',notes:'Хорошее развитие'}
   );
   state.beeFamilies=state.hives.map((h,i)=>({id:'guest-family-'+(i+1),hive_id:h.id,queen_year:h.queen_year,queen_breed:h.queen_breed,strength:strengths[i],notes:h.notes}));
+  state.queens=[
+    {id:'guest-queen-1-old',hive_id:'guest-hive-1',queen_identifier:'К-2023-014',breed:'Карника',birth_year:2023,origin:'Собственный вывод',marking_color:'Красная',introduction_date:d(-430),status:'Заменена',replacement_date:d(-120),replacement_reason:'Плановая замена по возрасту',notes:'Предыдущая матка; пример истории замен.'},
+    {id:'guest-queen-1',hive_id:'guest-hive-1',queen_identifier:'К-2025-031',breed:'Карника',birth_year:2025,origin:'Собственный вывод',marking_color:'Синяя',introduction_date:d(-120),status:'Текущая',replacement_date:null,replacement_reason:null,notes:'Хороший засев, спокойная семья.'},
+    {id:'guest-queen-2',hive_id:'guest-hive-2',queen_identifier:'Б-2024-008',breed:'Бакфаст',birth_year:2024,origin:'Матководческое хозяйство',marking_color:'Зелёная',introduction_date:d(-300),status:'Текущая',replacement_date:null,replacement_reason:null,notes:'Ровное развитие семьи.'},
+    {id:'guest-queen-4',hive_id:'guest-hive-4',queen_identifier:'М-2023-022',breed:'Мешанка',birth_year:2023,origin:'Собственный вывод',marking_color:'Красная',introduction_date:d(-250),status:'Текущая',replacement_date:null,replacement_reason:null,notes:'Наблюдение после ослабления семьи.'},
+    {id:'guest-queen-7',hive_id:'guest-hive-7',queen_identifier:'К-2022-006',breed:'Карника',birth_year:2022,origin:'Куплена',marking_color:'Белая',introduction_date:d(-500),status:'Текущая',replacement_date:null,replacement_reason:null,notes:'Контроль продуктивности перед зимовкой.'},
+    {id:'guest-queen-12',hive_id:'guest-hive-12',queen_identifier:'К-2021-003',breed:'Карника',birth_year:2021,origin:'Собственный вывод',marking_color:'Белая',introduction_date:d(-700),status:'Неизвестно',replacement_date:null,replacement_reason:null,notes:'Демо-пример матки в семье, требующей проверки.'}
+  ];
   state.honey=[
     {id:'guest-honey-1',batch_number:'2026-001',honey_type:'Мёд разнотравье',collection_date:d(-90),quantity_kg:25,sold_kg:16.8,remaining_kg:8.2,price_per_kg:25,collection_place:'Клецкий район',notes:'Полифлорный мёд, демонстрационная партия'},
     {id:'guest-honey-2',batch_number:'2026-002',honey_type:'Лесной мёд',collection_date:d(-70),quantity_kg:18,sold_kg:4,remaining_kg:14,price_per_kg:28,collection_place:'Клецкий район, лесной массив',notes:'Партия лесного мёда'},
-    {id:'guest-honey-3',batch_number:'2026-003',honey_type:'Майский мёд',collection_date:d(-120),quantity_kg:14,price_per_kg:30,collection_place:'Клецкий район',notes:'Ранний весенний сбор'},
+    {id:'guest-honey-3',batch_number:'2026-003',honey_type:'Майский мёд',collection_date:d(-120),quantity_kg:14,sold_kg:10,remaining_kg:4,price_per_kg:30,collection_place:'Клецкий район',notes:'Ранний весенний сбор'},
     {id:'guest-honey-4',batch_number:'2026-004',honey_type:'Гречишный мёд',collection_date:d(-45),quantity_kg:22,price_per_kg:27,collection_place:'Клецкий район',notes:'Насыщенный гречишный мёд'}
   ];
   state.honeySales=[
     {id:'guest-honey-sale-1',honey_batch_id:'guest-honey-1',sale_date:d(-50),quantity_kg:16.8,sale_amount:420,notes:'Продажа партии разнотравья',source_honey_sale_id:'guest-honey-sale-1'},
-    {id:'guest-honey-sale-2',honey_batch_id:'guest-honey-2',sale_date:d(-20),quantity_kg:4,sale_amount:112,notes:'Небольшая продажа лесного мёда'}
+    {id:'guest-honey-sale-2',honey_batch_id:'guest-honey-2',sale_date:d(-20),quantity_kg:4,sale_amount:112,notes:'Продажа 4 кг лесного мёда по 28 руб./кг'},
+    {id:'guest-honey-sale-3',honey_batch_id:'guest-honey-3',sale_date:d(-4),quantity_kg:10,sale_amount:300,notes:'Продажа 10 кг майского мёда по 30 руб./кг',source_honey_sale_id:'guest-honey-sale-3'}
   ];
   state.finance=[
     {id:'guest-fin-1',operation_date:d(-80),operation_type:'Расход',amount:120,category:'Инвентарь',description:'Покупка рамок и мелкого инвентаря'},
     {id:'guest-fin-2',operation_date:d(-65),operation_type:'Расход',amount:85,category:'Лекарства',description:'Препараты для обработки'},
     {id:'guest-fin-3',operation_date:d(-50),operation_type:'Доход',amount:420,category:'Продажа мёда',description:'Продажа мёда разнотравье',source_honey_sale_id:'guest-honey-sale-1'},
     {id:'guest-fin-4',operation_date:d(-35),operation_type:'Расход',amount:70,category:'Упаковка',description:'Банки и этикетки'},
-    {id:'guest-fin-5',operation_date:d(-20),operation_type:'Доход',amount:360,category:'Мёд',description:'Продажа лесного мёда'},
+    {id:'guest-fin-5',operation_date:d(-20),operation_type:'Доход',amount:112,category:'Продажа мёда',description:'Продажа 4 кг лесного мёда, партия 2026-002',source_honey_sale_id:'guest-honey-sale-2'},
     {id:'guest-fin-6',operation_date:d(-10),operation_type:'Расход',amount:55,category:'Корм',description:'Сахар для подкормки'},
-    {id:'guest-fin-7',operation_date:d(-4),operation_type:'Доход',amount:280,category:'Мёд',description:'Продажа майского мёда'},
+    {id:'guest-fin-7',operation_date:d(-4),operation_type:'Доход',amount:300,category:'Продажа мёда',description:'Продажа 10 кг майского мёда, партия 2026-003',source_honey_sale_id:'guest-honey-sale-3'},
     {id:'guest-fin-8',operation_date:t,operation_type:'Расход',amount:40,category:'Транспорт',description:'Поездка на лесную пасеку'}
   ];
   state.tasks=[
