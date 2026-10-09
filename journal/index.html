@@ -195,6 +195,7 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
     <button data-page="inspections">📋 Осмотры</button>
     <button data-page="health">🩺 Здоровье</button>
     <button data-page="queens">👑 Племенная работа</button>
+    <button data-page="colonies">🐝 Рои и отводки</button>
     <button data-page="calendar">📅 Календарь</button>
     <button data-page="honey">🍯 Мёд / партии</button>
     <button data-page="finances">💰 Финансы</button>
@@ -475,6 +476,44 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
       </div>
     </section>
 
+    <section id="page-colonies" class="section">
+      <h1>🐝 Рои, отводки и объединение семей</h1>
+      <p class="sub">Фиксируйте происхождение новой семьи, исходный и принимающий ульи, количество рамок, матку и результат операции. Записи сохраняют историю и не меняют ульи автоматически.</p>
+      <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:14px">
+        <div class="panel"><div class="muted">Всего операций</div><div id="colonyOperationCount" style="font-size:25px;font-weight:800">0</div></div>
+        <div class="panel"><div class="muted">Рои</div><div id="colonySwarmCount" style="font-size:25px;font-weight:800">0</div></div>
+        <div class="panel"><div class="muted">Отводки</div><div id="colonyNucCount" style="font-size:25px;font-weight:800">0</div></div>
+        <div class="panel"><div class="muted">Объединения</div><div id="colonyMergeCount" style="font-size:25px;font-weight:800">0</div></div>
+      </div>
+      <div class="panel">
+        <h3 id="colonyOperationFormTitle">Новая операция с семьёй</h3>
+        <form id="colonyOperationForm" class="form">
+          <input type="hidden" name="id">
+          <div class="field"><label>Дата операции *</label><input name="operation_date" type="date" required></div>
+          <div class="field"><label>Тип операции *</label><select name="operation_type" required><option>Рой</option><option>Отводок</option><option>Объединение семей</option><option>Пересадка семьи</option></select></div>
+          <div class="field"><label>Исходная семья</label><select name="source_hive_id"><option value="">Не указана</option></select></div>
+          <div class="field"><label>Принимающий / новый улей</label><select name="target_hive_id"><option value="">Не указан</option></select></div>
+          <div class="field"><label>Номер нового улья, если ещё не добавлен</label><input name="new_hive_number" placeholder="Например, 25А"></div>
+          <div class="field"><label>Пасека</label><select name="apiary_id"><option value="">Не указана</option></select></div>
+          <div class="field"><label>Всего рамок</label><input name="frames_count" type="number" min="0" step="1" placeholder="Например, 5"></div>
+          <div class="field"><label>Рамок с расплодом</label><input name="brood_frames" type="number" min="0" step="1" placeholder="Например, 3"></div>
+          <div class="field"><label>Рамок с кормом</label><input name="feed_frames" type="number" min="0" step="1" placeholder="Например, 2"></div>
+          <div class="field"><label>Матка</label><select name="queen_status"><option value="">Не указано</option><option>Старая матка</option><option>Молодая матка</option><option>Маточник</option><option>Матка плодная</option><option>Матка неплодная</option><option>Без матки</option><option>Свищевой маточник</option></select></div>
+          <div class="field"><label>Порода матки</label><select name="queen_breed"><option value="">Не указана</option><option>Карника</option><option>Бакфаст</option><option>Мешанка</option><option>Итальянка</option><option>Среднерусская</option><option>Кавказская</option><option>Другая</option></select></div>
+          <div class="field"><label>Год вывода матки</label><input name="queen_year" type="number" min="1900" max="2200" placeholder="2026"></div>
+          <div class="field"><label>Сила семьи</label><select name="strength"><option value="">Не указана</option><option>Сильная</option><option>Средняя</option><option>Слабая</option></select></div>
+          <div class="field"><label>Статус операции</label><select name="status"><option>Запланирована</option><option selected>В работе</option><option>Успешно</option><option>Неудачно</option><option>Завершена</option></select></div>
+          <div class="field full"><label>Результат / контроль</label><input name="result" placeholder="Например, матка принята, есть засев, семья развивается"></div>
+          <div class="field full"><label>Примечание</label><textarea name="notes" placeholder="Причина операции, происхождение роя, состояние семей, дальнейшие действия..."></textarea></div>
+          <div class="actions"><button class="btn gold" id="colonyOperationSaveBtn" type="submit">💾 Сохранить операцию</button><button class="btn secondary" id="colonyOperationCancelBtn" type="button">Очистить форму</button></div>
+        </form>
+      </div>
+      <div class="panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h3 style="margin:0">История роёв, отводков и объединений</h3><span class="muted" id="colonyOperationCountLabel">0 операций</span></div>
+        <div id="colonyOperationsList" style="margin-top:12px"><div class="empty">Загрузка...</div></div>
+      </div>
+    </section>
+
     <section id="page-honey" class="section">
       <h1>Мёд / партии</h1><p class="sub">Учёт урожая, партий и продукции «Дедушкиной пасеки».</p>
       <div class="panel">
@@ -707,7 +746,7 @@ const SUPABASE_KEY = 'sb_publishable_1eM3o5IehFq-IvjWkHLiCA_RMXGHfw5';
 const { createClient } = window.supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { storageKey: 'dedushkina-paseka-journal-auth' } });
 
-const state = {hives:[], inspections:[], health:[], treatments:[], queens:[], queenBatches:[], photos:[], honey:[], tasks:[], finance:[], apiaries:[], medicines:[], disinfection:[], beeFamilies:[]};
+const state = {hives:[], inspections:[], health:[], treatments:[], queens:[], queenBatches:[], colonyOperations:[], photos:[], honey:[], tasks:[], finance:[], apiaries:[], medicines:[], disinfection:[], beeFamilies:[]};
 let guestMode=false;
 let calendarMonth = new Date();
 calendarMonth.setDate(1);
@@ -730,7 +769,7 @@ function exportCsv(key){
 }
 function exportJson(){
   const copy={exported_at:new Date().toISOString(),journal_name:$('sidebarJournalName')?.textContent||'Дедушкина пасека',
-    apiaries:state.apiaries,hives:state.hives,inspections:state.inspections,health:state.health,treatments:state.treatments,queens:state.queens,queenBatches:state.queenBatches,
+    apiaries:state.apiaries,hives:state.hives,inspections:state.inspections,health:state.health,treatments:state.treatments,queens:state.queens,queenBatches:state.queenBatches,colonyOperations:state.colonyOperations,
     honey:state.honey,tasks:state.tasks,finance:state.finance,medicines:state.medicines,disinfection:state.disinfection,beeFamilies:state.beeFamilies,photos:state.photos};
   downloadFile('dedushkina-paseka-backup-'+today()+'.json',JSON.stringify(copy,null,2),'application/json;charset=utf-8');
   toast('Копия журнала подготовлена');
@@ -875,12 +914,15 @@ function renderGuestMode(){
   ];
 
   state.queenBatches=[{id:'guest-queen-batch-1',batch_code:'ДЕМО-2026-001',graft_date:d(-12),mother_hive_id:'guest-hive-1',starter_hive_id:'guest-hive-2',finisher_hive_id:'guest-hive-3',grafted_cells:24,accepted_cells:18,expected_emergence_date:d(2),emergence_date:null,mating_start_date:null,mating_end_date:null,status:'Маточники запечатаны',notes:'Демонстрационная серия; пример учёта материнской семьи и результата приёма.'}];
+  state.colonyOperations=[
+    {id:'guest-colony-op-1',operation_date:d(-6),operation_type:'Отводок',source_hive_id:'guest-hive-1',target_hive_id:'guest-hive-5',apiary_id:'guest-apiary-1',new_hive_number:'',frames_count:4,brood_frames:2,feed_frames:1,queen_status:'Маточник',queen_breed:'Карника',queen_year:2026,strength:'Средняя',result:'Через 7–10 дней проверить выход матки и наличие засева.',status:'В работе',notes:'Демонстрационная запись. Источник и принимающий улей сохранены в истории.'}
+  ];
 
   renderAll();
 
   // Гостевой режим — только просмотр: формы и операции изменения скрыты.
-  document.querySelectorAll('#page-apiaries form,#page-hives form,#page-inspections form,#page-health form,#page-queens form,#page-calendar form,#page-honey form,#page-finances form,#page-tasks form,#page-medicines form,#page-disinfection form').forEach(f=>{const p=f.closest('.panel');if(p)p.style.display='none';});
-  document.querySelectorAll('#page-home .actions button,#addCalendarEventBtn,.apiary-edit,.apiary-delete,.hive-edit,.hive-history,.hive-delete,.disinfection-edit,.disinfection-delete,.medicine-edit,.medicine-delete,.queen-batch-edit,.queen-batch-delete').forEach(b=>b.style.display='none');
+  document.querySelectorAll('#page-apiaries form,#page-hives form,#page-inspections form,#page-health form,#page-queens form,#page-colonies form,#page-calendar form,#page-honey form,#page-finances form,#page-tasks form,#page-medicines form,#page-disinfection form').forEach(f=>{const p=f.closest('.panel');if(p)p.style.display='none';});
+  document.querySelectorAll('#page-home .actions button,#addCalendarEventBtn,.apiary-edit,.apiary-delete,.hive-edit,.hive-history,.hive-delete,.disinfection-edit,.disinfection-delete,.medicine-edit,.medicine-delete,.queen-batch-edit,.queen-batch-delete,.colony-operation-edit,.colony-operation-delete').forEach(b=>b.style.display='none');
   setText('countHives',state.hives.length); setText('countInspections',state.inspections.length); setText('countHoney',state.honey.length); setText('countTasks',state.tasks.filter(x=>x.status!=='Выполнена').length);
   setText('statHives',state.hives.length); setText('statInspections',state.inspections.length); setText('statHoney',state.honey.length); setText('statFinance',state.finance.length);
 }
@@ -1070,7 +1112,7 @@ async function getTable(table,order='created_at'){
 }
 async function loadAll(){
   const names=[
-    ['apiaries','apiaries'],['hives','hives'],['inspections','inspections'],['health','hive_health_records'],['treatments','hive_treatments'],['queens','hive_queens'],['queenBatches','queen_rearing_batches'],['photos','photos'],['honey','honey_batches'],
+    ['apiaries','apiaries'],['hives','hives'],['inspections','inspections'],['health','hive_health_records'],['treatments','hive_treatments'],['queens','hive_queens'],['queenBatches','queen_rearing_batches'],['colonyOperations','colony_operations'],['photos','photos'],['honey','honey_batches'],
     ['tasks','tasks'],['finance','finances'],['medicines','medicines'],['disinfection','disinfection_logs'],['beeFamilies','bee_families']
   ];
   const results=await Promise.all(names.map(async([key,table])=>{
@@ -1123,6 +1165,84 @@ function refreshPhotoSelectors(){
   is.innerHTML='<option value="">Без привязки</option>'+rows.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.inspection_date||'—')+' · улей №'+esc(state.hives.find(h=>String(h.id)===String(x.hive_id))?.hive_number||'')+'</option>').join('');
   if(oldI&&rows.some(x=>String(x.id)===String(oldI)))is.value=oldI;
 }
+function colonyHiveLabel(id){
+  const h=state.hives.find(x=>String(x.id)===String(id));
+  return h?'Улей №'+(h.hive_number||'—'):'—';
+}
+function renderColonyOperations(){
+  const form=$('colonyOperationForm'),box=$('colonyOperationsList');
+  if(!form||!box)return;
+  const oldSource=form.elements.source_hive_id.value,oldTarget=form.elements.target_hive_id.value,oldApiary=form.elements.apiary_id.value;
+  const hiveOptions=state.hives.slice().sort((a,b)=>(Number(a.hive_number)||0)-(Number(b.hive_number)||0)).map(h=>'<option value="'+esc(h.id)+'">'+esc(queenHiveChoiceLabel(h))+'</option>').join('');
+  form.elements.source_hive_id.innerHTML='<option value="">Не указана</option>'+hiveOptions;
+  form.elements.target_hive_id.innerHTML='<option value="">Не указан</option>'+hiveOptions;
+  form.elements.apiary_id.innerHTML='<option value="">Не указана</option>'+state.apiaries.map(a=>'<option value="'+esc(a.id)+'">'+esc(a.name)+'</option>').join('');
+  if(state.hives.some(h=>String(h.id)===String(oldSource)))form.elements.source_hive_id.value=oldSource;
+  if(state.hives.some(h=>String(h.id)===String(oldTarget)))form.elements.target_hive_id.value=oldTarget;
+  if(state.apiaries.some(a=>String(a.id)===String(oldApiary)))form.elements.apiary_id.value=oldApiary;
+  const rows=(state.colonyOperations||[]).slice().sort((a,b)=>String(b.operation_date||'').localeCompare(String(a.operation_date||'')));
+  setText('colonyOperationCount',rows.length);
+  setText('colonySwarmCount',rows.filter(x=>x.operation_type==='Рой').length);
+  setText('colonyNucCount',rows.filter(x=>x.operation_type==='Отводок').length);
+  setText('colonyMergeCount',rows.filter(x=>x.operation_type==='Объединение семей').length);
+  setText('colonyOperationCountLabel',rows.length+' '+(rows.length===1?'операция':rows.length>=2&&rows.length<=4?'операции':'операций'));
+  if(!rows.length){box.innerHTML='<div class="empty">Операций пока нет. Добавьте первую запись о рое, отводке или объединении.</div>';return}
+  const apiaryName=id=>state.apiaries.find(a=>String(a.id)===String(id))?.name||'—';
+  const typeIcon=t=>t==='Рой'?'🐝':t==='Отводок'?'🪺':t==='Объединение семей'?'🔗':'🏡';
+  box.innerHTML='<div class="table-wrap"><table class="table"><thead><tr><th>Дата / операция</th><th>Исходная семья</th><th>Новая / принимающая</th><th>Пасека</th><th>Рамки</th><th>Матка / семья</th><th>Статус / результат</th><th>Примечание</th><th></th></tr></thead><tbody>'+rows.map(x=>{
+    const frames=[x.frames_count!==null&&x.frames_count!==undefined?'Всего: '+x.frames_count:null,x.brood_frames!==null&&x.brood_frames!==undefined?'Расплод: '+x.brood_frames:null,x.feed_frames!==null&&x.feed_frames!==undefined?'Корм: '+x.feed_frames:null].filter(Boolean);
+    const queen=[x.queen_status,x.queen_breed,x.queen_year].filter(Boolean).join(' · ');
+    return '<tr><td><b>'+typeIcon(x.operation_type)+' '+esc(x.operation_type)+'</b><div class="muted">'+esc(x.operation_date||'—')+'</div></td><td>'+esc(colonyHiveLabel(x.source_hive_id))+'</td><td>'+esc(colonyHiveLabel(x.target_hive_id))+(x.new_hive_number?'<div class="muted">Новый №'+esc(x.new_hive_number)+'</div>':'')+'</td><td>'+esc(apiaryName(x.apiary_id))+'</td><td>'+esc(frames.join(' · ')||'—')+'</td><td>'+esc(queen||'—')+(x.strength?'<div class="muted">Сила: '+esc(x.strength)+'</div>':'')+'</td><td><b>'+esc(x.status||'В работе')+'</b>'+(x.result?'<div class="muted">'+esc(x.result)+'</div>':'')+'</td><td>'+esc(x.notes||'—')+'</td><td><div class="actions" style="margin:0;flex-wrap:nowrap"><button type="button" class="btn secondary colony-operation-edit" data-id="'+esc(x.id)+'">Изменить</button><button type="button" class="btn danger colony-operation-delete" data-id="'+esc(x.id)+'">Удалить</button></div></td></tr>';
+  }).join('')+'</tbody></table></div>';
+  box.querySelectorAll('.colony-operation-edit').forEach(b=>b.onclick=()=>{
+    const x=rows.find(r=>String(r.id)===String(b.dataset.id));if(!x||guestMode)return;
+    Object.keys(x).forEach(k=>{if(form.elements[k])form.elements[k].value=x[k]??''});
+    $('colonyOperationSaveBtn').textContent='💾 Сохранить изменения';
+    $('colonyOperationFormTitle').textContent='Изменить операцию с семьёй';
+    form.scrollIntoView({behavior:'smooth',block:'start'});
+  });
+  box.querySelectorAll('.colony-operation-delete').forEach(b=>b.onclick=async()=>{
+    if(guestMode)return;
+    const x=rows.find(r=>String(r.id)===String(b.dataset.id));if(!x)return;
+    if(!confirm('Удалить запись об операции «'+x.operation_type+'» от '+x.operation_date+'?'))return;
+    const {error}=await db.from('colony_operations').delete().eq('id',x.id);
+    if(error){toast('Не удалось удалить операцию: '+error.message);return}
+    toast('Запись удалена');await loadAll();
+  });
+}
+$('colonyOperationCancelBtn')?.addEventListener('click',()=>{
+  const f=$('colonyOperationForm');f.reset();f.elements.id.value='';
+  $('colonyOperationSaveBtn').textContent='💾 Сохранить операцию';
+  $('colonyOperationFormTitle').textContent='Новая операция с семьёй';
+});
+$('colonyOperationForm')?.addEventListener('submit',async e=>{
+  e.preventDefault();if(guestMode){toast('Гостевой режим — только просмотр');return}
+  const f=e.target,d=formData(f);
+  const frames=['frames_count','brood_frames','feed_frames'];
+  for(const k of frames){if(d[k]!==''&&(!Number.isInteger(Number(d[k]))||Number(d[k])<0)){toast('Количество рамок должно быть целым числом не меньше нуля.');return}}
+  if(d.queen_year!==''&&(!Number.isInteger(Number(d.queen_year))||Number(d.queen_year)<1900||Number(d.queen_year)>2200)){toast('Проверьте год вывода матки.');return}
+  if(d.source_hive_id&&d.target_hive_id&&d.source_hive_id===d.target_hive_id){toast('Исходный и принимающий ульи должны различаться.');return}
+  if(d.operation_type==='Объединение семей'&&(!d.source_hive_id||!d.target_hive_id)){toast('Для объединения укажите обе семьи: исходную и принимающую.');return}
+  if(d.operation_type==='Отводок'&&!d.source_hive_id){toast('Для отводка укажите семью, из которой он сформирован.');return}
+  if(d.operation_type==='Рой'&&!d.target_hive_id&&!d.new_hive_number.trim()){toast('Для роя укажите принимающий улей или номер нового улья.');return}
+  const numeric=k=>d[k]===''?null:Number(d[k]);
+  const payload={
+    operation_date:d.operation_date,operation_type:d.operation_type,
+    source_hive_id:d.source_hive_id||null,target_hive_id:d.target_hive_id||null,
+    apiary_id:d.apiary_id||null,new_hive_number:d.new_hive_number.trim()||null,
+    frames_count:numeric('frames_count'),brood_frames:numeric('brood_frames'),feed_frames:numeric('feed_frames'),
+    queen_status:d.queen_status||null,queen_breed:d.queen_breed||null,queen_year:numeric('queen_year'),
+    strength:d.strength||null,result:d.result.trim()||null,status:d.status||'В работе',notes:d.notes.trim()||null
+  };
+  const id=d.id;
+  const q=id?db.from('colony_operations').update(payload).eq('id',id):db.from('colony_operations').insert(payload);
+  const {error}=await q;
+  if(error){toast('Не удалось сохранить операцию: '+error.message);return}
+  f.reset();f.elements.id.value='';
+  $('colonyOperationSaveBtn').textContent='💾 Сохранить операцию';
+  $('colonyOperationFormTitle').textContent='Новая операция с семьёй';
+  toast(id?'Изменения сохранены':'Операция сохранена');await loadAll();
+});
 function renderQueenCalendarReminders(){
   const box=$('homeQueenAlerts');
   if(!box)return;
@@ -1169,6 +1289,7 @@ function renderQueenCalendarReminders(){
 }
 function renderAll(){
   renderQueenRearingBatches();
+  renderColonyOperations();
   renderQueenCalendarReminders();
   refreshPhotoSelectors();
   setText('homeWorkHives',state.hives.length+' '+(state.hives.length===1?'улей':'ульев'));
