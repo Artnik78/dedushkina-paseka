@@ -1173,6 +1173,7 @@ function renderColonyOperations(){
   const form=$('colonyOperationForm'),box=$('colonyOperationsList');
   if(!form||!box)return;
   const oldSource=form.elements.source_hive_id.value,oldTarget=form.elements.target_hive_id.value,oldApiary=form.elements.apiary_id.value;
+  if(!form.elements.id.value&&!form.elements.operation_date.value)form.elements.operation_date.value=today();
   const hiveOptions=state.hives.slice().sort((a,b)=>(Number(a.hive_number)||0)-(Number(b.hive_number)||0)).map(h=>'<option value="'+esc(h.id)+'">'+esc(queenHiveChoiceLabel(h))+'</option>').join('');
   form.elements.source_hive_id.innerHTML='<option value="">Не указана</option>'+hiveOptions;
   form.elements.target_hive_id.innerHTML='<option value="">Не указан</option>'+hiveOptions;
@@ -1221,6 +1222,8 @@ $('colonyOperationForm')?.addEventListener('submit',async e=>{
   const frames=['frames_count','brood_frames','feed_frames'];
   for(const k of frames){if(d[k]!==''&&(!Number.isInteger(Number(d[k]))||Number(d[k])<0)){toast('Количество рамок должно быть целым числом не меньше нуля.');return}}
   if(d.queen_year!==''&&(!Number.isInteger(Number(d.queen_year))||Number(d.queen_year)<1900||Number(d.queen_year)>2200)){toast('Проверьте год вывода матки.');return}
+  if(d.frames_count!==''&&d.brood_frames!==''&&Number(d.brood_frames)>Number(d.frames_count)){toast('Рамок с расплодом не может быть больше общего количества рамок.');return}
+  if(d.frames_count!==''&&d.feed_frames!==''&&Number(d.feed_frames)>Number(d.frames_count)){toast('Рамок с кормом не может быть больше общего количества рамок.');return}
   if(d.source_hive_id&&d.target_hive_id&&d.source_hive_id===d.target_hive_id){toast('Исходный и принимающий ульи должны различаться.');return}
   if(d.operation_type==='Объединение семей'&&(!d.source_hive_id||!d.target_hive_id)){toast('Для объединения укажите обе семьи: исходную и принимающую.');return}
   if(d.operation_type==='Отводок'&&!d.source_hive_id){toast('Для отводка укажите семью, из которой он сформирован.');return}
