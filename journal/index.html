@@ -924,6 +924,25 @@ function showPage(name){
 }
 document.querySelectorAll('[data-page]').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
 
+// Гостевой режим строго только для просмотра: блокируем отправку любых форм
+// и обработчики удаления до того, как они смогут обратиться к Supabase.
+document.addEventListener('submit',e=>{
+  if(!guestMode)return;
+  e.preventDefault();
+  e.stopImmediatePropagation();
+  toast('Гостевой режим — только просмотр. Данные не сохранены.');
+},true);
+document.addEventListener('click',e=>{
+  if(!guestMode)return;
+  const b=e.target.closest('button');
+  if(!b)return;
+  if(/delete/i.test((b.id||'')+' '+(typeof b.className==='string'?b.className:''))){
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    toast('Гостевой режим — удаление недоступно.');
+  }
+},true);
+
 function showGuest(){
   guestMode=true;
   $('auth').style.display='none';
@@ -2157,6 +2176,7 @@ $('queenRearingForm')?.addEventListener('submit',async e=>{
   f.reset();f.elements.id.value='';$('queenBatchSaveBtn').textContent='💾 Сохранить серию';toast(id?'Изменения серии сохранены':'Серия вывода сохранена');await loadAll();
 });
 async function insert(table,payload,form){
+  if(guestMode){toast('Гостевой режим — только просмотр. Данные не сохранены.');return}
   const {error}=await db.from(table).insert(payload);
   if(error){toast('Ошибка: '+error.message);return}
   form.reset();toast('Сохранено');await loadAll();
