@@ -372,6 +372,8 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
           <div class="field"><label>Расплод</label><select name="brood"><option value="">Не указано</option><option>Хороший</option><option>Нормальный</option><option>Слабый</option><option>Нет</option></select></div>
           <div class="field"><label>Корм</label><select name="feed"><option value="">Не указано</option><option>Много</option><option>Достаточно</option><option>Мало</option><option>Нет</option><option>Мёд и перга</option><option>Сироп</option></select></div>
           <div class="field full"><label>Заметки</label><textarea name="notes"></textarea></div>
+          <div class="field full"><label>📷 Фото прямо из осмотра (необязательно)</label><input name="inspection_photo" type="file" accept="image/*" capture="environment"><small class="muted">Можно сделать снимок камерой телефона или выбрать файл. Максимум 10 МБ.</small></div>
+          <div class="field full"><label>Подпись к фото (необязательно)</label><input name="inspection_photo_caption" placeholder="Например, расплод, матка, признаки болезни"></div>
           <div><button class="btn">Сохранить осмотр</button></div>
         </form>
       </div>
@@ -2455,7 +2457,44 @@ async function deleteDisinfection(id){
 }
 $('disinfectionCancelBtn').onclick=resetDisinfectionForm;
 
-$('inspectionForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);insert('inspections',{hive_id:d.hive_id,inspection_date:d.inspection_date,colony_strength:d.colony_strength,queen_status:d.queen_status,queen_breed:d.queen_breed,brood:d.brood,feed:d.feed,notes:d.notes},e.target)};
+$('inspectionForm').onsubmit=async e=>{
+  e.preventDefault();
+  if(guestMode){toast('Гостевой режим — только просмотр');return}
+  const f=e.target,d=formData(f),file=f.elements.inspection_photo?.files?.[0]||null;
+  if(file&&(!file.type.startsWith('image/')||file.size>10*1024*1024)){
+    toast(!file.type.startsWith('image/')?'Выберите файл изображения':'Фото слишком большое. Максимум 10 МБ');return;
+  }
+  const btn=f.querySelector('button[type="submit"],button:not([type])');
+  if(btn)btn.disabled=true;
+  const {data:inspection,error}=await db.from('inspections').insert({
+    hive_id:d.hive_id,inspection_date:d.inspection_date,colony_strength:d.colony_strength,
+    queen_status:d.queen_status,queen_breed:d.queen_breed,brood:d.brood,feed:d.feed,notes:d.notes
+  }).select('id').single();
+  if(error){if(btn)btn.disabled=false;toast('Ошибка сохранения осмотра: '+error.message);return}
+  if(file){
+    let photoSaved=false,photoError='';
+    try{
+      const {data:{user}}=await db.auth.getUser();
+      if(!user)throw new Error('Не удалось определить пользователя');
+      const ext=(file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'')||'jpg';
+      const path=user.id+'/'+Date.now()+'-'+crypto.randomUUID()+'.'+ext;
+      const up=await db.storage.from('journal-photos').upload(path,file,{contentType:file.type,upsert:false});
+      if(up.error)throw up.error;
+      const ins=await db.from('photos').insert({
+        hive_id:d.hive_id,inspection_id:inspection.id,file_path:path,
+        caption:(d.inspection_photo_caption||'').trim()||('Фото к осмотру от '+d.inspection_date)
+      });
+      if(ins.error){await db.storage.from('journal-photos').remove([path]);throw ins.error}
+      photoSaved=true;
+    }catch(err){photoError=err?.message||String(err)}
+    if(photoSaved)toast('Осмотр и фотография сохранены');
+    else toast('Осмотр сохранён, но фото не удалось загрузить: '+photoError);
+  }else toast('Осмотр сохранён');
+  if(btn)btn.disabled=false;
+  f.reset();
+  const dateField=f.elements.inspection_date;if(dateField)dateField.value=today();
+  await loadAll();
+};
 $('healthMedicine')?.addEventListener('change',e=>{const m=state.medicines.find(x=>String(x.id)===String(e.target.value||''));const product=$('healthForm')?.elements.treatment_product;const quantity=$('healthForm')?.elements.quantity_used;if(m){if(product)product.value=m.name||'';if(quantity&&m.quantity!==undefined)quantity.max=String(Math.max(0,Number(m.quantity)||0));}else if(quantity)quantity.removeAttribute('max');});
 function closeTreatmentEditor(){const modal=$('treatmentEditModal');if(modal)modal.remove()}
 function openTreatmentEditor(id){
