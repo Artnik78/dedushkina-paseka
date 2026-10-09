@@ -1891,7 +1891,12 @@ function renderAll(){
           else if(days<=Number(m.expiry_warning_days||30)) status='⚠️ Срок подходит';
         }
         const statusClass=status.includes('Просрочено')?'danger':status.includes('⚠️')?'warn':'ok';
-        return '<div class="medicine-mobile-card '+statusClass+'"><div class="medicine-mobile-top"><b>💊 '+esc(m.name)+'</b><span>'+status+'</span></div><div class="medicine-mobile-grid"><span><small>Фасовка</small><b>'+esc(m.volume||'—')+'</b></span><span><small>Остаток</small><b>'+esc(m.quantity)+' / '+esc(m.min_quantity??'—')+'</b></span><span><small>Срок годности</small><b>'+esc(m.expiry_date||'—')+'</b></span></div><div class="medicine-mobile-actions"><button type="button" class="btn secondary medicine-edit" data-id="'+esc(m.id)+'">Изменить</button><button type="button" class="btn danger medicine-delete" data-id="'+esc(m.id)+'">Удалить</button></div></div>';
+        const medicineUses=state.treatments.filter(t=>String(t.medicine_id||'')===String(m.id)).sort((a,b)=>String(b.treatment_date||'').localeCompare(String(a.treatment_date||'')));
+        const lastUse=medicineUses[0]?.treatment_date;
+        const usageSummary=medicineUses.length
+          ? '<div class="muted" style="font-size:12px;margin-top:9px;padding-top:8px;border-top:1px solid var(--line)">🩺 Применений: <b>'+medicineUses.length+'</b> · последнее: <b>'+esc(lastUse?new Date(String(lastUse).slice(0,10)+'T00:00:00').toLocaleDateString('ru-RU'):'дата не указана')+'</b></div>'
+          : '<div class="muted" style="font-size:12px;margin-top:9px;padding-top:8px;border-top:1px solid var(--line)">🩺 Применений по журналу: нет</div>';
+        return '<div class="medicine-mobile-card '+statusClass+'"><div class="medicine-mobile-top"><b>💊 '+esc(m.name)+'</b><span>'+status+'</span></div><div class="medicine-mobile-grid"><span><small>Фасовка</small><b>'+esc(m.volume||'—')+'</b></span><span><small>Остаток</small><b>'+esc(m.quantity)+' / '+esc(m.min_quantity??'—')+'</b></span><span><small>Срок годности</small><b>'+esc(m.expiry_date||'—')+'</b></span></div>'+usageSummary+'<div class="medicine-mobile-actions"><button type="button" class="btn secondary medicine-edit" data-id="'+esc(m.id)+'">Изменить</button><button type="button" class="btn danger medicine-delete" data-id="'+esc(m.id)+'">Удалить</button></div></div>';
       }).join('')+'</div>'
     : '<div class="empty">Лекарств пока нет. Добавьте первый препарат выше.</div>';
   document.querySelectorAll('.medicine-edit').forEach(b=>b.onclick=()=>editMedicine(b.dataset.id));
