@@ -1924,6 +1924,16 @@ function renderAll(){
 document.querySelectorAll('.honey-batch-card').forEach(b=>b.onclick=()=>openHoneyBatch(b.dataset.honeyId));
 
   $('financeList').innerHTML=state.finance.length?'<div class="finance-mobile-list">'+state.finance.map(f=>{const income=String(f.operation_type||'').toLowerCase().includes('доход');return '<div class="finance-mobile-card '+(income?'income':'expense')+'"><div class="finance-mobile-top"><b>'+(income?'↗ Доход':'↘ Расход')+'</b><span>'+esc(f.operation_date||'—')+'</span></div><div class="finance-mobile-amount">'+esc(f.amount||'0')+'</div><div class="finance-mobile-meta"><span>'+esc(f.category||'Без категории')+'</span><span>'+esc(f.description||'Без описания')+'</span></div></div>'}).join('')+'</div><div class="finance-desktop-table"><table class="table"><thead><tr><th>Дата</th><th>Тип</th><th>Сумма</th><th>Категория</th><th>Описание</th></tr></thead><tbody>'+state.finance.map(f=>'<tr><td>'+esc(f.operation_date)+'</td><td>'+esc(f.operation_type)+'</td><td>'+esc(f.amount)+'</td><td>'+esc(f.category)+'</td><td>'+esc(f.description)+'</td></tr>').join('')+'</tbody></table></div>':'<div class="empty">Операций пока нет.</div>';
+  const financeRows=state.finance||[];
+  const isIncome=f=>String(f.operation_type??f.entry_type??'').trim().toLowerCase().includes('доход');
+  const isExpense=f=>String(f.operation_type??f.entry_type??'').trim().toLowerCase().includes('расход');
+  const money=n=>Number(n||0).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2})+' руб.';
+  const financeIncome=financeRows.filter(isIncome).reduce((sum,f)=>sum+(Number(f.amount)||0),0);
+  const financeExpense=financeRows.filter(isExpense).reduce((sum,f)=>sum+(Number(f.amount)||0),0);
+  setText('financeIncome',money(financeIncome));
+  setText('financeExpense',money(financeExpense));
+  setText('financeBalance',money(financeIncome-financeExpense));
+
 
   const taskOpen=state.tasks.filter(t=>t.status!=='Выполнена');
   const taskOverdue=taskOpen.filter(t=>t.due_date&&String(t.due_date).slice(0,10)<today());
