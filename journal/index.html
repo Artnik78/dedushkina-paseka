@@ -873,7 +873,7 @@ function renderGuestMode(){
 
   // Гостевой режим — только просмотр: формы и операции изменения скрыты.
   document.querySelectorAll('#page-apiaries form,#page-hives form,#page-inspections form,#page-health form,#page-queens form,#page-calendar form,#page-honey form,#page-finances form,#page-tasks form,#page-medicines form,#page-disinfection form').forEach(f=>{const p=f.closest('.panel');if(p)p.style.display='none';});
-  document.querySelectorAll('#page-home .actions button,#addCalendarEventBtn,.apiary-edit,.apiary-delete,.hive-edit,.hive-history,.hive-delete,.disinfection-edit,.disinfection-delete,.medicine-edit,.medicine-delete').forEach(b=>b.style.display='none');
+  document.querySelectorAll('#page-home .actions button,#addCalendarEventBtn,.apiary-edit,.apiary-delete,.hive-edit,.hive-history,.hive-delete,.disinfection-edit,.disinfection-delete,.medicine-edit,.medicine-delete,.queen-batch-edit,.queen-batch-delete').forEach(b=>b.style.display='none');
   setText('countHives',state.hives.length); setText('countInspections',state.inspections.length); setText('countHoney',state.honey.length); setText('countTasks',state.tasks.filter(x=>x.status!=='Выполнена').length);
   setText('statHives',state.hives.length); setText('statInspections',state.inspections.length); setText('statHoney',state.honey.length); setText('statFinance',state.finance.length);
 }
