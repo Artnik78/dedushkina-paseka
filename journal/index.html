@@ -215,6 +215,7 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
 
 <main class="main">
   <header class="topbar">
+    <button type="button" id="pageBackBtn" class="btn secondary" aria-label="Назад" title="Вернуться на предыдущую страницу" style="flex:0 0 auto;min-width:42px;padding:9px 12px;font-size:20px;line-height:1" hidden>←</button>
     <input id="search" class="search" placeholder="Поиск по журналу...">
     <div class="profile"><span class="status-dot"></span><span id="userEmail">...</span><button class="btn secondary" id="logoutBtn">Выйти</button></div>
   </header>
@@ -959,13 +960,25 @@ formatHomeDate();
 
 function formData(form){return Object.fromEntries(new FormData(form).entries())}
 function setText(id,value){const el=$(id);if(el)el.textContent=value}
-function showPage(name){
+const journalPageHistory=[];
+function showPage(name,fromBack=false){
+  const current=document.querySelector('.section.active')?.id?.replace('page-','');
+  if(!name||!$('page-'+name))return;
+  if(current&&current!==name&&!fromBack)journalPageHistory.push(current);
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   $('page-'+name)?.classList.add('active');
   document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===name));
   document.body.classList.toggle('home-view',name==='home');
+  const back=$('pageBackBtn');
+  if(back)back.hidden=journalPageHistory.length===0;
   window.scrollTo({top:0,behavior:'smooth'});
 }
+$('pageBackBtn')?.addEventListener('click',()=>{
+  const previous=journalPageHistory.pop();
+  if(previous)showPage(previous,true);
+  const back=$('pageBackBtn');
+  if(back)back.hidden=journalPageHistory.length===0;
+});
 document.querySelectorAll('[data-page]').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
 
 // Гостевой режим строго только для просмотра: блокируем отправку любых форм
