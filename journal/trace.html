@@ -43,7 +43,7 @@ footer{text-align:center;color:var(--muted);font-size:11px;padding:18px 8px}
 <div class="kicker">Индивидуальная маркировка банки</div>
 <div class="batch-title" id="honeyType">Натуральный мёд</div>
 <p class="subtitle" id="batchNumber"></p>
-<span class="stamp">✓ Код банки подтверждён</span>
+<span class="stamp" id="passportStamp">✓ Код банки подтверждён</span>
 <div class="grid">
 <div class="item"><small>Индивидуальный номер</small><b id="jarNumber">—</b></div>
 <div class="item"><small>Масса нетто по записи фасовки</small><b id="jarSize">—</b></div>
@@ -77,7 +77,33 @@ const el=id=>document.getElementById(id);
 const showDate=value=>{if(!value)return '—';const s=String(value).slice(0,10);const m=s.match(/^(\d{4})-(\d{2})-(\d{2})$/);return m?m[3]+'.'+m[2]+'.'+m[1]:s};
 const put=(id,value)=>{el(id).textContent=value===null||value===undefined||value===''?'—':String(value)};
 async function run(){
- const code=new URLSearchParams(location.search).get('code');
+ const params=new URLSearchParams(location.search),code=params.get('code');
+ const demo=params.get('demo')==='1';
+ if(demo){
+  const m=(code||'').match(/^d(\d{3})(\d{4})(0{24})$/i),packIndex=m?Number(m[1]):0,jarNumber=m?Number(m[2]):0;
+  const samples={
+   1:{batch_number:'2026-001',honey_type:'Мёд разнотравье',collection_date:'2026-07-10',collection_period:'Июнь–июль 2026',quantity_kg:25,collection_place:'Клецкий район',apiary_name:'Дедушкина пасека',apiary_location:'Клецкий район',packaging_date:'2026-08-22',jar_size_g:500,jar_count:20,label_code:'2026-001-500',packaging_notes:'Демонстрационная фасовка разнотравья'},
+   2:{batch_number:'2026-002',honey_type:'Лесной мёд',collection_date:'2026-07-30',collection_period:'Июнь–август 2026',quantity_kg:18,collection_place:'Клецкий район, лесной массив',apiary_name:'Лесная пасека',apiary_location:'Клецкий район, лесной массив',packaging_date:'2026-09-21',jar_size_g:280,jar_count:25,label_code:'2026-002-280',packaging_notes:'Демонстрационная фасовка лесного мёда'},
+   3:{batch_number:'2026-003',honey_type:'Майский мёд',collection_date:'2026-05-20',collection_period:'Май 2026',quantity_kg:30,collection_place:'Клецкий район',apiary_name:'Дедушкина пасека',apiary_location:'Клецкий район',packaging_date:'2026-10-06',jar_size_g:1000,jar_count:10,label_code:'2026-003-1000',packaging_notes:'Демонстрационная фасовка майского мёда'}
+  };
+  const d=samples[packIndex];
+  if(!d||jarNumber<1||jarNumber>d.jar_count){el('loading').hidden=true;el('invalid').hidden=false;return}
+  d.jar_number=jarNumber;d.jar_code=code;
+  put('honeyType',d.honey_type);put('batchNumber','Партия '+d.batch_number);
+  put('jarNumber','№ '+d.jar_number+' из '+d.jar_count);put('jarSize',Number(d.jar_size_g).toLocaleString('ru-RU')+' г');
+  put('packDate',showDate(d.packaging_date));put('labelCode',d.label_code);
+  put('apiaryName',d.apiary_name);put('collectionPlace',d.collection_place||d.apiary_location);
+  put('collectionDate',showDate(d.collection_date));put('collectionPeriod',d.collection_period);
+  put('sourceStep',d.apiary_name+(d.apiary_location?' · '+d.apiary_location:''));
+  put('batchStep',d.batch_number+' · '+d.honey_type);
+  put('batchQuantity','Демонстрационный объём партии: '+d.quantity_kg+' кг');
+  put('packStep',d.jar_size_g+' г · банка №'+d.jar_number);
+  put('packDetails','Демо-фасовка '+showDate(d.packaging_date)+' · '+d.packaging_notes);
+  put('individualCode',d.jar_code);
+  el('passportStamp').textContent='ДЕМО-ПРИМЕР · не реальная маркировка';
+  el('passportStamp').style.background='#fff3d1';el('passportStamp').style.color='#795b12';
+  el('loading').hidden=true;el('passport').hidden=false;return;
+ }
  if(!code||!/^[a-f0-9]{24,80}$/i.test(code)){el('loading').hidden=true;el('invalid').hidden=false;return}
  try{
   const {data,error}=await db.rpc('get_honey_jar_trace',{p_code:code});
