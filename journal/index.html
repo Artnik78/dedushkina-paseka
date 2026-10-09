@@ -1915,6 +1915,10 @@ $('healthForm').onsubmit=async e=>{
 };
 async function deleteHealthRecord(id){
   if(guestMode){toast('Гостевой режим — только просмотр');return}
+  if(state.treatments.some(t=>String(t.health_record_id||'')===String(id))){
+    toast('К этой записи привязана обработка. Сначала удалите или исправьте её в разделе «История лечения». Запись о здоровье останется целой.');
+    return;
+  }
   if(!confirm('Удалить запись о здоровье семьи?'))return;
   const {error}=await db.from('hive_health_records').delete().eq('id',id);
   if(error){toast('Ошибка: '+error.message);return}
