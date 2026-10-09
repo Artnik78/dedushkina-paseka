@@ -1851,7 +1851,7 @@ function openTreatmentEditor(id){
       p_notes:d.notes.trim()||null,p_medicine_id:d.medicine_id||null
     });
     if(error){toast('Не удалось исправить обработку: '+error.message);return}
-    closeTreatmentEditor();toast('Обработка исправлена; история здоровья и склад обновлены.');await loadAll();showHiveFamily(d.hive_id);
+    closeTreatmentEditor();toast('Обработка исправлена; история здоровья и склад обновлены.');await loadAll();
   };
 }
 async function deleteTreatment(id){
