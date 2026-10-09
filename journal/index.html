@@ -2290,13 +2290,24 @@ $('hiveFamilyModal').style.display='flex';
   };
 
 }
-function showInspectionDetails(id){
+async function showInspectionDetails(id){
   const i=state.inspections.find(x=>String(x.id)===String(id)); if(!i)return;
   const h=state.hives.find(x=>String(x.id)===String(i.hive_id));
   $('hiveFamilyTitle').textContent='📋 Осмотр — улей №'+(h?.hive_number||'');
-  $('hiveFamilyInfo').innerHTML='<div class="panel" style="margin-top:0"><div class="status-grid"><div class="status-box"><div class="muted">📅 Дата</div><b>'+esc(i.inspection_date||'—')+'</b></div><div class="status-box"><div class="muted">💪 Сила семьи</div><b>'+esc(i.colony_strength||'Нет данных')+'</b></div><div class="status-box"><div class="muted">👑 Матка</div><b>'+esc(i.queen_status||'Нет данных')+'</b></div><div class="status-box"><div class="muted">🥚 Расплод</div><b>'+esc(i.brood||'Нет данных')+'</b></div></div><div style="margin-top:14px"><b>🍯 Корм:</b> '+esc(i.feed||'Нет данных')+'</div>'+(i.queen_breed?'<div style="margin-top:8px"><b>Порода матки:</b> '+esc(i.queen_breed)+'</div>':'')+(i.notes?'<div style="margin-top:14px"><b>📝 Заметки</b><p>'+esc(i.notes)+'</p></div>':'<div class="muted" style="margin-top:14px">Заметок нет.</div>')+'</div><div class="actions" style="margin-top:14px"><button type="button" class="btn secondary" id="backToHiveFamily">← К семье</button></div>';
+  $('hiveFamilyInfo').innerHTML='<div class="panel" style="margin-top:0"><div class="status-grid"><div class="status-box"><div class="muted">📅 Дата</div><b>'+esc(i.inspection_date||'—')+'</b></div><div class="status-box"><div class="muted">💪 Сила семьи</div><b>'+esc(i.colony_strength||'Нет данных')+'</b></div><div class="status-box"><div class="muted">👑 Матка</div><b>'+esc(i.queen_status||'Нет данных')+'</b></div><div class="status-box"><div class="muted">🥚 Расплод</div><b>'+esc(i.brood||'Нет данных')+'</b></div></div><div style="margin-top:14px"><b>🍯 Корм:</b> '+esc(i.feed||'Нет данных')+'</div>'+(i.queen_breed?'<div style="margin-top:8px"><b>Порода матки:</b> '+esc(i.queen_breed)+'</div>':'')+(i.notes?'<div style="margin-top:14px"><b>📝 Заметки</b><p>'+esc(i.notes)+'</p></div>':'<div class="muted" style="margin-top:14px">Заметок нет.</div>')+'</div><div class="panel" style="margin-top:12px"><h3>📷 Фотографии этого осмотра</h3><div id="inspectionDetailPhotos" class="photo-grid"><div class="muted">Загрузка фотографий...</div></div></div><div class="actions" style="margin-top:14px"><button type="button" class="btn secondary" id="backToHiveFamily">← К семье</button><button type="button" class="btn secondary" id="openInspectionPhotos">Все фотографии →</button></div>';
   $('hiveFamilyModal').style.display='flex';
   $('backToHiveFamily').onclick=()=>showHiveFamily(i.hive_id);
+  $('openInspectionPhotos').onclick=()=>{closeHiveFamily();showPage('photos');const hs=$('photoHive');if(hs){hs.value=String(i.hive_id||'');hs.dispatchEvent(new Event('change'));}};
+  const photoBox=$('inspectionDetailPhotos');
+  const photos=(state.photos||[]).filter(p=>String(p.inspection_id||'')===String(i.id));
+  if(!photos.length){photoBox.innerHTML='<div class="empty">К этому осмотру фотографии не прикреплены.</div>';return}
+  if(guestMode){photoBox.innerHTML='<div class="muted">Фотографии доступны после входа владельца журнала.</div>';return}
+  const items=await Promise.all(photos.map(async p=>{
+    const result=await db.storage.from('journal-photos').createSignedUrl(p.file_path,3600);
+    return {p,url:result.data?.signedUrl||''};
+  }));
+  if(!document.getElementById('inspectionDetailPhotos'))return;
+  photoBox.innerHTML=items.map(({p,url})=>'<div class="card" style="padding:8px">'+(url?'<a href="'+esc(url)+'" target="_blank" rel="noopener"><img src="'+esc(url)+'" alt="'+esc(p.caption||'Фото осмотра')+'" style="width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px"></a>':'<div class="muted">Не удалось загрузить фотографию.</div>')+'<div class="muted" style="margin-top:6px">'+esc(p.caption||'Без подписи')+'</div></div>').join('');
 }
 function closeHiveFamily(){ $('hiveFamilyModal').style.display='none'; }
 async function showHiveHistory(id){
