@@ -2017,7 +2017,11 @@ function renderAll(){
   const addSmart=(item)=>{if(item&&item.date)smartReminders.push(item)};
   overdueTasks.forEach(t=>addSmart({icon:'🔴',title:eventTitle(t),date:String(t.due_date).slice(0,10),badge:'просрочено',page:'tasks',rank:0,sortDate:String(t.due_date).slice(0,10)}));
   todayTasksAll.forEach(t=>addSmart({icon:'🟠',title:eventTitle(t),date:String(t.due_date).slice(0,10),badge:'сегодня',page:'tasks',rank:1,sortDate:String(t.due_date).slice(0,10)}));
-  upcomingTasksHome.forEach(t=>addSmart({icon:'🟡',title:eventTitle(t),date:String(t.due_date).slice(0,10),badge:'скоро',page:'tasks',rank:2,sortDate:String(t.due_date).slice(0,10)}));
+  upcomingTasksHome.forEach(t=>{
+    const date=String(t.due_date).slice(0,10);
+    const days=Math.ceil((new Date(date+'T12:00:00')-smartToday)/86400000);
+    if(days<=14)addSmart({icon:'🟡',title:eventTitle(t),date,badge:days===0?'сегодня':'через '+days+' дн.',page:'tasks',rank:2,sortDate:date});
+  });
   const smartToday=new Date(today()+'T12:00:00');
   (state.medicines||[]).forEach(m=>{
     const qty=Number(m.quantity),min=Number(m.min_quantity);
@@ -2033,6 +2037,7 @@ function renderAll(){
   (state.disinfection||[]).forEach(x=>{
     if(!x.next_date)return;
     const date=String(x.next_date).slice(0,10),days=Math.ceil((new Date(date+'T12:00:00')-smartToday)/86400000);
+    if(!Number.isFinite(days)||days>14)return;
     addSmart({icon:'🧴',title:'Дезинфекция: '+(x.target_type||'объект')+' — '+(x.agent||'средство не указано'),date,badge:days<0?'просрочено':days===0?'сегодня':'через '+days+' дн.',page:'disinfection',rank:days<0?0:days===0?1:2,sortDate:date});
   });
   (state.queenBatches||[]).filter(x=>!['Завершена','Неудачная'].includes(x.status)).forEach(x=>{
