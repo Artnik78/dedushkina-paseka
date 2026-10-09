@@ -861,7 +861,7 @@ const SUPABASE_KEY = 'sb_publishable_1eM3o5IehFq-IvjWkHLiCA_RMXGHfw5';
 const { createClient } = window.supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { storageKey: 'dedushkina-paseka-journal-auth' } });
 
-const state = {hives:[], inspections:[], health:[], treatments:[], queens:[], queenBatches:[], colonyOperations:[], waxOperations:[], apiaryProductsOperations:[], photos:[], honey:[], honeyPackagingRuns:[], honeyJarLabels:[], honeySales:[], tasks:[], finance:[], apiaries:[], medicines:[], disinfection:[], beeFamilies:[]};
+const state = {hives:[], inspections:[], health:[], treatments:[], queens:[], queenBatches:[], colonyOperations:[], waxOperations:[], apiaryProductsOperations:[], photos:[], honey:[], honeyPackagingRuns:[], honeyJarLabels:[], honeySales:[], tasks:[], finance:[], apiaries:[], medicines:[], medicineStockMovements:[], disinfection:[], beeFamilies:[]};
 let guestMode=false;
 let calendarMonth = new Date();
 calendarMonth.setDate(1);
@@ -885,7 +885,7 @@ function exportCsv(key){
 function exportJson(){
   const copy={exported_at:new Date().toISOString(),journal_name:$('sidebarJournalName')?.textContent||'Дедушкина пасека',
     apiaries:state.apiaries,hives:state.hives,inspections:state.inspections,health:state.health,treatments:state.treatments,queens:state.queens,queenBatches:state.queenBatches,colonyOperations:state.colonyOperations,waxOperations:state.waxOperations,apiaryProductsOperations:state.apiaryProductsOperations,
-    honey:state.honey,honeySales:state.honeySales,tasks:state.tasks,finance:state.finance,medicines:state.medicines,disinfection:state.disinfection,beeFamilies:state.beeFamilies,photos:state.photos};
+    honey:state.honey,honeySales:state.honeySales,tasks:state.tasks,finance:state.finance,medicines:state.medicines,medicineStockMovements:state.medicineStockMovements,disinfection:state.disinfection,beeFamilies:state.beeFamilies,photos:state.photos};
   downloadFile('dedushkina-paseka-backup-'+today()+'.json',JSON.stringify(copy,null,2),'application/json;charset=utf-8');
   toast('Копия журнала подготовлена');
 }
@@ -1038,6 +1038,12 @@ function renderGuestMode(){
   state.treatments=[
     {id:'guest-treatment-1',hive_id:'guest-hive-4',health_record_id:'guest-health-2',medicine_id:'guest-med-1',treatment_date:d(-3),purpose:'Варроатоз',product_name:'Бипин-Т',dose:'По инструкции',method:'Капельный метод',quantity_used:1,notes:'Демо-запись: обработка связана с лекарством на складе и записью о здоровье'},
     {id:'guest-treatment-2',hive_id:'guest-hive-1',health_record_id:'guest-health-4',medicine_id:'guest-med-2',treatment_date:d(-35),purpose:'Профилактика варроа',product_name:'Муравьиная кислота',dose:'По инструкции',method:'Испарение',quantity_used:1,notes:'Демо-запись: сезонная обработка связана с препаратом на складе'}
+  ];
+  state.medicineStockMovements=[
+    {id:'guest-move-1',medicine_id:'guest-med-1',movement_date:d(-120),movement_type:'Начальный остаток',quantity_change:4,quantity_before:0,quantity_after:4,notes:'Демо-пример начального остатка'},
+    {id:'guest-move-2',medicine_id:'guest-med-1',movement_date:d(-3),movement_type:'Расход на обработку',quantity_change:-1,quantity_before:4,quantity_after:3,treatment_id:'guest-treatment-1',notes:'Обработка улья №4'},
+    {id:'guest-move-3',medicine_id:'guest-med-2',movement_date:d(-90),movement_type:'Начальный остаток',quantity_change:3,quantity_before:0,quantity_after:3,notes:'Демо-пример начального остатка'},
+    {id:'guest-move-4',medicine_id:'guest-med-2',movement_date:d(-35),movement_type:'Расход на обработку',quantity_change:-1,quantity_before:3,quantity_after:2,treatment_id:'guest-treatment-2',notes:'Обработка улья №1'}
   ];
   state.disinfection=[
     {id:'guest-dis-1',target_type:'Улей',apiary_id:'guest-apiary-1',hive_id:'guest-hive-1',frames_count:10,disinfection_date:d(-30),agent:'Сода + вода',treatment_method:'Обмывание',reason:'Плановая',responsible:'Пасечник',next_date:d(150),notes:'Плановая санитарная обработка'},
@@ -1257,7 +1263,7 @@ async function getTable(table,order='created_at'){
 async function loadAll(){
   const names=[
     ['apiaries','apiaries'],['hives','hives'],['inspections','inspections'],['health','hive_health_records'],['treatments','hive_treatments'],['queenBatches','queen_rearing_batches'],['colonyOperations','colony_operations'],['waxOperations','wax_operations'],['apiaryProductsOperations','apiary_products_operations'],['photos','photos'],['honey','honey_batches'],['honeyPackagingRuns','honey_packaging_runs'],['honeyJarLabels','honey_jar_labels'],['honeySales','honey_sales'],
-    ['tasks','tasks'],['finance','finances'],['medicines','medicines'],['disinfection','disinfection_logs'],['beeFamilies','bee_families']
+    ['tasks','tasks'],['finance','finances'],['medicines','medicines'],['medicineStockMovements','medicine_stock_movements'],['disinfection','disinfection_logs'],['beeFamilies','bee_families']
   ];
   const results=await Promise.all(names.map(async([key,table])=>{
     try{return {key,data:await getTable(table),error:null}}
@@ -1896,11 +1902,12 @@ function renderAll(){
         const usageSummary=medicineUses.length
           ? '<div class="muted" style="font-size:12px;margin-top:9px;padding-top:8px;border-top:1px solid var(--line)">🩺 Применений: <b>'+medicineUses.length+'</b> · последнее: <b>'+esc(lastUse?new Date(String(lastUse).slice(0,10)+'T00:00:00').toLocaleDateString('ru-RU'):'дата не указана')+'</b></div>'
           : '<div class="muted" style="font-size:12px;margin-top:9px;padding-top:8px;border-top:1px solid var(--line)">🩺 Применений по журналу: нет</div>';
-        return '<div class="medicine-mobile-card '+statusClass+'"><div class="medicine-mobile-top"><b>💊 '+esc(m.name)+'</b><span>'+status+'</span></div><div class="medicine-mobile-grid"><span><small>Фасовка</small><b>'+esc(m.volume||'—')+'</b></span><span><small>Остаток</small><b>'+esc(m.quantity)+' / '+esc(m.min_quantity??'—')+'</b></span><span><small>Срок годности</small><b>'+esc(m.expiry_date||'—')+'</b></span></div>'+usageSummary+'<div class="medicine-mobile-actions"><button type="button" class="btn secondary medicine-edit" data-id="'+esc(m.id)+'">Изменить</button><button type="button" class="btn danger medicine-delete" data-id="'+esc(m.id)+'">Удалить</button></div></div>';
+        return '<div class="medicine-mobile-card '+statusClass+'"><div class="medicine-mobile-top"><b>💊 '+esc(m.name)+'</b><span>'+status+'</span></div><div class="medicine-mobile-grid"><span><small>Фасовка</small><b>'+esc(m.volume||'—')+'</b></span><span><small>Остаток</small><b>'+esc(m.quantity)+' / '+esc(m.min_quantity??'—')+'</b></span><span><small>Срок годности</small><b>'+esc(m.expiry_date||'—')+'</b></span></div>'+usageSummary+'<div class="medicine-mobile-actions"><button type="button" class="btn secondary medicine-stock-history" data-id="'+esc(m.id)+'">📋 Движение склада</button><button type="button" class="btn secondary medicine-edit" data-id="'+esc(m.id)+'">Изменить</button><button type="button" class="btn danger medicine-delete" data-id="'+esc(m.id)+'">Удалить</button></div></div>';
       }).join('')+'</div>'
     : '<div class="empty">Лекарств пока нет. Добавьте первый препарат выше.</div>';
   document.querySelectorAll('.medicine-edit').forEach(b=>b.onclick=()=>editMedicine(b.dataset.id));
   document.querySelectorAll('.medicine-delete').forEach(b=>b.onclick=()=>deleteMedicine(b.dataset.id));
+  document.querySelectorAll('.medicine-stock-history').forEach(b=>b.onclick=()=>openMedicineStockHistory(b.dataset.id));
 
   renderApiaryPlan();
   $('apiariesList').innerHTML=state.apiaries.length?state.apiaries.map(a=>`<div class="card" style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px"><div><b style="font-size:18px">🐝 ${esc(a.name)}</b><div class="muted" style="margin-top:5px">🔢 Ульев: ${state.hives.filter(h=>String(h.apiary_id||'')===String(a.id)).length} &nbsp; 📍 ${esc(a.location||'Место не указано')}</div></div><div class="actions" style="margin:0"><button type="button" class="btn secondary apiary-edit" data-id="${esc(a.id)}">Изменить</button><button type="button" class="btn danger apiary-delete" data-id="${esc(a.id)}">Удалить</button></div></div><p>${esc(a.description||'Без описания')}</p></div>`).join(''):'<div class="empty">Пасек пока нет. Добавьте первую пасеку выше.</div>';
@@ -2170,6 +2177,38 @@ function resetApiaryForm(){
   $('apiaryCancelBtn').style.display='none';
   f.closest('.panel').querySelector('h3').textContent='Добавить пасеку';
 }
+
+function closeMedicineStockModal(){const modal=$('medicineStockModal');if(modal)modal.remove()}
+function openMedicineStockHistory(medicineId){
+  const medicine=state.medicines.find(m=>String(m.id)===String(medicineId));if(!medicine)return;
+  closeMedicineStockModal();
+  const demo=guestMode;
+  const rows=(state.medicineStockMovements||[]).filter(x=>String(x.medicine_id)===String(medicineId)).slice().sort((a,b)=>String(b.movement_date||'').localeCompare(String(a.movement_date||''))||String(b.created_at||'').localeCompare(String(a.created_at||'')));
+  const history=rows.length?'<div class="table-wrap"><table class="table"><thead><tr><th>Дата</th><th>Операция</th><th>Изменение</th><th>Было → стало</th><th>Комментарий</th></tr></thead><tbody>'+rows.map(mv=>{
+    const treatment=mv.treatment_id?(state.treatments||[]).find(t=>String(t.id)===String(mv.treatment_id)):null;
+    const hive=treatment?(state.hives||[]).find(h=>String(h.id)===String(treatment.hive_id)):null;
+    const note=[mv.notes||'',hive?'Улей №'+(hive.hive_number||'—'):''].filter(Boolean).join(' · ');
+    const change=Number(mv.quantity_change||0);
+    return '<tr><td>'+esc(mv.movement_date||'—')+'</td><td>'+esc(mv.movement_type||'Изменение')+'</td><td style="font-weight:700;color:'+(change<0?'#a23b32':'#28734d')+'">'+(change>0?'+':'')+esc(change)+'</td><td>'+esc(mv.quantity_before)+' → '+esc(mv.quantity_after)+'</td><td>'+esc(note||'—')+'</td></tr>';
+  }).join('')+'</tbody></table></div>':'<div class="empty">Движений по этому препарату пока нет.</div>';
+  const modal=document.createElement('div');modal.id='medicineStockModal';
+  modal.style.cssText='position:fixed;inset:0;z-index:10000;background:rgba(20,25,20,.62);display:flex;align-items:center;justify-content:center;padding:12px;overflow:auto';
+  modal.innerHTML='<div style="background:#fffdf7;color:#2f382f;width:min(900px,100%);max-height:94vh;overflow:auto;border-radius:16px;padding:18px;box-shadow:0 18px 60px #0005"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div><h2 style="margin:0;font-size:21px">📋 Движение склада</h2><div class="muted">'+esc(medicine.name)+' · текущий остаток: <b>'+esc(medicine.quantity)+' '+esc(medicine.volume||'ед.')+'</b></div></div><button type="button" class="btn secondary" id="medicineStockClose">Закрыть</button></div>'+
+  (demo?'<div class="notice" style="margin:14px 0">ДЕМО-ПРИМЕР: история учебная, данные не сохраняются.</div>':'<form id="medicineStockForm" class="form" style="margin:16px 0;padding:12px;border:1px solid var(--line);border-radius:12px"><div class="field"><label>Операция</label><select name="movement_type" required><option value="Поступление">Поступление на склад</option><option value="Ручное списание">Ручное списание</option></select></div><div class="field"><label>Количество ('+esc(medicine.volume||'ед.')+')</label><input name="quantity" type="number" min="0.01" step="0.01" required placeholder="Укажите количество"></div><div class="field full"><label>Причина / документ</label><input name="notes" maxlength="500" placeholder="Например, закупка препарата, накладная"></div><div class="actions"><button class="btn gold" type="submit">Сохранить движение</button></div></form>')+
+  '<h3 style="margin:12px 0">История операций</h3>'+history+'</div>';
+  document.body.appendChild(modal);
+  $('medicineStockClose').onclick=closeMedicineStockModal;
+  modal.addEventListener('click',e=>{if(e.target===modal)closeMedicineStockModal()});
+  const form=$('medicineStockForm');
+  if(form)form.onsubmit=async e=>{
+    e.preventDefault();const d=formData(form),qty=Number(d.quantity);
+    if(!Number.isFinite(qty)||qty<=0){toast('Количество должно быть больше нуля.');return}
+    const {error}=await db.rpc('adjust_medicine_stock',{p_medicine_id:medicine.id,p_movement_type:d.movement_type,p_quantity:qty,p_notes:d.notes.trim()||null});
+    if(error){toast('Не удалось сохранить движение: '+error.message);return}
+    toast('Движение склада сохранено.');closeMedicineStockModal();await loadAll();openMedicineStockHistory(medicine.id);
+  };
+}
+
 function renderApiaryPlan(){
   const box=$('apiaryPlan'),sel=$('apiaryPlanSelect'); if(!box||!sel)return;
   const old=sel.value;
