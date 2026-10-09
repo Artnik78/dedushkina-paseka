@@ -1399,6 +1399,8 @@ $('restoreRunBtn')?.addEventListener('click',async()=>{
       const safeRows=rows.map(row=>{
         const out={...row,user_id:user.id};
         delete out.owner_id;
+        // remaining_kg is a generated/computed database column and cannot be inserted.
+        if(table==='honey_batches')delete out.remaining_kg;
         return out;
       });
       for(let i=0;i<safeRows.length;i+=100){
