@@ -615,6 +615,7 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
       <div class="panel">
         <h3>🫙 Фасовка мёда</h3>
         <p class="muted">Записывайте размер банки, количество и код этикетки. Каждая фасовка будет связана с исходной партией урожая.</p>
+        <div id="honeyPackagingDemoNotice" class="notice" style="display:none;margin:12px 0">🐝 <b>Демо-пример фасовки.</b> Ниже показаны три учебные партии. Нажмите <b>«QR банок»</b>, чтобы увидеть индивидуальные QR-коды, скачать PNG или распечатать все карточки. Демо-коды не записываются в базу и не используются для реальной маркировки.</div>
         <form id="honeyPackagingForm" class="form">
           <input type="hidden" name="id">
           <div class="field"><label>Партия урожая *</label><select name="honey_batch_id" required><option value="">Выберите партию</option></select></div>
@@ -1571,6 +1572,8 @@ function packagingRunRemaining(run){return Math.max(0,Number(run.jar_count||0)-(
 function packagingKgReservedForBatch(batchId,excludeRunId=''){return (state.honeyPackagingRuns||[]).filter(p=>String(p.honey_batch_id)===String(batchId)&&String(p.id)!==String(excludeRunId)).reduce((sum,p)=>sum+packagingRunRemaining(p)*(Number(p.jar_size_g)||0)/1000,0)}
 function renderHoneyPackagingAccounting(){
   const form=$('honeyPackagingForm'),box=$('honeyPackagingList');if(!form||!box)return;
+  const demoNotice=$('honeyPackagingDemoNotice');if(demoNotice)demoNotice.style.display=guestMode?'block':'none';
+  form.querySelectorAll('input,select,textarea,button').forEach(el=>{el.disabled=guestMode});
   const sel=form.elements.honey_batch_id,old=sel.value;
   sel.innerHTML='<option value="">Выберите партию</option>'+(state.honey||[]).map(h=>'<option value="'+esc(h.id)+'">'+esc(h.batch_number||'Без номера')+' — '+esc(h.honey_type||'Мёд')+'</option>').join('');
   if(state.honey.some(h=>String(h.id)===String(old)))sel.value=old;
