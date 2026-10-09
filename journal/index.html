@@ -611,6 +611,22 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
         <div id="honeyList" class="honey-batch-list"></div>
       </div>
       <div class="panel">
+        <h3>🫙 Фасовка мёда</h3>
+        <p class="muted">Записывайте размер банки, количество и код этикетки. Каждая фасовка будет связана с исходной партией урожая.</p>
+        <form id="honeyPackagingForm" class="form">
+          <input type="hidden" name="id">
+          <div class="field"><label>Партия урожая *</label><select name="honey_batch_id" required><option value="">Выберите партию</option></select></div>
+          <div class="field"><label>Дата фасовки *</label><input name="packaging_date" type="date" required></div>
+          <div class="field"><label>Масса банки, г *</label><select name="jar_size_g" required><option value="100">100 г</option><option value="130">130 г</option><option value="280">280 г</option><option value="500" selected>500 г</option><option value="1000">1000 г</option><option value="other">Другая масса…</option></select></div>
+          <div class="field" id="honeyJarSizeOtherField" style="display:none"><label>Другая масса, г</label><input name="jar_size_other_g" type="number" min="1" step="1" placeholder="Например, 750"></div>
+          <div class="field"><label>Количество банок *</label><input name="jar_count" type="number" min="1" step="1" required placeholder="Например, 40"></div>
+          <div class="field"><label>Код этикетки / QR</label><input name="label_code" placeholder="Например, 2026-001-500"></div>
+          <div class="field full"><label>Примечание</label><input name="notes" placeholder="Тип банки, крышка, особенности фасовки"></div>
+          <div class="actions"><button class="btn gold" id="honeyPackagingSaveBtn">💾 Сохранить фасовку</button><button class="btn secondary" id="honeyPackagingCancelBtn" type="button">Очистить</button></div>
+        </form>
+        <div id="honeyPackagingList"><div class="empty">Загрузка фасовок...</div></div>
+      </div>
+      <div class="panel">
         <h3>🍯 Продажи мёда</h3>
         <p class="muted">Записывайте проданное количество и фактическую сумму. Остаток партии обновляется автоматически.</p>
         <form id="honeySalesForm" class="form">
@@ -973,6 +989,11 @@ function renderGuestMode(){
     {id:'guest-honey-3',batch_number:'2026-003',honey_type:'Майский мёд',collection_date:d(-120),collection_period:'Май 2026',apiary_id:'guest-apiary-1',quantity_kg:14,sold_kg:10,remaining_kg:4,price_per_kg:30,collection_place:'Клецкий район',notes:'Ранний весенний сбор'},
     {id:'guest-honey-4',batch_number:'2026-004',honey_type:'Гречишный мёд',collection_date:d(-45),collection_period:'Август 2026',apiary_id:'guest-apiary-2',quantity_kg:22,price_per_kg:27,collection_place:'Клецкий район',notes:'Насыщенный гречишный мёд'}
   ];
+  state.honeyPackagingRuns=[
+    {id:'guest-pack-1',honey_batch_id:'guest-honey-1',packaging_date:d(-48),jar_size_g:500,jar_count:20,label_code:'2026-001-500',notes:'Демонстрационная фасовка разнотравья'},
+    {id:'guest-pack-2',honey_batch_id:'guest-honey-2',packaging_date:d(-18),jar_size_g:280,jar_count:25,label_code:'2026-002-280',notes:'Демонстрационная фасовка лесного мёда'},
+    {id:'guest-pack-3',honey_batch_id:'guest-honey-3',packaging_date:d(-3),jar_size_g:1000,jar_count:10,label_code:'2026-003-1000',notes:'Демонстрационная фасовка майского мёда'}
+  ];
   state.honeySales=[
     {id:'guest-honey-sale-1',honey_batch_id:'guest-honey-1',sale_date:d(-50),quantity_kg:16.8,sale_amount:420,notes:'Продажа партии разнотравья',source_honey_sale_id:'guest-honey-sale-1'},
     {id:'guest-honey-sale-2',honey_batch_id:'guest-honey-2',sale_date:d(-20),quantity_kg:4,sale_amount:112,notes:'Продажа 4 кг лесного мёда по 28 руб./кг'},
@@ -1231,7 +1252,7 @@ async function getTable(table,order='created_at'){
 }
 async function loadAll(){
   const names=[
-    ['apiaries','apiaries'],['hives','hives'],['inspections','inspections'],['health','hive_health_records'],['treatments','hive_treatments'],['queens','hive_queens'],['queenBatches','queen_rearing_batches'],['colonyOperations','colony_operations'],['waxOperations','wax_operations'],['apiaryProductsOperations','apiary_products_operations'],['photos','photos'],['honey','honey_batches'],['honeySales','honey_sales'],
+    ['apiaries','apiaries'],['hives','hives'],['inspections','inspections'],['health','hive_health_records'],['treatments','hive_treatments'],['queens','queen_rearing_batches'],['colonyOperations','colony_operations'],['waxOperations','wax_operations'],['apiaryProductsOperations','apiary_products_operations'],['photos','photos'],['honey','honey_batches'],['honeyPackagingRuns','honey_packaging_runs'],['honeySales','honey_sales'],
     ['tasks','tasks'],['finance','finances'],['medicines','medicines'],['disinfection','disinfection_logs'],['beeFamilies','bee_families']
   ];
   const results=await Promise.all(names.map(async([key,table])=>{
@@ -1536,6 +1557,21 @@ $('apiaryProductsForm')?.addEventListener('submit',async e=>{
   $('apiaryProductsFormTitle').textContent='Новая операция с продукцией';$('apiaryProductsSaveBtn').textContent='💾 Сохранить операцию';updateApiaryProductQuantityLabel();
   toast(id?'Изменения сохранены':'Операция сохранена');await loadAll();
 });
+function renderHoneyPackagingAccounting(){
+  const form=$('honeyPackagingForm'),box=$('honeyPackagingList');if(!form||!box)return;
+  const sel=form.elements.honey_batch_id,old=sel.value;
+  sel.innerHTML='<option value="">Выберите партию</option>'+(state.honey||[]).map(h=>'<option value="'+esc(h.id)+'">'+esc(h.batch_number||'Без номера')+' — '+esc(h.honey_type||'Мёд')+'</option>').join('');
+  if(state.honey.some(h=>String(h.id)===String(old)))sel.value=old;
+  if(!form.elements.id.value&&!form.elements.packaging_date.value)form.elements.packaging_date.value=today();
+  const rows=(state.honeyPackagingRuns||[]).slice().sort((a,b)=>String(b.packaging_date||'').localeCompare(String(a.packaging_date||'')));
+  if(!rows.length){box.innerHTML='<div class="empty">Фасовок пока нет. Добавьте первую запись выше.</div>';return}
+  box.innerHTML='<div class="table-wrap"><table class="table"><thead><tr><th>Дата</th><th>Партия</th><th>Банка</th><th>Фасовано</th><th>Код этикетки / QR</th><th>Действия</th></tr></thead><tbody>'+rows.map(x=>{const h=state.honey.find(y=>String(y.id)===String(x.honey_batch_id));return '<tr><td>'+esc(x.packaging_date||'—')+'</td><td><b>'+esc(h?.batch_number||'Партия удалена')+'</b><div class="muted">'+esc(h?.honey_type||'')+'</div></td><td>'+esc(x.jar_size_g)+' г</td><td><b>'+esc(x.jar_count)+' шт.</b><div class="muted">'+(Number(x.jar_size_g||0)*Number(x.jar_count||0)/1000).toLocaleString('ru-RU',{maximumFractionDigits:3})+' кг</div></td><td>'+esc(x.label_code||'—')+'</td><td><div class="actions" style="margin:0;flex-wrap:wrap"><button type="button" class="btn secondary honey-pack-edit" data-id="'+esc(x.id)+'">Изменить</button><button type="button" class="btn danger honey-pack-delete" data-id="'+esc(x.id)+'">Удалить</button></div></td></tr>'}).join('')+'</tbody></table></div>';
+  box.querySelectorAll('.honey-pack-edit').forEach(b=>b.onclick=()=>{if(guestMode)return;const x=rows.find(y=>String(y.id)===String(b.dataset.id));if(!x)return;if((state.honeySales||[]).some(s=>String(s.packaging_run_id||'')===String(x.id))){toast('Нельзя менять фасовку после привязки продаж.');return}Object.keys(x).forEach(k=>{if(form.elements[k])form.elements[k].value=x[k]??''});if(![100,130,280,500,1000].includes(Number(x.jar_size_g))){form.elements.jar_size_g.value='other';form.elements.jar_size_other_g.value=x.jar_size_g;$('honeyJarSizeOtherField').style.display='block'}$('honeyPackagingSaveBtn').textContent='💾 Сохранить изменения';form.scrollIntoView({behavior:'smooth',block:'center'})});
+  box.querySelectorAll('.honey-pack-delete').forEach(b=>b.onclick=async()=>{if(guestMode)return;const x=rows.find(y=>String(y.id)===String(b.dataset.id));if(!x)return;if((state.honeySales||[]).some(s=>String(s.packaging_run_id||'')===String(x.id))){toast('Нельзя удалить фасовку, к которой привязаны продажи.');return}if(!confirm('Удалить запись фасовки '+(x.label_code||x.jar_size_g+' г')+'?'))return;const {error}=await db.from('honey_packaging_runs').delete().eq('id',x.id);if(error){toast('Не удалось удалить фасовку: '+error.message);return}toast('Фасовка удалена.');await loadAll()});
+}
+$('honeyPackagingForm')?.elements.jar_size_g?.addEventListener('change',e=>{$('honeyJarSizeOtherField').style.display=e.target.value==='other'?'block':'none'});
+$('honeyPackagingCancelBtn')?.addEventListener('click',()=>{const f=$('honeyPackagingForm');f.reset();f.elements.id.value='';f.elements.packaging_date.value=today();$('honeyJarSizeOtherField').style.display='none';$('honeyPackagingSaveBtn').textContent='💾 Сохранить фасовку'});
+$('honeyPackagingForm')?.addEventListener('submit',async e=>{e.preventDefault();if(guestMode){toast('Гостевой режим — только просмотр');return}const f=e.currentTarget,d=formData(f),size=d.jar_size_g==='other'?Number(d.jar_size_other_g):Number(d.jar_size_g),count=Number(d.jar_count);if(!d.honey_batch_id||!d.packaging_date||!Number.isFinite(size)||size<=0||!Number.isInteger(count)||count<=0){toast('Проверьте партию, дату, массу банки и количество.');return}const id=d.id;if(id&&(state.honeySales||[]).some(s=>String(s.packaging_run_id||'')===String(id))){toast('Нельзя менять фасовку после привязки продаж.');return}const payload={honey_batch_id:d.honey_batch_id,packaging_date:d.packaging_date,jar_size_g:size,jar_count:count,label_code:d.label_code.trim()||null,notes:d.notes.trim()||null};const result=id?await db.from('honey_packaging_runs').update(payload).eq('id',id):await db.from('honey_packaging_runs').insert(payload);if(result.error){toast('Не удалось сохранить фасовку: '+result.error.message);return}f.reset();f.elements.id.value='';f.elements.packaging_date.value=today();$('honeyJarSizeOtherField').style.display='none';$('honeyPackagingSaveBtn').textContent='💾 Сохранить фасовку';toast(id?'Фасовка изменена.':'Фасовка сохранена.');await loadAll()});
 function renderHoneySalesAccounting(){
   const form=$('honeySalesForm'),box=$('honeySalesList');if(!form||!box)return;
   const oldBatch=form.elements.honey_batch_id.value;
@@ -1647,6 +1683,7 @@ function renderAll(){
   renderColonyOperations();
   renderWaxAccounting();
   renderApiaryProductsAccounting();
+  renderHoneyPackagingAccounting();
   renderHoneySalesAccounting();
   renderQueenCalendarReminders();
   refreshPhotoSelectors();
