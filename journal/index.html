@@ -1846,41 +1846,26 @@ $('healthForm').onsubmit=async e=>{
       return;
     }
   }
-  const healthPayload={
-    hive_id:d.hive_id,
-    check_date:d.check_date,
-    varroa_method:d.varroa_method||null,
-    varroa_result:d.varroa_result===''?null:Number(d.varroa_result),
-    varroa_unit:d.varroa_unit||null,
-    disease:d.disease||null,
-    severity:d.severity||null,
-    symptoms:d.symptoms.trim(),
-    action_taken:d.action_taken.trim(),
-    treatment_product:productName||null,
-    treatment_dose:d.treatment_dose.trim(),
-    notes:d.notes.trim()
-  };
-  const {data:healthRow,error}=await db.from('hive_health_records').insert(healthPayload).select('id').single();
-  if(error){toast('Ошибка: '+error.message);return}
-  if(productName){
-    const {error:trError}=await db.from('hive_treatments').insert({
-      hive_id:d.hive_id,
-      health_record_id:healthRow?.id||null,
-      medicine_id:d.medicine_id||null,
-      treatment_date:d.check_date,
-      purpose:d.disease||'Обработка',
-      product_name:productName,
-      dose:d.treatment_dose.trim()||null,
-      method:d.treatment_method||null,
-      quantity_used:quantityUsed,
-      notes:d.notes.trim()||null
-    });
-    if(trError){toast('Здоровье сохранено, но история лечения не записалась: '+trError.message);await loadAll();return}
-    if(selectedMedicine && quantityUsed!==null && quantityUsed>0){
-      const newQuantity=Math.max(0,Number(selectedMedicine.quantity||0)-quantityUsed);
-      const {error:medError}=await db.from('medicines').update({quantity:newQuantity}).eq('id',selectedMedicine.id);
-      if(medError){toast('Обработка записана, но остаток препарата не обновился: '+medError.message);await loadAll();return}
-    }
+  const {data:saveResult,error:saveError}=await db.rpc('save_hive_health_and_treatment',{
+    p_hive_id:d.hive_id,
+    p_check_date:d.check_date,
+    p_varroa_method:d.varroa_method||null,
+    p_varroa_result:d.varroa_result===''?null:Number(d.varroa_result),
+    p_varroa_unit:d.varroa_unit||null,
+    p_disease:d.disease||null,
+    p_severity:d.severity||null,
+    p_symptoms:d.symptoms.trim()||null,
+    p_action_taken:d.action_taken.trim()||null,
+    p_treatment_product:productName||null,
+    p_treatment_dose:d.treatment_dose.trim()||null,
+    p_treatment_method:d.treatment_method||null,
+    p_quantity_used:quantityUsed,
+    p_notes:d.notes.trim()||null,
+    p_medicine_id:d.medicine_id||null
+  });
+  if(saveError){
+    toast('Запись не сохранена: '+saveError.message);
+    return;
   }
   e.target.reset(); e.target.elements.check_date.value=today();
   $('healthForm')?.elements.quantity_used?.removeAttribute('max');
