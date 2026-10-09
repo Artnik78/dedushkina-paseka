@@ -1099,13 +1099,15 @@ function renderGuestMode(){
     {id:'guest-task-5',title:'[Откачка мёда] Разнотравье',due_date:d(-8),priority:'Обычный',status:'Выполнена',description:'[Напоминание:Без напоминания] Откачка партии 2026-001.'},
     {id:'guest-task-6',title:'[Покупка] Банки и этикетки',due_date:d(5),priority:'Низкий',status:'Открыта',description:'[Напоминание:За 3 дня] Подготовить упаковку.'},
     {id:'guest-task-7',title:'[Перестановка рамок] Улей №6',due_date:d(10),priority:'Обычный',status:'Открыта',description:'[Напоминание:За 7 дней] Проверить необходимость расширения.'},
-    {id:'guest-task-8',title:'[Другое] Проверить журнал лекарств',due_date:d(-2),priority:'Обычный',status:'Выполнена',description:'[Напоминание:Без напоминания] Проверка выполнена.'}
+    {id:'guest-task-8',title:'[Другое] Проверить журнал лекарств',due_date:d(-2),priority:'Обычный',status:'Выполнена',description:'[Напоминание:Без напоминания] Проверка выполнена.'},
+    {id:'guest-task-9',title:'[Контроль] Повторный осмотр улья №4',due_date:d(-2),priority:'Высокий',status:'Открыта',description:'[Напоминание:Сегодня] Демо-пример просроченной задачи для проверки умных напоминаний.'}
   ];
   state.medicines=[
     {id:'guest-med-1',name:'Бипин-Т',volume:'10 мл',quantity:3,min_quantity:1,expiry_date:d(120),expiry_warning_days:30,notes:'Для обработки семей'},
     {id:'guest-med-2',name:'Муравьиная кислота',volume:'100 мл',quantity:2,min_quantity:2,expiry_date:d(18),expiry_warning_days:30,notes:'Запас для сезонной обработки'},
     {id:'guest-med-3',name:'Апиварол',volume:'25 таблеток',quantity:1,min_quantity:2,expiry_date:d(240),expiry_warning_days:30,notes:'Остаток ниже минимального'},
-    {id:'guest-med-4',name:'Витаминная подкормка',volume:'500 г',quantity:5,min_quantity:1,expiry_date:d(300),expiry_warning_days:30,notes:'Для весенней подкормки'}
+    {id:'guest-med-4',name:'Витаминная подкормка',volume:'500 г',quantity:5,min_quantity:1,expiry_date:d(300),expiry_warning_days:30,notes:'Для весенней подкормки'},
+    {id:'guest-med-5',name:'Демо-препарат — срок истекает',volume:'1 упаковка',quantity:2,min_quantity:1,expiry_date:d(10),expiry_warning_days:30,notes:'Учебная запись для демонстрации предупреждения о сроке годности'}
   ];
   state.health=[
     {id:'guest-health-1',hive_id:'guest-hive-1',check_date:d(-5),varroa_method:'Сахарная пудра',varroa_result:2,varroa_unit:'клещей / 100 пчёл',disease:null,severity:'Нет признаков',symptoms:'Признаков заболевания не обнаружено',action_taken:'Контроль через 14 дней',treatment_product:'',treatment_dose:'',notes:'Контрольная проверка'},
@@ -1127,7 +1129,8 @@ function renderGuestMode(){
     {id:'guest-dis-1',target_type:'Улей',apiary_id:'guest-apiary-1',hive_id:'guest-hive-1',medicine_id:'guest-med-1',frames_count:10,disinfection_date:d(-30),agent:'Бипин-Т',treatment_method:'Орошение',reason:'Плановая',responsible:'Пасечник',next_date:d(150),notes:'Демо-пример: препарат выбран из списка лекарств'},
     {id:'guest-dis-2',target_type:'Рамки',apiary_id:'guest-apiary-1',hive_id:null,medicine_id:'guest-med-2',frames_count:24,disinfection_date:d(-20),agent:'Муравьиная кислота',treatment_method:'Замачивание',reason:'Санитарная',responsible:'Пасечник',next_date:d(160),notes:'Демо-пример связи записи с лекарством'},
     {id:'guest-dis-3',target_type:'Улей',apiary_id:'guest-apiary-2',hive_id:'guest-hive-9',medicine_id:'guest-med-3',frames_count:10,disinfection_date:d(-12),agent:'Апиварол',treatment_method:'Орошение',reason:'После болезни',responsible:'Пасечник',next_date:d(30),notes:'Демо-пример: препарат из справочника'},
-    {id:'guest-dis-4',target_type:'Инвентарь',apiary_id:'guest-apiary-2',hive_id:null,medicine_id:null,frames_count:null,disinfection_date:t,agent:'Сода + вода',treatment_method:'Обмывание',reason:'Плановая',responsible:'Пасечник',next_date:d(30),notes:'Рабочий инвентарь; средство указано вручную'}
+    {id:'guest-dis-4',target_type:'Инвентарь',apiary_id:'guest-apiary-2',hive_id:null,medicine_id:null,frames_count:null,disinfection_date:t,agent:'Сода + вода',treatment_method:'Обмывание',reason:'Плановая',responsible:'Пасечник',next_date:d(30),notes:'Рабочий инвентарь; средство указано вручную'},
+    {id:'guest-dis-5',target_type:'Улей',apiary_id:'guest-apiary-1',hive_id:'guest-hive-4',medicine_id:null,frames_count:10,disinfection_date:d(-20),agent:'Демо-средство',treatment_method:'По инструкции',reason:'Контрольная демонстрация',responsible:'Пасечник',next_date:d(-2),notes:'Учебная запись для проверки просроченного напоминания; не является рекомендацией по обработке'}
   ];
 
   state.queenBatches=[{id:'guest-queen-batch-1',batch_code:'ДЕМО-2026-001',graft_date:d(-12),mother_hive_id:'guest-hive-1',starter_hive_id:'guest-hive-2',finisher_hive_id:'guest-hive-3',grafted_cells:24,accepted_cells:18,expected_emergence_date:d(2),emergence_date:null,mating_start_date:null,mating_end_date:null,status:'Маточники запечатаны',notes:'Демонстрационная серия; пример учёта материнской семьи и результата приёма.'}];
