@@ -1437,7 +1437,27 @@ function renderApiaryProductsAccounting(){
   balances.innerHTML='<div class="table-wrap"><table class="table"><thead><tr><th>Пасека</th>'+products.map(p=>'<th>'+p+'</th>').join('')+'</tr></thead><tbody>'+apiaryRows.map(a=>'<tr><td><b>'+esc(a.name)+'</b></td>'+products.map(p=>'<td>'+apiaryProductKg(sumProduct(effective.filter(x=>String(x.apiary_id||'')===a.id),p))+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
   if(!rows.length){box.innerHTML='<div class="empty">Записей пока нет. Добавьте первую операцию сбора или поступления продукции.</div>';return}
   const apiaryName=id=>state.apiaries.find(a=>String(a.id)===String(id))?.name||(id?'Пасека не найдена':'Общий склад');
-  box.innerHTML='<div class="table-wrap"><table class="table"><thead><tr><th>Дата</th><th>Продукция</th><th>Операция</th><th>Пасека</th><th>Количество</th><th>Партия</th><th>Статус</th><th>Примечание</th><th></th></tr></thead><tbody>'+rows.map(x=>'<tr><td>'+esc(x.operation_date||'—')+'</td><td><b>'+esc(x.product_type)+'</b></td><td>'+esc(x.operation_type)+'</td><td>'+esc(apiaryName(x.apiary_id))+'</td><td>'+esc(apiaryProductKg(x.quantity_kg))+'</td><td>'+esc(x.batch_number||'—')+'</td><td>'+esc(x.status||'Завершена')+'</td><td>'+esc(x.notes||'—')+'</td><td><div class="actions" style="margin:0;flex-wrap:nowrap"><button type="button" class="btn secondary apiary-product-edit" data-id="'+esc(x.id)+'">Изменить</button><button type="button" class="btn danger apiary-product-delete" data-id="'+esc(x.id)+'">Удалить</button></div></td></tr>').join('')+'</tbody></table></div>';
+  box.innerHTML='<div class="table-wrap"><table class="table"><thead><tr><th>Дата</th><th>Продукция</th><th>Операция</th><th>Пасека</th><th>Количество</th><th>Партия</th><th>Статус</th><th>Примечание</th><th></th></tr></thead><tbody>'+rows.map(x=>'<tr><td>'+esc(x.operation_date||'—')+'</td><td><b>'+esc(x.product_type)+'</b></td><td>'+esc(x.operation_type)+'</td><td>'+esc(apiaryName(x.apiary_id))+'</td><td>'+esc(apiaryProductKg(x.quantity_kg))+'</td><td>'+esc(x.batch_number||'—')+'</td><td>'+esc(x.status||'Завершена')+'</td><td>'+esc(x.notes||'—')+'</td><td><div class="actions" style="margin:0;flex-wrap:wrap">'+(x.operation_type==='Продано'&&!['Запланирована','Отменена'].includes(x.status)?((state.finance||[]).some(f=>String(f.source_apiary_product_operation_id||'')===String(x.id))?'<span class="ok-badge">Доход учтён</span>':'<button type="button" class="btn gold apiary-product-finance" data-id="'+esc(x.id)+'">Добавить доход</button>'):'')+'<button type="button" class="btn secondary apiary-product-edit" data-id="'+esc(x.id)+'">Изменить</button><button type="button" class="btn danger apiary-product-delete" data-id="'+esc(x.id)+'">Удалить</button></div></td></tr>').join('')+'</tbody></table></div>';
+  box.querySelectorAll('.apiary-product-finance').forEach(b=>b.onclick=async()=>{
+    if(guestMode)return;
+    const x=rows.find(r=>String(r.id)===String(b.dataset.id));if(!x||x.operation_type!=='Продано'||['Запланирована','Отменена'].includes(x.status))return;
+    if((state.finance||[]).some(f=>String(f.source_apiary_product_operation_id||'')===String(x.id))){toast('Доход по этой продаже уже учтён в финансах.');await loadAll();return}
+    const raw=prompt('Введите сумму продажи ('+x.product_type+', '+apiaryProductKg(Math.abs(Number(x.quantity_kg)||0))+'). Сумма в денежных единицах журнала:','');
+    if(raw===null)return;
+    const amount=Number(String(raw).trim().replace(',','.'));
+    if(!Number.isFinite(amount)||amount<=0){toast('Сумма продажи должна быть больше нуля.');return}
+    const description='Продажа '+x.product_type.toLowerCase()+': '+apiaryProductKg(Math.abs(Number(x.quantity_kg)||0))+(x.batch_number?' • партия '+x.batch_number:'')+(x.notes?' • '+x.notes:'');
+    const {error}=await db.from('finances').insert({
+      operation_date:x.operation_date||today(),operation_type:'Доход',
+      amount,category:'Продажа продукции пасеки',description,
+      source_apiary_product_operation_id:x.id
+    });
+    if(error){
+      if(String(error.code)==='23505'){toast('Доход по этой продаже уже существует.');await loadAll();return}
+      toast('Не удалось добавить доход: '+error.message);return;
+    }
+    toast('Продажа добавлена в раздел «Финансы».');await loadAll();
+  });
   box.querySelectorAll('.apiary-product-edit').forEach(b=>b.onclick=()=>{
     const x=rows.find(r=>String(r.id)===String(b.dataset.id));if(!x||guestMode)return;
     Object.keys(x).forEach(k=>{if(form.elements[k])form.elements[k].value=x[k]??''});
