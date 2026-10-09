@@ -874,7 +874,7 @@ function renderGuestMode(){
     {id:'guest-dis-4',target_type:'Инвентарь',apiary_id:'guest-apiary-2',hive_id:null,frames_count:null,disinfection_date:t,agent:'Сода + вода',treatment_method:'Обмывание',reason:'Плановая',responsible:'Пасечник',next_date:d(30),notes:'Рабочий инвентарь'}
   ];
 
-  state.queenBatches=[{id:'guest-queen-batch-1',batch_code:'ДЕМО-2026-001',graft_date:d(-12),mother_hive_id:'guest-hive-1',starter_hive_id:'guest-hive-2',finisher_hive_id:'guest-hive-3',grafted_cells:24,accepted_cells:18,expected_emergence_date:d(4),emergence_date:null,mating_start_date:null,mating_end_date:null,status:'Маточники запечатаны',notes:'Демонстрационная серия; пример учёта материнской семьи и результата приёма.'}];
+  state.queenBatches=[{id:'guest-queen-batch-1',batch_code:'ДЕМО-2026-001',graft_date:d(-12),mother_hive_id:'guest-hive-1',starter_hive_id:'guest-hive-2',finisher_hive_id:'guest-hive-3',grafted_cells:24,accepted_cells:18,expected_emergence_date:d(2),emergence_date:null,mating_start_date:null,mating_end_date:null,status:'Маточники запечатаны',notes:'Демонстрационная серия; пример учёта материнской семьи и результата приёма.'}];
 
   renderAll();
 
@@ -1141,7 +1141,7 @@ function renderQueenCalendarReminders(){
     const hiveLabel=hive?' · материнская семья №'+(hive.hive_number||'—'):'';
     if(!x.emergence_date&&x.expected_emergence_date){
       const delta=dayDelta(x.expected_emergence_date);
-      if(delta!==null&&(delta<=3)){
+      if(delta!==null&&(delta<=14)){
         items.push({date:x.expected_emergence_date,delta,kind:'emergence',title:(delta<0?'⚠️ Выход маток не отмечен':delta===0?'🐝 Ожидаемый выход маток':'👑 Скоро выход маток'),detail:'Серия '+(x.batch_code||'—')+hiveLabel,status:dateText(delta),id:x.id});
       }
     }
