@@ -867,10 +867,12 @@ function renderGuestMode(){
     {id:'guest-dis-4',target_type:'Инвентарь',apiary_id:'guest-apiary-2',hive_id:null,frames_count:null,disinfection_date:t,agent:'Сода + вода',treatment_method:'Обмывание',reason:'Плановая',responsible:'Пасечник',next_date:d(30),notes:'Рабочий инвентарь'}
   ];
 
+  state.queenBatches=[{id:'guest-queen-batch-1',batch_code:'ДЕМО-2026-001',graft_date:d(-12),mother_hive_id:'guest-hive-1',starter_hive_id:'guest-hive-2',finisher_hive_id:'guest-hive-3',grafted_cells:24,accepted_cells:18,expected_emergence_date:d(4),emergence_date:null,mating_start_date:null,mating_end_date:null,status:'Маточники запечатаны',notes:'Демонстрационная серия; пример учёта материнской семьи и результата приёма.'}];
+
   renderAll();
 
   // Гостевой режим — только просмотр: формы и операции изменения скрыты.
-  document.querySelectorAll('#page-apiaries form,#page-hives form,#page-inspections form,#page-health form,#page-calendar form,#page-honey form,#page-finances form,#page-tasks form,#page-medicines form,#page-disinfection form').forEach(f=>{const p=f.closest('.panel');if(p)p.style.display='none';});
+  document.querySelectorAll('#page-apiaries form,#page-hives form,#page-inspections form,#page-health form,#page-queens form,#page-calendar form,#page-honey form,#page-finances form,#page-tasks form,#page-medicines form,#page-disinfection form').forEach(f=>{const p=f.closest('.panel');if(p)p.style.display='none';});
   document.querySelectorAll('#page-home .actions button,#addCalendarEventBtn,.apiary-edit,.apiary-delete,.hive-edit,.hive-history,.hive-delete,.disinfection-edit,.disinfection-delete,.medicine-edit,.medicine-delete').forEach(b=>b.style.display='none');
   setText('countHives',state.hives.length); setText('countInspections',state.inspections.length); setText('countHoney',state.honey.length); setText('countTasks',state.tasks.filter(x=>x.status!=='Выполнена').length);
   setText('statHives',state.hives.length); setText('statInspections',state.inspections.length); setText('statHoney',state.honey.length); setText('statFinance',state.finance.length);
@@ -1115,6 +1117,7 @@ function refreshPhotoSelectors(){
   if(oldI&&rows.some(x=>String(x.id)===String(oldI)))is.value=oldI;
 }
 function renderAll(){
+  renderQueenRearingBatches();
   refreshPhotoSelectors();
   setText('homeWorkHives',state.hives.length+' '+(state.hives.length===1?'улей':'ульев'));
   setText('homeWorkInspections',state.inspections.length+' '+(state.inspections.length===1?'осмотр':'осмотров'));
@@ -1468,6 +1471,44 @@ document.querySelectorAll('.honey-batch-card').forEach(b=>b.onclick=()=>openHone
   $('healthHive').innerHTML='<option value="">Выберите улей</option>'+state.hives.map(h=>'<option value="'+h.id+'">№ '+esc(h.hive_number)+'</option>').join('');
   $('hiveForm').elements.apiary_id.innerHTML='<option value="">Выберите пасеку</option>'+state.apiaries.map(a=>'<option value="'+a.id+'">'+esc(a.name)+'</option>').join('');
 }
+function renderQueenRearingBatches(){
+  const form=$('queenRearingForm'), box=$('queenRearingList');
+  if(form){
+    const oldMother=form.elements.mother_hive_id.value, oldStarter=form.elements.starter_hive_id.value, oldFinisher=form.elements.finisher_hive_id.value;
+    const options=state.hives.slice().sort((a,b)=>(Number(a.hive_number)||0)-(Number(b.hive_number)||0)).map(h=>'<option value="'+esc(h.id)+'">Улей №'+esc(h.hive_number)+'</option>').join('');
+    form.elements.mother_hive_id.innerHTML='<option value="">Выберите улей</option>'+options;
+    form.elements.starter_hive_id.innerHTML='<option value="">Не указана</option>'+options;
+    form.elements.finisher_hive_id.innerHTML='<option value="">Не указана</option>'+options;
+    if(state.hives.some(h=>String(h.id)===String(oldMother)))form.elements.mother_hive_id.value=oldMother;
+    if(state.hives.some(h=>String(h.id)===String(oldStarter)))form.elements.starter_hive_id.value=oldStarter;
+    if(state.hives.some(h=>String(h.id)===String(oldFinisher)))form.elements.finisher_hive_id.value=oldFinisher;
+  }
+  const rows=(state.queenBatches||[]).slice().sort((a,b)=>String(b.graft_date||'').localeCompare(String(a.graft_date||'')));
+  const active=rows.filter(x=>!['Завершена','Неудачная'].includes(x.status));
+  setText('queenBatchCount',rows.length); setText('queenBatchActive',active.length);
+  setText('queenBatchGrafted',rows.reduce((n,x)=>n+(Number(x.grafted_cells)||0),0));
+  setText('queenBatchAccepted',rows.reduce((n,x)=>n+(Number(x.accepted_cells)||0),0));
+  setText('queenBatchCountLabel',rows.length+' '+(rows.length===1?'серия':rows.length>=2&&rows.length<=4?'серии':'серий'));
+  if(!box)return;
+  if(!rows.length){box.innerHTML='<div class="empty">Серий вывода пока нет. Добавьте первую серию выше.</div>';return}
+  const hiveName=id=>{const h=state.hives.find(x=>String(x.id)===String(id));return h?'Улей №'+(h.hive_number||'—'):'—'};
+  const badge=status=>status==='Завершена'?'#e3f2e7':status==='Неудачная'?'#fbe4df':status==='На облёте'?'#e4edf9':'#fff1cf';
+  box.innerHTML='<div class="table-wrap"><table class="table"><thead><tr><th>Серия / дата прививки</th><th>Материнская семья</th><th>Стартер / финишер</th><th>Ячейки</th><th>Контрольные даты</th><th>Этап</th><th>Примечание</th><th></th></tr></thead><tbody>'+rows.map(x=>'<tr><td><b>'+esc(x.batch_code)+'</b><div class="muted">'+esc(x.graft_date||'—')+'</div></td><td>'+esc(hiveName(x.mother_hive_id))+'</td><td>'+esc(hiveName(x.starter_hive_id))+'<div class="muted">'+esc(hiveName(x.finisher_hive_id))+'</div></td><td>Привито: <b>'+esc(x.grafted_cells??0)+'</b><div class="muted">Принято: '+esc(x.accepted_cells??'—')+'</div></td><td>Выход: '+esc(x.emergence_date||x.expected_emergence_date||'—')+'<div class="muted">Облёт: '+esc(x.mating_start_date||'—')+(x.mating_end_date?' — '+esc(x.mating_end_date):'')+'</div></td><td><span style="display:inline-block;background:'+badge(x.status)+';padding:4px 8px;border-radius:999px;white-space:nowrap">'+esc(x.status||'Запланирована')+'</span></td><td>'+esc(x.notes||'—')+'</td><td><div class="actions" style="margin:0;flex-wrap:nowrap"><button type="button" class="btn secondary queen-batch-edit" data-id="'+esc(x.id)+'">Изменить</button><button type="button" class="btn danger queen-batch-delete" data-id="'+esc(x.id)+'">Удалить</button></div></td></tr>').join('')+'</tbody></table></div>';
+  box.querySelectorAll('.queen-batch-edit').forEach(b=>b.onclick=()=>{const x=rows.find(r=>String(r.id)===String(b.dataset.id));if(!x||!form||guestMode)return;Object.keys(x).forEach(k=>{if(form.elements[k])form.elements[k].value=x[k]??''});$('queenBatchSaveBtn').textContent='💾 Сохранить изменения';form.scrollIntoView({behavior:'smooth',block:'start'});});
+  box.querySelectorAll('.queen-batch-delete').forEach(b=>b.onclick=async()=>{if(guestMode)return;const x=rows.find(r=>String(r.id)===String(b.dataset.id));if(!x)return;if(!confirm('Удалить серию вывода «'+x.batch_code+'»?'))return;const {error}=await db.from('queen_rearing_batches').delete().eq('id',x.id);if(error){toast('Не удалось удалить серию: '+error.message);return}toast('Серия удалена');await loadAll();});
+}
+$('queenBatchCancelBtn')?.addEventListener('click',()=>{const f=$('queenRearingForm');f.reset();f.elements.id.value='';$('queenBatchSaveBtn').textContent='💾 Сохранить серию';});
+$('queenRearingForm')?.addEventListener('submit',async e=>{
+  e.preventDefault();if(guestMode){toast('Гостевой режим — только просмотр');return}
+  const f=e.target,d=formData(f),grafted=Number(d.grafted_cells),accepted=d.accepted_cells===''?null:Number(d.accepted_cells);
+  if(!Number.isInteger(grafted)||grafted<0){toast('Количество привитых ячеек должно быть целым числом не меньше нуля.');return}
+  if(accepted!==null&&(!Number.isInteger(accepted)||accepted<0||accepted>grafted)){toast('Количество принятых личинок должно быть целым числом от нуля до количества привитых.');return}
+  if(d.mating_start_date&&d.mating_end_date&&d.mating_end_date<d.mating_start_date){toast('Окончание облёта не может быть раньше его начала.');return}
+  const payload={batch_code:d.batch_code.trim(),graft_date:d.graft_date,mother_hive_id:d.mother_hive_id,starter_hive_id:d.starter_hive_id||null,finisher_hive_id:d.finisher_hive_id||null,grafted_cells:grafted,accepted_cells:accepted,expected_emergence_date:d.expected_emergence_date||null,emergence_date:d.emergence_date||null,mating_start_date:d.mating_start_date||null,mating_end_date:d.mating_end_date||null,status:d.status||'Запланирована',notes:d.notes.trim()||null};
+  const id=d.id, q=id?db.from('queen_rearing_batches').update(payload).eq('id',id):db.from('queen_rearing_batches').insert(payload);
+  const {error}=await q;if(error){toast('Не удалось сохранить серию: '+error.message);return}
+  f.reset();f.elements.id.value='';$('queenBatchSaveBtn').textContent='💾 Сохранить серию';toast(id?'Изменения серии сохранены':'Серия вывода сохранена');await loadAll();
+});
 async function insert(table,payload,form){
   const {error}=await db.from(table).insert(payload);
   if(error){toast('Ошибка: '+error.message);return}
