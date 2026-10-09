@@ -2778,7 +2778,8 @@ async function openHoneyJarLabels(packagingRunId){
   if(readError){box.innerHTML='<div class="empty">Не удалось загрузить коды: '+esc(readError.message)+'</div>';return}
   let labels=existing||[];
   const have=new Set(labels.map(x=>Number(x.jar_number))),missing=[];
-  for(let i=1;i<=Number(run.jar_count);i++)if(!have.has(i))missing.push({user_id:(await db.auth.getUser()).data?.user?.id,packaging_run_id:run.id,jar_number:i,public_code:crypto.randomUUID().replace(/-/g,'')});
+  const {data:authData,error:authError}=await db.auth.getUser();if(authError||!authData?.user?.id){box.innerHTML='<div class="empty">Войдите в журнал, чтобы создавать индивидуальные QR-коды.</div>';return}
+  for(let i=1;i<=Number(run.jar_count);i++)if(!have.has(i))missing.push({user_id:authData.user.id,packaging_run_id:run.id,jar_number:i,public_code:crypto.randomUUID().replace(/-/g,'')});
   if(missing.length){
     const {data:added,error}=await db.from('honey_jar_labels').insert(missing).select('id,packaging_run_id,jar_number,public_code,created_at');
     if(error){box.innerHTML='<div class="empty">Не удалось создать QR-коды: '+esc(error.message)+'</div>';return}
