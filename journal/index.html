@@ -1866,6 +1866,7 @@ $('healthForm').onsubmit=async e=>{
     }
   }
   e.target.reset(); e.target.elements.check_date.value=today();
+  $('healthForm')?.elements.quantity_used?.removeAttribute('max');
   toast(productName?'Обработка сохранена. Открываю историю лечения этого улья':'Запись о здоровье сохранена'); await loadAll();
   if(productName)showHiveFamily(d.hive_id);
 };
