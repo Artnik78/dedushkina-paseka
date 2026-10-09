@@ -1216,7 +1216,7 @@ function pushBytesToBase64Url(value){
   const bytes=value instanceof ArrayBuffer?new Uint8Array(value):value;
   let binary='';
   bytes.forEach(b=>binary+=String.fromCharCode(b));
-  return btoa(binary).replace(/\\+/g,'-').replace(/\\//g,'_').replace(/=+$/,'');
+  return btoa(binary).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
 }
 async function enablePhonePush(){
   const button=$('enablePushBtn'), status=$('pushStatus');
