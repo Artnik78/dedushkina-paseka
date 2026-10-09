@@ -1302,7 +1302,8 @@ function renderWaxAccounting(){
   if(state.apiaries.some(a=>String(a.id)===String(oldApiary)))form.elements.apiary_id.value=oldApiary;
   if(!form.elements.id.value&&!form.elements.operation_date.value)form.elements.operation_date.value=today();
   const rows=(state.waxOperations||[]).slice().sort((a,b)=>String(b.operation_date||'').localeCompare(String(a.operation_date||''))||String(b.created_at||'').localeCompare(String(a.created_at||'')));
-  const sum=k=>rows.reduce((n,x)=>n+(Number(x[k])||0),0);
+  const effectiveRows=rows.filter(x=>!['Запланирована','Отменена'].includes(x.status));
+  const sum=k=>effectiveRows.reduce((n,x)=>n+(Number(x[k])||0),0);
   const waxBalance=sum('wax_received_kg')+sum('wax_returned_kg')+sum('wax_adjustment_kg')-sum('wax_sent_kg');
   const foundationBalance=sum('foundation_received_kg')-sum('foundation_used_kg');
   setText('waxTotalReceived',waxKg(sum('wax_received_kg')+sum('wax_returned_kg')));
@@ -1312,7 +1313,7 @@ function renderWaxAccounting(){
   setText('waxCountLabel',rows.length+' '+(rows.length===1?'операция':rows.length>=2&&rows.length<=4?'операции':'операций'));
   const apiaryRows=[{id:'',name:'Общий склад / без пасеки'},...state.apiaries.map(a=>({id:String(a.id),name:a.name}))];
   balances.innerHTML=apiaryRows.map(a=>{
-    const list=rows.filter(x=>String(x.apiary_id||'')===a.id);
+    const list=effectiveRows.filter(x=>String(x.apiary_id||'')===a.id);
     const wb=list.reduce((n,x)=>n+(Number(x.wax_received_kg)||0)+(Number(x.wax_returned_kg)||0)+(Number(x.wax_adjustment_kg)||0)-(Number(x.wax_sent_kg)||0),0);
     const fb=list.reduce((n,x)=>n+(Number(x.foundation_received_kg)||0)-(Number(x.foundation_used_kg)||0),0);
     const sent=list.reduce((n,x)=>n+(Number(x.wax_sent_kg)||0),0);
