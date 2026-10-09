@@ -1353,9 +1353,12 @@ function renderAll(){
   const medicineMap=Object.fromEntries(state.medicines.map(m=>[m.id,m.name]));
   $('treatmentList').innerHTML=state.treatments.length
     ? '<div class="health-mobile-list">'+state.treatments.map(x=>{
-        return '<div class="card" style="margin-bottom:10px;border-left:4px solid #d5a72b"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><b>💊 Улей №'+esc(treatmentHiveMap[x.hive_id]||'—')+'</b><span class="muted">'+esc(x.treatment_date||'—')+'</span></div><div class="hive-card-grid"><div><small>Препарат</small><b>'+esc(x.product_name||medicineMap[x.medicine_id]||'—')+'</b></div><div><small>Цель</small><b>'+esc(x.purpose||'—')+'</b></div><div><small>Доза / способ</small><b>'+esc(x.dose||'—')+(x.method?' · '+esc(x.method):'')+'</b></div><div><small>Расход</small><b>'+esc(x.quantity_used??'—')+'</b></div></div>'+(x.notes?'<div class="muted" style="margin-top:8px">'+esc(x.notes)+'</div>':'')+'</div>';
+        return '<div class="card" style="margin-bottom:10px;border-left:4px solid #d5a72b"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><b>💊 Улей №'+esc(treatmentHiveMap[x.hive_id]||'—')+'</b><span class="muted">'+esc(x.treatment_date||'—')+'</span></div><div class="hive-card-grid"><div><small>Препарат</small><b>'+esc(x.product_name||medicineMap[x.medicine_id]||'—')+'</b></div><div><small>Цель</small><b>'+esc(x.purpose||'—')+'</b></div><div><small>Доза / способ</small><b>'+esc(x.dose||'—')+(x.method?' · '+esc(x.method):'')+'</b></div><div><small>Расход</small><b>'+esc(x.quantity_used??'—')+'</b></div></div>'+(x.notes?'<div class="muted" style="margin-top:8px">'+esc(x.notes)+'</div>':'')+'<div class="actions" style="margin:10px 0 0;display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn secondary treatment-edit" data-id="'+esc(x.id)+'">✏️ Исправить</button><button type="button" class="btn danger treatment-delete" data-id="'+esc(x.id)+'">Удалить обработку</button></div></div>';
       }).join('')
     : '<div class="empty">Обработок пока нет. Укажите препарат в новой записи о здоровье.</div>';
+
+  $('treatmentList').querySelectorAll('.treatment-edit').forEach(b=>b.onclick=()=>openTreatmentEditor(b.dataset.id));
+  $('treatmentList').querySelectorAll('.treatment-delete').forEach(b=>b.onclick=()=>deleteTreatment(b.dataset.id));
 
   $('honeyList').innerHTML=state.honey.length
     ? state.honey.map(h=>{
@@ -1823,6 +1826,44 @@ $('disinfectionCancelBtn').onclick=resetDisinfectionForm;
 
 $('inspectionForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);insert('inspections',{hive_id:d.hive_id,inspection_date:d.inspection_date,colony_strength:d.colony_strength,queen_status:d.queen_status,queen_breed:d.queen_breed,brood:d.brood,feed:d.feed,notes:d.notes},e.target)};
 $('healthMedicine')?.addEventListener('change',e=>{const m=state.medicines.find(x=>String(x.id)===String(e.target.value||''));const product=$('healthForm')?.elements.treatment_product;const quantity=$('healthForm')?.elements.quantity_used;if(m){if(product)product.value=m.name||'';if(quantity&&m.quantity!==undefined)quantity.max=String(Math.max(0,Number(m.quantity)||0));}else if(quantity)quantity.removeAttribute('max');});
+function closeTreatmentEditor(){const modal=$('treatmentEditModal');if(modal)modal.remove()}
+function openTreatmentEditor(id){
+  if(guestMode){toast('Гостевой режим — только просмотр');return}
+  const t=state.treatments.find(x=>String(x.id)===String(id)); if(!t)return;
+  closeTreatmentEditor();
+  const hiveOptions=state.hives.slice().sort((a,b)=>Number(a.hive_number)-Number(b.hive_number)).map(h=>'<option value="'+esc(h.id)+'" '+(String(h.id)===String(t.hive_id)?'selected':'')+'>Улей №'+esc(h.hive_number)+'</option>').join('');
+  const medicineOptions='<option value="">Без списания со склада</option>'+state.medicines.map(m=>'<option value="'+esc(m.id)+'" '+(String(m.id)===String(t.medicine_id||'')?'selected':'')+'>'+esc(m.name)+' — остаток '+esc(m.quantity??0)+(m.volume?' '+esc(m.volume):'')+'</option>').join('');
+  const modal=document.createElement('div'); modal.id='treatmentEditModal';
+  modal.style.cssText='position:fixed;inset:0;z-index:10000;background:rgba(20,25,20,.62);display:flex;align-items:center;justify-content:center;padding:14px;overflow:auto';
+  modal.innerHTML='<div style="background:#fffdf7;color:#2f382f;width:min(680px,100%);max-height:94vh;overflow:auto;border-radius:16px;padding:20px;box-shadow:0 18px 60px #0005"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h2 style="margin:0;font-size:20px">Исправить обработку</h2><button type="button" class="btn secondary" id="treatmentEditClose">✕</button></div><p class="muted">Изменения в истории здоровья и складском остатке сохранятся вместе.</p><form id="treatmentEditForm" class="form"><div class="field"><label>Улей</label><select name="hive_id" required>'+hiveOptions+'</select></div><div class="field"><label>Дата обработки</label><input type="date" name="treatment_date" required value="'+esc(t.treatment_date||today())+'"></div><div class="field"><label>Препарат со склада</label><select name="medicine_id" id="treatmentEditMedicine">'+medicineOptions+'</select></div><div class="field"><label>Название препарата</label><input name="product_name" value="'+esc(t.product_name||'')+'" placeholder="Название препарата"></div><div class="field"><label>Цель обработки</label><input name="purpose" value="'+esc(t.purpose||'')+'" placeholder="Например, варроатоз"></div><div class="field"><label>Доза</label><input name="dose" value="'+esc(t.dose||'')+'" placeholder="Доза на семью"></div><div class="field"><label>Способ</label><select name="method"><option value="">Не указан</option>'+['Полоски','Капельный метод','Орошение','Испарение','Другое'].map(v=>'<option '+(t.method===v?'selected':'')+'>'+v+'</option>').join('')+'</select></div><div class="field"><label>Расход</label><input name="quantity_used" type="number" min="0" step="0.01" value="'+(t.quantity_used??'')+'" placeholder="Количество"></div><div class="field full"><label>Примечание</label><textarea name="notes">'+esc(t.notes||'')+'</textarea></div><div class="field full" style="background:#fff7e8;padding:10px;border-radius:9px"><small>Если выбран препарат со склада, укажите расход больше нуля. При сохранении система вернёт прежнее списание и применит новое в одной операции.</small></div><div class="actions" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn gold" type="submit">Сохранить исправления</button><button class="btn secondary" type="button" id="treatmentEditCancel">Отмена</button></div></form></div>';
+  document.body.appendChild(modal);
+  $('treatmentEditClose').onclick=closeTreatmentEditor; $('treatmentEditCancel').onclick=closeTreatmentEditor;
+  modal.addEventListener('click',e=>{if(e.target===modal)closeTreatmentEditor()});
+  $('treatmentEditMedicine').addEventListener('change',e=>{const m=state.medicines.find(x=>String(x.id)===String(e.target.value));if(m)$('treatmentEditForm').elements.product_name.value=m.name||''});
+  $('treatmentEditForm').onsubmit=async e=>{
+    e.preventDefault(); const d=formData(e.target);
+    const qty=d.quantity_used===''?null:Number(d.quantity_used);
+    if(d.quantity_used!==''&&(!Number.isFinite(qty)||qty<0)){toast('Укажите корректный расход.');return}
+    const {error}=await db.rpc('update_hive_treatment',{
+      p_treatment_id:id,p_hive_id:d.hive_id,p_treatment_date:d.treatment_date,
+      p_purpose:d.purpose.trim()||null,p_product_name:d.product_name.trim()||null,
+      p_dose:d.dose.trim()||null,p_method:d.method||null,p_quantity_used:qty,
+      p_notes:d.notes.trim()||null,p_medicine_id:d.medicine_id||null
+    });
+    if(error){toast('Не удалось исправить обработку: '+error.message);return}
+    closeTreatmentEditor();toast('Обработка исправлена; история здоровья и склад обновлены.');await loadAll();showHiveFamily(d.hive_id);
+  };
+}
+async function deleteTreatment(id){
+  if(guestMode){toast('Гостевой режим — только просмотр');return}
+  const t=state.treatments.find(x=>String(x.id)===String(id));if(!t)return;
+  const m=state.medicines.find(x=>String(x.id)===String(t.medicine_id));
+  const amount=t.medicine_id&&t.quantity_used!=null?' На склад будет возвращено '+t.quantity_used+(m?' '+(m.volume||'')+' препарата «'+m.name+'»':' единиц препарата')+'.':' Складской остаток не изменится.';
+  if(!confirm('Удалить обработку от '+(t.treatment_date||'без даты')+' по улью №'+(state.hives.find(h=>String(h.id)===String(t.hive_id))?.hive_number||'—')+'?'+amount+' Запись о проверке здоровья останется, диагностические данные сохранятся.'))return;
+  const {error}=await db.rpc('delete_hive_treatment',{p_treatment_id:id});
+  if(error){toast('Не удалось удалить обработку: '+error.message);return}
+  toast('Обработка удалена; складской остаток скорректирован.');await loadAll();
+}
 $('healthForm').onsubmit=async e=>{
   e.preventDefault();
   const d=formData(e.target);
