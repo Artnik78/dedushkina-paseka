@@ -804,6 +804,22 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
         <p><b>Мои ульи:</b> <span id="settingsHiveCount">0</span></p>
         <div class="actions"><button class="btn secondary" id="refreshBtn">Обновить данные</button></div>
       </div>
+      <div class="panel" id="restoreJournalPanel">
+        <h3>📥 Восстановление из JSON</h3>
+        <p class="muted">Загрузите ранее сохранённую полную копию журнала. Существующие записи не удаляются: записи с совпадающими ID будут обновлены, остальные добавлены. Аккаунт, название пасечника и настройки доступа не изменяются.</p>
+        <div class="field" style="max-width:560px">
+          <label for="restoreJsonFile">Резервная копия журнала (.json)</label>
+          <input id="restoreJsonFile" type="file" accept=".json,application/json">
+        </div>
+        <div class="actions"><button type="button" class="btn gold" id="restorePreviewBtn">Проверить копию</button></div>
+        <div id="restorePreview" style="display:none;margin-top:14px;padding:14px;border:1px solid var(--line);border-radius:12px">
+          <div id="restorePreviewSummary"></div>
+          <p class="muted" style="margin-top:10px">Файл JSON содержит данные записей, но не сами фотографии. Записи фото будут пропущены, поскольку файлы изображений в резервную копию не включены. Перед восстановлением сохраните текущую копию журнала.</p>
+          <label style="display:flex;align-items:flex-start;gap:8px;margin:12px 0"><input type="checkbox" id="restoreConfirmCheck" style="margin-top:4px"> Я проверил выбранный файл и понимаю, что совпадающие ID существующих записей будут обновлены.</label>
+          <div class="actions"><button type="button" class="btn gold" id="restoreRunBtn" disabled>Начать восстановление</button><button type="button" class="btn secondary" id="restoreCancelBtn">Отмена</button></div>
+          <p id="restoreStatus" class="muted" role="status" aria-live="polite"></p>
+        </div>
+      </div>
       <div class="panel" id="clearJournalPanel" style="border:1px solid #d97757;background:rgba(180,65,45,.06)">
         <h3>🗑 Очистка журнала</h3>
         <p class="muted">Удаление данных вашего журнала без удаления аккаунта, названия пасечника и настроек доступа.</p>
@@ -911,7 +927,7 @@ function exportCsv(key){
 }
 function exportJson(){
   const copy={exported_at:new Date().toISOString(),journal_name:$('sidebarJournalName')?.textContent||'Дедушкина пасека',
-    apiaries:state.apiaries,hives:state.hives,inspections:state.inspections,health:state.health,treatments:state.treatments,queens:state.queens,queenBatches:state.queenBatches,colonyOperations:state.colonyOperations,waxOperations:state.waxOperations,apiaryProductsOperations:state.apiaryProductsOperations,
+    apiaries:state.apiaries,hives:state.hives,inspections:state.inspections,workLogs:state.workLogs||[],hiveMovements:state.hiveMovements||[],health:state.health,treatments:state.treatments,queens:state.queens,queenBatches:state.queenBatches,colonyOperations:state.colonyOperations,waxOperations:state.waxOperations,apiaryProductsOperations:state.apiaryProductsOperations,
     honey:state.honey,honeySales:state.honeySales,tasks:state.tasks,finance:state.finance,medicines:state.medicines,medicineStockMovements:state.medicineStockMovements,disinfection:state.disinfection,beeFamilies:state.beeFamilies,photos:state.photos};
   downloadFile('dedushkina-paseka-backup-'+today()+'.json',JSON.stringify(copy,null,2),'application/json;charset=utf-8');
   toast('Копия журнала подготовлена');
@@ -1285,6 +1301,134 @@ clearConfirmBtn?.addEventListener('click', async () => {
   }finally{
     btn.disabled=!(clearPhraseInput?.value.trim()===clearPhrase);
     if(start)start.disabled=false;
+  }
+});
+
+
+// Восстановление из JSON. Импорт выполняется только в собственный аккаунт.
+// Upsert сохраняет ID и связи; user_id из файла никогда не используется.
+let restorePayload = null;
+let restoreFileFingerprint = '';
+const restoreTablePlan = [
+  ['apiaries','apiaries'],['medicines','medicines'],['hives','hives'],
+  ['beeFamilies','bee_families'],['inspections','inspections'],['workLogs','work_logs'],
+  ['health','hive_health_records'],['queens','hive_queens'],['queenBatches','queen_rearing_batches'],
+  ['colonyOperations','colony_operations'],['hiveMovements','hive_movements'],
+  ['treatments','hive_treatments'],['medicineStockMovements','medicine_stock_movements'],
+  ['disinfection','disinfection_logs'],['honey','honey_batches'],
+  ['honeyPackagingRuns','honey_packaging_runs'],['honeyJarLabels','honey_jar_labels'],
+  ['honeySales','honey_sales'],['tasks','tasks'],['waxOperations','wax_operations'],
+  ['apiaryProductsOperations','apiary_products_operations'],['finance','finances']
+];
+const restoreKeyAliases = {workLogs:'workLogs',hiveMovements:'hiveMovements'};
+const restoreLabels = {
+  apiaries:'пасеки',medicines:'лекарства',hives:'ульи',beeFamilies:'семьи пчёл',
+  inspections:'осмотры',workLogs:'история работ',health:'записи здоровья',
+  queens:'матки',queenBatches:'партии маток',colonyOperations:'операции с семьями',
+  hiveMovements:'перемещения ульев',treatments:'лечение',medicineStockMovements:'движение лекарств',
+  disinfection:'дезинфекция',honey:'партии мёда',honeyPackagingRuns:'фасовка мёда',
+  honeyJarLabels:'QR-этикетки',honeySales:'продажи мёда',tasks:'задачи',
+  waxOperations:'операции с воском',apiaryProductsOperations:'продукция пасеки',finance:'финансы'
+};
+function restoreSetStatus(msg){const el=$('restoreStatus');if(el)el.textContent=msg}
+function restoreCount(obj,key){return Array.isArray(obj?.[key])?obj[key].length:0}
+$('restoreJsonFile')?.addEventListener('change',()=>{
+  restorePayload=null;restoreFileFingerprint='';
+  $('restorePreview').style.display='none';
+  $('restoreConfirmCheck').checked=false;
+  $('restoreRunBtn').disabled=true;
+  restoreSetStatus('');
+});
+$('restorePreviewBtn')?.addEventListener('click',async()=>{
+  if(guestMode){toast('В гостевом режиме восстановление недоступно');return}
+  const file=$('restoreJsonFile')?.files?.[0];
+  if(!file){toast('Сначала выберите JSON-файл');return}
+  if(file.size>25*1024*1024){toast('Файл слишком большой (максимум 25 МБ)');return}
+  try{
+    const raw=await file.text(), parsed=JSON.parse(raw);
+    if(!parsed||typeof parsed!=='object'||Array.isArray(parsed))throw new Error('В файле должен быть JSON-объект резервной копии.');
+    const recognized=restoreTablePlan.filter(([key])=>Array.isArray(parsed[key]));
+    if(!recognized.some(([key])=>key==='apiaries'||key==='hives') || recognized.length<3)
+      throw new Error('Не найдены ожидаемые разделы резервной копии журнала.');
+    for(const [key] of recognized){
+      if(parsed[key].some(row=>!row||typeof row!=='object'||Array.isArray(row)||!row.id))
+        throw new Error('Раздел «'+(restoreLabels[key]||key)+'» содержит запись без ID или некорректную запись.');
+    }
+    restorePayload=parsed;
+    restoreFileFingerprint=file.name+'|'+file.size+'|'+file.lastModified;
+    const lines=recognized.map(([key])=>'<li>'+esc(restoreLabels[key]||key)+': <b>'+restoreCount(parsed,key)+'</b></li>').join('');
+    const missing=restoreTablePlan.filter(([key])=>!Array.isArray(parsed[key])).map(([key])=>restoreLabels[key]||key);
+    $('restorePreviewSummary').innerHTML='<p><b>Копия прошла базовую проверку формата.</b></p><p>Дата копии: '+esc(parsed.exported_at||'не указана')+'</p><p>Название в копии: '+esc(parsed.journal_name||'не указано')+'</p><p>Разделы и количество записей:</p><ul style="padding-left:22px;line-height:1.8">'+lines+'</ul>'+(missing.length?'<p class="muted">В этой копии нет разделов: '+esc(missing.join(', '))+'. Они не будут импортированы.</p>':'')+'<p>Фотографии: '+restoreCount(parsed,'photos')+' записей метаданных; сами файлы изображений в JSON отсутствуют.</p>';
+    $('restorePreview').style.display='block';
+    $('restoreConfirmCheck').checked=false;$('restoreRunBtn').disabled=true;
+    restoreSetStatus('Проверьте состав копии и подтвердите восстановление.');
+  }catch(e){
+    restorePayload=null;$('restorePreview').style.display='none';
+    toast('Не удалось проверить копию: '+(e.message||String(e)));
+  }
+});
+$('restoreConfirmCheck')?.addEventListener('change',e=>{$('restoreRunBtn').disabled=!e.target.checked||!restorePayload});
+$('restoreCancelBtn')?.addEventListener('click',()=>{
+  restorePayload=null;$('restorePreview').style.display='none';
+  $('restoreConfirmCheck').checked=false;$('restoreRunBtn').disabled=true;
+  if($('restoreJsonFile'))$('restoreJsonFile').value='';
+  restoreSetStatus('Восстановление отменено.');
+});
+$('restoreRunBtn')?.addEventListener('click',async()=>{
+  if(guestMode){toast('В гостевом режиме восстановление недоступно');return}
+  if(!restorePayload||!$('restoreConfirmCheck').checked)return;
+  const file=$('restoreJsonFile')?.files?.[0];
+  if(!file||restoreFileFingerprint!==file.name+'|'+file.size+'|'+file.lastModified){
+    restorePayload=null;toast('Выбранный файл изменился. Проверьте его заново.');return
+  }
+  if(!window.confirm('Начать восстановление записей из резервной копии? Существующие записи с такими же ID будут обновлены. Рекомендуется заранее скачать текущую копию.'))return;
+  const btn=$('restoreRunBtn'), previewBtn=$('restorePreviewBtn');
+  btn.disabled=true;previewBtn.disabled=true;
+  let done=0,total=0;const failures=[];
+  try{
+    const {data:{user},error:userError}=await db.auth.getUser();
+    if(userError)throw userError;
+    if(!user)throw new Error('Сначала войдите в журнал.');
+    const plan=restoreTablePlan.filter(([key])=>Array.isArray(restorePayload[key]));
+    total=plan.reduce((n,[key])=>n+restorePayload[key].length,0);
+    if(!total)throw new Error('В резервной копии нет записей для импорта.');
+    for(const [key,table] of plan){
+      const rows=restorePayload[key];
+      if(!rows.length)continue;
+      // Не переносим потенциально чужие данные: owner ID задаётся текущей сессией.
+      const safeRows=rows.map(row=>{
+        const out={...row,user_id:user.id};
+        delete out.owner_id;
+        return out;
+      });
+      for(let i=0;i<safeRows.length;i+=100){
+        const chunk=safeRows.slice(i,i+100);
+        const {error}=await db.from(table).upsert(chunk,{onConflict:'id'});
+        if(error){
+          failures.push((restoreLabels[key]||key)+': '+error.message);
+          break;
+        }
+        done+=chunk.length;
+        restoreSetStatus('Обработано записей: '+done+' из '+total+'.');
+      }
+      if(failures.length)break;
+    }
+    if(failures.length){
+      restoreSetStatus('Восстановление остановлено после '+done+' записей. Часть данных могла быть импортирована. Ошибка: '+failures.join('; ')+'. Исправьте ошибку и повторите импорт.');
+      toast('Восстановление завершено не полностью');
+      return;
+    }
+    await loadAll();
+    restoreSetStatus('Готово: импортировано/обновлено '+done+' записей. Аккаунт, название пасечника и настройки доступа сохранены. Фотографии нужно загрузить отдельно — их файлов нет в JSON.');
+    toast('Восстановление завершено');
+    restorePayload=null;
+    $('restoreConfirmCheck').checked=false;
+  }catch(e){
+    restoreSetStatus('Ошибка после '+done+' записей: '+(e.message||String(e))+'. Проверьте данные и при необходимости повторите импорт.');
+    toast('Ошибка восстановления: '+(e.message||String(e)));
+  }finally{
+    btn.disabled=!$('restoreConfirmCheck').checked||!restorePayload;
+    previewBtn.disabled=false;
   }
 });
 
