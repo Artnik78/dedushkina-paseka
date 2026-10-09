@@ -956,8 +956,8 @@ function renderGuestMode(){
   );
   state.beeFamilies=state.hives.map((h,i)=>({id:'guest-family-'+(i+1),hive_id:h.id,queen_year:h.queen_year,queen_breed:h.queen_breed,strength:strengths[i],notes:h.notes}));
   state.honey=[
-    {id:'guest-honey-1',batch_number:'2026-001',honey_type:'Мёд разнотравье',collection_date:d(-90),quantity_kg:25,price_per_kg:25,collection_place:'Клецкий район',notes:'Полифлорный мёд, демонстрационная партия'},
-    {id:'guest-honey-2',batch_number:'2026-002',honey_type:'Лесной мёд',collection_date:d(-70),quantity_kg:18,price_per_kg:28,collection_place:'Клецкий район, лесной массив',notes:'Партия лесного мёда'},
+    {id:'guest-honey-1',batch_number:'2026-001',honey_type:'Мёд разнотравье',collection_date:d(-90),quantity_kg:25,sold_kg:16.8,remaining_kg:8.2,price_per_kg:25,collection_place:'Клецкий район',notes:'Полифлорный мёд, демонстрационная партия'},
+    {id:'guest-honey-2',batch_number:'2026-002',honey_type:'Лесной мёд',collection_date:d(-70),quantity_kg:18,sold_kg:4,remaining_kg:14,price_per_kg:28,collection_place:'Клецкий район, лесной массив',notes:'Партия лесного мёда'},
     {id:'guest-honey-3',batch_number:'2026-003',honey_type:'Майский мёд',collection_date:d(-120),quantity_kg:14,price_per_kg:30,collection_place:'Клецкий район',notes:'Ранний весенний сбор'},
     {id:'guest-honey-4',batch_number:'2026-004',honey_type:'Гречишный мёд',collection_date:d(-45),quantity_kg:22,price_per_kg:27,collection_place:'Клецкий район',notes:'Насыщенный гречишный мёд'}
   ];
