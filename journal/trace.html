@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#103a27">
+<meta name="description" content="Паспорт происхождения мёда «Дедушкина пасека»">
+<title>Паспорт банки — Дедушкина пасека</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--green:#103a27;--green2:#1d6337;--gold:#d5a72b;--cream:#fffaf0;--ink:#25352b;--muted:#6f7b70;--line:#e6dfcf}
+*{box-sizing:border-box}
+body{margin:0;background:#f1ecdf;color:var(--ink);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.5}
+.page{max-width:760px;margin:0 auto;padding:22px 14px 40px}
+.brand{background:var(--green);color:#fffaf0;padding:24px 20px;border-radius:20px 20px 0 0;border-bottom:4px solid var(--gold)}
+.brandline{display:flex;gap:12px;align-items:center}.bee{font-size:38px}.brand h1{font-size:22px;margin:0}.brand p{margin:4px 0 0;color:#e2e9df;font-size:13px}
+.paper{background:#fffdf7;border:1px solid var(--line);border-top:0;border-radius:0 0 20px 20px;padding:22px;box-shadow:0 12px 36px #3a32140d}
+.kicker{font-size:11px;font-weight:800;letter-spacing:.14em;color:#967019;text-transform:uppercase}
+.batch-title{font-family:Georgia,serif;font-size:30px;line-height:1.2;color:var(--green);margin:6px 0}
+.subtitle{font-size:16px;color:#56665a;margin:0 0 20px}
+.stamp{display:inline-flex;align-items:center;gap:7px;border:1px solid #c9d9c9;background:#eff6ec;color:#255d32;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:18px 0}
+.item{padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.item small{display:block;color:var(--muted);font-size:11px;margin-bottom:4px}
+.item b{display:block;font-size:14px;overflow-wrap:anywhere}
+.section{border-top:1px solid var(--line);padding-top:16px;margin-top:18px}
+.section h2{font-size:16px;color:var(--green);margin:0 0 10px}
+.steps{display:grid;gap:9px}.step{display:flex;gap:10px;align-items:flex-start;padding:11px;border-radius:10px;background:#f8f5eb}.num{flex:0 0 27px;height:27px;display:grid;place-items:center;background:var(--green);color:white;border-radius:50%;font-weight:800;font-size:12px}.step b{display:block}.step small{display:block;color:var(--muted)}
+.notice{padding:12px;border:1px solid #e9d8a5;border-radius:10px;background:#fff8e4;font-size:12px;color:#72591b}
+.state{padding:26px 10px;text-align:center;color:var(--muted)}.state strong{display:block;font-size:18px;color:var(--green);margin-bottom:6px}
+footer{text-align:center;color:var(--muted);font-size:11px;padding:18px 8px}
+@media(max-width:480px){.page{padding:12px 9px 28px}.brand{padding:20px 16px}.paper{padding:16px}.batch-title{font-size:26px}.grid{gap:7px}.item{padding:10px}.item b{font-size:13px}}
+</style>
+</head>
+<body>
+<main class="page">
+<header class="brand"><div class="brandline"><div class="bee">🐝</div><div><h1>Дедушкина пасека</h1><p>Паспорт происхождения мёда</p></div></div></header>
+<article class="paper">
+<div id="loading" class="state"><strong>🍯 Загружаем паспорт банки</strong>Проверяем код этикетки…</div>
+<div id="invalid" class="state" hidden><strong>Паспорт не найден</strong>Код не распознан или ссылка повреждена. Проверьте QR-код на этикетке.</div>
+<div id="passport" hidden>
+<div class="kicker">Индивидуальная маркировка банки</div>
+<div class="batch-title" id="honeyType">Натуральный мёд</div>
+<p class="subtitle" id="batchNumber"></p>
+<span class="stamp">✓ Код банки подтверждён</span>
+<div class="grid">
+<div class="item"><small>Индивидуальный номер</small><b id="jarNumber">—</b></div>
+<div class="item"><small>Масса нетто по записи фасовки</small><b id="jarSize">—</b></div>
+<div class="item"><small>Дата фасовки</small><b id="packDate">—</b></div>
+<div class="item"><small>Код этикетки</small><b id="labelCode">—</b></div>
+</div>
+<section class="section"><h2>🌿 Происхождение</h2>
+<div class="grid">
+<div class="item"><small>Пасека-источник</small><b id="apiaryName">—</b></div>
+<div class="item"><small>Район / место сбора</small><b id="collectionPlace">—</b></div>
+<div class="item"><small>Дата сбора</small><b id="collectionDate">—</b></div>
+<div class="item"><small>Период сбора</small><b id="collectionPeriod">—</b></div>
+</div></section>
+<section class="section"><h2>🔎 Путь этой банки</h2><div class="steps">
+<div class="step"><span class="num">1</span><div><b id="sourceStep">Пасека-источник</b><small>Место происхождения партии мёда</small></div></div>
+<div class="step"><span class="num">2</span><div><b id="batchStep">Партия урожая</b><small id="batchQuantity">Учёт партии в журнале пасечника</small></div></div>
+<div class="step"><span class="num">3</span><div><b id="packStep">Фасовка</b><small id="packDetails">Дата и размер банки записаны в журнале</small></div></div>
+<div class="step"><span class="num">4</span><div><b>Индивидуальная маркировка</b><small id="individualCode">Уникальный код этой банки</small></div></div>
+</div></section>
+<div class="notice" style="margin-top:18px">Паспорт показывает сведения, внесённые производителем в цифровой журнал. Он не заменяет лабораторный анализ или обязательную маркировку, если они требуются законодательством.</div>
+</div>
+</article>
+<footer>«Дедушкина пасека» · Цифровой паспорт партии и банки</footer>
+</main>
+<script>
+(function(){
+const SUPABASE_URL='https://owpzcjvseleqeqibwuqj.supabase.co';
+const SUPABASE_KEY='sb_publishable_1eM3o5IehFq-IvjWkHLiCA_RMXGHfw5';
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const el=id=>document.getElementById(id);
+const showDate=value=>{if(!value)return '—';const s=String(value).slice(0,10);const m=s.match(/^(\d{4})-(\d{2})-(\d{2})$/);return m?m[3]+'.'+m[2]+'.'+m[1]:s};
+const put=(id,value)=>{el(id).textContent=value===null||value===undefined||value===''?'—':String(value)};
+async function run(){
+ const code=new URLSearchParams(location.search).get('code');
+ if(!code||!/^[a-f0-9]{24,80}$/i.test(code)){el('loading').hidden=true;el('invalid').hidden=false;return}
+ try{
+  const {data,error}=await db.rpc('get_honey_jar_trace',{p_code:code});
+  if(error)throw error;
+  const d=Array.isArray(data)?data[0]:data;
+  if(!d||!d.jar_code){el('loading').hidden=true;el('invalid').hidden=false;return}
+  put('honeyType',d.honey_type||'Натуральный мёд');
+  put('batchNumber','Партия '+(d.batch_number||'—'));
+  put('jarNumber','№ '+d.jar_number+' из '+d.jar_count);
+  put('jarSize',Number(d.jar_size_g).toLocaleString('ru-RU')+' г');
+  put('packDate',showDate(d.packaging_date));put('labelCode',d.label_code);
+  put('apiaryName',d.apiary_name);put('collectionPlace',d.collection_place||d.apiary_location);
+  put('collectionDate',showDate(d.collection_date));put('collectionPeriod',d.collection_period);
+  put('sourceStep',(d.apiary_name||'Пасека не указана')+(d.apiary_location?' · '+d.apiary_location:''));
+  put('batchStep',(d.batch_number||'—')+' · '+(d.honey_type||'Мёд'));
+  put('batchQuantity','Зарегистрированный объём партии: '+(d.quantity_kg??'—')+' кг');
+  put('packStep',Number(d.jar_size_g).toLocaleString('ru-RU')+' г · банка №'+d.jar_number);
+  put('packDetails','Фасовано '+showDate(d.packaging_date)+(d.packaging_notes?' · '+d.packaging_notes:''));
+  put('individualCode',d.jar_code);
+  el('loading').hidden=true;el('passport').hidden=false;
+ }catch(e){el('loading').innerHTML='<strong>Не удалось загрузить паспорт</strong>Проверьте подключение к интернету и повторите попытку.';console.error(e)}
+}
+run();
+})();
+</script>
+</body>
+</html>
