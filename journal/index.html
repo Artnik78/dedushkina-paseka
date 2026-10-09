@@ -2153,7 +2153,7 @@ function renderAll(){
   }).filter(Boolean);
   $('homeMedicineAlerts').innerHTML=homeMedicineAlerts.length
     ? '<h3 style="margin:0 0 10px">⚠️ Лекарства — требуют внимания</h3>'+homeMedicineAlerts.map(x=>'<div style="padding:7px 0;border-bottom:1px solid var(--line)">💊 <b>'+esc(x.m.name)+'</b> — '+esc(x.alerts.join('; '))+'</div>').join('')+'<div class="actions" style="margin-bottom:0"><button type="button" class="btn secondary" data-page="medicines">Открыть лекарства</button></div>'
-    : '<div style="color:var(--green2)">✅ По лекарствам всё в порядке.</div>';
+    : '<div style="color:var(--green2)">✅ По лекарствам всё в порядке.</div><div class="actions" style="margin:10px 0 0"><button type="button" class="btn secondary" data-page="medicines">Открыть лекарства →</button></div>';
   const medicineAlerts=state.medicines.map(m=>{
     const alerts=[];
     const qty=Number(m.quantity||0), min=Number(m.min_quantity||0);
