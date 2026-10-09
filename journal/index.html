@@ -197,6 +197,7 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
     <button data-page="queens">👑 Племенная работа</button>
     <button data-page="colonies">🐝 Рои и отводки</button>
     <button data-page="wax">🕯️ Воск и вощина</button>
+    <button data-page="apiary-products">🌿 Прополис, пыльца и перга</button>
     <button data-page="calendar">📅 Календарь</button>
     <button data-page="honey">🍯 Мёд / партии</button>
     <button data-page="finances">💰 Финансы</button>
@@ -448,6 +449,40 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
       <div class="panel">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h3 style="margin:0">История движения воска и вощины</h3><div class="actions" style="margin:0"><button type="button" class="btn secondary" id="waxExportCsvBtn">Экспорт CSV</button><span class="muted" id="waxCountLabel">0 операций</span></div></div>
         <div id="waxOperationsList" style="margin-top:12px"><div class="empty">Загрузка...</div></div>
+      </div>
+    </section>
+
+    <section id="page-apiary-products" class="section">
+      <h1>🌿 Прополис, пыльца и перга</h1>
+      <p class="sub">Учёт сбора, продажи, использования и списания продукции. Остатки рассчитываются отдельно по виду продукции и пасеке.</p>
+      <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:12px;margin-bottom:14px">
+        <div class="panel"><div class="muted">Прополис на остатке</div><div id="apiaryProductPropolisBalance" style="font-size:25px;font-weight:800">0,000 кг</div></div>
+        <div class="panel"><div class="muted">Пыльца на остатке</div><div id="apiaryProductPollenBalance" style="font-size:25px;font-weight:800">0,000 кг</div></div>
+        <div class="panel"><div class="muted">Перга на остатке</div><div id="apiaryProductBeeBreadBalance" style="font-size:25px;font-weight:800">0,000 кг</div></div>
+      </div>
+      <div class="panel">
+        <h3>Остатки по пасекам и продукции</h3>
+        <div id="apiaryProductsBalances"><div class="empty">Пока нет операций.</div></div>
+      </div>
+      <div class="panel">
+        <h3 id="apiaryProductsFormTitle">Новая операция с продукцией</h3>
+        <form id="apiaryProductsForm" class="form">
+          <input type="hidden" name="id">
+          <div class="field"><label>Дата *</label><input name="operation_date" type="date" required></div>
+          <div class="field"><label>Продукция *</label><select name="product_type" required><option>Прополис</option><option>Пыльца</option><option>Перга</option></select></div>
+          <div class="field"><label>Операция *</label><select name="operation_type" required><option>Получено</option><option>Продано</option><option>Использовано</option><option>Списано</option><option>Корректировка</option></select></div>
+          <div class="field"><label>Пасека</label><select name="apiary_id"><option value="">Общий склад / не указана</option></select></div>
+          <div class="field"><label id="apiaryProductQuantityLabel">Количество, кг *</label><input name="quantity_kg" type="number" min="0.001" step="0.001" required placeholder="Например, 0.250"></div>
+          <div class="field"><label>Номер партии</label><input name="batch_number" placeholder="Например, ПЕРГА-2026-01"></div>
+          <div class="field"><label>Статус</label><select name="status"><option>Завершена</option><option>Запланирована</option><option>Отменена</option></select></div>
+          <div class="field full"><label>Примечание</label><textarea name="notes" placeholder="Качество, способ сбора, покупатель, причина списания..."></textarea></div>
+          <div class="actions"><button class="btn gold" id="apiaryProductsSaveBtn" type="submit">💾 Сохранить операцию</button><button class="btn secondary" id="apiaryProductsCancelBtn" type="button">Очистить форму</button></div>
+        </form>
+        <div class="muted">Для корректировки укажите положительное или отрицательное изменение остатка. Запланированные и отменённые операции не входят в остаток.</div>
+      </div>
+      <div class="panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h3 style="margin:0">История операций</h3><div class="actions" style="margin:0"><button type="button" class="btn secondary" id="apiaryProductsExportBtn">Экспорт CSV</button><span class="muted" id="apiaryProductsCountLabel">0 операций</span></div></div>
+        <div id="apiaryProductsList" style="margin-top:12px"><div class="empty">Загрузка...</div></div>
       </div>
     </section>
 
@@ -784,7 +819,7 @@ const SUPABASE_KEY = 'sb_publishable_1eM3o5IehFq-IvjWkHLiCA_RMXGHfw5';
 const { createClient } = window.supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { storageKey: 'dedushkina-paseka-journal-auth' } });
 
-const state = {hives:[], inspections:[], health:[], treatments:[], queens:[], queenBatches:[], colonyOperations:[], waxOperations:[], photos:[], honey:[], tasks:[], finance:[], apiaries:[], medicines:[], disinfection:[], beeFamilies:[]};
+const state = {hives:[], inspections:[], health:[], treatments:[], queens:[], queenBatches:[], colonyOperations:[], waxOperations:[], apiaryProductsOperations:[], photos:[], honey:[], tasks:[], finance:[], apiaries:[], medicines:[], disinfection:[], beeFamilies:[]};
 let guestMode=false;
 let calendarMonth = new Date();
 calendarMonth.setDate(1);
@@ -802,12 +837,12 @@ function exportCsv(key){
   if(!rows.length){toast('Нет данных для экспорта');return}
   const keys=[...new Set(rows.flatMap(r=>Object.keys(r)))];
   const csv='\uFEFF'+keys.map(csvCell).join(';')+'\n'+rows.map(r=>keys.map(k=>csvCell(r[k])).join(';')).join('\n');
-  const labels={hives:'ули',inspections:'осмотры',health:'здоровье',treatments:'лечение',queens:'матки',honey:'мёд',tasks:'напоминания',finance:'финансы',medicines:'лекарства',waxOperations:'учёт-воска'};
+  const labels={hives:'ули',inspections:'осмотры',health:'здоровье',treatments:'лечение',queens:'матки',honey:'мёд',tasks:'напоминания',finance:'финансы',medicines:'лекарства',waxOperations:'учёт-воска',apiaryProductsOperations:'продукция-пасеки'};
   downloadFile('dedushkina-paseka-'+(labels[key]||key)+'-'+today()+'.csv',csv,'text/csv;charset=utf-8');
 }
 function exportJson(){
   const copy={exported_at:new Date().toISOString(),journal_name:$('sidebarJournalName')?.textContent||'Дедушкина пасека',
-    apiaries:state.apiaries,hives:state.hives,inspections:state.inspections,health:state.health,treatments:state.treatments,queens:state.queens,queenBatches:state.queenBatches,colonyOperations:state.colonyOperations,waxOperations:state.waxOperations,
+    apiaries:state.apiaries,hives:state.hives,inspections:state.inspections,health:state.health,treatments:state.treatments,queens:state.queens,queenBatches:state.queenBatches,colonyOperations:state.colonyOperations,waxOperations:state.waxOperations,apiaryProductsOperations:state.apiaryProductsOperations,
     honey:state.honey,tasks:state.tasks,finance:state.finance,medicines:state.medicines,disinfection:state.disinfection,beeFamilies:state.beeFamilies,photos:state.photos};
   downloadFile('dedushkina-paseka-backup-'+today()+'.json',JSON.stringify(copy,null,2),'application/json;charset=utf-8');
   toast('Копия журнала подготовлена');
@@ -955,6 +990,12 @@ function renderGuestMode(){
   state.colonyOperations=[
     {id:'guest-colony-op-1',operation_date:d(-6),operation_type:'Отводок',source_hive_id:'guest-hive-1',target_hive_id:'guest-hive-5',apiary_id:'guest-apiary-1',new_hive_number:'',frames_count:4,brood_frames:2,feed_frames:1,queen_status:'Маточник',queen_breed:'Карника',queen_year:2026,strength:'Средняя',result:'Через 7–10 дней проверить выход матки и наличие засева.',status:'В работе',notes:'Демонстрационная запись. Источник и принимающий улей сохранены в истории.'}
   ];
+  state.apiaryProductsOperations=[
+    {id:'guest-apiary-product-1',operation_date:d(-10),product_type:'Прополис',operation_type:'Получено',apiary_id:'guest-apiary-1',quantity_kg:0.35,batch_number:'ПРОПОЛИС-ДЕМО-01',status:'Завершена',notes:'Демонстрационная запись сбора прополиса.'},
+    {id:'guest-apiary-product-2',operation_date:d(-7),product_type:'Пыльца',operation_type:'Получено',apiary_id:'guest-apiary-1',quantity_kg:1.2,batch_number:'ПЫЛЬЦА-ДЕМО-01',status:'Завершена',notes:'Пример учёта собранной и подготовленной пыльцы.'},
+    {id:'guest-apiary-product-3',operation_date:d(-4),product_type:'Перга',operation_type:'Получено',apiary_id:'guest-apiary-2',quantity_kg:0.8,batch_number:'ПЕРГА-ДЕМО-01',status:'Завершена',notes:'Пример учёта перги.'},
+    {id:'guest-apiary-product-4',operation_date:d(-2),product_type:'Пыльца',operation_type:'Продано',apiary_id:'guest-apiary-1',quantity_kg:0.25,batch_number:'ПЫЛЬЦА-ДЕМО-01',status:'Завершена',notes:'Демонстрационная продажа уменьшает остаток.'}
+  ];
   state.waxOperations=[
     {id:'guest-wax-1',operation_date:d(-12),operation_type:'Получен воск',apiary_id:'guest-apiary-1',wax_received_kg:4.5,wax_sent_kg:0,wax_returned_kg:0,foundation_received_kg:0,foundation_used_kg:0,wax_adjustment_kg:0,processing_batch:'ВОСК-ДЕМО-01',processor_name:'',status:'Завершена',notes:'Демонстрационное поступление воскового сырья.'},
     {id:'guest-wax-2',operation_date:d(-8),operation_type:'Сдан в переработку',apiary_id:'guest-apiary-1',wax_received_kg:0,wax_sent_kg:2.5,wax_returned_kg:0,foundation_received_kg:0,foundation_used_kg:0,wax_adjustment_kg:0,processing_batch:'ВОСК-ДЕМО-01',processor_name:'Пример переработчика',status:'Завершена',notes:'Пример отдельной записи сдачи.'},
@@ -964,8 +1005,8 @@ function renderGuestMode(){
   renderAll();
 
   // Гостевой режим — только просмотр: формы и операции изменения скрыты.
-  document.querySelectorAll('#page-apiaries form,#page-hives form,#page-inspections form,#page-health form,#page-queens form,#page-colonies form,#page-wax form,#page-calendar form,#page-honey form,#page-finances form,#page-tasks form,#page-medicines form,#page-disinfection form').forEach(f=>{const p=f.closest('.panel');if(p)p.style.display='none';});
-  document.querySelectorAll('#page-home .actions button,#addCalendarEventBtn,.apiary-edit,.apiary-delete,.hive-edit,.hive-history,.hive-delete,.disinfection-edit,.disinfection-delete,.medicine-edit,.medicine-delete,.queen-batch-edit,.queen-batch-delete,.colony-operation-edit,.colony-operation-delete,.wax-operation-edit,.wax-operation-delete').forEach(b=>b.style.display='none');
+  document.querySelectorAll('#page-apiaries form,#page-hives form,#page-inspections form,#page-health form,#page-queens form,#page-colonies form,#page-wax form,#page-apiary-products form,#page-calendar form,#page-honey form,#page-finances form,#page-tasks form,#page-medicines form,#page-disinfection form').forEach(f=>{const p=f.closest('.panel');if(p)p.style.display='none';});
+  document.querySelectorAll('#page-home .actions button,#addCalendarEventBtn,.apiary-edit,.apiary-delete,.hive-edit,.hive-history,.hive-delete,.disinfection-edit,.disinfection-delete,.medicine-edit,.medicine-delete,.queen-batch-edit,.queen-batch-delete,.colony-operation-edit,.colony-operation-delete,.wax-operation-edit,.wax-operation-delete,.apiary-product-edit,.apiary-product-delete').forEach(b=>b.style.display='none');
   setText('countHives',state.hives.length); setText('countInspections',state.inspections.length); setText('countHoney',state.honey.length); setText('countTasks',state.tasks.filter(x=>x.status!=='Выполнена').length);
   setText('statHives',state.hives.length); setText('statInspections',state.inspections.length); setText('statHoney',state.honey.length); setText('statFinance',state.finance.length);
 }
@@ -1155,7 +1196,7 @@ async function getTable(table,order='created_at'){
 }
 async function loadAll(){
   const names=[
-    ['apiaries','apiaries'],['hives','hives'],['inspections','inspections'],['health','hive_health_records'],['treatments','hive_treatments'],['queens','hive_queens'],['queenBatches','queen_rearing_batches'],['colonyOperations','colony_operations'],['waxOperations','wax_operations'],['photos','photos'],['honey','honey_batches'],
+    ['apiaries','apiaries'],['hives','hives'],['inspections','inspections'],['health','hive_health_records'],['treatments','hive_treatments'],['queens','hive_queens'],['queenBatches','queen_rearing_batches'],['colonyOperations','colony_operations'],['waxOperations','wax_operations'],['apiaryProductsOperations','apiary_products_operations'],['photos','photos'],['honey','honey_batches'],
     ['tasks','tasks'],['finance','finances'],['medicines','medicines'],['disinfection','disinfection_logs'],['beeFamilies','bee_families']
   ];
   const results=await Promise.all(names.map(async([key,table])=>{
@@ -1369,6 +1410,77 @@ $('waxOperationForm')?.addEventListener('submit',async e=>{
   $('waxFormTitle').textContent='Новая операция с воском';$('waxSaveBtn').textContent='💾 Сохранить операцию';updateWaxAmountLabel();
   toast(id?'Изменения сохранены':'Операция сохранена');await loadAll();
 });
+function apiaryProductKg(n){return (Number(n)||0).toLocaleString('ru-RU',{minimumFractionDigits:3,maximumFractionDigits:3})+' кг'}
+function apiaryProductDelta(x){
+  const q=Number(x.quantity_kg)||0;
+  if(x.operation_type==='Получено')return q;
+  if(['Продано','Использовано','Списано'].includes(x.operation_type))return -Math.abs(q);
+  if(x.operation_type==='Корректировка')return q;
+  return 0;
+}
+function renderApiaryProductsAccounting(){
+  const form=$('apiaryProductsForm'),box=$('apiaryProductsList'),balances=$('apiaryProductsBalances');
+  if(!form||!box||!balances)return;
+  const oldApiary=form.elements.apiary_id.value;
+  form.elements.apiary_id.innerHTML='<option value="">Общий склад / не указана</option>'+state.apiaries.map(a=>'<option value="'+esc(a.id)+'">'+esc(a.name)+'</option>').join('');
+  if(state.apiaries.some(a=>String(a.id)===String(oldApiary)))form.elements.apiary_id.value=oldApiary;
+  if(!form.elements.id.value&&!form.elements.operation_date.value)form.elements.operation_date.value=today();
+  const rows=(state.apiaryProductsOperations||[]).slice().sort((a,b)=>String(b.operation_date||'').localeCompare(String(a.operation_date||''))||String(b.created_at||'').localeCompare(String(a.created_at||'')));
+  const effective=rows.filter(x=>!['Запланирована','Отменена'].includes(x.status));
+  const products=['Прополис','Пыльца','Перга'];
+  const sumProduct=(list,type)=>list.filter(x=>x.product_type===type).reduce((n,x)=>n+apiaryProductDelta(x),0);
+  setText('apiaryProductPropolisBalance',apiaryProductKg(sumProduct(effective,'Прополис')));
+  setText('apiaryProductPollenBalance',apiaryProductKg(sumProduct(effective,'Пыльца')));
+  setText('apiaryProductBeeBreadBalance',apiaryProductKg(sumProduct(effective,'Перга')));
+  setText('apiaryProductsCountLabel',rows.length+' '+(rows.length===1?'операция':rows.length>=2&&rows.length<=4?'операции':'операций'));
+  const apiaryRows=[{id:'',name:'Общий склад / без пасеки'},...state.apiaries.map(a=>({id:String(a.id),name:a.name}))];
+  balances.innerHTML='<div class="table-wrap"><table class="table"><thead><tr><th>Пасека</th>'+products.map(p=>'<th>'+p+'</th>').join('')+'</tr></thead><tbody>'+apiaryRows.map(a=>'<tr><td><b>'+esc(a.name)+'</b></td>'+products.map(p=>'<td>'+apiaryProductKg(sumProduct(effective.filter(x=>String(x.apiary_id||'')===a.id),p))+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
+  if(!rows.length){box.innerHTML='<div class="empty">Записей пока нет. Добавьте первую операцию сбора или поступления продукции.</div>';return}
+  const apiaryName=id=>state.apiaries.find(a=>String(a.id)===String(id))?.name||(id?'Пасека не найдена':'Общий склад');
+  box.innerHTML='<div class="table-wrap"><table class="table"><thead><tr><th>Дата</th><th>Продукция</th><th>Операция</th><th>Пасека</th><th>Количество</th><th>Партия</th><th>Статус</th><th>Примечание</th><th></th></tr></thead><tbody>'+rows.map(x=>'<tr><td>'+esc(x.operation_date||'—')+'</td><td><b>'+esc(x.product_type)+'</b></td><td>'+esc(x.operation_type)+'</td><td>'+esc(apiaryName(x.apiary_id))+'</td><td>'+esc(apiaryProductKg(x.quantity_kg))+'</td><td>'+esc(x.batch_number||'—')+'</td><td>'+esc(x.status||'Завершена')+'</td><td>'+esc(x.notes||'—')+'</td><td><div class="actions" style="margin:0;flex-wrap:nowrap"><button type="button" class="btn secondary apiary-product-edit" data-id="'+esc(x.id)+'">Изменить</button><button type="button" class="btn danger apiary-product-delete" data-id="'+esc(x.id)+'">Удалить</button></div></td></tr>').join('')+'</tbody></table></div>';
+  box.querySelectorAll('.apiary-product-edit').forEach(b=>b.onclick=()=>{
+    const x=rows.find(r=>String(r.id)===String(b.dataset.id));if(!x||guestMode)return;
+    Object.keys(x).forEach(k=>{if(form.elements[k])form.elements[k].value=x[k]??''});
+    form.elements.quantity_kg.value=x.quantity_kg;
+    $('apiaryProductsFormTitle').textContent='Изменить операцию с продукцией';
+    $('apiaryProductsSaveBtn').textContent='💾 Сохранить изменения';
+    updateApiaryProductQuantityLabel();form.scrollIntoView({behavior:'smooth',block:'start'});
+  });
+  box.querySelectorAll('.apiary-product-delete').forEach(b=>b.onclick=async()=>{
+    if(guestMode)return;const x=rows.find(r=>String(r.id)===String(b.dataset.id));if(!x)return;
+    if(!confirm('Удалить запись «'+x.product_type+' — '+x.operation_type+'» от '+x.operation_date+'?'))return;
+    const {error}=await db.from('apiary_products_operations').delete().eq('id',x.id);
+    if(error){toast('Не удалось удалить запись: '+error.message);return}
+    toast('Запись удалена');await loadAll();
+  });
+}
+function updateApiaryProductQuantityLabel(){
+  const type=$('apiaryProductsForm')?.elements.operation_type.value;
+  const labels={'Получено':'Количество поступившей продукции, кг *','Продано':'Количество проданной продукции, кг *','Использовано':'Количество использованной продукции, кг *','Списано':'Количество списанной продукции, кг *','Корректировка':'Изменение остатка, кг (+ / −) *'};
+  const label=$('apiaryProductQuantityLabel');if(label)label.textContent=labels[type]||'Количество, кг *';
+  const input=$('apiaryProductsForm')?.elements.quantity_kg;
+  if(input){input.min=type==='Корректировка'?'-999999':'0.001';input.step='0.001';input.placeholder=type==='Корректировка'?'Например, -0.150':'Например, 0.250'}
+}
+$('apiaryProductsForm')?.elements?.operation_type?.addEventListener('change',updateApiaryProductQuantityLabel);
+$('apiaryProductsCancelBtn')?.addEventListener('click',()=>{
+  const f=$('apiaryProductsForm');f.reset();f.elements.id.value='';f.elements.operation_date.value=today();
+  $('apiaryProductsFormTitle').textContent='Новая операция с продукцией';$('apiaryProductsSaveBtn').textContent='💾 Сохранить операцию';updateApiaryProductQuantityLabel();
+});
+$('apiaryProductsExportBtn')?.addEventListener('click',()=>exportCsv('apiaryProductsOperations'));
+$('apiaryProductsForm')?.addEventListener('submit',async e=>{
+  e.preventDefault();if(guestMode){toast('Гостевой режим — только просмотр');return}
+  const f=e.target,d=formData(f),amount=Number(d.quantity_kg),type=d.operation_type;
+  if(!d.operation_date){toast('Укажите дату операции.');return}
+  if(!Number.isFinite(amount)||(type==='Корректировка'?amount===0:amount<=0)){toast(type==='Корректировка'?'Корректировка должна быть ненулевой.':'Количество должно быть больше нуля.');return}
+  const signedAmount=type==='Корректировка'?amount:Math.abs(amount);
+  const payload={operation_date:d.operation_date,product_type:d.product_type,operation_type:type,apiary_id:d.apiary_id||null,quantity_kg:signedAmount,batch_number:d.batch_number.trim()||null,status:d.status||'Завершена',notes:d.notes.trim()||null};
+  const id=d.id,q=id?db.from('apiary_products_operations').update(payload).eq('id',id):db.from('apiary_products_operations').insert(payload);
+  const {error}=await q;
+  if(error){toast('Не удалось сохранить операцию: '+error.message);return}
+  f.reset();f.elements.id.value='';f.elements.operation_date.value=today();
+  $('apiaryProductsFormTitle').textContent='Новая операция с продукцией';$('apiaryProductsSaveBtn').textContent='💾 Сохранить операцию';updateApiaryProductQuantityLabel();
+  toast(id?'Изменения сохранены':'Операция сохранена');await loadAll();
+});
 function renderQueenCalendarReminders(){
   const box=$('homeQueenAlerts');
   if(!box)return;
@@ -1417,6 +1529,7 @@ function renderAll(){
   renderQueenRearingBatches();
   renderColonyOperations();
   renderWaxAccounting();
+  renderApiaryProductsAccounting();
   renderQueenCalendarReminders();
   refreshPhotoSelectors();
   setText('homeWorkHives',state.hives.length+' '+(state.hives.length===1?'улей':'ульев'));
