@@ -1830,6 +1830,22 @@ $('healthForm').onsubmit=async e=>{
   const selectedMedicine=state.medicines.find(m=>String(m.id)===String(d.medicine_id||''));
   const productName=selectedMedicine?.name||treatmentProduct;
   const quantityUsed=d.quantity_used===''?null:Number(d.quantity_used);
+  // Проверяем расход до создания записи, чтобы не сохранить обработку с некорректным списанием.
+  if(d.quantity_used!=='' && (!Number.isFinite(quantityUsed)||quantityUsed<0)){
+    toast('Укажите корректное количество израсходованного препарата.');
+    return;
+  }
+  if(selectedMedicine){
+    const available=Number(selectedMedicine.quantity||0);
+    if(quantityUsed===null||quantityUsed<=0){
+      toast('Для списания со склада укажите количество больше нуля.');
+      return;
+    }
+    if(quantityUsed>available){
+      toast('Недостаточно препарата на складе. Доступно: '+available+'. Обновите данные и проверьте остаток.');
+      return;
+    }
+  }
   const healthPayload={
     hive_id:d.hive_id,
     check_date:d.check_date,
