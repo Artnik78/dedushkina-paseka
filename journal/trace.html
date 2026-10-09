@@ -115,13 +115,13 @@ async function run(){
   put('jarNumber','№ '+d.jar_number+' из '+d.jar_count);
   put('jarSize',Number(d.jar_size_g).toLocaleString('ru-RU')+' г');
   put('packDate',showDate(d.packaging_date));put('labelCode',d.label_code);
-  put('apiaryName',d.apiary_name);put('collectionPlace',d.collection_place||d.apiary_location);
+  put('apiaryName',d.apiary_name);put('collectionPlace',d.collection_place||'—');
   put('collectionDate',showDate(d.collection_date));put('collectionPeriod',d.collection_period);
-  put('sourceStep',(d.apiary_name||'Пасека не указана')+(d.apiary_location?' · '+d.apiary_location:''));
+  put('sourceStep',d.apiary_name||'Пасека не указана');
   put('batchStep',(d.batch_number||'—')+' · '+(d.honey_type||'Мёд'));
   put('batchQuantity','Зарегистрированный объём партии: '+(d.quantity_kg??'—')+' кг');
   put('packStep',Number(d.jar_size_g).toLocaleString('ru-RU')+' г · банка №'+d.jar_number);
-  put('packDetails','Фасовано '+showDate(d.packaging_date)+(d.packaging_notes?' · '+d.packaging_notes:''));
+  put('packDetails','Фасовано '+showDate(d.packaging_date));
   put('individualCode',d.jar_code);
   el('loading').hidden=true;el('passport').hidden=false;
  }catch(e){el('loading').innerHTML='<strong>Не удалось загрузить паспорт</strong>Проверьте подключение к интернету и повторите попытку.';console.error(e)}
