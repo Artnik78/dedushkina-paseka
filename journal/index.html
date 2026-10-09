@@ -2299,6 +2299,7 @@ async function showInspectionDetails(id){
   $('backToHiveFamily').onclick=()=>showHiveFamily(i.hive_id);
   $('openInspectionPhotos').onclick=()=>{closeHiveFamily();showPage('photos');const hs=$('photoHive');if(hs){hs.value=String(i.hive_id||'');hs.dispatchEvent(new Event('change'));}};
   const photoBox=$('inspectionDetailPhotos');
+  if(photoBox)photoBox.dataset.inspectionId=String(i.id);
   const photos=(state.photos||[]).filter(p=>String(p.inspection_id||'')===String(i.id));
   if(!photos.length){photoBox.innerHTML='<div class="empty">К этому осмотру фотографии не прикреплены.</div>';return}
   if(guestMode){photoBox.innerHTML='<div class="muted">Фотографии доступны после входа владельца журнала.</div>';return}
@@ -2306,7 +2307,7 @@ async function showInspectionDetails(id){
     const result=await db.storage.from('journal-photos').createSignedUrl(p.file_path,3600);
     return {p,url:result.data?.signedUrl||''};
   }));
-  if(!document.getElementById('inspectionDetailPhotos'))return;
+  if(!document.getElementById('inspectionDetailPhotos')||photoBox.dataset.inspectionId!==String(i.id))return;
   photoBox.innerHTML=items.map(({p,url})=>'<div class="card" style="padding:8px">'+(url?'<a href="'+esc(url)+'" target="_blank" rel="noopener"><img src="'+esc(url)+'" alt="'+esc(p.caption||'Фото осмотра')+'" style="width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px"></a>':'<div class="muted">Не удалось загрузить фотографию.</div>')+'<div class="muted" style="margin-top:6px">'+esc(p.caption||'Без подписи')+'</div></div>').join('');
 }
 function closeHiveFamily(){ $('hiveFamilyModal').style.display='none'; }
