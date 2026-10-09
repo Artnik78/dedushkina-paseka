@@ -880,7 +880,7 @@ function exportCsv(key){
   if(!rows.length){toast('Нет данных для экспорта');return}
   const keys=[...new Set(rows.flatMap(r=>Object.keys(r)))];
   const csv='\uFEFF'+keys.map(csvCell).join(';')+'\n'+rows.map(r=>keys.map(k=>csvCell(r[k])).join(';')).join('\n');
-  const labels={hives:'ули',inspections:'осмотры',health:'здоровье',treatments:'лечение',queens:'матки',honey:'мёд',honeySales:'продажи-мёда',tasks:'напоминания',finance:'финансы',medicines:'лекарства',waxOperations:'учёт-воска',apiaryProductsOperations:'продукция-пасеки'};
+  const labels={hives:'ули',inspections:'осмотры',health:'здоровье',treatments:'лечение',queens:'матки',honey:'мёд',honeySales:'продажи-мёда',tasks:'напоминания',finance:'финансы',medicines:'лекарства',medicineStockMovements:'движение-склада',waxOperations:'учёт-воска',apiaryProductsOperations:'продукция-пасеки'};
   downloadFile('dedushkina-paseka-'+(labels[key]||key)+'-'+today()+'.csv',csv,'text/csv;charset=utf-8');
 }
 function exportJson(){
