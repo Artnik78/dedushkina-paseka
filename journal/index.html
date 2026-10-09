@@ -804,6 +804,31 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
         <p><b>Мои ульи:</b> <span id="settingsHiveCount">0</span></p>
         <div class="actions"><button class="btn secondary" id="refreshBtn">Обновить данные</button></div>
       </div>
+      <div class="panel" id="clearJournalPanel" style="border:1px solid #d97757;background:rgba(180,65,45,.06)">
+        <h3>🗑 Очистка журнала</h3>
+        <p class="muted">Удаление данных вашего журнала без удаления аккаунта, названия пасечника и настроек доступа.</p>
+        <ul style="padding-left:22px;line-height:1.8">
+          <li>Все ульи и пасеки</li>
+          <li>Осмотры, история работ и движения ульев</li>
+          <li>Записи здоровья, лечения и дезинфекции</li>
+          <li>Партии мёда, фасовка и QR-этикетки</li>
+          <li>Лекарства и движение их запасов</li>
+          <li>Финансовые записи и задачи</li>
+          <li>Фотографии и связанные файлы</li>
+        </ul>
+        <p style="font-weight:700;color:#b43d2d">⚠️ Внимание: удалённые данные восстановить будет нельзя. Перед очисткой при необходимости скачайте копию журнала в разделе «Экспорт данных».</p>
+        <div class="actions"><button type="button" class="btn danger" id="clearJournalStartBtn">🗑 Очистить журнал…</button></div>
+        <div id="clearJournalConfirm" style="display:none;margin-top:14px;padding:14px;border:1px solid #b43d2d;border-radius:12px">
+          <p><b>Подтверждение 2 из 2.</b> Будут удалены все перечисленные данные только вашего аккаунта. Аккаунт, название пасечника и доступ останутся.</p>
+          <p class="muted">Для подтверждения введите точно: <b>УДАЛИТЬ ВСЁ</b></p>
+          <div class="field" style="max-width:360px"><label for="clearJournalPhrase">Подтверждение удаления</label><input id="clearJournalPhrase" autocomplete="off" placeholder="УДАЛИТЬ ВСЁ"></div>
+          <div class="actions">
+            <button type="button" class="btn danger" id="clearJournalConfirmBtn" disabled>Да, безвозвратно удалить</button>
+            <button type="button" class="btn secondary" id="clearJournalCancelBtn">Отмена</button>
+          </div>
+        </div>
+        <p id="clearJournalStatus" class="muted" role="status" aria-live="polite"></p>
+      </div>
       <div class="panel">
         <h3>📦 Экспорт данных</h3>
         <p class="muted">Скачать копию журнала для хранения или переноса. Фотографии отдельно не входят в JSON/CSV.</p>
@@ -1197,6 +1222,72 @@ document.getElementById('photoHive')?.addEventListener('change',e=>{
   const rows=state.inspections.filter(x=>!id||String(x.hive_id)===String(id)).sort((a,b)=>String(b.inspection_date||'').localeCompare(String(a.inspection_date||'')));
   sel.innerHTML='<option value="">Без привязки</option>'+rows.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.inspection_date||'—')+' · улей №'+esc(state.hives.find(h=>String(h.id)===String(x.hive_id))?.hive_number||'')+'</option>').join('');
 });
+
+// Очистка данных журнала: два явных подтверждения, только авторизованный
+// пользователь; аккаунт и строка journal_users не затрагиваются.
+const clearPhrase = 'УДАЛИТЬ ВСЁ';
+const clearPhraseInput = $('clearJournalPhrase');
+const clearConfirmBtn = $('clearJournalConfirmBtn');
+clearPhraseInput?.addEventListener('input', () => {
+  if(clearConfirmBtn) clearConfirmBtn.disabled = clearPhraseInput.value.trim() !== clearPhrase;
+});
+$('clearJournalStartBtn')?.addEventListener('click', () => {
+  if(guestMode){toast('В гостевом режиме очистка недоступна');return}
+  const ok = window.confirm('ВНИМАНИЕ! Все данные пасеки, истории, лечения, партии мёда, финансы, задачи и фотографии будут удалены без возможности восстановления. Аккаунт, название пасечника и настройки доступа останутся. Перейти ко второму подтверждению?');
+  if(!ok)return;
+  $('clearJournalConfirm').style.display='block';
+  $('clearJournalStatus').textContent='';
+  if(clearPhraseInput){clearPhraseInput.value='';clearPhraseInput.focus()}
+  if(clearConfirmBtn)clearConfirmBtn.disabled=true;
+});
+$('clearJournalCancelBtn')?.addEventListener('click', () => {
+  $('clearJournalConfirm').style.display='none';
+  if(clearPhraseInput)clearPhraseInput.value='';
+  if(clearConfirmBtn)clearConfirmBtn.disabled=true;
+});
+clearConfirmBtn?.addEventListener('click', async () => {
+  if(guestMode){toast('В гостевом режиме очистка недоступна');return}
+  if(clearPhraseInput?.value.trim() !== clearPhrase){toast('Введите фразу подтверждения точно');return}
+  const btn=clearConfirmBtn, status=$('clearJournalStatus'), start=$('clearJournalStartBtn');
+  btn.disabled=true;if(start)start.disabled=true;
+  status.textContent='Удаление данных… Не закрывайте страницу.';
+  try{
+    const {data:{user},error:userError}=await db.auth.getUser();
+    if(userError)throw userError;
+    if(!user)throw new Error('Сначала войдите в журнал.');
+
+    // Сначала удаляем файлы фотографий текущего пользователя. При ошибке
+    // хранилища операция БД не запускается.
+    const {data:photoRows,error:photoError}=await db.from('photos').select('file_path').eq('user_id',user.id);
+    if(photoError)throw new Error('Не удалось проверить фотографии: '+photoError.message);
+    const paths=(photoRows||[]).map(x=>x.file_path).filter(Boolean);
+    for(let i=0;i<paths.length;i+=100){
+      const {error:storageError}=await db.storage.from('journal-photos').remove(paths.slice(i,i+100));
+      if(storageError)throw new Error('Не удалось удалить фотографии: '+storageError.message+'. Остальные данные не очищены.');
+    }
+
+    const {data,error}=await db.rpc('clear_my_beekeeping_journal');
+    if(error)throw new Error(error.message||'Ошибка очистки базы данных');
+    if(data && data.success===false)throw new Error(data.message||'Очистка не завершена');
+
+    // Обновляем интерфейс, не затрагивая сессию, имя пасечника и доступ.
+    ['hives','inspections','health','treatments','queens','queenBatches','colonyOperations','waxOperations','apiaryProductsOperations','photos','honey','honeyPackagingRuns','honeyJarLabels','honeySales','tasks','finance','apiaries','medicines','medicineStockMovements','disinfection','beeFamilies'].forEach(k=>state[k]=[]);
+    await loadAll();
+    $('clearJournalConfirm').style.display='none';
+    if(clearPhraseInput)clearPhraseInput.value='';
+    status.textContent='Журнал очищен. Аккаунт, название пасечника и настройки доступа сохранены.';
+    toast('Данные журнала удалены');
+    syncHomeUser($('settingsUserEmail')?.textContent,$('sidebarJournalName')?.textContent);
+  }catch(err){
+    console.error('Очистка журнала:',err);
+    status.textContent='Не удалось завершить очистку: '+(err.message||String(err));
+    toast('Ошибка очистки: '+(err.message||String(err)));
+  }finally{
+    btn.disabled=!(clearPhraseInput?.value.trim()===clearPhrase);
+    if(start)start.disabled=false;
+  }
+});
+
 $('exportJsonBtn')?.addEventListener('click',exportJson);
 document.querySelectorAll('.export-csv').forEach(b=>b.addEventListener('click',()=>exportCsv(b.dataset.export)));
 $('saveJournalDisplayNameBtn').onclick=async()=>{
