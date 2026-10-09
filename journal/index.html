@@ -904,7 +904,7 @@ const SUPABASE_KEY = 'sb_publishable_1eM3o5IehFq-IvjWkHLiCA_RMXGHfw5';
 const { createClient } = window.supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { storageKey: 'dedushkina-paseka-journal-auth' } });
 
-const state = {hives:[], inspections:[], health:[], treatments:[], queens:[], queenBatches:[], colonyOperations:[], waxOperations:[], apiaryProductsOperations:[], photos:[], honey:[], honeyPackagingRuns:[], honeyJarLabels:[], honeySales:[], tasks:[], finance:[], apiaries:[], medicines:[], medicineStockMovements:[], disinfection:[], beeFamilies:[]};
+const state = {hives:[], inspections:[], workLogs:[], hiveMovements:[], health:[], treatments:[], queens:[], queenBatches:[], colonyOperations:[], waxOperations:[], apiaryProductsOperations:[], photos:[], honey:[], honeyPackagingRuns:[], honeyJarLabels:[], honeySales:[], tasks:[], finance:[], apiaries:[], medicines:[], medicineStockMovements:[], disinfection:[], beeFamilies:[]};
 let guestMode=false;
 let calendarMonth = new Date();
 calendarMonth.setDate(1);
@@ -1518,7 +1518,7 @@ async function getTable(table,order='created_at'){
 }
 async function loadAll(){
   const names=[
-    ['apiaries','apiaries'],['hives','hives'],['inspections','inspections'],['health','hive_health_records'],['treatments','hive_treatments'],['queenBatches','queen_rearing_batches'],['colonyOperations','colony_operations'],['waxOperations','wax_operations'],['apiaryProductsOperations','apiary_products_operations'],['photos','photos'],['honey','honey_batches'],['honeyPackagingRuns','honey_packaging_runs'],['honeyJarLabels','honey_jar_labels'],['honeySales','honey_sales'],
+    ['apiaries','apiaries'],['hives','hives'],['inspections','inspections'],['workLogs','work_logs'],['hiveMovements','hive_movements'],['health','hive_health_records'],['treatments','hive_treatments'],['queenBatches','queen_rearing_batches'],['colonyOperations','colony_operations'],['waxOperations','wax_operations'],['apiaryProductsOperations','apiary_products_operations'],['photos','photos'],['honey','honey_batches'],['honeyPackagingRuns','honey_packaging_runs'],['honeyJarLabels','honey_jar_labels'],['honeySales','honey_sales'],
     ['tasks','tasks'],['finance','finances'],['medicines','medicines'],['medicineStockMovements','medicine_stock_movements'],['disinfection','disinfection_logs'],['beeFamilies','bee_families']
   ];
   const results=await Promise.all(names.map(async([key,table])=>{
