@@ -194,6 +194,7 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
     <button data-page="hives">⬡ Ульи</button>
     <button data-page="inspections">📋 Осмотры</button>
     <button data-page="health">🩺 Здоровье</button>
+    <button data-page="queens">👑 Племенная работа</button>
     <button data-page="calendar">📅 Календарь</button>
     <button data-page="honey">🍯 Мёд / партии</button>
     <button data-page="finances">💰 Финансы</button>
@@ -434,6 +435,39 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
       <div class="panel"><h3>События и работы</h3><div id="calendarTasks" class="table-wrap"></div></div>
     </section>
 
+    <section id="page-queens" class="section">
+      <h1>👑 Племенная работа и вывод маток</h1>
+      <p class="sub">Планирование серий вывода маток, контроль прививки, приёма личинок, выхода маток и облёта. Карточки отдельных маток сохраняются в истории соответствующего улья.</p>
+      <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:14px">
+        <div class="panel"><div class="muted">Всего серий</div><div id="queenBatchCount" style="font-size:25px;font-weight:800">0</div></div>
+        <div class="panel"><div class="muted">В работе</div><div id="queenBatchActive" style="font-size:25px;font-weight:800">0</div></div>
+        <div class="panel"><div class="muted">Привито ячеек</div><div id="queenBatchGrafted" style="font-size:25px;font-weight:800">0</div></div>
+        <div class="panel"><div class="muted">Принято личинок</div><div id="queenBatchAccepted" style="font-size:25px;font-weight:800">0</div></div>
+      </div>
+      <div class="panel"><h3>Новая серия вывода маток</h3>
+        <form id="queenRearingForm" class="form">
+          <input type="hidden" name="id">
+          <div class="field"><label>Код серии *</label><input name="batch_code" required placeholder="Например, 2026-М-001"></div>
+          <div class="field"><label>Дата прививки *</label><input name="graft_date" type="date" required></div>
+          <div class="field"><label>Материнская семья *</label><select name="mother_hive_id" required><option value="">Выберите улей</option></select></div>
+          <div class="field"><label>Семья-стартер</label><select name="starter_hive_id"><option value="">Не указана</option></select></div>
+          <div class="field"><label>Семья-финишер</label><select name="finisher_hive_id"><option value="">Не указана</option></select></div>
+          <div class="field"><label>Привито личинок / ячеек *</label><input name="grafted_cells" type="number" min="0" step="1" value="0" required></div>
+          <div class="field"><label>Принято личинок</label><input name="accepted_cells" type="number" min="0" step="1" placeholder="Заполнить после проверки"></div>
+          <div class="field"><label>Ожидаемый выход маток</label><input name="expected_emergence_date" type="date"></div>
+          <div class="field"><label>Фактический выход</label><input name="emergence_date" type="date"></div>
+          <div class="field"><label>Начало облёта</label><input name="mating_start_date" type="date"></div>
+          <div class="field"><label>Окончание облёта</label><input name="mating_end_date" type="date"></div>
+          <div class="field"><label>Этап</label><select name="status"><option>Запланирована</option><option>Прививка выполнена</option><option>Приняты личинки</option><option>Маточники запечатаны</option><option>Выход маток</option><option>На облёте</option><option>Завершена</option><option>Неудачная</option></select></div>
+          <div class="field full"><label>Примечание</label><textarea name="notes" placeholder="Линия, признаки материнской семьи, условия вывода, результаты проверки..."></textarea></div>
+          <div class="actions"><button class="btn gold" id="queenBatchSaveBtn" type="submit">💾 Сохранить серию</button><button class="btn secondary" id="queenBatchCancelBtn" type="button">Очистить форму</button></div>
+        </form>
+      </div>
+      <div class="panel"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h3 style="margin:0">История серий вывода</h3><span class="muted" id="queenBatchCountLabel">0 серий</span></div>
+        <div id="queenRearingList" style="margin-top:12px"><div class="empty">Загрузка...</div></div>
+      </div>
+    </section>
+
     <section id="page-honey" class="section">
       <h1>Мёд / партии</h1><p class="sub">Учёт урожая, партий и продукции «Дедушкиной пасеки».</p>
       <div class="panel">
@@ -666,7 +700,7 @@ const SUPABASE_KEY = 'sb_publishable_1eM3o5IehFq-IvjWkHLiCA_RMXGHfw5';
 const { createClient } = window.supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { storageKey: 'dedushkina-paseka-journal-auth' } });
 
-const state = {hives:[], inspections:[], health:[], treatments:[], queens:[], photos:[], honey:[], tasks:[], finance:[], apiaries:[], medicines:[], disinfection:[], beeFamilies:[]};
+const state = {hives:[], inspections:[], health:[], treatments:[], queens:[], queenBatches:[], photos:[], honey:[], tasks:[], finance:[], apiaries:[], medicines:[], disinfection:[], beeFamilies:[]};
 let guestMode=false;
 let calendarMonth = new Date();
 calendarMonth.setDate(1);
@@ -689,7 +723,7 @@ function exportCsv(key){
 }
 function exportJson(){
   const copy={exported_at:new Date().toISOString(),journal_name:$('sidebarJournalName')?.textContent||'Дедушкина пасека',
-    apiaries:state.apiaries,hives:state.hives,inspections:state.inspections,health:state.health,treatments:state.treatments,queens:state.queens,
+    apiaries:state.apiaries,hives:state.hives,inspections:state.inspections,health:state.health,treatments:state.treatments,queens:state.queens,queenBatches:state.queenBatches,
     honey:state.honey,tasks:state.tasks,finance:state.finance,medicines:state.medicines,disinfection:state.disinfection,beeFamilies:state.beeFamilies,photos:state.photos};
   downloadFile('dedushkina-paseka-backup-'+today()+'.json',JSON.stringify(copy,null,2),'application/json;charset=utf-8');
   toast('Копия журнала подготовлена');
@@ -1027,7 +1061,7 @@ async function getTable(table,order='created_at'){
 }
 async function loadAll(){
   const names=[
-    ['apiaries','apiaries'],['hives','hives'],['inspections','inspections'],['health','hive_health_records'],['treatments','hive_treatments'],['queens','hive_queens'],['photos','photos'],['honey','honey_batches'],
+    ['apiaries','apiaries'],['hives','hives'],['inspections','inspections'],['health','hive_health_records'],['treatments','hive_treatments'],['queens','hive_queens'],['queenBatches','queen_rearing_batches'],['photos','photos'],['honey','honey_batches']
     ['tasks','tasks'],['finance','finances'],['medicines','medicines'],['disinfection','disinfection_logs'],['beeFamilies','bee_families']
   ];
   const results=await Promise.all(names.map(async([key,table])=>{
