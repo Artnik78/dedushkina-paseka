@@ -745,11 +745,6 @@ function guestDatePlus(days){
   d.setDate(d.getDate()+days);
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 }
-function guestDatePlus(days){
-  const d=new Date(today()+'T00:00:00');
-  d.setDate(d.getDate()+days);
-  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-}
 function renderGuestMode(){
   const t=today(), d=(n)=>guestDatePlus(n);
   state.apiaries=[
