@@ -1401,6 +1401,9 @@ $('restoreRunBtn')?.addEventListener('click',async()=>{
         delete out.owner_id;
         // remaining_kg is a generated/computed database column and cannot be inserted.
         if(table==='honey_batches')delete out.remaining_kg;
+        // Старые JSON-копии не содержали фасовку. У продаж в таком файле может
+        // остаться ссылка на отсутствующую фасовку, что блокирует RLS-проверку.
+        if(table==='honey_sales' && (!Array.isArray(restorePayload.honeyPackagingRuns) || !restorePayload.honeyPackagingRuns.some(p=>p.id===out.packaging_run_id)))out.packaging_run_id=null;
         return out;
       });
       for(let i=0;i<safeRows.length;i+=100){
