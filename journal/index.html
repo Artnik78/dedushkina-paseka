@@ -779,7 +779,8 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
           <div class="field"><label>Улей</label><select name="hive_id"><option value="">Не указан</option></select></div>
           <div class="field"><label>Количество рамок</label><input name="frames_count" type="number" min="0" step="1" placeholder="Например, 10"></div>
           <div class="field"><label>Дата обработки *</label><input name="disinfection_date" type="date" required></div>
-          <div class="field"><label>Средство / препарат *</label><input name="agent" required placeholder="Название дезсредства"></div>
+          <div class="field"><label>Препарат из списка</label><select name="medicine_id" id="disinfectionMedicine"><option value="">Не выбран — указать вручную</option></select></div>
+          <div class="field"><label>Средство / препарат *</label><input name="agent" required placeholder="Выберите препарат выше или введите название"></div>
           <div class="field"><label>Способ обработки</label><select name="treatment_method"><option>Орошение</option><option>Обмывание</option><option>Замачивание</option><option>Обработка паром</option><option>Другой</option></select></div>
           <div class="field"><label>Причина</label><select name="reason"><option>Плановая</option><option>После болезни</option><option>После выбраковки семьи</option><option>Санитарная</option><option>Другая</option></select></div>
           <div class="field"><label>Ответственный</label><input name="responsible" placeholder="Кто выполнял"></div>
@@ -1047,10 +1048,10 @@ function renderGuestMode(){
     {id:'guest-move-4',medicine_id:'guest-med-2',movement_date:d(-35),movement_type:'Расход на обработку',quantity_change:-1,quantity_before:3,quantity_after:2,treatment_id:'guest-treatment-2',notes:'Обработка улья №1'}
   ];
   state.disinfection=[
-    {id:'guest-dis-1',target_type:'Улей',apiary_id:'guest-apiary-1',hive_id:'guest-hive-1',frames_count:10,disinfection_date:d(-30),agent:'Сода + вода',treatment_method:'Обмывание',reason:'Плановая',responsible:'Пасечник',next_date:d(150),notes:'Плановая санитарная обработка'},
-    {id:'guest-dis-2',target_type:'Рамки',apiary_id:'guest-apiary-1',hive_id:null,frames_count:24,disinfection_date:d(-20),agent:'Сода кальцинированная',treatment_method:'Замачивание',reason:'Санитарная',responsible:'Пасечник',next_date:d(160),notes:'Обработаны запасные рамки'},
-    {id:'guest-dis-3',target_type:'Улей',apiary_id:'guest-apiary-2',hive_id:'guest-hive-9',frames_count:10,disinfection_date:d(-12),agent:'Перекись + сода',treatment_method:'Орошение',reason:'После болезни',responsible:'Пасечник',next_date:d(30),notes:'Усиленный контроль'},
-    {id:'guest-dis-4',target_type:'Инвентарь',apiary_id:'guest-apiary-2',hive_id:null,frames_count:null,disinfection_date:t,agent:'Сода + вода',treatment_method:'Обмывание',reason:'Плановая',responsible:'Пасечник',next_date:d(30),notes:'Рабочий инвентарь'}
+    {id:'guest-dis-1',target_type:'Улей',apiary_id:'guest-apiary-1',hive_id:'guest-hive-1',medicine_id:'guest-med-1',frames_count:10,disinfection_date:d(-30),agent:'Бипин-Т',treatment_method:'Орошение',reason:'Плановая',responsible:'Пасечник',next_date:d(150),notes:'Демо-пример: препарат выбран из списка лекарств'},
+    {id:'guest-dis-2',target_type:'Рамки',apiary_id:'guest-apiary-1',hive_id:null,medicine_id:'guest-med-2',frames_count:24,disinfection_date:d(-20),agent:'Муравьиная кислота',treatment_method:'Замачивание',reason:'Санитарная',responsible:'Пасечник',next_date:d(160),notes:'Демо-пример связи записи с лекарством'},
+    {id:'guest-dis-3',target_type:'Улей',apiary_id:'guest-apiary-2',hive_id:'guest-hive-9',medicine_id:'guest-med-3',frames_count:10,disinfection_date:d(-12),agent:'Апиварол',treatment_method:'Орошение',reason:'После болезни',responsible:'Пасечник',next_date:d(30),notes:'Демо-пример: препарат из справочника'},
+    {id:'guest-dis-4',target_type:'Инвентарь',apiary_id:'guest-apiary-2',hive_id:null,medicine_id:null,frames_count:null,disinfection_date:t,agent:'Сода + вода',treatment_method:'Обмывание',reason:'Плановая',responsible:'Пасечник',next_date:d(30),notes:'Рабочий инвентарь; средство указано вручную'}
   ];
 
   state.queenBatches=[{id:'guest-queen-batch-1',batch_code:'ДЕМО-2026-001',graft_date:d(-12),mother_hive_id:'guest-hive-1',starter_hive_id:'guest-hive-2',finisher_hive_id:'guest-hive-3',grafted_cells:24,accepted_cells:18,expected_emergence_date:d(2),emergence_date:null,mating_start_date:null,mating_end_date:null,status:'Маточники запечатаны',notes:'Демонстрационная серия; пример учёта материнской семьи и результата приёма.'}];
@@ -2084,6 +2085,9 @@ document.querySelectorAll('.honey-batch-card').forEach(b=>b.onclick=()=>openHone
   document.querySelectorAll('#homeDisinfectionAlerts [data-page]').forEach(b=>b.onclick=()=>showPage(b.dataset.page));
 
   $('disinfectionForm').elements.apiary_id.innerHTML='<option value="">Не указана</option>'+state.apiaries.map(a=>'<option value="'+a.id+'">'+esc(a.name)+'</option>').join('');
+  const disMed=$('disinfectionForm').elements.medicine_id,oldDisMed=disMed.value;
+  disMed.innerHTML='<option value="">Не выбран — указать вручную</option>'+state.medicines.map(m=>'<option value="'+esc(m.id)+'">'+esc(m.name)+' · остаток: '+esc(m.quantity)+' '+esc(m.volume||'ед.')+'</option>').join('');
+  if(oldDisMed&&state.medicines.some(m=>String(m.id)===String(oldDisMed)))disMed.value=oldDisMed;
   $('disinfectionForm').elements.hive_id.innerHTML='<option value="">Не указан</option>'+state.hives.map(h=>'<option value="'+h.id+'">№ '+esc(h.hive_number)+'</option>').join('');
   $('inspectionHive').innerHTML='<option value="">Выберите улей</option>'+state.hives.map(h=>'<option value="'+h.id+'">№ '+esc(h.hive_number)+'</option>').join('');
   $('healthHive').innerHTML='<option value="">Выберите улей</option>'+state.hives.map(h=>'<option value="'+h.id+'">№ '+esc(h.hive_number)+'</option>').join('');
@@ -2545,7 +2549,7 @@ $('medicineCancelBtn').onclick=resetMedicineForm;
 $('disinfectionForm').onsubmit=async e=>{
   e.preventDefault();
   const d=formData(e.target);
-  const payload={target_type:d.target_type,apiary_id:d.apiary_id||null,hive_id:d.hive_id||null,frames_count:d.frames_count?Number(d.frames_count):null,disinfection_date:d.disinfection_date,agent:d.agent.trim(),treatment_method:d.treatment_method,reason:d.reason,responsible:d.responsible.trim(),next_date:d.next_date||null,notes:d.notes.trim()};
+  const payload={target_type:d.target_type,apiary_id:d.apiary_id||null,hive_id:d.hive_id||null,medicine_id:d.medicine_id||null,frames_count:d.frames_count?Number(d.frames_count):null,disinfection_date:d.disinfection_date,agent:d.agent.trim(),treatment_method:d.treatment_method,reason:d.reason,responsible:d.responsible.trim(),next_date:d.next_date||null,notes:d.notes.trim()};
   if(d.id){
     const {error}=await db.from('disinfection_logs').update(payload).eq('id',d.id);
     if(error){toast('Ошибка: '+error.message);return}
@@ -2565,7 +2569,7 @@ function editDisinfection(id){
   const x=state.disinfection.find(v=>String(v.id)===String(id)); if(!x)return;
   const f=$('disinfectionForm');
   f.elements.id.value=x.id; f.elements.target_type.value=x.target_type||'Пасека'; f.elements.apiary_id.value=x.apiary_id||''; f.elements.hive_id.value=x.hive_id||'';
-  f.elements.frames_count.value=x.frames_count??''; f.elements.disinfection_date.value=x.disinfection_date||today(); f.elements.agent.value=x.agent||'';
+  f.elements.frames_count.value=x.frames_count??''; f.elements.disinfection_date.value=x.disinfection_date||today(); f.elements.medicine_id.value=x.medicine_id||''; f.elements.agent.value=x.agent||'';
   f.elements.treatment_method.value=x.treatment_method||'Орошение'; f.elements.reason.value=x.reason||'Плановая'; f.elements.responsible.value=x.responsible||'';
   f.elements.next_date.value=x.next_date||''; f.elements.notes.value=x.notes||'';
   $('disinfectionSaveBtn').textContent='Сохранить изменения'; $('disinfectionCancelBtn').style.display='inline-block'; $('disinfectionFormTitle').textContent='Изменить запись';
@@ -2579,6 +2583,7 @@ async function deleteDisinfection(id){
   toast('Запись удалена'); await loadAll();
 }
 $('disinfectionCancelBtn').onclick=resetDisinfectionForm;
+$('disinfectionForm').elements.medicine_id.addEventListener('change',e=>{const m=state.medicines.find(x=>String(x.id)===String(e.target.value));if(m)$('disinfectionForm').elements.agent.value=m.name;});
 
 $('inspectionForm').onsubmit=async e=>{
   e.preventDefault();
