@@ -231,6 +231,27 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
       <button class="btn secondary" id="signupBtn">Регистрация</button>
       <button class="btn gold" id="guestBtn">👁️ Гостевой просмотр</button>
     </div>
+    <div class="actions" style="justify-content:center;margin-top:4px">
+      <button type="button" class="btn secondary" id="forgotAccessBtn" style="white-space:normal">Забыли пароль или логин?</button>
+    </div>
+    <div id="recoveryPanel" class="panel" style="display:none;margin-top:12px;padding:14px">
+      <h3 style="margin-bottom:8px">Восстановление доступа</h3>
+      <p id="recoveryHelp" class="muted">Укажите email, на который регистрировали журнал. Мы отправим ссылку для смены пароля.</p>
+      <div id="recoveryEmailFields">
+        <div class="field"><label for="recoveryEmail">Email аккаунта</label><input id="recoveryEmail" type="email" autocomplete="email" placeholder="name@example.com"></div>
+        <div class="actions"><button type="button" class="btn gold" id="sendRecoveryEmailBtn">Отправить ссылку</button></div>
+      </div>
+      <div id="recoveryPhoneHelp" style="display:none">
+        <p class="muted">Для входа по телефону SMS-подтверждение не используется, поэтому автоматический сброс по одному номеру небезопасен. Не отправляйте пароль никому. Свяжитесь с владельцем журнала для проверки личности и восстановления доступа.</p>
+      </div>
+      <div id="recoveryNewPasswordFields" style="display:none">
+        <div class="field"><label for="recoveryNewPassword">Новый пароль</label><input id="recoveryNewPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" placeholder="Не менее 8 символов"></div>
+        <div class="field"><label for="recoveryConfirmPassword">Повторите новый пароль</label><input id="recoveryConfirmPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" placeholder="Повторите пароль"></div>
+        <div class="actions"><button type="button" class="btn gold" id="saveRecoveryPasswordBtn">Сохранить новый пароль</button></div>
+      </div>
+      <div class="auth-message" id="recoveryMessage" aria-live="polite"></div>
+      <div class="actions"><button type="button" class="btn secondary" id="closeRecoveryBtn">Вернуться ко входу</button></div>
+    </div>
   </div>
 </div>
 
@@ -1386,6 +1407,13 @@ async function authInit(){
 
     db.auth.onAuthStateChange((event,session)=>{
       if(guestMode)return;
+      if(event==='PASSWORD_RECOVERY'){
+        $('app').style.display='none';
+        $('auth').style.display='flex';
+        openRecoveryPanel(true);
+        $('recoveryMessage').textContent='Ссылка подтверждена. Установите новый пароль.';
+        return;
+      }
       if(session){
         setTimeout(()=>showApp(session.user).catch(e=>{
           console.error(e);
@@ -1938,6 +1966,64 @@ function setAuthMethod(method){
   hint.textContent=phone?'Введите телефон и пароль. Для регистрации укажите имя. SMS не требуется; доступ появится после одобрения владельцем.':'Введите email и пароль. Доступ к журналу откроется после одобрения владельцем.';
   $('authMessage').textContent='';
 }
+function openRecoveryPanel(setPassword=false){
+  const panel=$('recoveryPanel');if(!panel)return;
+  panel.style.display='block';
+  $('recoveryEmailFields').style.display=(!setPassword&&authMethod==='email')?'block':'none';
+  $('recoveryPhoneHelp').style.display=(!setPassword&&authMethod==='phone')?'block':'none';
+  $('recoveryNewPasswordFields').style.display=setPassword?'block':'none';
+  $('recoveryHelp').textContent=setPassword?'Введите новый пароль для своего аккаунта.':'Восстановление зависит от выбранного способа входа.';
+  $('recoveryMessage').textContent='';
+  if(!setPassword&&authMethod==='email'&&!$('recoveryEmail').value) $('recoveryEmail').value=$('authIdentifier').value.trim();
+  if(!setPassword&&authMethod==='phone') $('recoveryHelp').textContent='Вход по телефону: безопасное восстановление выполняется владельцем после проверки личности.';
+  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+if($('forgotAccessBtn')) $('forgotAccessBtn').onclick=()=>openRecoveryPanel(false);
+if($('closeRecoveryBtn')) $('closeRecoveryBtn').onclick=()=>{
+  $('recoveryPanel').style.display='none';
+  $('recoveryMessage').textContent='';
+  $('recoveryNewPassword').value='';
+  $('recoveryConfirmPassword').value='';
+};
+if($('sendRecoveryEmailBtn')) $('sendRecoveryEmailBtn').onclick=async()=>{
+  const email=$('recoveryEmail').value.trim();
+  $('recoveryMessage').textContent='';
+  if(!email||!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)){
+    $('recoveryMessage').textContent='Введите корректный email, указанный при регистрации.';return;
+  }
+  const button=$('sendRecoveryEmailBtn');button.disabled=true;
+  try{
+    const redirectTo=window.location.origin+window.location.pathname+'?password-recovery=1';
+    const {error}=await db.auth.resetPasswordForEmail(email,{redirectTo});
+    if(error)throw error;
+    $('recoveryMessage').textContent='Если для этого адреса зарегистрирован аккаунт, письмо со ссылкой для смены пароля отправлено. Проверьте входящие и папку «Спам».';
+  }catch(error){
+    console.error('Password recovery request failed',error);
+    $('recoveryMessage').textContent='Не удалось отправить письмо. Проверьте подключение и попробуйте позже.';
+  }finally{button.disabled=false}
+};
+if($('saveRecoveryPasswordBtn')) $('saveRecoveryPasswordBtn').onclick=async()=>{
+  const password=$('recoveryNewPassword').value, confirm=$('recoveryConfirmPassword').value;
+  $('recoveryMessage').textContent='';
+  if(password.length<8||password.length>128){$('recoveryMessage').textContent='Пароль должен содержать от 8 до 128 символов.';return}
+  if(password!==confirm){$('recoveryMessage').textContent='Пароли не совпадают.';return}
+  const button=$('saveRecoveryPasswordBtn');button.disabled=true;
+  try{
+    const {error}=await db.auth.updateUser({password});
+    if(error)throw error;
+    $('recoveryMessage').textContent='Пароль изменён. Теперь войдите с новым паролем.';
+    $('recoveryNewPassword').value='';$('recoveryConfirmPassword').value='';
+    setTimeout(async()=>{
+      try{await db.auth.signOut()}catch(_){}
+      $('recoveryPanel').style.display='none';
+      $('authMessage').textContent='Пароль изменён. Войдите с новым паролем.';
+      $('auth').style.display='flex';$('app').style.display='none';
+    },900);
+  }catch(error){
+    console.error('Password update failed',error);
+    $('recoveryMessage').textContent='Не удалось изменить пароль. Откройте ссылку из письма ещё раз или запросите новую.';
+  }finally{button.disabled=false}
+};
 if($('authMethodEmail')) $('authMethodEmail').onclick=()=>setAuthMethod('email');
 if($('authMethodPhone')) $('authMethodPhone').onclick=()=>setAuthMethod('phone');
 if($('guestBtn')) $('guestBtn').onclick=showGuest;
