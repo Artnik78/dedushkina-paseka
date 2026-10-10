@@ -1047,6 +1047,7 @@ formatHomeDate();
 function formData(form){return Object.fromEntries(new FormData(form).entries())}
 function setText(id,value){const el=$(id);if(el)el.textContent=value}
 const journalPageHistory=[];
+let initialHomeShownForSession=false;
 function showPage(name,fromBack=false){
   const current=document.querySelector('.section.active')?.id?.replace('page-','');
   if(!name||!$('page-'+name))return;
@@ -1267,6 +1268,8 @@ async function authInit(){
         }),0);
       }else{
         guestMode=false;
+        initialHomeShownForSession=false;
+        journalPageHistory.length=0;
         $('app').style.display='none';
         $('auth').style.display='flex';
         $('userEmail').textContent='...';
@@ -1488,6 +1491,11 @@ $('enablePushBtn')?.addEventListener('click',enablePhonePush);
 
 async function showApp(user){
   guestMode=false;
+  if(!initialHomeShownForSession){
+    journalPageHistory.length=0;
+    showPage('home');
+    initialHomeShownForSession=true;
+  }
   const email=(user.email||'').toLowerCase();
   let profile=null;
   try{
