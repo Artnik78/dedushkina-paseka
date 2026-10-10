@@ -3732,3 +3732,41 @@ document.addEventListener('click',e=>{if(e.target.closest('#closeHiveQr,#closeHi
   .home-masthead .mast-user{display:none!important}
 }
 </style>
+
+
+<style id="mobile-home-card-spacing-fix">
+@media(max-width:700px){
+  #page-home{display:block!important}
+  #page-home>.home-masthead,
+  #page-home>.hero,
+  #page-home>#homeQueenAlerts,
+  #page-home>.home-dashboard-row,
+  #page-home>.home-alerts-row{margin-bottom:12px!important}
+  #page-home .home-alerts-row{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    gap:12px!important;
+    margin-top:12px!important;
+  }
+  #page-home .home-dashboard-row{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    gap:12px!important;
+    margin-top:12px!important;
+  }
+  #page-home .home-alerts-row>.panel,
+  #page-home .home-dashboard-row>.panel,
+  #page-home>#homeQueenAlerts{
+    margin:0!important;
+    height:auto!important;
+    min-height:0!important;
+    position:relative!important;
+    inset:auto!important;
+    transform:none!important;
+    box-sizing:border-box!important;
+  }
+  #page-home .home-alerts-row>.panel+ .panel,
+  #page-home .home-dashboard-row>.panel+ .panel{margin-top:0!important}
+  #page-home .panel{overflow:visible}
+}
+</style>
