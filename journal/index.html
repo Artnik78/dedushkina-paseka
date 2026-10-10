@@ -3930,3 +3930,50 @@ document.addEventListener('click',e=>{if(e.target.closest('#closeHiveQr,#closeHi
   header.topbar #logoutBtn{display:inline-flex!important;flex:0 0 auto!important;align-items:center!important;justify-content:center!important;visibility:visible!important;opacity:1!important;position:relative!important;z-index:30!important;white-space:nowrap!important;padding:8px 10px!important;font-size:12px!important}
 }
 </style>
+
+
+<style id="modal-overlap-mobile-fix">
+/* Keep dialog windows inside the phone viewport and prevent stacked dialogs. */
+.event-modal{box-sizing:border-box}
+.event-modal>.event-modal-box{box-sizing:border-box;max-height:min(90vh,90dvh);overflow:auto;overscroll-behavior:contain}
+@media(max-width:700px){
+  .event-modal{padding:calc(8px + env(safe-area-inset-top)) 8px calc(8px + env(safe-area-inset-bottom))!important;align-items:flex-start!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch}
+  .event-modal>.event-modal-box{width:100%!important;max-width:100%!important;max-height:calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important;margin:auto 0!important;padding:14px!important;border-radius:14px!important}
+  .event-modal .event-modal-head{position:sticky;top:-14px;z-index:2;background:#fffdf7;padding:4px 0 8px}
+}
+</style>
+<script id="modal-overlap-mobile-fix-script">
+(function(){
+  if(window.__journalModalStackGuard)return;
+  window.__journalModalStackGuard=true;
+  function visible(el){
+    if(!el||!el.isConnected)return false;
+    const s=getComputedStyle(el);
+    return s.display!=='none'&&s.visibility!=='hidden'&&Number(s.opacity||1)>0;
+  }
+  function keepOne(records){
+    const dialogs=[...document.querySelectorAll('.event-modal')].filter(visible);
+    if(dialogs.length<2)return;
+    let preferred=null;
+    for(const record of records||[]){
+      const target=record.target;
+      const dialog=target?.matches?.('.event-modal')?target:target?.closest?.('.event-modal');
+      if(dialog&&visible(dialog))preferred=dialog;
+    }
+    preferred=preferred||dialogs[dialogs.length-1];
+    dialogs.forEach(dialog=>{if(dialog!==preferred)dialog.style.display='none'});
+  }
+  const observer=new MutationObserver(records=>keepOne(records));
+  function start(){
+    observer.observe(document.body,{subtree:true,attributes:true,attributeFilter:['style','class']});
+    keepOne([]);
+    document.addEventListener('keydown',event=>{
+      if(event.key!=='Escape')return;
+      const dialogs=[...document.querySelectorAll('.event-modal')].filter(visible);
+      const top=dialogs[dialogs.length-1];
+      if(top)top.style.display='none';
+    });
+  }
+  if(document.body)start();else document.addEventListener('DOMContentLoaded',start,{once:true});
+})();
+</script>
