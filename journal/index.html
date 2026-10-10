@@ -71,15 +71,6 @@ function showPwaInstallHelp(){
   }
 }
 function setupPwaInstall(){
-  const welcomeInstall=document.getElementById('welcomeInstallBtn');
-  if(welcomeInstall && !welcomeInstall.dataset.bound){
-    welcomeInstall.dataset.bound='1';
-    welcomeInstall.addEventListener('click',()=>{
-      const floating=document.getElementById('pwaInstallBtn');
-      if(deferredInstallPrompt && floating){floating.click();return;}
-      showPwaInstallHelp();
-    });
-  }
   if(isJournalInstalled())return;
   let b=document.getElementById('pwaInstallBtn');
   if(!b){
@@ -216,11 +207,7 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
   <div class="authbox">
     <h1>🐝 Пчеловодство Беларуси</h1>
     <p class="sub">Вход в цифровой журнал пасечника</p>
-    <div id="welcomeInstallCard" style="margin:14px 0 18px;padding:14px;border:1px solid #e5d6a9;border-radius:14px;background:#fff8df">
-      <div style="font-weight:800;font-size:16px;color:#31543a;margin-bottom:5px">📲 Установите журнал на телефон</div>
-      <div style="font-size:13px;line-height:1.45;color:#66736a;margin-bottom:10px">Добавьте значок на главный экран, чтобы открывать журнал как обычное приложение.</div>
-      <button type="button" class="btn gold" id="welcomeInstallBtn" style="width:100%;font-weight:800">Установить журнал</button>
-    </div>
+
     <div class="field">
       <label>Способ регистрации и входа</label>
       <div class="actions" style="margin:4px 0 8px">
