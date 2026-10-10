@@ -1257,6 +1257,22 @@ function renderGuestMode(){
     {id:'guest-wax-3',operation_date:d(-3),operation_type:'Получена вощина',apiary_id:'guest-apiary-1',wax_received_kg:0,wax_sent_kg:0,wax_returned_kg:0,foundation_received_kg:2.2,foundation_used_kg:0,wax_adjustment_kg:0,processing_batch:'ВОСК-ДЕМО-01',processor_name:'Пример переработчика',status:'Завершена',notes:'Возврат учитывается по фактическому весу вощины.'}
   ];
 
+
+  // Дополнительные учебные данные для демонстрации связанных разделов.
+  state.contacts=[
+    {id:'guest-contact-1',name:'Иван Петров',contact_type:'Покупатель',phone:'+375 29 000-00-01',email:'ivan.demo@example.com',notes:'Демонстрационный покупатель мёда.'},
+    {id:'guest-contact-2',name:'Пасека «Лесная»',contact_type:'Поставщик',phone:'+375 29 000-00-02',email:'les.demo@example.com',notes:'Пример контакта поставщика рамок и вощины.'},
+    {id:'guest-contact-3',name:'Сергей — пасечник',contact_type:'Пасечник',phone:'+375 29 000-00-03',email:'sergey.demo@example.com',notes:'Пример контакта для обмена опытом.'}
+  ];
+  state.workLogs=[
+    {id:'guest-work-1',work_date:d(-14),apiary_id:'guest-apiary-1',hive_id:'guest-hive-1',work_type:'Осмотр',description:'Проверены расплод, матка и кормовые запасы.',result:'Семья сильная, кормов достаточно.',notes:'Демонстрационная запись журнала работ.'},
+    {id:'guest-work-2',work_date:d(-9),apiary_id:'guest-apiary-1',hive_id:'guest-hive-4',work_type:'Подкормка',description:'Проверка кормовых запасов ослабленной семьи.',result:'Назначен повторный осмотр.',notes:'Связано с задачей по улью №4.'},
+    {id:'guest-work-3',work_date:d(-4),apiary_id:'guest-apiary-2',hive_id:'guest-hive-7',work_type:'Подготовка к медосбору',description:'Подготовлены корпуса и проверено состояние семьи.',result:'Пасека готова к следующему осмотру.',notes:'Пример истории работ на второй пасеке.'}
+  ];
+  state.hiveMovements=[
+    {id:'guest-move-hive-1',hive_id:'guest-hive-7',from_apiary_id:'guest-apiary-1',to_apiary_id:'guest-apiary-2',movement_date:d(-25),reason:'Медосбор',notes:'Демонстрационный пример перемещения между пасеками.'}
+  ];
+
   renderAll();
 
   // Гостевой режим — только просмотр: формы и операции изменения скрыты.
