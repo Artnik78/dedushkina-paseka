@@ -3635,3 +3635,88 @@ document.addEventListener('click',e=>{if(e.target.closest('#closeHiveQr,#closeHi
   .apiary-plan-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
 }
 </style>
+
+
+<style id="mobile-masthead-logout-fix">
+/* Mobile home header: keep the journal title readable and logout always visible. */
+@media(max-width:700px){
+  .home-masthead{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    gap:8px!important;
+    padding:12px 12px 14px!important;
+    margin:0 0 12px!important;
+    overflow:visible!important;
+    border-radius:0 0 16px 16px!important;
+  }
+  .home-masthead .mast-brand{display:none!important}
+  .home-masthead .mast-title{
+    display:block!important;
+    text-align:center!important;
+    min-width:0!important;
+    width:100%!important;
+  }
+  .home-masthead .mast-title strong{
+    font-size:clamp(25px,6vw,31px)!important;
+    line-height:1.15!important;
+    white-space:normal!important;
+  }
+  .home-masthead .mast-title span{
+    display:block!important;
+    font-size:11px!important;
+    line-height:1.35!important;
+    white-space:normal!important;
+  }
+  .home-masthead .mast-info{
+    display:flex!important;
+    flex-direction:row!important;
+    justify-content:center!important;
+    align-items:center!important;
+    flex-wrap:wrap!important;
+    gap:6px!important;
+    min-width:0!important;
+    width:100%!important;
+    font-size:12px!important;
+  }
+  .home-masthead .mast-info>span{
+    max-width:100%!important;
+    min-width:0!important;
+    white-space:normal!important;
+    overflow-wrap:anywhere!important;
+    padding:6px 8px!important;
+  }
+  .home-masthead .mast-info .mast-user{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    flex-wrap:wrap!important;
+    gap:6px!important;
+    width:100%!important;
+    text-align:center!important;
+    overflow:visible!important;
+  }
+  .home-masthead #homeUserEmail{
+    min-width:0!important;
+    max-width:100%!important;
+    overflow-wrap:anywhere!important;
+  }
+  .home-masthead #homeLogoutBtn{
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    flex:0 0 auto!important;
+    min-height:34px!important;
+    padding:6px 12px!important;
+    margin-left:4px!important;
+    border:1px solid #d8bd7a!important;
+    border-radius:9px!important;
+    background:#fff7df!important;
+    color:#55351e!important;
+    font-size:13px!important;
+    font-weight:800!important;
+    white-space:nowrap!important;
+    position:relative!important;
+    z-index:5!important;
+  }
+}
+</style>
