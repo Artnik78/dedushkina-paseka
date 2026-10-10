@@ -603,6 +603,16 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
         <div class="panel"><div class="muted">Привито ячеек</div><div id="queenBatchGrafted" style="font-size:25px;font-weight:800">0</div></div>
         <div class="panel"><div class="muted">Принято личинок</div><div id="queenBatchAccepted" style="font-size:25px;font-weight:800">0</div></div>
       </div>
+      <div class="panel" id="queenBreederCalendar">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+          <div><h3 style="margin:0">📅 Календарь матковода</h3><p class="muted" style="margin:4px 0 0">Прививки, проверки маточников, выход маток и облёт по вашим сериям.</p></div>
+          <div class="actions" style="margin:0;gap:6px"><button type="button" class="btn secondary" id="queenCalendarPrev" aria-label="Предыдущий месяц">‹</button><button type="button" class="btn secondary" id="queenCalendarToday">Сегодня</button><button type="button" class="btn secondary" id="queenCalendarNext" aria-label="Следующий месяц">›</button></div>
+        </div>
+        <h3 id="queenCalendarMonthTitle" style="text-transform:capitalize;margin:14px 0 10px"></h3>
+        <div id="queenCalendarGrid" class="calendar-grid"></div>
+        <div class="calendar-legend"><span>👑 Этап вывода маток</span><span>🟡 Расчётная дата — проверьте по факту</span></div>
+        <div id="queenCalendarUpcoming" style="margin-top:12px"></div>
+      </div>
       <div class="panel"><h3>Новая серия вывода маток</h3>
         <form id="queenRearingForm" class="form">
           <input type="hidden" name="id">
@@ -2941,6 +2951,66 @@ function queenHiveChoiceLabel(h){
   ].filter(Boolean).join(' · ');
   return 'Улей №'+(h.hive_number||'—')+' · '+details;
 }
+let queenCalendarMonth=new Date(new Date().getFullYear(),new Date().getMonth(),1);
+function queenCalendarDate(value){
+  if(!value)return null;
+  const d=new Date(String(value).slice(0,10)+'T12:00:00');
+  return Number.isNaN(d.getTime())?null:d;
+}
+function queenCalendarISO(d){
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function queenCalendarAddDays(value,days){
+  const d=queenCalendarDate(value);if(!d)return null;
+  d.setDate(d.getDate()+days);return queenCalendarISO(d);
+}
+function queenCalendarEvents(){
+  const events=[];
+  (state.queenBatches||[]).forEach(batch=>{
+    const code=batch.batch_code||'Серия без номера';
+    const add=(date,title,estimated=false)=>{
+      if(!date)return;
+      events.push({date:String(date).slice(0,10),title,code,estimated,batchId:batch.id});
+    };
+    add(batch.graft_date,'Прививка');
+    if(batch.graft_date){
+      add(queenCalendarAddDays(batch.graft_date,3),'Проверка приёма личинок',true);
+      add(queenCalendarAddDays(batch.graft_date,8),'Контроль запечатывания',true);
+    }
+    add(batch.emergence_date||batch.expected_emergence_date,'Выход маток',!batch.emergence_date);
+    add(batch.mating_start_date,'Начало облёта');
+    add(batch.mating_end_date,'Окончание облёта');
+    if(batch.mating_end_date)add(queenCalendarAddDays(batch.mating_end_date,7),'Проверить засев',true);
+  });
+  return events.filter(e=>queenCalendarDate(e.date)).sort((a,b)=>a.date.localeCompare(b.date));
+}
+function renderQueenBreederCalendar(){
+  const grid=$('queenCalendarGrid'),title=$('queenCalendarMonthTitle'),upcoming=$('queenCalendarUpcoming');
+  if(!grid||!title)return;
+  const y=queenCalendarMonth.getFullYear(),m=queenCalendarMonth.getMonth();
+  title.textContent=queenCalendarMonth.toLocaleDateString('ru-RU',{month:'long',year:'numeric'});
+  const first=new Date(y,m,1),start=new Date(y,m,1);
+  start.setDate(1-((first.getDay()+6)%7));
+  const today=queenCalendarISO(new Date()),events=queenCalendarEvents();
+  const byDate={};events.forEach(e=>(byDate[e.date]||(byDate[e.date]=[])).push(e));
+  const headers=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+  grid.innerHTML=headers.map(x=>'<div class="calendar-head">'+x+'</div>').join('');
+  for(let i=0;i<42;i++){
+    const d=new Date(start);d.setDate(start.getDate()+i);
+    const iso=queenCalendarISO(d),dayEvents=byDate[iso]||[];
+    grid.insertAdjacentHTML('beforeend','<div class="calendar-day '+(d.getMonth()!==m?'other ':'')+(iso===today?'today':'')+'"><div class="calendar-num">'+d.getDate()+'</div>'+dayEvents.map(e=>'<div class="calendar-event '+(e.estimated?'high':'')+'" title="'+esc(e.code+' · '+e.title+(e.estimated?' · расчётная дата':''))+'">'+(e.estimated?'🟡 ':'👑 ')+esc(e.title)+'</div>').join('')+'</div>');
+  }
+  const startISO=queenCalendarISO(new Date(y,m,1)),endISO=queenCalendarISO(new Date(y,m+1,0));
+  const monthEvents=events.filter(e=>e.date>=startISO&&e.date<=endISO);
+  if(upcoming){
+    const future=events.filter(e=>e.date>=today).slice(0,8);
+    upcoming.innerHTML='<h4 style="margin:0 0 8px">Ближайшие этапы</h4>'+(future.length?'<div class="reminder-list">'+future.map(e=>'<div class="reminder-row"><div><b>'+esc(e.title)+'</b><div class="muted">'+esc(e.code)+(e.estimated?' · расчётная дата':'')+'</div></div><span class="ok-badge">'+esc(queenCalendarDate(e.date).toLocaleDateString('ru-RU',{day:'2-digit',month:'short'}))+'</span></div>').join('')+'</div>':'<div class="empty">Предстоящих этапов нет. Добавьте серию вывода маток, чтобы заполнить календарь.</div>');
+  }
+}
+$('queenCalendarPrev')?.addEventListener('click',()=>{queenCalendarMonth.setMonth(queenCalendarMonth.getMonth()-1);renderQueenBreederCalendar()});
+$('queenCalendarNext')?.addEventListener('click',()=>{queenCalendarMonth.setMonth(queenCalendarMonth.getMonth()+1);renderQueenBreederCalendar()});
+$('queenCalendarToday')?.addEventListener('click',()=>{queenCalendarMonth=new Date(new Date().getFullYear(),new Date().getMonth(),1);renderQueenBreederCalendar()});
+
 function renderQueenRearingBatches(){
   const form=$('queenRearingForm'), box=$('queenRearingList');
   if(form){
@@ -2954,6 +3024,7 @@ function renderQueenRearingBatches(){
     if(state.hives.some(h=>String(h.id)===String(oldFinisher)))form.elements.finisher_hive_id.value=oldFinisher;
   }
   const rows=(state.queenBatches||[]).slice().sort((a,b)=>String(b.graft_date||'').localeCompare(String(a.graft_date||'')));
+  renderQueenBreederCalendar();
   const active=rows.filter(x=>!['Завершена','Неудачная'].includes(x.status));
   setText('queenBatchCount',rows.length); setText('queenBatchActive',active.length);
   setText('queenBatchGrafted',rows.reduce((n,x)=>n+(Number(x.grafted_cells)||0),0));
