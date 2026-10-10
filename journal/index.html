@@ -830,6 +830,8 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
         <p><b>Email:</b> <span id="settingsUserEmail">—</span></p>
         <div class="field" style="max-width:520px;margin:12px 0"><label>Название пасечника</label><input id="journalDisplayName" maxlength="80" placeholder="Например, Дедушкина пасека"><small class="muted">Это название будет показываться слева вверху журнала.</small></div>
         <div class="actions"><button class="btn" type="button" id="saveJournalDisplayNameBtn">Сохранить название</button></div>
+        <div class="field" style="max-width:520px;margin:12px 0"><label for="journalPhone">Номер телефона (необязательно)</label><input id="journalPhone" type="tel" maxlength="40" autocomplete="tel" placeholder="+375 XX XXX-XX-XX"><small class="muted">Телефон сохранится в вашем профиле. SMS-подтверждение не требуется; вход по-прежнему выполняется через email и пароль.</small></div>
+        <div class="actions"><button class="btn secondary" type="button" id="saveJournalPhoneBtn">Сохранить телефон</button></div>
         <p><b>Мои пасеки:</b> <span id="settingsApiaryCount">0</span></p>
         <p><b>Мои ульи:</b> <span id="settingsHiveCount">0</span></p>
         <div class="actions"><button class="btn secondary" id="refreshBtn">Обновить данные</button></div>
@@ -1470,6 +1472,7 @@ async function showApp(user){
   $('auth').style.display='none';
   $('app').style.display='';
   $('userEmail').textContent=user.email||'Пользователь';
+  const phoneInput=$('journalPhone'); if(phoneInput) phoneInput.value=String(user.user_metadata?.phone||'');
   syncHomeUser(user.email,profile.display_name);
   const owner=email==='78artnik@gmail.com';
   const p=$('userAccessPanel'); if(p)p.style.display=owner?'block':'none';
@@ -1715,6 +1718,22 @@ $('saveJournalDisplayNameBtn').onclick=async()=>{
   if(error){toast('Ошибка сохранения: '+error.message);return}
   const nameEl=$('sidebarJournalName');if(nameEl)nameEl.textContent=value;
   toast('Название сохранено');
+};
+$('saveJournalPhoneBtn').onclick=async()=>{
+  if(guestMode){toast('В гостевом режиме изменения недоступны');return}
+  const input=$('journalPhone'), btn=$('saveJournalPhoneBtn');
+  const value=(input?.value||'').trim();
+  if(value && !/^\+?[0-9 ()-]{6,40}$/.test(value)){toast('Проверьте номер телефона. Используйте цифры, пробелы и знак +.');return}
+  if(btn)btn.disabled=true;
+  try{
+    const {data:{user},error:getError}=await db.auth.getUser();
+    if(getError)throw getError;
+    if(!user)throw new Error('Необходимо войти в журнал.');
+    const {error}=await db.auth.updateUser({data:{phone:value||null}});
+    if(error)throw error;
+    toast(value?'Номер телефона сохранён в профиле':'Номер телефона удалён из профиля');
+  }catch(e){toast('Не удалось сохранить телефон: '+(e.message||e))}
+  finally{if(btn)btn.disabled=false}
 };
 $('guestBtn').onclick=showGuest;
 $('loginBtn').onclick=async()=>{
