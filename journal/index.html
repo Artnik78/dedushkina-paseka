@@ -1076,12 +1076,33 @@ async function refreshHomeWeather(){
   }
   weatherEl.textContent='🌤️ Погода: загружаем…';
   try{
-    const geoUrl='https://geocoding-api.open-meteo.com/v1/search?name='+encodeURIComponent(location)+'&count=1&language=ru&format=json';
-    const geoResponse=await fetch(geoUrl);
-    if(!geoResponse.ok)throw new Error('geocoding unavailable');
-    const geo=await geoResponse.json();
-    if(requestId!==homeWeatherRequestId)return;
-    const place=geo.results?.[0];
+    // Районы часто не находятся в геокодере как населённые пункты.
+    // Пробуем исходное название, очищенный вариант и распространённые центры районов.
+    const normalized=location.replace(/,?\\s*(Беларусь|Республика Беларусь)$/i,'').trim();
+    const candidates=[normalized,normalized.replace(/\\s*район$/i,'').trim()];
+    const districtCenters={
+      'Клецкий район':'Клецк, Беларусь',
+      'Несвижский район':'Несвиж, Беларусь',
+      'Ляховичский район':'Ляховичи, Беларусь',
+      'Барановичский район':'Барановичи, Беларусь',
+      'Ганцевичский район':'Ганцевичи, Беларусь',
+      'Столбцовский район':'Столбцы, Беларусь',
+      'Слуцкий район':'Слуцк, Беларусь',
+      'Ивацевичский район':'Ивацевичи, Беларусь',
+      'Пинский район':'Пинск, Беларусь',
+      'Брестский район':'Брест, Беларусь',
+      'Минский район':'Минск, Беларусь'
+    };
+    if(districtCenters[normalized])candidates.push(districtCenters[normalized]);
+    let place=null;
+    for(const candidate of [...new Set(candidates.filter(Boolean))]){
+      const geoResponse=await fetch('https://geocoding-api.open-meteo.com/v1/search?name='+encodeURIComponent(candidate)+'&count=5&language=ru&format=json');
+      if(!geoResponse.ok)continue;
+      const geo=await geoResponse.json();
+      if(requestId!==homeWeatherRequestId)return;
+      place=geo.results?.find(x=>x.country_code==='BY')||geo.results?.[0]||null;
+      if(place)break;
+    }
     if(!place)throw new Error('place not found');
     const weatherResponse=await fetch('https://api.open-meteo.com/v1/forecast?latitude='+encodeURIComponent(place.latitude)+'&longitude='+encodeURIComponent(place.longitude)+'&current=temperature_2m,weather_code&timezone=auto');
     if(!weatherResponse.ok)throw new Error('weather unavailable');
