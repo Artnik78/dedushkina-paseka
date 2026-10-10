@@ -1818,7 +1818,7 @@ $('logoutBtn').onclick=async()=>{
   }
   $('auth').style.display='flex';
 };
-$('homeLogoutBtn').onclick=()=>$('logoutBtn').click();
+const homeLogoutButton=$('homeLogoutBtn'); if(homeLogoutButton)homeLogoutButton.onclick=()=>$('logoutBtn').click();
 $('refreshBtn').onclick=()=>loadAll().catch(e=>toast('Ошибка загрузки: '+e.message));
 async function loadJournalUsers(){
   const box=$('userAccessList'); if(!box)return;
