@@ -2445,12 +2445,12 @@ function renderAll(){
   const addSmart=(item)=>{if(item&&item.date)smartReminders.push(item)};
   overdueTasks.forEach(t=>addSmart({icon:'🔴',title:eventTitle(t),date:String(t.due_date).slice(0,10),badge:'просрочено',page:'tasks',rank:0,sortDate:String(t.due_date).slice(0,10)}));
   todayTasksAll.forEach(t=>addSmart({icon:'🟠',title:eventTitle(t),date:String(t.due_date).slice(0,10),badge:'сегодня',page:'tasks',rank:1,sortDate:String(t.due_date).slice(0,10)}));
+  const smartToday=new Date(today()+'T12:00:00');
   upcomingTasksHome.forEach(t=>{
     const date=String(t.due_date).slice(0,10);
     const days=Math.ceil((new Date(date+'T12:00:00')-smartToday)/86400000);
     if(days<=14)addSmart({icon:'🟡',title:eventTitle(t),date,badge:days===0?'сегодня':'через '+days+' дн.',page:'tasks',rank:2,sortDate:date});
   });
-  const smartToday=new Date(today()+'T12:00:00');
   (state.medicines||[]).forEach(m=>{
     const qty=Number(m.quantity),min=Number(m.min_quantity);
     if(Number.isFinite(qty)&&Number.isFinite(min)&&qty<=min)
