@@ -207,6 +207,7 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
     <button data-page="tasks">🔔 Напоминания</button>
     <button data-page="medicines">💊 Лекарства</button>
     <button data-page="disinfection">🧴 Дезинфекция</button>
+    <button data-page="contacts">👥 Контакты</button>
     <button data-page="photos">📷 Фото</button>
     <button data-page="stats">📊 Статистика</button>
     <button data-page="settings">⚙️ Настройки</button>
@@ -797,6 +798,31 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
       <div class="panel"><h3>Журнал дезинфекции</h3><div id="disinfectionAlerts"></div><div id="disinfectionList" class="table-wrap"></div></div>
     </section>
 
+    <section id="page-contacts" class="section">
+      <h1>👥 Контакты</h1>
+      <p class="sub">Поставщики, пчеловоды и другие важные контакты. Дни рождения помогут не забыть поздравить.</p>
+      <div class="panel">
+        <h3 id="contactFormTitle">Добавить контакт</h3>
+        <form id="contactForm" class="form">
+          <input type="hidden" name="id">
+          <div class="field"><label>Имя / название *</label><input name="full_name" required maxlength="160" placeholder="Например, Иван Петров"></div>
+          <div class="field"><label>Категория</label><select name="contact_type"><option value="beekeeper">Пчеловод</option><option value="supplier">Поставщик</option><option value="other">Другой контакт</option></select></div>
+          <div class="field"><label>Телефон</label><input name="phone" type="tel" maxlength="50" placeholder="+375 ..."></div>
+          <div class="field"><label>Компания / организация</label><input name="company" maxlength="160" placeholder="Название фирмы"></div>
+          <div class="field"><label>День рождения</label><input name="birthday" type="date"></div>
+          <div class="field"><label>Email</label><input name="email" type="email" maxlength="200" placeholder="name@example.com"></div>
+          <div class="field full"><label>Заметки</label><textarea name="notes" maxlength="2000" placeholder="Что поставляет, где познакомились, важные детали…"></textarea></div>
+          <div class="actions"><button class="btn gold" type="submit" id="saveContactBtn">Сохранить контакт</button><button class="btn secondary" type="button" id="cancelContactEditBtn" hidden>Отмена</button></div>
+        </form>
+        <p class="muted" style="margin-top:10px">Данные контактов доступны только в вашем аккаунте. День рождения используется для персонального напоминания.</p>
+      </div>
+      <div class="panel">
+        <div style="display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap"><h3 style="margin:0">Мои контакты</h3><input id="contactsSearch" placeholder="Поиск по имени, телефону…" style="max-width:300px"></div>
+        <div id="contactsUpcomingBirthdays" style="margin-top:12px"></div>
+        <div id="contactsList" style="display:grid;gap:10px;margin-top:12px"><div class="empty">Загрузка контактов…</div></div>
+      </div>
+    </section>
+
     <section id="page-settings" class="section">
       <h1>Настройки</h1><p class="sub">Ваш личный журнал.</p>
       <div class="panel">
@@ -821,6 +847,7 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
           <label style="display:flex;align-items:center;gap:9px"><input id="pushReminderExpiry" type="checkbox" checked> Сроки годности препаратов</label>
           <label style="display:flex;align-items:center;gap:9px"><input id="pushReminderTasks" type="checkbox" checked> Задачи и запланированные работы</label>
           <label style="display:flex;align-items:center;gap:9px"><input id="pushReminderDisinfection" type="checkbox" checked> Плановая дезинфекция</label>
+          <label style="display:flex;align-items:center;gap:9px"><input id="pushReminderBirthdays" type="checkbox" checked> Дни рождения контактов</label>
         </div>
         <div class="actions"><button class="btn gold" type="button" id="savePushReminderPreferencesBtn">Сохранить настройки напоминаний</button><button class="btn secondary" type="button" id="enablePushBtn">Включить и проверить уведомления</button></div>
         <p id="pushPreferencesStatus" class="muted" role="status" aria-live="polite">Параметры по умолчанию показаны только для настройки формы и не сохранены в профиле.</p>
@@ -926,7 +953,7 @@ const SUPABASE_KEY = 'sb_publishable_1eM3o5IehFq-IvjWkHLiCA_RMXGHfw5';
 const { createClient } = window.supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { storageKey: 'dedushkina-paseka-journal-auth' } });
 
-const state = {hives:[], inspections:[], workLogs:[], hiveMovements:[], health:[], treatments:[], queens:[], queenBatches:[], colonyOperations:[], waxOperations:[], apiaryProductsOperations:[], photos:[], honey:[], honeyPackagingRuns:[], honeyJarLabels:[], honeySales:[], tasks:[], finance:[], apiaries:[], medicines:[], medicineStockMovements:[], disinfection:[], beeFamilies:[]};
+const state = {contacts:[], hives:[], inspections:[], workLogs:[], hiveMovements:[], health:[], treatments:[], queens:[], queenBatches:[], colonyOperations:[], waxOperations:[], apiaryProductsOperations:[], photos:[], honey:[], honeyPackagingRuns:[], honeyJarLabels:[], honeySales:[], tasks:[], finance:[], apiaries:[], medicines:[], medicineStockMovements:[], disinfection:[], beeFamilies:[]};
 let guestMode=false;
 let calendarMonth = new Date();
 calendarMonth.setDate(1);
@@ -949,7 +976,7 @@ function exportCsv(key){
 }
 function exportJson(){
   const copy={exported_at:new Date().toISOString(),journal_name:$('sidebarJournalName')?.textContent||'Дедушкина пасека',
-    apiaries:state.apiaries,hives:state.hives,inspections:state.inspections,workLogs:state.workLogs||[],hiveMovements:state.hiveMovements||[],health:state.health,treatments:state.treatments,queens:state.queens,queenBatches:state.queenBatches,colonyOperations:state.colonyOperations,waxOperations:state.waxOperations,apiaryProductsOperations:state.apiaryProductsOperations,
+    apiaries:state.apiaries,contacts:state.contacts||[],hives:state.hives,inspections:state.inspections,workLogs:state.workLogs||[],hiveMovements:state.hiveMovements||[],health:state.health,treatments:state.treatments,queens:state.queens,queenBatches:state.queenBatches,colonyOperations:state.colonyOperations,waxOperations:state.waxOperations,apiaryProductsOperations:state.apiaryProductsOperations,
     honey:state.honey,honeySales:state.honeySales,tasks:state.tasks,finance:state.finance,medicines:state.medicines,medicineStockMovements:state.medicineStockMovements,disinfection:state.disinfection,beeFamilies:state.beeFamilies,photos:state.photos};
   downloadFile('dedushkina-paseka-backup-'+today()+'.json',JSON.stringify(copy,null,2),'application/json;charset=utf-8');
   toast('Копия журнала подготовлена');
@@ -1286,15 +1313,100 @@ async function enablePhonePush(){
     toast('Push: '+message);
   }finally{if(button)button.disabled=false}
 }
+
+// Контакты и дни рождения
+const contactTypeLabels={supplier:'Поставщик',beekeeper:'Пчеловод',other:'Другой контакт'};
+function birthdayNextDate(value){
+  if(!value)return '';
+  const parts=String(value).slice(0,10).split('-').map(Number);
+  if(parts.length!==3||!parts[1]||!parts[2])return '';
+  const now=new Date();
+  const todayLocal=new Date(now.toLocaleString('en-US',{timeZone:'Europe/Minsk'}));
+  let year=todayLocal.getFullYear();
+  let candidate=new Date(year,parts[1]-1,parts[2],12);
+  const todayDate=new Date(todayLocal.getFullYear(),todayLocal.getMonth(),todayLocal.getDate(),12);
+  if(candidate<todayDate)candidate=new Date(++year,parts[1]-1,parts[2],12);
+  return candidate.getFullYear()+'-'+String(candidate.getMonth()+1).padStart(2,'0')+'-'+String(candidate.getDate()).padStart(2,'0');
+}
+function formatContactDate(value){
+  if(!value)return 'Не указан';
+  const d=new Date(String(value).slice(0,10)+'T12:00:00');
+  return d.toLocaleDateString('ru-RU',{day:'2-digit',month:'long',year:'numeric'});
+}
+function renderContacts(){
+  const box=$('contactsList');if(!box)return;
+  const rows=[...(state.contacts||[])].sort((a,b)=>String(a.full_name||'').localeCompare(String(b.full_name||''),'ru'));
+  const query=String($('contactsSearch')?.value||'').trim().toLowerCase();
+  const filtered=rows.filter(c=>[c.full_name,c.phone,c.email,c.company,c.notes,contactTypeLabels[c.contact_type]].some(v=>String(v||'').toLowerCase().includes(query)));
+  const upcoming=$('contactsUpcomingBirthdays');
+  if(upcoming){
+    const bdays=rows.filter(c=>c.birthday).map(c=>({...c,nextBirthday:birthdayNextDate(c.birthday)})).sort((a,b)=>a.nextBirthday.localeCompare(b.nextBirthday)).slice(0,5);
+    upcoming.innerHTML=bdays.length?'<div style="border:1px solid var(--line);border-radius:10px;padding:10px;background:#fffaf0"><b>🎂 Ближайшие дни рождения</b><div style="display:grid;gap:6px;margin-top:8px">'+bdays.map(c=>'<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><span>'+esc(c.full_name)+'</span><span class="muted">'+esc(formatContactDate(c.nextBirthday))+'</span></div>').join('')+'</div></div>':'<p class="muted">Добавьте день рождения контакту — он появится здесь.</p>';
+  }
+  if(!filtered.length){box.innerHTML='<div class="empty">'+(rows.length?'По запросу ничего не найдено.':'Контактов пока нет. Добавьте поставщика или знакомого пчеловода выше.')+'</div>';return}
+  box.innerHTML=filtered.map(c=>{
+    const phone=String(c.phone||'').trim(), email=String(c.email||'').trim();
+    const bday=c.birthday?'<div>🎂 День рождения: <b>'+esc(formatContactDate(c.birthday))+'</b></div>':'';
+    return '<article class="card" style="padding:14px;display:grid;gap:8px"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap"><div><b style="font-size:16px">'+esc(c.full_name)+'</b><div class="muted">'+esc(contactTypeLabels[c.contact_type]||'Другой контакт')+(c.company?' · '+esc(c.company):'')+'</div></div><div style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" class="btn secondary" data-contact-edit="'+esc(c.id)+'">Изменить</button><button type="button" class="btn secondary" data-contact-delete="'+esc(c.id)+'">Удалить</button></div></div>'+
+      (phone?'<div>📞 <a href="tel:'+esc(phone.replace(/[^+0-9*#;,]/g,''))+'">'+esc(phone)+'</a></div>':'')+
+      (email?'<div>✉️ <a href="mailto:'+esc(email)+'">'+esc(email)+'</a></div>':'')+bday+
+      (c.notes?'<div class="muted" style="white-space:pre-wrap">'+esc(c.notes)+'</div>':'')+'</article>';
+  }).join('');
+}
+function resetContactForm(){
+  const f=$('contactForm');if(!f)return;
+  f.reset();f.elements.id.value='';
+  setText('contactFormTitle','Добавить контакт');setText('saveContactBtn','Сохранить контакт');
+  $('cancelContactEditBtn').hidden=true;
+}
+$('contactForm')?.addEventListener('submit',async e=>{
+  e.preventDefault();
+  if(guestMode){toast('В гостевом режиме контакты нельзя сохранять.');return}
+  const f=e.currentTarget, btn=$('saveContactBtn');btn.disabled=true;
+  try{
+    const {data:{user},error:userError}=await db.auth.getUser();
+    if(userError||!user)throw new Error('Войдите в журнал, чтобы сохранять контакты.');
+    const fd=new FormData(f);
+    const id=String(fd.get('id')||'');
+    const row={user_id:user.id,full_name:String(fd.get('full_name')||'').trim(),contact_type:String(fd.get('contact_type')||'other'),phone:String(fd.get('phone')||'').trim()||null,email:String(fd.get('email')||'').trim()||null,company:String(fd.get('company')||'').trim()||null,birthday:String(fd.get('birthday')||'')||null,notes:String(fd.get('notes')||'').trim()||null,updated_at:new Date().toISOString()};
+    if(!row.full_name)throw new Error('Укажите имя или название контакта.');
+    const result=id?await db.from('contacts').update(row).eq('id',id).select('id').single():await db.from('contacts').insert(row).select('id').single();
+    if(result.error)throw result.error;
+    await loadAll();resetContactForm();toast(id?'Контакт обновлён':'Контакт сохранён');
+  }catch(err){toast('Не удалось сохранить контакт: '+(err.message||err))}
+  finally{btn.disabled=false}
+});
+$('cancelContactEditBtn')?.addEventListener('click',resetContactForm);
+$('contactsSearch')?.addEventListener('input',renderContacts);
+$('contactsList')?.addEventListener('click',async e=>{
+  const edit=e.target.closest('[data-contact-edit]');
+  const del=e.target.closest('[data-contact-delete]');
+  if(!edit&&!del)return;
+  if(guestMode){toast('В гостевом режиме контакты доступны только для просмотра.');return}
+  const id=(edit||del).dataset.contactEdit||(edit||del).dataset.contactDelete;
+  const contact=(state.contacts||[]).find(c=>String(c.id)===String(id));if(!contact)return;
+  if(edit){
+    const f=$('contactForm');
+    Object.entries({id:contact.id,full_name:contact.full_name,contact_type:contact.contact_type,phone:contact.phone,email:contact.email,company:contact.company,birthday:contact.birthday,notes:contact.notes}).forEach(([k,v])=>{if(f.elements[k])f.elements[k].value=v||''});
+    setText('contactFormTitle','Изменить контакт');setText('saveContactBtn','Сохранить изменения');$('cancelContactEditBtn').hidden=false;
+    f.scrollIntoView({behavior:'smooth',block:'start'});f.elements.full_name.focus();return;
+  }
+  if(!confirm('Удалить контакт «'+contact.full_name+'»?'))return;
+  del.disabled=true;
+  const {error}=await db.from('contacts').delete().eq('id',id);
+  if(error){del.disabled=false;toast('Не удалось удалить контакт: '+error.message);return}
+  await loadAll();toast('Контакт удалён');
+});
+
 async function loadPushReminderPreferences(){
   const status=$('pushPreferencesStatus');
   if(guestMode)return;
   try{
     const {data:{user},error:userError}=await db.auth.getUser();
     if(userError||!user)throw new Error('Войдите в журнал, чтобы загрузить настройки.');
-    const {data,error}=await db.from('push_reminder_preferences').select('enabled,frequency,reminder_time,timezone,medicine_low_stock,medicine_expiry,tasks,disinfection').eq('user_id',user.id).maybeSingle();
+    const {data,error}=await db.from('push_reminder_preferences').select('enabled,frequency,reminder_time,timezone,medicine_low_stock,medicine_expiry,tasks,disinfection,birthdays').eq('user_id',user.id).maybeSingle();
     if(error)throw error;
-    const p=data||{enabled:true,frequency:'daily',reminder_time:'11:00:00',timezone:'Europe/Minsk',medicine_low_stock:true,medicine_expiry:true,tasks:true,disinfection:true};
+    const p=data||{enabled:true,frequency:'daily',reminder_time:'11:00:00',timezone:'Europe/Minsk',medicine_low_stock:true,medicine_expiry:true,tasks:true,disinfection:true,birthdays:true};
     $('pushReminderEnabled').checked=!!p.enabled;
     $('pushReminderFrequency').value=p.frequency||'daily';
     $('pushReminderTime').value=String(p.reminder_time||'11:00').slice(0,5);
@@ -1302,6 +1414,7 @@ async function loadPushReminderPreferences(){
     $('pushReminderExpiry').checked=!!p.medicine_expiry;
     $('pushReminderTasks').checked=!!p.tasks;
     $('pushReminderDisinfection').checked=!!p.disinfection;
+    $('pushReminderBirthdays').checked=p.birthdays!==false;
     if(status)status.textContent=data?'Сохранённые настройки загружены. Часовой пояс: Europe/Minsk.':'Показаны настройки по умолчанию. Они ещё не сохранены — нажмите «Сохранить настройки напоминаний».';
   }catch(e){console.error('Push preferences load:',e);if(status)status.textContent='Не удалось загрузить настройки: '+(e.message||e)}
 }
@@ -1319,7 +1432,7 @@ async function savePushReminderPreferences(){
       user_id:user.id,enabled:$('pushReminderEnabled').checked,frequency:$('pushReminderFrequency').value,
       reminder_time:reminderTime,timezone:'Europe/Minsk',
       medicine_low_stock:$('pushReminderLowStock').checked,medicine_expiry:$('pushReminderExpiry').checked,
-      tasks:$('pushReminderTasks').checked,disinfection:$('pushReminderDisinfection').checked,
+      tasks:$('pushReminderTasks').checked,disinfection:$('pushReminderDisinfection').checked,birthdays:$('pushReminderBirthdays').checked,
       updated_at:new Date().toISOString()
     };
     const {error}=await db.from('push_reminder_preferences').upsert(row,{onConflict:'user_id'});
@@ -1677,7 +1790,7 @@ async function getTable(table,order='created_at'){
 async function loadAll(){
   const names=[
     ['apiaries','apiaries'],['hives','hives'],['inspections','inspections'],['workLogs','work_logs'],['hiveMovements','hive_movements'],['health','hive_health_records'],['treatments','hive_treatments'],['queenBatches','queen_rearing_batches'],['colonyOperations','colony_operations'],['waxOperations','wax_operations'],['apiaryProductsOperations','apiary_products_operations'],['photos','photos'],['honey','honey_batches'],['honeyPackagingRuns','honey_packaging_runs'],['honeyJarLabels','honey_jar_labels'],['honeySales','honey_sales'],
-    ['tasks','tasks'],['finance','finances'],['medicines','medicines'],['medicineStockMovements','medicine_stock_movements'],['disinfection','disinfection_logs'],['beeFamilies','bee_families']
+    ['contacts','contacts'],['tasks','tasks'],['finance','finances'],['medicines','medicines'],['medicineStockMovements','medicine_stock_movements'],['disinfection','disinfection_logs'],['beeFamilies','bee_families']
   ];
   const results=await Promise.all(names.map(async([key,table])=>{
     try{return {key,data:await getTable(table),error:null}}
@@ -2123,6 +2236,7 @@ function renderQueenCalendarReminders(){
   $('openQueenCalendarBtn')?.addEventListener('click',()=>{showPage('queens');});
 }
 function renderAll(){
+  renderContacts();
   renderQueenRearingBatches();
   renderColonyOperations();
   renderWaxAccounting();
