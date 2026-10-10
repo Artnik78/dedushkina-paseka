@@ -238,7 +238,7 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
         <div class="mast-info">
           <span>📅 <b id="homeDateLabel">Сегодня</b></span>
           <span>☀️ <b>+12°</b> · Клецкий район</span>
-          <span class="mast-user">🟢 <b id="homeUserEmail">...</b> · <button type="button" id="homeLogoutBtn">Выйти</button></span>
+          <span class="mast-user">🟢 <b id="homeUserEmail">...</b></span>
         </div>
       </div>
       <div class="hero">
@@ -3718,5 +3718,17 @@ document.addEventListener('click',e=>{if(e.target.closest('#closeHiveQr,#closeHi
     position:relative!important;
     z-index:5!important;
   }
+}
+</style>
+
+
+<style id="mobile-masthead-compact-fix">
+@media(max-width:700px){
+  .home-masthead{padding:8px 10px 10px!important;gap:4px!important;margin-bottom:8px!important}
+  .home-masthead .mast-title strong{font-size:clamp(23px,5.4vw,28px)!important}
+  .home-masthead .mast-title span{font-size:10px!important}
+  .home-masthead .mast-info{gap:4px!important;font-size:11px!important}
+  .home-masthead .mast-info>span{padding:4px 6px!important}
+  .home-masthead .mast-user{display:none!important}
 }
 </style>
