@@ -155,8 +155,16 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
   <div class="authbox">
     <h1>🐝 Пчеловодство Беларуси</h1>
     <p class="sub">Вход в цифровой журнал пасечника</p>
-    <div class="field"><label>Email</label><input id="authEmail" type="email" placeholder="Ваш email"></div>
-    <div class="field"><label>Пароль</label><input id="authPassword" type="password" placeholder="Не менее 6 символов"></div>
+    <div class="field">
+      <label>Способ регистрации и входа</label>
+      <div class="actions" style="margin:4px 0 8px">
+        <button class="btn" type="button" id="authMethodEmail" aria-pressed="true">✉️ По email</button>
+        <button class="btn secondary" type="button" id="authMethodPhone" aria-pressed="false">📱 По телефону</button>
+      </div>
+    </div>
+    <div class="field"><label id="authIdentifierLabel" for="authIdentifier">Email</label><input id="authIdentifier" type="email" autocomplete="email" placeholder="Ваш email"></div>
+    <div class="field"><label for="authPassword">Пароль</label><input id="authPassword" type="password" autocomplete="current-password" placeholder="Не менее 6 символов"></div>
+    <p class="muted" id="authMethodHint">Введите email и пароль. Доступ к журналу откроется после одобрения владельцем.</p>
     <div class="auth-message" id="authMessage"></div>
     <div class="actions">
       <button class="btn" id="loginBtn">Войти</button>
@@ -1716,27 +1724,52 @@ $('saveJournalDisplayNameBtn').onclick=async()=>{
   const nameEl=$('sidebarJournalName');if(nameEl)nameEl.textContent=value;
   toast('Название сохранено');
 };
+let authMethod='email';
+function setAuthMethod(method){
+  authMethod=method==='phone'?'phone':'email';
+  const phone=authMethod==='phone';
+  const input=$('authIdentifier'), label=$('authIdentifierLabel'), emailBtn=$('authMethodEmail'), phoneBtn=$('authMethodPhone'), hint=$('authMethodHint');
+  input.value='';
+  input.type=phone?'tel':'email';
+  input.autocomplete=phone?'tel':'email';
+  input.inputMode=phone?'tel':'email';
+  input.placeholder=phone?'+375 XX XXX-XX-XX':'Ваш email';
+  label.textContent=phone?'Номер телефона в международном формате':'Email';
+  emailBtn.className='btn '+(phone?'secondary':'');
+  phoneBtn.className='btn '+(phone?'':'secondary');
+  emailBtn.setAttribute('aria-pressed',String(!phone));
+  phoneBtn.setAttribute('aria-pressed',String(phone));
+  hint.textContent=phone?'Введите номер в международном формате, например +375291234567. Для входа по телефону подтверждение SMS отключается в настройках Supabase.':'Введите email и пароль. Доступ к журналу откроется после одобрения владельцем.';
+  $('authPassword').autocomplete=phone?'current-password':'current-password';
+  $('authMessage').textContent='';
+}
+$('authMethodEmail').onclick=()=>setAuthMethod('email');
+$('authMethodPhone').onclick=()=>setAuthMethod('phone');
 $('guestBtn').onclick=showGuest;
 $('loginBtn').onclick=async()=>{
   $('authMessage').textContent='';
-  const email=$('authEmail').value.trim(), password=$('authPassword').value;
-  if(!email || !password){$('authMessage').textContent='Введите email и пароль.';return}
+  const identifier=$('authIdentifier').value.trim(), password=$('authPassword').value;
+  if(!identifier || !password){$('authMessage').textContent=authMethod==='phone'?'Введите номер телефона и пароль.':'Введите email и пароль.';return}
+  if(authMethod==='phone'&&!/^\\+[1-9]\\d{7,14}$/.test(identifier)){$('authMessage').textContent='Укажите номер в международном формате, например +375291234567.';return}
   $('loginBtn').disabled=true;
-  const {data,error}=await db.auth.signInWithPassword({email,password});
+  const credentials=authMethod==='phone'?{phone:identifier,password}:{email:identifier,password};
+  const {data,error}=await db.auth.signInWithPassword(credentials);
   $('loginBtn').disabled=false;
   if(error){$('authMessage').textContent='Ошибка входа: '+error.message;return}
   if(data&&data.user) $('authMessage').textContent='Вход выполнен...';
 };
 $('signupBtn').onclick=async()=>{
   $('authMessage').textContent='';
-  const email=$('authEmail').value.trim(), password=$('authPassword').value;
-  if(!email || password.length<6){$('authMessage').textContent='Введите email и пароль не менее 6 символов.';return}
+  const identifier=$('authIdentifier').value.trim(), password=$('authPassword').value;
+  if(!identifier || password.length<6){$('authMessage').textContent=authMethod==='phone'?'Введите номер телефона и пароль не менее 6 символов.':'Введите email и пароль не менее 6 символов.';return}
+  if(authMethod==='phone'&&!/^\\+[1-9]\\d{7,14}$/.test(identifier)){$('authMessage').textContent='Укажите номер в международном формате, например +375291234567.';return}
   $('signupBtn').disabled=true;
-  const {data,error}=await db.auth.signUp({email,password});
+  const credentials=authMethod==='phone'?{phone:identifier,password}:{email:identifier,password};
+  const {data,error}=await db.auth.signUp(credentials);
   $('signupBtn').disabled=false;
   if(error){$('authMessage').textContent='Ошибка регистрации: '+error.message;return}
-  if(data.session){$('authMessage').textContent='Регистрация отправлена на одобрение владельцу журнала. Доступ откроется после подтверждения администратором.';await db.auth.signOut({scope:'local'});}
-  else{$('authMessage').textContent='Аккаунт создан. Подтвердите email, если потребуется. Владелец журнала получит уведомление, а доступ откроется после одобрения администратором.';}
+  if(data.session){$('authMessage').textContent='Регистрация отправлена владельцу журнала на одобрение. Доступ откроется после одобрения администратором.';await db.auth.signOut({scope:'local'});}
+  else{$('authMessage').textContent=authMethod==='phone'?'Аккаунт создан, но Supabase требует подтверждение телефона. Для входа без SMS необходимо отключить подтверждение телефона в настройках Supabase.':'Аккаунт создан. Подтвердите email, если потребуется. Владелец журнала получит уведомление, а доступ откроется после одобрения администратором.';}
 };
 $('logoutBtn').onclick=async()=>{
   $('logoutBtn').disabled=true;
@@ -1747,7 +1780,7 @@ $('logoutBtn').onclick=async()=>{
     console.error(error);
     $('authMessage').textContent='Ошибка выхода: '+error.message;
   }else{
-    $('authEmail').value='';
+    $('authIdentifier').value='';
     $('authPassword').value='';
     $('authMessage').textContent='Вы вышли из журнала.';
   }
@@ -1763,7 +1796,7 @@ async function loadJournalUsers(){
     const owner=(String(u.email||'').toLowerCase()==='78artnik@gmail.com');
     const active=!!u.allowed;
     return '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 0;border-bottom:1px solid var(--line)">'+
-      '<div><b>'+esc(u.email||'—')+'</b><div class="muted">'+(owner?'Владелец':'Пользователь')+' · '+(active?'🟢 Доступ разрешён':'🔴 Доступ заблокирован')+'</div></div>'+
+      '<div><b>'+esc(u.email||u.phone||'—')+'</b><div class="muted">'+(u.phone&&!u.email?'Вход по телефону · ':'')+(owner?'Владелец':'Пользователь')+' · '+(active?'🟢 Доступ разрешён':'🔴 Доступ заблокирован')+'</div></div>'+
       (owner?'':'<div style="display:flex;gap:8px;flex-wrap:wrap">'+
         '<button type="button" class="btn '+(active?'danger':'gold')+'" data-user-access="'+esc(u.user_id)+'" data-user-allowed="'+(active?'1':'0')+'">'+(active?'Заблокировать':'Разрешить доступ')+'</button>'+
         '<button type="button" class="btn danger" data-user-delete="'+esc(u.user_id)+'" data-user-email="'+esc(u.email||'')+'">Удалить пользователя</button></div>')+
