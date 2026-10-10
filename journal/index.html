@@ -1988,7 +1988,7 @@ if($('closeRecoveryBtn')) $('closeRecoveryBtn').onclick=()=>{
 if($('sendRecoveryEmailBtn')) $('sendRecoveryEmailBtn').onclick=async()=>{
   const email=$('recoveryEmail').value.trim();
   $('recoveryMessage').textContent='';
-  if(!email||!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)){
+  if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
     $('recoveryMessage').textContent='Введите корректный email, указанный при регистрации.';return;
   }
   const button=$('sendRecoveryEmailBtn');button.disabled=true;
