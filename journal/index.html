@@ -296,13 +296,13 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
         <div class="mast-title"><strong>Журнал пасечника</strong><span>Дедушкина пасека · Натуральный мёд с родных полей</span></div>
         <div class="mast-info">
           <span>📅 <b id="homeDateLabel">Сегодня</b></span>
-          <span>☀️ <b>+12°</b> · Клецкий район</span>
+          <span id="homeWeatherLabel">🌤️ Погода не настроена</span>
           <span class="mast-user">🟢 <b id="homeUserEmail">...</b></span>
         </div>
       </div>
       <div class="hero">
         <h2>Добро пожаловать на пасеку 🐝</h2>
-        <p class="sub">Цифровой журнал пасечника «Дедушкина пасека» — Клецкий район.</p>
+        <p class="sub" id="homeLocationIntro">Цифровой журнал пасечника «Дедушкина пасека».</p>
         <div class="actions">
           <button class="btn gold" data-page="hives">➕ Добавить улей</button>
           <button class="btn secondary" data-page="inspections">📋 Записать осмотр</button>
@@ -1058,6 +1058,44 @@ function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&l
 function today(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}function formatHomeDate(){
   const d=new Date();
   const el=$('homeDateLabel'); if(el) el.textContent=d.toLocaleDateString('ru-RU',{day:'2-digit',month:'long',year:'numeric'});
+}
+let homeWeatherRequestId=0;
+function homeLocationName(){
+  const locations=(state.apiaries||[]).map(a=>String(a.location||'').trim()).filter(Boolean);
+  return locations[0]||'Укажите район в настройках пасеки';
+}
+async function refreshHomeWeather(){
+  const weatherEl=$('homeWeatherLabel'),intro=$('homeLocationIntro');
+  if(!weatherEl)return;
+  const requestId=++homeWeatherRequestId;
+  const location=homeLocationName();
+  if(intro)intro.textContent='Цифровой журнал пасечника · '+location+'.';
+  if(!location||location==='Укажите район в настройках пасеки'){
+    weatherEl.textContent='📍 Укажите район в разделе «Мои пасеки»';
+    return;
+  }
+  weatherEl.textContent='🌤️ Погода: загружаем…';
+  try{
+    const geoUrl='https://geocoding-api.open-meteo.com/v1/search?name='+encodeURIComponent(location)+'&count=1&language=ru&format=json';
+    const geoResponse=await fetch(geoUrl);
+    if(!geoResponse.ok)throw new Error('geocoding unavailable');
+    const geo=await geoResponse.json();
+    if(requestId!==homeWeatherRequestId)return;
+    const place=geo.results?.[0];
+    if(!place)throw new Error('place not found');
+    const weatherResponse=await fetch('https://api.open-meteo.com/v1/forecast?latitude='+encodeURIComponent(place.latitude)+'&longitude='+encodeURIComponent(place.longitude)+'&current=temperature_2m,weather_code&timezone=auto');
+    if(!weatherResponse.ok)throw new Error('weather unavailable');
+    const weather=await weatherResponse.json();
+    if(requestId!==homeWeatherRequestId)return;
+    const current=weather.current;
+    const codes={0:'ясно',1:'преимущественно ясно',2:'переменная облачность',3:'облачно',45:'туман',48:'туман',51:'морось',53:'морось',55:'морось',61:'дождь',63:'дождь',65:'сильный дождь',71:'снег',73:'снег',75:'сильный снег',80:'ливень',81:'ливень',82:'сильный ливень',95:'гроза',96:'гроза',99:'гроза'};
+    const temp=Number(current?.temperature_2m);
+    if(!Number.isFinite(temp))throw new Error('temperature unavailable');
+    const resolved=[place.name,place.admin1].filter((v,i,a)=>v&&a.indexOf(v)===i).join(', ');
+    weatherEl.textContent=(temp>0?'☀️ ':'🌡️ ')+(temp>0?'+':'')+Math.round(temp)+'° · '+(codes[current.weather_code]||'погода')+' · '+resolved;
+  }catch(_){
+    if(requestId===homeWeatherRequestId)weatherEl.textContent='📍 '+location+' · погода недоступна';
+  }
 }
 function syncHomeUser(email,displayName){
   const el=$('homeUserEmail');if(el)el.textContent=email||'Гостевой просмотр';
@@ -2422,6 +2460,7 @@ function renderQueenCalendarReminders(){
   $('openQueenCalendarBtn')?.addEventListener('click',()=>{showPage('queens');});
 }
 function renderAll(){
+  refreshHomeWeather();
   renderContacts();
   renderQueenRearingBatches();
   renderColonyOperations();
