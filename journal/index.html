@@ -1764,12 +1764,36 @@ async function loadJournalUsers(){
     const active=!!u.allowed;
     return '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 0;border-bottom:1px solid var(--line)">'+
       '<div><b>'+esc(u.email||'—')+'</b><div class="muted">'+(owner?'Владелец':'Пользователь')+' · '+(active?'🟢 Доступ разрешён':'🔴 Доступ заблокирован')+'</div></div>'+
-      (owner?'':'<button type="button" class="btn '+(active?'danger':'gold')+'" data-user-access="'+esc(u.user_id)+'" data-user-allowed="'+(active?'1':'0')+'">'+(active?'Заблокировать':'Разрешить доступ')+'</button>')+
+      (owner?'':'<div style="display:flex;gap:8px;flex-wrap:wrap">'+
+        '<button type="button" class="btn '+(active?'danger':'gold')+'" data-user-access="'+esc(u.user_id)+'" data-user-allowed="'+(active?'1':'0')+'">'+(active?'Заблокировать':'Разрешить доступ')+'</button>'+
+        '<button type="button" class="btn danger" data-user-delete="'+esc(u.user_id)+'" data-user-email="'+esc(u.email||'')+'">Удалить пользователя</button></div>')+
       '</div>';
   }).join('')||'<div class="empty">Пользователей пока нет.</div>';
 }
 $('refreshUsersBtn').onclick=loadJournalUsers;
 document.addEventListener('click',async e=>{
+  const del=e.target.closest('[data-user-delete]');
+  if(del){
+    const id=del.dataset.userDelete, email=del.dataset.userEmail||'этот пользователь';
+    if(!confirm('Удалить аккаунт '+email+'? Это действие необратимо: пользователь потеряет доступ, а связанные с аккаунтом данные могут быть удалены.'))return;
+    if(!confirm('Подтвердите окончательное удаление аккаунта '+email+'.'))return;
+    del.disabled=true;
+    try{
+      const {data:{session}}=await db.auth.getSession();
+      if(!session?.access_token)throw new Error('Необходимо войти как администратор.');
+      const res=await fetch('https://owpzcjvseleqeqibwuqj.supabase.co/functions/v1/journal-admin-delete-user',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token,'apikey':SUPABASE_KEY},
+        body:JSON.stringify({user_id:id})
+      });
+      const payload=await res.json().catch(()=>({}));
+      if(!res.ok)throw new Error(payload.error||'HTTP '+res.status);
+      toast('Аккаунт пользователя удалён');
+      await loadJournalUsers();
+    }catch(err){toast('Не удалось удалить пользователя: '+(err.message||err));}
+    finally{del.disabled=false}
+    return;
+  }
   const b=e.target.closest('[data-user-access]'); if(!b)return;
   const id=b.dataset.userAccess, allow=b.dataset.userAllowed!=='1';
   b.disabled=true;
