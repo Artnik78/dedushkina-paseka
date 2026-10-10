@@ -1477,8 +1477,8 @@ async function showApp(user){
   }
   $('auth').style.display='none';
   $('app').style.display='';
-  $('userEmail').textContent=user.email||'Пользователь';
-  syncHomeUser(user.email,profile.display_name);
+  $('userEmail').textContent=user.email||user.phone||'Пользователь';
+  syncHomeUser(user.email||user.phone,profile.display_name);
   const owner=email==='78artnik@gmail.com';
   const p=$('userAccessPanel'); if(p)p.style.display=owner?'block':'none';
   if(owner) loadJournalUsers();
@@ -1750,7 +1750,7 @@ $('loginBtn').onclick=async()=>{
   $('authMessage').textContent='';
   const identifier=$('authIdentifier').value.trim(), password=$('authPassword').value;
   if(!identifier || !password){$('authMessage').textContent=authMethod==='phone'?'Введите номер телефона и пароль.':'Введите email и пароль.';return}
-  if(authMethod==='phone'&&!/^\\+[1-9]\\d{7,14}$/.test(identifier)){$('authMessage').textContent='Укажите номер в международном формате, например +375291234567.';return}
+  if(authMethod==='phone'&&!/^\+[1-9]\d{7,14}$/.test(identifier)){$('authMessage').textContent='Укажите номер в международном формате, например +375291234567.';return}
   $('loginBtn').disabled=true;
   const credentials=authMethod==='phone'?{phone:identifier,password}:{email:identifier,password};
   const {data,error}=await db.auth.signInWithPassword(credentials);
@@ -1762,7 +1762,7 @@ $('signupBtn').onclick=async()=>{
   $('authMessage').textContent='';
   const identifier=$('authIdentifier').value.trim(), password=$('authPassword').value;
   if(!identifier || password.length<6){$('authMessage').textContent=authMethod==='phone'?'Введите номер телефона и пароль не менее 6 символов.':'Введите email и пароль не менее 6 символов.';return}
-  if(authMethod==='phone'&&!/^\\+[1-9]\\d{7,14}$/.test(identifier)){$('authMessage').textContent='Укажите номер в международном формате, например +375291234567.';return}
+  if(authMethod==='phone'&&!/^\+[1-9]\d{7,14}$/.test(identifier)){$('authMessage').textContent='Укажите номер в международном формате, например +375291234567.';return}
   $('signupBtn').disabled=true;
   const credentials=authMethod==='phone'?{phone:identifier,password}:{email:identifier,password};
   const {data,error}=await db.auth.signUp(credentials);
