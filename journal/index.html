@@ -1735,8 +1735,8 @@ $('signupBtn').onclick=async()=>{
   const {data,error}=await db.auth.signUp({email,password});
   $('signupBtn').disabled=false;
   if(error){$('authMessage').textContent='Ошибка регистрации: '+error.message;return}
-  if(data.session){$('authMessage').textContent='Регистрация выполнена. Открываем ваш журнал...';}
-  else{$('authMessage').textContent='Аккаунт создан. Проверьте почту для подтверждения, затем войдите.';}
+  if(data.session){$('authMessage').textContent='Регистрация отправлена на одобрение владельцу журнала. Доступ откроется после подтверждения администратором.';await db.auth.signOut({scope:'local'});}
+  else{$('authMessage').textContent='Аккаунт создан. Подтвердите email, если потребуется. Владелец журнала получит уведомление, а доступ откроется после одобрения администратором.';}
 };
 $('logoutBtn').onclick=async()=>{
   $('logoutBtn').disabled=true;
