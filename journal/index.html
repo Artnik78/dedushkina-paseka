@@ -42,12 +42,32 @@ function showPwaInstallHelp(){
   }
   const text=dialog.querySelector('#pwaInstallHelpText');
   const ua=navigator.userAgent||'';
-  if(/iPhone|iPad|iPod/i.test(ua)){
-    text.innerHTML='1. Откройте журнал в <b>Safari</b>.<br>2. Нажмите «Поделиться» (квадрат со стрелкой).<br>3. Выберите «На экран Домой», затем «Добавить».';
+  if(/iPhone|iPad|iPod/i.test(ua) || (/Macintosh/i.test(ua)&&navigator.maxTouchPoints>1)){
+    text.innerHTML='<b>На iPhone или iPad:</b><br>1. Откройте эту ссылку в Safari.<br>2. Нажмите «Поделиться» (квадрат со стрелкой вверх).<br>3. Прокрутите меню и выберите «На экран Домой».<br>4. Нажмите «Добавить». На iPhone установка через кнопку сайта недоступна — это ограничение iOS.';
   }else if(/Android/i.test(ua)){
-    text.innerHTML='1. Откройте журнал в <b>Chrome</b>.<br>2. Нажмите меню <b>⋮</b> в правом верхнем углу.<br>3. Выберите «Установить приложение» или «Добавить на главный экран».<br>4. Подтвердите установку.';
+    let browser='браузера';
+    if(/SamsungBrowser/i.test(ua))browser='Samsung Internet';
+    else if(/EdgA/i.test(ua))browser='Microsoft Edge';
+    else if(/Firefox/i.test(ua))browser='Firefox';
+    else if(/OPR|Opera/i.test(ua))browser='Opera';
+    else if(/MiuiBrowser/i.test(ua))browser='браузер Xiaomi';
+    if(deferredInstallPrompt){
+      text.innerHTML='Нажмите «Установить журнал» ещё раз — браузер должен показать системное подтверждение установки.';
+    }else if(/SamsungBrowser/i.test(ua)){
+      text.innerHTML='<b>Samsung Internet:</b><br>1. Нажмите меню ☰ внизу или вверху браузера.<br>2. Выберите «Добавить страницу» или «Добавить на страницу приложений» (название зависит от версии).<br>3. Если есть пункт «Установить приложение», выберите его и подтвердите.';
+    }else if(/Firefox/i.test(ua)){
+      text.innerHTML='<b>Firefox на Android:</b><br>1. Откройте меню ⋮.<br>2. Выберите «Установить» или «Добавить на главный экран», если такой пункт доступен.<br>3. Подтвердите добавление. Если пункта нет, откройте ссылку в браузере, поддерживающем установку веб-приложений, например Chrome, Edge или Samsung Internet.';
+    }else if(/EdgA/i.test(ua)){
+      text.innerHTML='<b>Microsoft Edge:</b><br>1. Откройте меню браузера ⋯.<br>2. Найдите «Добавить на телефон» или «Установить приложение».<br>3. Подтвердите установку.';
+    }else if(/OPR|Opera/i.test(ua)){
+      text.innerHTML='<b>Opera:</b><br>1. Откройте меню браузера.<br>2. Найдите «Добавить на главный экран» или «Установить приложение».<br>3. Если такого пункта нет, откройте журнал в Chrome, Edge или Samsung Internet.';
+    }else if(/MiuiBrowser/i.test(ua)){
+      text.innerHTML='<b>Браузер Xiaomi:</b><br>1. Откройте меню браузера.<br>2. Выберите «Добавить на главный экран», если этот пункт доступен.<br>3. Если нет, откройте журнал в Chrome или Samsung Internet и нажмите «Установить журнал».';
+    }else{
+      text.innerHTML='<b>На Android:</b><br>1. Нажмите меню браузера ⋮.<br>2. Выберите «Установить приложение» или «Добавить на главный экран».<br>3. Подтвердите установку. Название пункта зависит от браузера. Если пункта нет, откройте журнал в Chrome, Microsoft Edge или Samsung Internet.';
+    }
   }else{
-    text.innerHTML='Откройте меню браузера и выберите «Установить приложение» или «Создать ярлык». Для телефона удобнее открыть журнал в Chrome на Android или Safari на iPhone.';
+    text.innerHTML='<b>На компьютере:</b><br>Откройте меню браузера и выберите «Установить приложение» или «Установить эту страницу как приложение». Если пункта нет, браузер может не поддерживать установку PWA.';
   }
 }
 function setupPwaInstall(){
