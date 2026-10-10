@@ -1972,7 +1972,7 @@ function openRecoveryPanel(setPassword=false){
   $('recoveryEmailFields').style.display=(!setPassword&&authMethod==='email')?'block':'none';
   $('recoveryPhoneHelp').style.display=(!setPassword&&authMethod==='phone')?'block':'none';
   $('recoveryNewPasswordFields').style.display=setPassword?'block':'none';
-  $('recoveryHelp').textContent=setPassword?'Введите новый пароль для своего аккаунта.':'Восстановление зависит от выбранного способа входа.';
+  $('recoveryHelp').textContent=setPassword?'Введите новый пароль для своего аккаунта.':'Если забыли пароль, восстановите его по email. Если забыли сам логин, обратитесь к владельцу журнала для безопасной проверки аккаунта.';
   $('recoveryMessage').textContent='';
   if(!setPassword&&authMethod==='email'&&!$('recoveryEmail').value) $('recoveryEmail').value=$('authIdentifier').value.trim();
   if(!setPassword&&authMethod==='phone') $('recoveryHelp').textContent='Вход по телефону: безопасное восстановление выполняется владельцем после проверки личности.';
@@ -1993,7 +1993,7 @@ if($('sendRecoveryEmailBtn')) $('sendRecoveryEmailBtn').onclick=async()=>{
   }
   const button=$('sendRecoveryEmailBtn');button.disabled=true;
   try{
-    const redirectTo=window.location.origin+window.location.pathname+'?password-recovery=1';
+    const redirectTo=window.location.origin+window.location.pathname;
     const {error}=await db.auth.resetPasswordForEmail(email,{redirectTo});
     if(error)throw error;
     $('recoveryMessage').textContent='Если для этого адреса зарегистрирован аккаунт, письмо со ссылкой для смены пароля отправлено. Проверьте входящие и папку «Спам».';
