@@ -23,21 +23,52 @@
 </style>
 <script>
 let deferredInstallPrompt=null;
+function isJournalInstalled(){
+  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone===true;
+}
+function showPwaInstallHelp(){
+  let dialog=document.getElementById('pwaInstallHelp');
+  if(!dialog){
+    dialog=document.createElement('div');
+    dialog.id='pwaInstallHelp';
+    dialog.setAttribute('role','dialog');
+    dialog.setAttribute('aria-modal','true');
+    dialog.setAttribute('aria-labelledby','pwaInstallHelpTitle');
+    dialog.style.cssText='position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:18px';
+    dialog.innerHTML='<div style="width:min(440px,100%);background:#fffaf0;color:#25352b;border-radius:18px;padding:22px;box-shadow:0 12px 40px #0004"><h2 id="pwaInstallHelpTitle" style="margin:0 0 12px">Установить журнал</h2><div id="pwaInstallHelpText" style="line-height:1.55"></div><button type="button" id="pwaInstallHelpClose" style="margin-top:18px;border:0;border-radius:10px;padding:11px 16px;background:#d8a32b;font-weight:700">Понятно</button></div>';
+    document.body.appendChild(dialog);
+    dialog.querySelector('#pwaInstallHelpClose').addEventListener('click',()=>dialog.remove());
+    dialog.addEventListener('click',e=>{if(e.target===dialog)dialog.remove()});
+  }
+  const text=dialog.querySelector('#pwaInstallHelpText');
+  const ua=navigator.userAgent||'';
+  if(/iPhone|iPad|iPod/i.test(ua)){
+    text.innerHTML='1. Откройте журнал в <b>Safari</b>.<br>2. Нажмите «Поделиться» (квадрат со стрелкой).<br>3. Выберите «На экран Домой», затем «Добавить».';
+  }else if(/Android/i.test(ua)){
+    text.innerHTML='1. Откройте журнал в <b>Chrome</b>.<br>2. Нажмите меню <b>⋮</b> в правом верхнем углу.<br>3. Выберите «Установить приложение» или «Добавить на главный экран».<br>4. Подтвердите установку.';
+  }else{
+    text.innerHTML='Откройте меню браузера и выберите «Установить приложение» или «Создать ярлык». Для телефона удобнее открыть журнал в Chrome на Android или Safari на iPhone.';
+  }
+}
 function setupPwaInstall(){
-  if(window.matchMedia('(display-mode: standalone)').matches)return;
+  if(isJournalInstalled())return;
   let b=document.getElementById('pwaInstallBtn');
   if(!b){
     b=document.createElement('button');
     b.id='pwaInstallBtn';
     b.type='button';
-    b.textContent='📲 Установить приложение';
+    b.textContent='📲 Установить журнал';
     b.addEventListener('click',async()=>{
-      if(!deferredInstallPrompt)return;
-      deferredInstallPrompt.prompt();
-      const choice=await deferredInstallPrompt.userChoice;
-      deferredInstallPrompt=null;
-      b.classList.remove('show');
-      if(choice&&choice.outcome==='accepted')b.remove();
+      if(deferredInstallPrompt){
+        const promptEvent=deferredInstallPrompt;
+        deferredInstallPrompt=null;
+        try{
+          await promptEvent.prompt();
+          const choice=await promptEvent.userChoice;
+          if(choice&&choice.outcome==='accepted')b.remove();
+          else showPwaInstallHelp();
+        }catch(_){showPwaInstallHelp()}
+      }else showPwaInstallHelp();
     });
     document.body.appendChild(b);
   }
@@ -54,6 +85,7 @@ window.addEventListener('appinstalled',()=>{
   const b=document.getElementById('pwaInstallBtn');
   if(b)b.remove();
 });
+window.addEventListener('DOMContentLoaded',setupPwaInstall,{once:true});
 </script>
 <style>
 :root{--green:#103a27;--green2:#1d6337;--gold:#d5a72b;--cream:#fffaf0;--paper:#fff;--ink:#25352b;--muted:#708078;--line:#e5e0d5;--danger:#b23a2b}
