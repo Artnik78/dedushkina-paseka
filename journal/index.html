@@ -1714,7 +1714,7 @@ $('restoreRunBtn')?.addEventListener('click',async()=>{
 
 $('exportJsonBtn')?.addEventListener('click',exportJson);
 document.querySelectorAll('.export-csv').forEach(b=>b.addEventListener('click',()=>exportCsv(b.dataset.export)));
-$('saveJournalDisplayNameBtn').onclick=async()=>{
+if($('saveJournalDisplayNameBtn')) $('saveJournalDisplayNameBtn').onclick=async()=>{
   const input=$('journalDisplayName');
   const value=(input?.value||'').trim();
   if(value.length<2){toast('Введите название минимум из 2 символов');return}
@@ -1745,9 +1745,9 @@ function setAuthMethod(method){
   hint.textContent=phone?'Введите телефон и пароль. Для регистрации укажите имя. SMS не требуется; доступ появится после одобрения владельцем.':'Введите email и пароль. Доступ к журналу откроется после одобрения владельцем.';
   $('authMessage').textContent='';
 }
-$('authMethodEmail').onclick=()=>setAuthMethod('email');
-$('authMethodPhone').onclick=()=>setAuthMethod('phone');
-$('guestBtn').onclick=showGuest;
+if($('authMethodEmail')) $('authMethodEmail').onclick=()=>setAuthMethod('email');
+if($('authMethodPhone')) $('authMethodPhone').onclick=()=>setAuthMethod('phone');
+if($('guestBtn')) $('guestBtn').onclick=showGuest;
 async function callPhoneAuth(action, phone, password, displayName){
   const response=await fetch(SUPABASE_URL+'/functions/v1/journal-phone-auth',{
     method:'POST',
@@ -1758,7 +1758,7 @@ async function callPhoneAuth(action, phone, password, displayName){
   if(!response.ok)throw new Error(payload.error||('Ошибка авторизации: HTTP '+response.status));
   return payload;
 }
-$('loginBtn').onclick=async()=>{
+if($('loginBtn')) $('loginBtn').onclick=async()=>{
   $('authMessage').textContent='';
   const identifier=$('authIdentifier').value.trim(), password=$('authPassword').value;
   if(!identifier || !password){$('authMessage').textContent=authMethod==='phone'?'Введите номер телефона и пароль.':'Введите email и пароль.';return}
@@ -1780,7 +1780,7 @@ $('loginBtn').onclick=async()=>{
     $('authMessage').textContent=error.message||'Не удалось войти. Проверьте данные и попробуйте снова.';
   }finally{$('loginBtn').disabled=false}
 };
-$('signupBtn').onclick=async()=>{
+if($('signupBtn')) $('signupBtn').onclick=async()=>{
   $('authMessage').textContent='';
   const identifier=$('authIdentifier').value.trim(), password=$('authPassword').value;
   const displayName=$('authDisplayName').value.trim();
@@ -1803,7 +1803,7 @@ $('signupBtn').onclick=async()=>{
     $('authMessage').textContent=error.message||'Не удалось зарегистрироваться. Проверьте данные и попробуйте снова.';
   }finally{$('signupBtn').disabled=false}
 };
-$('logoutBtn').onclick=async()=>{
+if($('logoutBtn')) $('logoutBtn').onclick=async()=>{
   $('logoutBtn').disabled=true;
   const {error}=await db.auth.signOut({scope:'local'});
   $('logoutBtn').disabled=false;
@@ -1819,7 +1819,7 @@ $('logoutBtn').onclick=async()=>{
   $('auth').style.display='flex';
 };
 const homeLogoutButton=$('homeLogoutBtn'); if(homeLogoutButton)homeLogoutButton.onclick=()=>$('logoutBtn').click();
-$('refreshBtn').onclick=()=>loadAll().catch(e=>toast('Ошибка загрузки: '+e.message));
+if($('refreshBtn')) $('refreshBtn').onclick=()=>loadAll().catch(e=>toast('Ошибка загрузки: '+e.message));
 async function loadJournalUsers(){
   const box=$('userAccessList'); if(!box)return;
   const button=$('refreshUsersBtn');
@@ -1849,7 +1849,7 @@ async function loadJournalUsers(){
     if(button){button.disabled=false;button.textContent='Обновить'}
   }
 }
-$('refreshUsersBtn').onclick=()=>loadJournalUsers();
+if($('refreshUsersBtn')) $('refreshUsersBtn').onclick=()=>loadJournalUsers();
 document.addEventListener('click',async e=>{
   const del=e.target.closest('[data-user-delete]');
   if(del){
@@ -2865,7 +2865,7 @@ function openMedicineStockHistory(medicineId){
   (demo?'<div class="notice" style="margin:14px 0">ДЕМО-ПРИМЕР: история учебная, данные не сохраняются.</div>':'<form id="medicineStockForm" class="form" style="margin:16px 0;padding:12px;border:1px solid var(--line);border-radius:12px"><div class="field"><label>Операция</label><select name="movement_type" required><option value="Поступление">Поступление на склад</option><option value="Ручное списание">Ручное списание</option></select></div><div class="field"><label>Количество ('+esc(medicine.volume||'ед.')+')</label><input name="quantity" type="number" min="0.01" step="0.01" required placeholder="Укажите количество"></div><div class="field full"><label>Причина / документ</label><input name="notes" maxlength="500" placeholder="Например, закупка препарата, накладная"></div><div class="actions"><button class="btn gold" type="submit">Сохранить движение</button></div></form>')+
   '<h3 style="margin:12px 0">История операций</h3>'+history+'</div>';
   document.body.appendChild(modal);
-  $('medicineStockClose').onclick=closeMedicineStockModal;
+  if($('medicineStockClose')) $('medicineStockClose').onclick=closeMedicineStockModal;
   modal.addEventListener('click',e=>{if(e.target===modal)closeMedicineStockModal()});
   const form=$('medicineStockForm');
   if(form)form.onsubmit=async e=>{
@@ -2928,7 +2928,7 @@ async function deleteApiary(id){
   if(error){toast('Ошибка: '+error.message);return}
   toast('Пасека удалена'); await loadAll();
 }
-$('apiaryCancelBtn').onclick=resetApiaryForm;
+if($('apiaryCancelBtn')) $('apiaryCancelBtn').onclick=resetApiaryForm;
 const apiaryPlanSelect=$('apiaryPlanSelect'); if(apiaryPlanSelect)apiaryPlanSelect.onchange=renderApiaryPlan;
 async function editBeeFamily(id){
   const h=state.hives.find(x=>String(x.id)===String(id)); if(!h)return;
@@ -2945,7 +2945,7 @@ async function editBeeFamily(id){
     '</form></div>';
   const f=$('beeFamilyForm');
   if(f)f.elements.queen_breed.value=existing?.queen_breed||h.queen_breed||'';
-  $('cancelBeeFamilyEdit').onclick=()=>showHiveFamily(id);
+  if($('cancelBeeFamilyEdit')) $('cancelBeeFamilyEdit').onclick=()=>showHiveFamily(id);
   f.onsubmit=async e=>{
     e.preventDefault();
     const d=formData(e.target);
@@ -3056,16 +3056,16 @@ function showHiveFamily(id){
     toast('Запись о матке удалена');await loadAll();showHiveFamily(id);
   });
 $('hiveFamilyModal').style.display='flex';
-  $('hiveFamilyNewInspection').onclick=()=>{
+  if($('hiveFamilyNewInspection')) $('hiveFamilyNewInspection').onclick=()=>{
     closeHiveFamily();
     showPage('inspections');
     const f=$('inspectionForm');
     if(f){f.elements.hive_id.value=h.id;f.elements.inspection_date.value=today();f.scrollIntoView({behavior:'smooth',block:'center'});}
   };
-  $('hiveFamilyEditFamily').onclick=()=>editBeeFamily(h.id);
-  $('hiveFamilyEdit').onclick=()=>{closeHiveFamily();showPage('hives');editHive(h.id);};
-  $('hiveFamilyHistory').onclick=()=>{closeHiveFamily();showPage('hives');showHiveHistory(h.id);};
-  $('hiveFamilyMove').onclick=()=>{
+  if($('hiveFamilyEditFamily')) $('hiveFamilyEditFamily').onclick=()=>editBeeFamily(h.id);
+  if($('hiveFamilyEdit')) $('hiveFamilyEdit').onclick=()=>{closeHiveFamily();showPage('hives');editHive(h.id);};
+  if($('hiveFamilyHistory')) $('hiveFamilyHistory').onclick=()=>{closeHiveFamily();showPage('hives');showHiveHistory(h.id);};
+  if($('hiveFamilyMove')) $('hiveFamilyMove').onclick=()=>{
     if(guestMode){toast('Гостевой режим — только просмотр');return}
     const f=$('hiveMoveForm'); if(!f)return;
     f.reset(); f.elements.hive_id.value=h.id; f.elements.from_name.value=apiaryMap[h.apiary_id]||'—'; f.elements.movement_date.value=today();
@@ -3081,8 +3081,8 @@ async function showInspectionDetails(id){
   $('hiveFamilyTitle').textContent='📋 Осмотр — улей №'+(h?.hive_number||'');
   $('hiveFamilyInfo').innerHTML='<div class="panel" style="margin-top:0"><div class="status-grid"><div class="status-box"><div class="muted">📅 Дата</div><b>'+esc(i.inspection_date||'—')+'</b></div><div class="status-box"><div class="muted">💪 Сила семьи</div><b>'+esc(i.colony_strength||'Нет данных')+'</b></div><div class="status-box"><div class="muted">👑 Матка</div><b>'+esc(i.queen_status||'Нет данных')+'</b></div><div class="status-box"><div class="muted">🥚 Расплод</div><b>'+esc(i.brood||'Нет данных')+'</b></div></div><div style="margin-top:14px"><b>🍯 Корм:</b> '+esc(i.feed||'Нет данных')+'</div>'+(i.queen_breed?'<div style="margin-top:8px"><b>Порода матки:</b> '+esc(i.queen_breed)+'</div>':'')+(i.notes?'<div style="margin-top:14px"><b>📝 Заметки</b><p>'+esc(i.notes)+'</p></div>':'<div class="muted" style="margin-top:14px">Заметок нет.</div>')+'</div><div class="panel" style="margin-top:12px"><h3>📷 Фотографии этого осмотра</h3><div id="inspectionDetailPhotos" class="photo-grid"><div class="muted">Загрузка фотографий...</div></div></div><div class="actions" style="margin-top:14px"><button type="button" class="btn secondary" id="backToHiveFamily">← К семье</button><button type="button" class="btn secondary" id="openInspectionPhotos">Все фотографии →</button></div>';
   $('hiveFamilyModal').style.display='flex';
-  $('backToHiveFamily').onclick=()=>showHiveFamily(i.hive_id);
-  $('openInspectionPhotos').onclick=()=>{closeHiveFamily();showPage('photos');const hs=$('photoHive');if(hs){hs.value=String(i.hive_id||'');hs.dispatchEvent(new Event('change'));}};
+  if($('backToHiveFamily')) $('backToHiveFamily').onclick=()=>showHiveFamily(i.hive_id);
+  if($('openInspectionPhotos')) $('openInspectionPhotos').onclick=()=>{closeHiveFamily();showPage('photos');const hs=$('photoHive');if(hs){hs.value=String(i.hive_id||'');hs.dispatchEvent(new Event('change'));}};
   const photoBox=$('inspectionDetailPhotos');
   if(photoBox)photoBox.dataset.inspectionId=String(i.id);
   const photos=(state.photos||[]).filter(p=>String(p.inspection_id||'')===String(i.id));
@@ -3107,7 +3107,7 @@ async function showHiveHistory(id){
   if(error){$('hiveHistoryList').innerHTML='<div class="empty">Ошибка: '+esc(error.message)+'</div>';return}
   $('hiveHistoryList').innerHTML=data&&data.length?'<table class="table"><thead><tr><th>Дата</th><th>Откуда</th><th>Куда</th><th>Причина</th><th>Примечание</th></tr></thead><tbody>'+data.map(x=>'<tr><td>'+esc(x.movement_date)+'</td><td>'+esc(apiaryMap[x.from_apiary_id]||'—')+'</td><td>'+esc(apiaryMap[x.to_apiary_id]||'—')+'</td><td>'+esc(x.reason||'—')+'</td><td>'+esc(x.notes||'—')+'</td></tr>').join('')+'</tbody></table>':'<div class="empty">История перемещений пока пуста.</div>';
 }
-$('closeHiveHistoryBtn').onclick=()=>{$('hiveHistoryPanel').style.display='none'};
+if($('closeHiveHistoryBtn')) $('closeHiveHistoryBtn').onclick=()=>{$('hiveHistoryPanel').style.display='none'};
 $('closeHiveMoveBtn')?.addEventListener('click',()=>{ $('hiveMoveModal').style.display='none'; });
 $('closeHiveMoveBtn2')?.addEventListener('click',()=>{ $('hiveMoveModal').style.display='none'; });
 $('hiveMoveModal')?.addEventListener('click',e=>{if(e.target.id==='hiveMoveModal')$('hiveMoveModal').style.display='none'});
@@ -3123,15 +3123,15 @@ $('hiveMoveForm').onsubmit=async e=>{
   if(updateError){toast('История записана, но пасека улья не обновилась: '+updateError.message);await loadAll();return}
   $('hiveMoveModal').style.display='none';toast('Улей перемещён');await loadAll();showHiveFamily(h.id);
 };
-$('closeHiveFamilyBtn').onclick=closeHiveFamily;
-$('closeHiveFamilyBtn2').onclick=closeHiveFamily;
-$('hiveFamilyModal').onclick=e=>{if(e.target.id==='hiveFamilyModal')closeHiveFamily()};
+if($('closeHiveFamilyBtn')) $('closeHiveFamilyBtn').onclick=closeHiveFamily;
+if($('closeHiveFamilyBtn2')) $('closeHiveFamilyBtn2').onclick=closeHiveFamily;
+if($('hiveFamilyModal')) $('hiveFamilyModal').onclick=e=>{if(e.target.id==='hiveFamilyModal')closeHiveFamily()};
 ['hiveSearch','hiveApiaryFilter','hiveStatusFilter'].forEach(id=>{
   const el=$(id);
   if(el) el.oninput=()=>{window.__hivePage=1;renderAll()};
 });
-$('hivesPrevBtn').onclick=()=>{window.__hivePage=Math.max(1,Number(window.__hivePage||1)-1);renderAll()};
-$('hivesNextBtn').onclick=()=>{window.__hivePage=Number(window.__hivePage||1)+1;renderAll()};
+if($('hivesPrevBtn')) $('hivesPrevBtn').onclick=()=>{window.__hivePage=Math.max(1,Number(window.__hivePage||1)-1);renderAll()};
+if($('hivesNextBtn')) $('hivesNextBtn').onclick=()=>{window.__hivePage=Number(window.__hivePage||1)+1;renderAll()};
 
 $('hiveForm').onsubmit=async e=>{
   e.preventDefault();
@@ -3174,7 +3174,7 @@ async function deleteHive(id){
   if(error){toast('Ошибка: '+error.message);return}
   toast('Улей удалён'); await loadAll();
 }
-$('hiveCancelBtn').onclick=resetHiveForm;
+if($('hiveCancelBtn')) $('hiveCancelBtn').onclick=resetHiveForm;
 
 $('medicineForm').onsubmit=async e=>{
   e.preventDefault();
@@ -3215,7 +3215,7 @@ async function deleteMedicine(id){
   if(error){toast('Ошибка: '+error.message);return}
   toast('Лекарство удалено'); await loadAll();
 }
-$('medicineCancelBtn').onclick=resetMedicineForm;
+if($('medicineCancelBtn')) $('medicineCancelBtn').onclick=resetMedicineForm;
 $('disinfectionForm').onsubmit=async e=>{
   e.preventDefault();
   const d=formData(e.target);
@@ -3252,7 +3252,7 @@ async function deleteDisinfection(id){
   if(error){toast('Ошибка: '+error.message);return}
   toast('Запись удалена'); await loadAll();
 }
-$('disinfectionCancelBtn').onclick=resetDisinfectionForm;
+if($('disinfectionCancelBtn')) $('disinfectionCancelBtn').onclick=resetDisinfectionForm;
 $('disinfectionForm').elements.medicine_id.addEventListener('change',e=>{const m=state.medicines.find(x=>String(x.id)===String(e.target.value));if(m)$('disinfectionForm').elements.agent.value=m.name;});
 
 $('inspectionForm').onsubmit=async e=>{
@@ -3305,7 +3305,7 @@ function openTreatmentEditor(id){
   modal.style.cssText='position:fixed;inset:0;z-index:10000;background:rgba(20,25,20,.62);display:flex;align-items:center;justify-content:center;padding:14px;overflow:auto';
   modal.innerHTML='<div style="background:#fffdf7;color:#2f382f;width:min(680px,100%);max-height:94vh;overflow:auto;border-radius:16px;padding:20px;box-shadow:0 18px 60px #0005"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h2 style="margin:0;font-size:20px">Исправить обработку</h2><button type="button" class="btn secondary" id="treatmentEditClose">✕</button></div><p class="muted">Изменения в истории здоровья и складском остатке сохранятся вместе.</p><form id="treatmentEditForm" class="form"><div class="field"><label>Улей</label><select name="hive_id" required>'+hiveOptions+'</select></div><div class="field"><label>Дата обработки</label><input type="date" name="treatment_date" required value="'+esc(t.treatment_date||today())+'"></div><div class="field"><label>Препарат со склада</label><select name="medicine_id" id="treatmentEditMedicine">'+medicineOptions+'</select></div><div class="field"><label>Название препарата</label><input name="product_name" value="'+esc(t.product_name||'')+'" placeholder="Название препарата"></div><div class="field"><label>Цель обработки</label><input name="purpose" value="'+esc(t.purpose||'')+'" placeholder="Например, варроатоз"></div><div class="field"><label>Доза</label><input name="dose" value="'+esc(t.dose||'')+'" placeholder="Доза на семью"></div><div class="field"><label>Способ</label><select name="method"><option value="">Не указан</option>'+['Полоски','Капельный метод','Орошение','Испарение','Другое'].map(v=>'<option '+(t.method===v?'selected':'')+'>'+v+'</option>').join('')+'</select></div><div class="field"><label>Расход</label><input name="quantity_used" type="number" min="0" step="0.01" value="'+(t.quantity_used??'')+'" placeholder="Количество"></div><div class="field full"><label>Примечание</label><textarea name="notes">'+esc(t.notes||'')+'</textarea></div><div class="field full" style="background:#fff7e8;padding:10px;border-radius:9px"><small>Если выбран препарат со склада, укажите расход больше нуля. При сохранении система вернёт прежнее списание и применит новое в одной операции.</small></div><div class="actions" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn gold" type="submit">Сохранить исправления</button><button class="btn secondary" type="button" id="treatmentEditCancel">Отмена</button></div></form></div>';
   document.body.appendChild(modal);
-  $('treatmentEditClose').onclick=closeTreatmentEditor; $('treatmentEditCancel').onclick=closeTreatmentEditor;
+  if($('treatmentEditClose')) $('treatmentEditClose').onclick=closeTreatmentEditor; if($('treatmentEditCancel')) $('treatmentEditCancel').onclick=closeTreatmentEditor;
   modal.addEventListener('click',e=>{if(e.target===modal)closeTreatmentEditor()});
   $('treatmentEditMedicine').addEventListener('change',e=>{const m=state.medicines.find(x=>String(x.id)===String(e.target.value));if(m)$('treatmentEditForm').elements.product_name.value=m.name||''});
   $('treatmentEditForm').onsubmit=async e=>{
@@ -3412,9 +3412,9 @@ function openHoneyBatch(id){
   $('honeyBatchModal').style.display='flex';
 }
 function closeHoneyBatch(){$('honeyBatchModal').style.display='none'}
-$('closeHoneyBatch').onclick=closeHoneyBatch;
-$('closeHoneyBatch2').onclick=closeHoneyBatch;
-$('honeyBatchModal').onclick=e=>{if(e.target.id==='honeyBatchModal')closeHoneyBatch}
+if($('closeHoneyBatch')) $('closeHoneyBatch').onclick=closeHoneyBatch;
+if($('closeHoneyBatch2')) $('closeHoneyBatch2').onclick=closeHoneyBatch;
+if($('honeyBatchModal')) $('honeyBatchModal').onclick=e=>{if(e.target.id==='honeyBatchModal')closeHoneyBatch}
 function renderCalendar(){
   const y=calendarMonth.getFullYear(), m=calendarMonth.getMonth();
   const names=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
@@ -3451,10 +3451,10 @@ function renderCalendar(){
   $('calendarTasks').innerHTML=state.tasks.length?'<table class="table"><thead><tr><th>Дата</th><th>Тип</th><th>Событие</th><th>Приоритет</th><th>Статус</th><th>Напоминание</th><th></th></tr></thead><tbody>'+state.tasks.map(t=>'<tr><td>'+esc(t.due_date||'')+'</td><td>'+esc(eventType(t))+'</td><td>'+esc(eventTitle(t))+'</td><td>'+esc(t.priority)+'</td><td>'+esc(t.status)+'</td><td>'+esc(eventReminder(t))+'</td><td><button type="button" class="btn secondary calendar-open-table" data-event-id="'+esc(t.id)+'">Открыть</button></td></tr>').join('')+'</tbody></table>':'<div class="empty">Событий пока нет. Нажмите «Добавить событие».</div>';
   document.querySelectorAll('.calendar-event,.calendar-open-table').forEach(b=>b.onclick=()=>openEventModal(b.dataset.eventId));
 }
-$('prevMonthBtn').onclick=()=>{calendarMonth.setMonth(calendarMonth.getMonth()-1);renderCalendar()};
-$('nextMonthBtn').onclick=()=>{calendarMonth.setMonth(calendarMonth.getMonth()+1);renderCalendar()};
-$('addCalendarEventBtn').onclick=()=>{$('calendarFormPanel').style.display='block';$('calendarForm').elements.due_date.value=today();$('calendarFormPanel').scrollIntoView({behavior:'smooth',block:'start'})};
-$('cancelCalendarBtn').onclick=()=>{$('calendarFormPanel').style.display='none';$('calendarForm').reset()};
+if($('prevMonthBtn')) $('prevMonthBtn').onclick=()=>{calendarMonth.setMonth(calendarMonth.getMonth()-1);renderCalendar()};
+if($('nextMonthBtn')) $('nextMonthBtn').onclick=()=>{calendarMonth.setMonth(calendarMonth.getMonth()+1);renderCalendar()};
+if($('addCalendarEventBtn')) $('addCalendarEventBtn').onclick=()=>{$('calendarFormPanel').style.display='block';$('calendarForm').elements.due_date.value=today();$('calendarFormPanel').scrollIntoView({behavior:'smooth',block:'start'})};
+if($('cancelCalendarBtn')) $('cancelCalendarBtn').onclick=()=>{$('calendarFormPanel').style.display='none';$('calendarForm').reset()};
 function openEventModal(id){
   const t=state.tasks.find(x=>String(x.id)===String(id)); if(!t)return;
   const f=$('eventEditForm');
@@ -3464,9 +3464,9 @@ function openEventModal(id){
   $('eventModal').style.display='flex';
 }
 function closeEventModal(){$('eventModal').style.display='none'}
-$('closeEventModal').onclick=closeEventModal;
-$('closeEventBtn').onclick=closeEventModal;
-$('eventModal').onclick=e=>{if(e.target.id==='eventModal')closeEventModal()};
+if($('closeEventModal')) $('closeEventModal').onclick=closeEventModal;
+if($('closeEventBtn')) $('closeEventBtn').onclick=closeEventModal;
+if($('eventModal')) $('eventModal').onclick=e=>{if(e.target.id==='eventModal')closeEventModal()};
 $('eventEditForm').onsubmit=async e=>{
   e.preventDefault(); const d=formData(e.target);
   const title='['+(d.event_type||'Работа')+'] '+d.title;
@@ -3475,7 +3475,7 @@ $('eventEditForm').onsubmit=async e=>{
   if(error){toast('Ошибка: '+error.message);return}
   closeEventModal(); toast('Изменения сохранены'); await loadAll();
 };
-$('deleteEventBtn').onclick=async()=>{
+if($('deleteEventBtn')) $('deleteEventBtn').onclick=async()=>{
   const id=$('eventEditForm').elements.id.value; if(!id)return;
   if(!confirm('Удалить это событие?'))return;
   const {error}=await db.from('tasks').delete().eq('id',id);
@@ -3496,8 +3496,8 @@ function renderHoneyJarQrCards(labels,run,batch,isDemo){
   box.innerHTML=(isDemo?'<div class="notice" style="margin-bottom:12px">ДЕМО-РЕЖИМ: это учебные QR-коды. Они не записываются в базу и не являются маркировкой реальной продукции.</div>':'<div class="muted" style="margin-bottom:12px">Каждая банка получает собственный код. Распечатайте карточки и наклейте QR на соответствующие банки. Коды ведут на публичную страницу происхождения мёда.</div>')+'<div class="honey-jar-qr-grid">'+labels.map(l=>'<div class="honey-jar-qr-card"><div class="honey-jar-qr-image" id="jarqr-'+esc(l.jar_number)+'"></div><b>Банка №'+esc(l.jar_number)+'</b><div class="muted">'+esc(batch?.batch_number||'Партия')+' · '+esc(run.jar_size_g)+' г</div><div class="honey-jar-qr-code">'+esc(l.public_code)+'</div><button type="button" class="btn secondary jar-qr-download" data-number="'+esc(l.jar_number)+'">Скачать QR</button></div>').join('')+'</div><div class="actions" style="justify-content:center"><button type="button" class="btn gold" id="honeyJarQrPrint">🖨️ Печать всех QR-кодов</button><button type="button" class="btn secondary" id="honeyJarQrClose">Закрыть</button></div>';
   labels.forEach(l=>{const target=$('jarqr-'+l.jar_number);if(!target)return;const url=new URL(base);url.searchParams.set('code',l.public_code);if(isDemo)url.searchParams.set('demo','1');if(typeof QRCode!=='undefined')new QRCode(target,{text:url.toString(),width:116,height:116,colorDark:'#103a27',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});else target.innerHTML='<a href="'+esc(url.toString())+'">Открыть ссылку</a>'});
   box.querySelectorAll('.jar-qr-download').forEach(b=>b.onclick=()=>{const target=$('jarqr-'+b.dataset.number),canvas=target?.querySelector('canvas'),img=target?.querySelector('img'),src=canvas?canvas.toDataURL('image/png'):img?.src;if(!src)return;const a=document.createElement('a');a.href=src;a.download=(isDemo?'DEMO-':'')+'dedushkina-paseka-jar-'+b.dataset.number+'.png';a.click()});
-  $('honeyJarQrPrint').onclick=()=>window.print();
-  $('honeyJarQrClose').onclick=()=>{modal.style.display='none'};
+  if($('honeyJarQrPrint')) $('honeyJarQrPrint').onclick=()=>window.print();
+  if($('honeyJarQrClose')) $('honeyJarQrClose').onclick=()=>{modal.style.display='none'};
   box.querySelectorAll('a').forEach(a=>a.target='_blank');
 }
 async function openHoneyJarLabels(packagingRunId){
