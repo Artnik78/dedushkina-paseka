@@ -162,8 +162,9 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
         <button class="btn secondary" type="button" id="authMethodPhone" aria-pressed="false">📱 По телефону</button>
       </div>
     </div>
+    <div class="field" id="authDisplayNameField" style="display:none"><label for="authDisplayName">Ваше имя</label><input id="authDisplayName" type="text" maxlength="80" autocomplete="name" placeholder="Как к вам обращаться"></div>
     <div class="field"><label id="authIdentifierLabel" for="authIdentifier">Email</label><input id="authIdentifier" type="email" autocomplete="email" placeholder="Ваш email"></div>
-    <div class="field"><label for="authPassword">Пароль</label><input id="authPassword" type="password" autocomplete="current-password" placeholder="Не менее 6 символов"></div>
+    <div class="field"><label for="authPassword">Пароль</label><input id="authPassword" type="password" autocomplete="current-password" placeholder="Не менее 8 символов для телефона"></div>
     <p class="muted" id="authMethodHint">Введите email и пароль. Доступ к журналу откроется после одобрения владельцем.</p>
     <div class="auth-message" id="authMessage"></div>
     <div class="actions">
@@ -1735,41 +1736,72 @@ function setAuthMethod(method){
   input.inputMode=phone?'tel':'email';
   input.placeholder=phone?'+375 XX XXX-XX-XX':'Ваш email';
   label.textContent=phone?'Номер телефона в международном формате':'Email';
+  $('authDisplayNameField').style.display=phone?'block':'none';
+  $('authPassword').placeholder=phone?'Не менее 8 символов':'Не менее 6 символов';
   emailBtn.className='btn '+(phone?'secondary':'');
   phoneBtn.className='btn '+(phone?'':'secondary');
   emailBtn.setAttribute('aria-pressed',String(!phone));
   phoneBtn.setAttribute('aria-pressed',String(phone));
-  hint.textContent=phone?'Введите номер в международном формате, например +375291234567. Для входа по телефону подтверждение SMS отключается в настройках Supabase.':'Введите email и пароль. Доступ к журналу откроется после одобрения владельцем.';
-  $('authPassword').autocomplete=phone?'current-password':'current-password';
+  hint.textContent=phone?'Введите телефон и пароль. Для регистрации укажите имя. SMS не требуется; доступ появится после одобрения владельцем.':'Введите email и пароль. Доступ к журналу откроется после одобрения владельцем.';
   $('authMessage').textContent='';
 }
 $('authMethodEmail').onclick=()=>setAuthMethod('email');
 $('authMethodPhone').onclick=()=>setAuthMethod('phone');
 $('guestBtn').onclick=showGuest;
+async function callPhoneAuth(action, phone, password, displayName){
+  const response=await fetch(SUPABASE_URL+'/functions/v1/journal-phone-auth',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY},
+    body:JSON.stringify({action,phone,password,...(displayName?{display_name:displayName}:{})})
+  });
+  const payload=await response.json().catch(()=>({}));
+  if(!response.ok)throw new Error(payload.error||('Ошибка авторизации: HTTP '+response.status));
+  return payload;
+}
 $('loginBtn').onclick=async()=>{
   $('authMessage').textContent='';
   const identifier=$('authIdentifier').value.trim(), password=$('authPassword').value;
   if(!identifier || !password){$('authMessage').textContent=authMethod==='phone'?'Введите номер телефона и пароль.':'Введите email и пароль.';return}
   if(authMethod==='phone'&&!/^\+[1-9]\d{7,14}$/.test(identifier)){$('authMessage').textContent='Укажите номер в международном формате, например +375291234567.';return}
+  if(authMethod==='phone'&&(password.length<8||password.length>128)){$('authMessage').textContent='Пароль должен содержать от 8 до 128 символов.';return}
   $('loginBtn').disabled=true;
-  const credentials=authMethod==='phone'?{phone:identifier,password}:{email:identifier,password};
-  const {data,error}=await db.auth.signInWithPassword(credentials);
-  $('loginBtn').disabled=false;
-  if(error){$('authMessage').textContent='Ошибка входа: '+error.message;return}
-  if(data&&data.user) $('authMessage').textContent='Вход выполнен...';
+  try{
+    if(authMethod==='phone'){
+      const payload=await callPhoneAuth('login',identifier,password);
+      const {error}=await db.auth.setSession({access_token:payload.access_token,refresh_token:payload.refresh_token});
+      if(error)throw error;
+      $('authMessage').textContent='Вход выполнен. Загружаем журнал…';
+    }else{
+      const {data,error}=await db.auth.signInWithPassword({email:identifier,password});
+      if(error)throw error;
+      if(data&&data.user)$('authMessage').textContent='Вход выполнен…';
+    }
+  }catch(error){
+    $('authMessage').textContent=error.message||'Не удалось войти. Проверьте данные и попробуйте снова.';
+  }finally{$('loginBtn').disabled=false}
 };
 $('signupBtn').onclick=async()=>{
   $('authMessage').textContent='';
   const identifier=$('authIdentifier').value.trim(), password=$('authPassword').value;
-  if(!identifier || password.length<6){$('authMessage').textContent=authMethod==='phone'?'Введите номер телефона и пароль не менее 6 символов.':'Введите email и пароль не менее 6 символов.';return}
+  const displayName=$('authDisplayName').value.trim();
+  const minimum=authMethod==='phone'?8:6;
+  if(!identifier || password.length<minimum){$('authMessage').textContent='Введите '+(authMethod==='phone'?'номер телефона и пароль не менее 8 символов.':'email и пароль не менее 6 символов.');return}
   if(authMethod==='phone'&&!/^\+[1-9]\d{7,14}$/.test(identifier)){$('authMessage').textContent='Укажите номер в международном формате, например +375291234567.';return}
+  if(authMethod==='phone'&&!displayName){$('authMessage').textContent='Укажите имя, чтобы владелец мог распознать вашу заявку.';return}
   $('signupBtn').disabled=true;
-  const credentials=authMethod==='phone'?{phone:identifier,password}:{email:identifier,password};
-  const {data,error}=await db.auth.signUp(credentials);
-  $('signupBtn').disabled=false;
-  if(error){$('authMessage').textContent='Ошибка регистрации: '+error.message;return}
-  if(data.session){$('authMessage').textContent='Регистрация отправлена владельцу журнала на одобрение. Доступ откроется после одобрения администратором.';await db.auth.signOut({scope:'local'});}
-  else{$('authMessage').textContent=authMethod==='phone'?'Аккаунт создан, но Supabase требует подтверждение телефона. Для входа без SMS необходимо отключить подтверждение телефона в настройках Supabase.':'Аккаунт создан. Подтвердите email, если потребуется. Владелец журнала получит уведомление, а доступ откроется после одобрения администратором.';}
+  try{
+    if(authMethod==='phone'){
+      const payload=await callPhoneAuth('register',identifier,password,displayName);
+      $('authMessage').textContent=payload.message||'Заявка создана. Дождитесь одобрения владельца журнала.';
+    }else{
+      const {data,error}=await db.auth.signUp({email:identifier,password});
+      if(error)throw error;
+      if(data.session){$('authMessage').textContent='Регистрация отправлена владельцу журнала на одобрение. Доступ откроется после одобрения администратором.';await db.auth.signOut({scope:'local'});}
+      else $('authMessage').textContent='Аккаунт создан. Подтвердите email, если потребуется. Владелец журнала получит уведомление, а доступ откроется после одобрения администратором.';
+    }
+  }catch(error){
+    $('authMessage').textContent=error.message||'Не удалось зарегистрироваться. Проверьте данные и попробуйте снова.';
+  }finally{$('signupBtn').disabled=false}
 };
 $('logoutBtn').onclick=async()=>{
   $('logoutBtn').disabled=true;
