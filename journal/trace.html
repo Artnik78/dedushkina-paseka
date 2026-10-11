@@ -45,7 +45,6 @@ footer{text-align:center;color:var(--muted);font-size:11px;padding:18px 8px}
 <p class="subtitle" id="batchNumber"></p>
 <span class="stamp" id="passportStamp">✓ Код банки подтверждён</span>
 <div class="grid">
-<div class="item"><small>Индивидуальный номер</small><b id="jarNumber">—</b></div>
 <div class="item"><small>Масса нетто по записи фасовки</small><b id="jarSize">—</b></div>
 <div class="item"><small>Дата фасовки</small><b id="packDate">—</b></div>
 <div class="item" id="labelCodeCard"><small>Код этикетки</small><b id="labelCode">—</b></div>
@@ -90,14 +89,14 @@ async function run(){
   if(!d||jarNumber<1||jarNumber>d.jar_count){el('loading').hidden=true;el('invalid').hidden=false;return}
   d.jar_number=jarNumber;d.jar_code=code;
   put('honeyType',d.honey_type);put('batchNumber','Партия '+d.batch_number);
-  put('jarNumber','№ '+d.jar_number+' из '+d.jar_count);put('jarSize',Number(d.jar_size_g).toLocaleString('ru-RU')+' г');
+  put('jarSize',Number(d.jar_size_g).toLocaleString('ru-RU')+' г');
   put('packDate',showDate(d.packaging_date));put('labelCode',d.label_code);el('labelCodeCard').hidden=!d.label_code;el('labelCodeCard').hidden=!d.label_code;
   put('apiaryName',d.apiary_name);put('collectionPlace',d.collection_place||d.apiary_location);
   put('collectionDate',showDate(d.collection_date));put('collectionPeriod',d.collection_period);
   put('sourceStep',d.apiary_name+(d.apiary_location?' · '+d.apiary_location:''));
   put('batchStep',d.batch_number+' · '+d.honey_type);
   put('batchQuantity','Партия учтена в цифровом журнале пасечника');
-  put('packStep',d.jar_size_g+' г · банка №'+d.jar_number);
+  put('packStep',d.jar_size_g+' г');
   put('packDetails','Демо-фасовка '+showDate(d.packaging_date)+' · '+d.packaging_notes);
   put('individualCode',d.jar_code);
   el('passportStamp').textContent='ДЕМО-ПРИМЕР · не реальная маркировка';
@@ -112,7 +111,7 @@ async function run(){
   if(!d||!d.jar_code){el('loading').hidden=true;el('invalid').hidden=false;return}
   put('honeyType',d.honey_type||'Натуральный мёд');
   put('batchNumber','Партия '+(d.batch_number||'—'));
-  put('jarNumber','№ '+d.jar_number+' из '+d.jar_count);
+  
   put('jarSize',Number(d.jar_size_g).toLocaleString('ru-RU')+' г');
   put('packDate',showDate(d.packaging_date));put('labelCode',d.label_code);
   put('apiaryName',d.apiary_name);put('collectionPlace',d.collection_place||'—');
@@ -120,7 +119,7 @@ async function run(){
   put('sourceStep',d.apiary_name||'Пасека не указана');
   put('batchStep',(d.batch_number||'—')+' · '+(d.honey_type||'Мёд'));
   put('batchQuantity','Сведения о партии зарегистрированы в цифровом журнале пасечника');
-  put('packStep',Number(d.jar_size_g).toLocaleString('ru-RU')+' г · банка №'+d.jar_number);
+  put('packStep',Number(d.jar_size_g).toLocaleString('ru-RU')+' г');
   put('packDetails','Фасовано '+showDate(d.packaging_date));
   put('individualCode',d.jar_code);
   el('loading').hidden=true;el('passport').hidden=false;
