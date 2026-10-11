@@ -1,5 +1,4 @@
-const CACHE_NAME="dedushkina-paseka-v23";
-const APP_SCOPE=new URL("./",self.location.href).pathname;
+const CACHE_NAME="dedushkina-paseka-v24";const APP_SCOPE=new URL("./",self.location.href).pathname;
 const APP_SHELL=[
   new URL("./",self.location.href).href,
   new URL("./index.html",self.location.href).href,
