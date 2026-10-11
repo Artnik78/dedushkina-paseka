@@ -1697,7 +1697,7 @@ async function showApp(user){
   const email=(user.email||'').toLowerCase();
   let profile=null;
   try{
-    const {data,error}=await db.from('journal_users').select('allowed,display_name').eq('user_id',user.id).maybeSingle();
+    const {data,error}=await db.from('journal_users').select('allowed,display_name,phone').eq('user_id',user.id).maybeSingle();
     if(error) throw error;
     profile=data;
     if(!profile || !profile.allowed){
@@ -1716,8 +1716,9 @@ async function showApp(user){
   }
   $('auth').style.display='none';
   $('app').style.display='';
-  $('userEmail').textContent=user.email||user.phone||'Пользователь';
-  syncHomeUser(user.email||user.phone,profile.display_name);
+  const shownIdentity=profile.phone||user.phone||user.email||'Пользователь';
+  $('userEmail').textContent=shownIdentity;
+  syncHomeUser(shownIdentity,profile.display_name);
   const owner=false; // development multi-user mode: no legacy single-owner approval panel
   const p=$('userAccessPanel'); if(p)p.style.display=owner?'block':'none';
   startJournalActivityTracking();
@@ -2093,7 +2094,7 @@ if($('signupBtn')) $('signupBtn').onclick=async()=>{
   try{
     if(authMethod==='phone'){
       const payload=await callPhoneAuth('register',identifier,password,displayName);
-      $('authMessage').textContent=payload.message||'Заявка создана. Дождитесь одобрения владельца журнала.';
+      $('authMessage').textContent=payload.message||'Аккаунт создан. Теперь войдите по номеру телефона и паролю.';
     }else{
       const {data,error}=await db.auth.signUp({email:identifier,password,options:{data:{display_name:displayName||null}}});
       if(error)throw error;
