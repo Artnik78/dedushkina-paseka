@@ -2095,10 +2095,10 @@ if($('signupBtn')) $('signupBtn').onclick=async()=>{
       const payload=await callPhoneAuth('register',identifier,password,displayName);
       $('authMessage').textContent=payload.message||'Заявка создана. Дождитесь одобрения владельца журнала.';
     }else{
-      const {data,error}=await db.auth.signUp({email:identifier,password});
+      const {data,error}=await db.auth.signUp({email:identifier,password,options:{data:{display_name:displayName||null}}});
       if(error)throw error;
-      if(data.session){$('authMessage').textContent='Регистрация отправлена владельцу журнала на одобрение. Доступ откроется после одобрения администратором.';await db.auth.signOut({scope:'local'});}
-      else $('authMessage').textContent='Аккаунт создан. Подтвердите email, если потребуется. Владелец журнала получит уведомление, а доступ откроется после одобрения администратором.';
+      if(data.session){$('authMessage').textContent='Регистрация выполнена. Открываем ваш личный журнал…';}
+      else $('authMessage').textContent='Аккаунт создан. Проверьте почту и подтвердите email, если пришло письмо, затем войдите в журнал.';
     }
   }catch(error){
     $('authMessage').textContent=error.message||'Не удалось зарегистрироваться. Проверьте данные и попробуйте снова.';
