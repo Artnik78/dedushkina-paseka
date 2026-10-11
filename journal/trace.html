@@ -96,7 +96,7 @@ async function run(){
   d.jar_number=jarNumber;d.jar_code=code;
   put('honeyType',d.honey_type);put('batchNumber','Партия '+d.batch_number);
   put('jarSize',Number(d.jar_size_g).toLocaleString('ru-RU')+' г');
-  put('packDate',showDate(d.packaging_date));put('labelCode',d.label_code);el('labelCodeCard').hidden=!d.label_code;put('publicJarVolume',Number(d.jar_size_g).toLocaleString('ru-RU')+' г');const kgPrice=Number(d.price_per_kg);const grams=Number(d.jar_size_g);const total=kgPrice*grams/1000;put('publicJarPrice',Number.isFinite(kgPrice)&&kgPrice>0&&Number.isFinite(grams)&&grams>0?total.toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2})+' руб.':'Цена не указана в партии');put('publicJarVolume',Number(d.jar_size_g).toLocaleString('ru-RU')+' г');put('publicJarPrice','Цена партии не указана');el('labelCodeCard').hidden=!d.label_code;
+  put('packDate',showDate(d.packaging_date));put('labelCode',d.label_code);el('labelCodeCard').hidden=!d.label_code;put('publicJarVolume',Number(d.jar_size_g).toLocaleString('ru-RU')+' г');put('publicJarPrice','Цена партии не указана');el('labelCodeCard').hidden=!d.label_code;
   put('apiaryName',d.apiary_name);put('collectionPlace',d.collection_place||d.apiary_location);
   put('collectionDate',showDate(d.collection_date));put('collectionPeriod',d.collection_period);
   put('sourceStep',d.apiary_name+(d.apiary_location?' · '+d.apiary_location:''));
@@ -119,7 +119,8 @@ async function run(){
   put('batchNumber','Партия '+(d.batch_number||'—'));
   
   put('jarSize',Number(d.jar_size_g).toLocaleString('ru-RU')+' г');
-  put('packDate',showDate(d.packaging_date));put('labelCode',d.label_code);
+  put('packDate',showDate(d.packaging_date));put('labelCode',d.label_code);el('labelCodeCard').hidden=!d.label_code;
+  put('publicJarVolume',Number(d.jar_size_g).toLocaleString('ru-RU')+' г');const kgPrice=Number(d.price_per_kg);const grams=Number(d.jar_size_g);const total=kgPrice*grams/1000;put('publicJarPrice',Number.isFinite(kgPrice)&&kgPrice>0&&Number.isFinite(grams)&&grams>0?total.toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2})+' руб.':'Цена не указана в партии');
   put('apiaryName',d.apiary_name);put('collectionPlace',d.collection_place||'—');
   put('collectionDate',showDate(d.collection_date));put('collectionPeriod',d.collection_period);
   put('sourceStep',d.apiary_name||'Пасека не указана');
