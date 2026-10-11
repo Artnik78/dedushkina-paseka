@@ -1065,7 +1065,10 @@ const SUPABASE_URL = 'https://owpzcjvseleqeqibwuqj.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_1eM3o5IehFq-IvjWkHLiCA_RMXGHfw5';
 const { createClient } = window.supabase;
 // Capture the recovery intent before Supabase processes and cleans the URL hash.
-const recoveryLinkDetected = new URLSearchParams((window.location.hash || '').replace(/^#/, '')).get('type') === 'recovery' || new URLSearchParams(window.location.search).get('type') === 'recovery';
+// Supabase may return either an implicit recovery hash or a PKCE ?code= link.
+const recoverySearchParams = new URLSearchParams(window.location.search);
+const recoveryHashParams = new URLSearchParams((window.location.hash || '').replace(/^#/, ''));
+const recoveryLinkDetected = recoveryHashParams.get('type') === 'recovery' || recoverySearchParams.get('type') === 'recovery' || recoverySearchParams.has('code');
 const db = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { storageKey: 'dedushkina-paseka-journal-auth' } });
 
 const state = {contacts:[], hives:[], inspections:[], workLogs:[], hiveMovements:[], health:[], treatments:[], queens:[], queenBatches:[], colonyOperations:[], waxOperations:[], apiaryProductsOperations:[], photos:[], honey:[], honeyPackagingRuns:[], honeyJarLabels:[], honeySales:[], tasks:[], finance:[], apiaries:[], medicines:[], medicineStockMovements:[], disinfection:[], beeFamilies:[]};
