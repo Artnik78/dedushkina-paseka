@@ -714,8 +714,9 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
     <section id="page-honey" class="section">
       <h1>Мёд / партии</h1><p class="sub">Учёт урожая, партий и продукции «Дедушкиной пасеки».</p>
       <div class="panel">
-        <h3>Новая партия</h3>
+        <h3 id="honeyFormTitle">Новая партия</h3>
         <form id="honeyForm" class="form">
+          <input type="hidden" name="id">
           <div class="field"><label>Номер партии *</label><input name="batch_number" required placeholder="2026-001"></div>
           <div class="field"><label>Название мёда *</label><input name="honey_type" required placeholder="Мёд разнотравье"></div>
           <div class="field"><label>Дата сбора</label><input name="collection_date" type="date"></div>
@@ -725,7 +726,7 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
           <div class="field"><label>Цена за кг</label><input name="price_per_kg" type="number" step="0.01"></div>
           <div class="field"><label>Место сбора</label><input name="collection_place" value="Клецкий район"></div>
           <div class="field full"><label>Примечание</label><textarea name="notes"></textarea></div>
-          <div><button class="btn">Сохранить партию</button></div>
+          <div class="actions"><button class="btn" id="honeyFormSaveBtn">Сохранить партию</button><button class="btn secondary" type="button" id="honeyFormCancelBtn" style="display:none">Отмена</button></div>
         </form>
       </div>
       <div class="panel">
@@ -1040,7 +1041,7 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
   <div class="event-modal-box">
     <div class="event-modal-head"><h3 id="honeyBatchTitle">🍯 Партия мёда</h3><button class="close-btn" id="closeHoneyBatch">×</button></div>
     <div id="honeyBatchInfo"></div>
-    <div class="actions" style="justify-content:flex-end"><button type="button" class="btn secondary" id="closeHoneyBatch2">Закрыть</button></div>
+    <div class="actions" style="justify-content:flex-end"><button type="button" class="btn gold" id="editHoneyBatchBtn">✏️ Изменить партию</button><button type="button" class="btn secondary" id="closeHoneyBatch2">Закрыть</button></div>
   </div>
 </div>
 <div class="event-modal" id="eventModal">
@@ -3761,7 +3762,10 @@ async function deleteHealthRecord(id){
   if(error){toast('Ошибка: '+error.message);return}
   toast('Запись удалена'); await loadAll();
 }
-$('honeyForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);insert('honey_batches',{batch_number:d.batch_number,honey_type:d.honey_type,collection_date:d.collection_date||null,collection_period:d.collection_period.trim()||null,apiary_id:d.apiary_id||null,quantity_kg:d.quantity_kg?Number(d.quantity_kg):null,price_per_kg:d.price_per_kg?Number(d.price_per_kg):null,collection_place:d.collection_place,notes:d.notes},e.target)};
+function resetHoneyForm(){const f=$('honeyForm');f.reset();f.elements.id.value='';$('honeyFormTitle').textContent='Новая партия';$('honeyFormSaveBtn').textContent='Сохранить партию';$('honeyFormCancelBtn').style.display='none';}
+function editHoneyBatch(id){if(guestMode){toast('Гостевой режим — только просмотр');return}const h=state.honey.find(x=>String(x.id)===String(id));if(!h)return;const f=$('honeyForm');Object.keys(h).forEach(k=>{if(f.elements[k])f.elements[k].value=h[k]??''});f.elements.id.value=h.id;$('honeyFormTitle').textContent='Изменить партию '+(h.batch_number||'');$('honeyFormSaveBtn').textContent='Сохранить изменения';$('honeyFormCancelBtn').style.display='inline-flex';closeHoneyBatch();f.scrollIntoView({behavior:'smooth',block:'center'});}
+$('honeyFormCancelBtn')?.addEventListener('click',resetHoneyForm);
+$('honeyForm').onsubmit=async e=>{e.preventDefault();if(guestMode){toast('Гостевой режим — только просмотр');return}const f=e.currentTarget,d=formData(f);const payload={batch_number:d.batch_number,honey_type:d.honey_type,collection_date:d.collection_date||null,collection_period:d.collection_period.trim()||null,apiary_id:d.apiary_id||null,quantity_kg:d.quantity_kg?Number(d.quantity_kg):null,price_per_kg:d.price_per_kg!==''?Number(d.price_per_kg):null,collection_place:d.collection_place,notes:d.notes};if(d.id){const {error}=await db.from('honey_batches').update(payload).eq('id',d.id);if(error){toast('Не удалось изменить партию: '+error.message);return}toast('Партия обновлена. Цена QR-паспорта будет пересчитана автоматически.');resetHoneyForm();await loadAll();}else{insert('honey_batches',payload,f)}};
 $('financeForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);insert('finances',{operation_date:d.operation_date,operation_type:d.operation_type,amount:Number(d.amount),category:d.category,description:d.description},e.target)};
 $('taskForm').onsubmit=e=>{e.preventDefault();const d=formData(e.target);insert('tasks',{title:d.title,due_date:d.due_date||null,priority:d.priority,status:d.status,description:d.description},e.target)};
 $('taskFilter').onchange=()=>renderAll();
@@ -3783,6 +3787,7 @@ function openHoneyBatch(id){
 function closeHoneyBatch(){$('honeyBatchModal').style.display='none'}
 if($('closeHoneyBatch')) $('closeHoneyBatch').onclick=closeHoneyBatch;
 if($('closeHoneyBatch2')) $('closeHoneyBatch2').onclick=closeHoneyBatch;
+if($('editHoneyBatchBtn')) $('editHoneyBatchBtn').onclick=()=>{const title=$('honeyBatchTitle').textContent;const h=state.honey.find(x=>('🍯 Партия '+(x.batch_number||''))===title);if(h)editHoneyBatch(h.id)};
 if($('honeyBatchModal')) $('honeyBatchModal').onclick=e=>{if(e.target.id==='honeyBatchModal')closeHoneyBatch}
 function renderCalendar(){
   const y=calendarMonth.getFullYear(), m=calendarMonth.getMonth();
