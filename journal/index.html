@@ -2084,7 +2084,8 @@ if($('signupBtn')) $('signupBtn').onclick=async()=>{
   $('authMessage').textContent='';
   const identifier=$('authIdentifier').value.trim(), password=$('authPassword').value;
   const displayName=$('authDisplayName').value.trim();
-  if(!identifier || !password){$('authMessage').textContent='Введите '+(authMethod==='phone'?'номер телефона':'email')+' и пароль.';return}
+  if(authMethod==='phone'){$('authMessage').textContent='Регистрация по телефону временно недоступна. Используйте регистрацию по email.';return}
+  if(!identifier || !password){$('authMessage').textContent='Введите email и пароль.';return}
   if(password.length<8 || password.length>128){$('authMessage').textContent='Пароль должен содержать от 8 до 128 символов.';return}
   if(!/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/[0-9]/.test(password) || !/[^A-Za-z0-9]/.test(password)){$('authMessage').textContent='Пароль должен содержать строчные и заглавные латинские буквы, цифру и специальный символ.';return}
   if(authMethod==='phone'&&!/^\+[1-9]\d{7,14}$/.test(identifier)){$('authMessage').textContent='Укажите номер в международном формате, например +375291234567.';return}
