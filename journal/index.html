@@ -1718,7 +1718,7 @@ async function showApp(user){
   $('app').style.display='';
   $('userEmail').textContent=user.email||user.phone||'Пользователь';
   syncHomeUser(user.email||user.phone,profile.display_name);
-  const owner=email==='78artnik@gmail.com';
+  const owner=false; // development multi-user mode: no legacy single-owner approval panel
   const p=$('userAccessPanel'); if(p)p.style.display=owner?'block':'none';
   startJournalActivityTracking();
   if(owner) loadJournalUsers();
