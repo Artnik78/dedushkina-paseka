@@ -2898,10 +2898,14 @@ function renderAll(){
   const latestInspectionForHive=id=>state.inspections
     .filter(i=>String(i.hive_id)===String(id))
     .sort((a,b)=>String(b.inspection_date||'').localeCompare(String(a.inspection_date||'')))[0]||null;
+  // Always display hives by ascending hive number: 1, 2, 3 ... 600.
+  // Numeric-aware text comparison also keeps labels such as 12A / 12B natural.
   const sortedHives=[...state.hives].sort((a,b)=>{
-    const na=Number.parseInt(String(a.hive_number||'').match(/\d+/)?.[0]||'0',10);
-    const nb=Number.parseInt(String(b.hive_number||'').match(/\d+/)?.[0]||'0',10);
-    return na-nb || String(a.hive_number||'').localeCompare(String(b.hive_number||''));
+    const numberA=String(a.hive_number||'').match(/\d+/)?.[0];
+    const numberB=String(b.hive_number||'').match(/\d+/)?.[0];
+    const na=numberA===undefined?Number.POSITIVE_INFINITY:Number.parseInt(numberA,10);
+    const nb=numberB===undefined?Number.POSITIVE_INFINITY:Number.parseInt(numberB,10);
+    return na-nb || String(a.hive_number||'').localeCompare(String(b.hive_number||''),'ru',{numeric:true,sensitivity:'base'});
   });
   const hiveSearchValue=String(searchInput?.value||'').trim().toLowerCase();
   const hiveApiaryValue=String(apiaryFilter?.value||'');
