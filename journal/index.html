@@ -1064,6 +1064,8 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
 const SUPABASE_URL = 'https://owpzcjvseleqeqibwuqj.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_1eM3o5IehFq-IvjWkHLiCA_RMXGHfw5';
 const { createClient } = window.supabase;
+// Capture the recovery intent before Supabase processes and cleans the URL hash.
+const recoveryLinkDetected = new URLSearchParams((window.location.hash || '').replace(/^#/, '')).get('type') === 'recovery' || new URLSearchParams(window.location.search).get('type') === 'recovery';
 const db = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { storageKey: 'dedushkina-paseka-journal-auth' } });
 
 const state = {contacts:[], hives:[], inspections:[], workLogs:[], hiveMovements:[], health:[], treatments:[], queens:[], queenBatches:[], colonyOperations:[], waxOperations:[], apiaryProductsOperations:[], photos:[], honey:[], honeyPackagingRuns:[], honeyJarLabels:[], honeySales:[], tasks:[], finance:[], apiaries:[], medicines:[], medicineStockMovements:[], disinfection:[], beeFamilies:[]};
@@ -1400,14 +1402,12 @@ async function authInit(){
       $('signupBtn')?.classList.add('gold');
       $('loginBtn')?.classList.remove('gold');
     }
-    const {data:{session},error}=await db.auth.getSession();
-    if(error)throw error;
-    if(session && !guestMode) await showApp(session.user);
-    else if(!guestMode) $('auth').style.display='flex';
 
+    // Subscribe before getSession(): otherwise PASSWORD_RECOVERY can fire before
+    // the listener exists, and the user is sent straight into the journal.
     db.auth.onAuthStateChange((event,session)=>{
       if(guestMode)return;
-      if(event==='PASSWORD_RECOVERY'){
+      if(event==='PASSWORD_RECOVERY' || (recoveryLinkDetected && session)){
         $('app').style.display='none';
         $('auth').style.display='flex';
         openRecoveryPanel(true);
@@ -1435,6 +1435,19 @@ async function authInit(){
         }
       }
     });
+
+    const {data:{session},error}=await db.auth.getSession();
+    if(error)throw error;
+    if(recoveryLinkDetected){
+      $('app').style.display='none';
+      $('auth').style.display='flex';
+      openRecoveryPanel(true);
+      $('recoveryMessage').textContent='Ссылка подтверждена. Установите новый пароль.';
+    }else if(session && !guestMode){
+      await showApp(session.user);
+    }else if(!guestMode){
+      $('auth').style.display='flex';
+    }
   }catch(e){
     console.error(e);
     $('auth').style.display='flex';
