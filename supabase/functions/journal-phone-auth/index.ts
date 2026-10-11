@@ -1,7 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "https://artnik78.github.io",
+  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Vary": "Origin",
@@ -45,7 +45,7 @@ function namedDefaultKey(variable: string): string | undefined {
 Deno.serve(async (req: Request) => {
   const origin = req.headers.get("origin");
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
-  if (origin && origin !== "https://artnik78.github.io") return reply(403, { error: "Origin not allowed" });
+  if (origin && !["https://artnik78.github.io", "https://dedushkina-paseka-dev-test.vercel.app", "https://dedushkina-paseka-dev-test-git-development-multitenant-artnik78.vercel.app"].includes(origin)) return reply(403, { error: "Origin not allowed" });
   if (req.method !== "POST") return reply(405, { error: "Method not allowed" });
 
   const url = Deno.env.get("SUPABASE_URL");
