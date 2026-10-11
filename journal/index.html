@@ -1983,7 +1983,7 @@ function setAuthMethod(method){
   phoneBtn.className='btn '+(phone?'':'secondary');
   emailBtn.setAttribute('aria-pressed',String(!phone));
   phoneBtn.setAttribute('aria-pressed',String(phone));
-  hint.textContent=phone?'Введите телефон и пароль. Для регистрации укажите имя. SMS не требуется; доступ появится после одобрения владельцем.':'Введите email и пароль. Доступ к журналу откроется после одобрения владельцем.';
+  hint.textContent=phone?'Вход по телефону временно недоступен: серверный модуль ещё не подключён.':'Введите email и пароль. После регистрации войдите в личный журнал; доступ определяется настройками аккаунта.';
   $('authMessage').textContent='';
 }
 function openRecoveryPanel(setPassword=false){
