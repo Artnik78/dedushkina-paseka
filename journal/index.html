@@ -223,7 +223,8 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
     </div>
     <div class="field" id="authDisplayNameField" style="display:none"><label for="authDisplayName">Ваше имя</label><input id="authDisplayName" type="text" maxlength="80" autocomplete="name" placeholder="Как к вам обращаться"></div>
     <div class="field"><label id="authIdentifierLabel" for="authIdentifier">Email</label><input id="authIdentifier" type="email" autocomplete="email" placeholder="Ваш email"></div>
-    <div class="field"><label for="authPassword">Пароль</label><input id="authPassword" type="password" autocomplete="current-password" placeholder="Не менее 8 символов для телефона"></div>
+    <div class="field"><label for="authPassword">Пароль</label><input id="authPassword" type="password" autocomplete="current-password" placeholder="Не менее 8 символов" maxlength="128" aria-describedby="passwordRequirements"></div>
+    <p class="muted" id="passwordRequirements" style="display:none;margin-top:-4px">Для регистрации: минимум 8 символов, строчные и заглавные латинские буквы, цифра и специальный символ (например ! или #).</p>
     <p class="muted" id="authMethodHint">Введите email и пароль. Доступ к журналу откроется после одобрения владельцем.</p>
     <div class="auth-message" id="authMessage"></div>
     <div class="actions">
@@ -1974,7 +1975,9 @@ function setAuthMethod(method){
   input.placeholder=phone?'+375 XX XXX-XX-XX':'Ваш email';
   label.textContent=phone?'Номер телефона в международном формате':'Email';
   $('authDisplayNameField').style.display=phone?'block':'none';
-  $('authPassword').placeholder=phone?'Не менее 8 символов':'Не менее 6 символов';
+  $('authPassword').placeholder='Не менее 8 символов';
+  $('passwordRequirements').style.display='block';
+  $('authPassword').autocomplete='current-password';
   emailBtn.className='btn '+(phone?'secondary':'');
   phoneBtn.className='btn '+(phone?'':'secondary');
   emailBtn.setAttribute('aria-pressed',String(!phone));
@@ -2022,6 +2025,7 @@ if($('saveRecoveryPasswordBtn')) $('saveRecoveryPasswordBtn').onclick=async()=>{
   const password=$('recoveryNewPassword').value, confirm=$('recoveryConfirmPassword').value;
   $('recoveryMessage').textContent='';
   if(password.length<8||password.length>128){$('recoveryMessage').textContent='Пароль должен содержать от 8 до 128 символов.';return}
+  if(!/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/[0-9]/.test(password) || !/[^A-Za-z0-9]/.test(password)){$('recoveryMessage').textContent='Пароль должен содержать строчные и заглавные латинские буквы, цифру и специальный символ.';return}
   if(password!==confirm){$('recoveryMessage').textContent='Пароли не совпадают.';return}
   const button=$('saveRecoveryPasswordBtn');button.disabled=true;
   try{
@@ -2079,8 +2083,9 @@ if($('signupBtn')) $('signupBtn').onclick=async()=>{
   $('authMessage').textContent='';
   const identifier=$('authIdentifier').value.trim(), password=$('authPassword').value;
   const displayName=$('authDisplayName').value.trim();
-  const minimum=authMethod==='phone'?8:6;
-  if(!identifier || password.length<minimum){$('authMessage').textContent='Введите '+(authMethod==='phone'?'номер телефона и пароль не менее 8 символов.':'email и пароль не менее 6 символов.');return}
+  if(!identifier || !password){$('authMessage').textContent='Введите '+(authMethod==='phone'?'номер телефона':'email')+' и пароль.';return}
+  if(password.length<8 || password.length>128){$('authMessage').textContent='Пароль должен содержать от 8 до 128 символов.';return}
+  if(!/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/[0-9]/.test(password) || !/[^A-Za-z0-9]/.test(password)){$('authMessage').textContent='Пароль должен содержать строчные и заглавные латинские буквы, цифру и специальный символ.';return}
   if(authMethod==='phone'&&!/^\+[1-9]\d{7,14}$/.test(identifier)){$('authMessage').textContent='Укажите номер в международном формате, например +375291234567.';return}
   if(authMethod==='phone'&&!displayName){$('authMessage').textContent='Укажите имя, чтобы владелец мог распознать вашу заявку.';return}
   $('signupBtn').disabled=true;
