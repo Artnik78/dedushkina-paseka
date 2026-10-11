@@ -69,7 +69,15 @@ begin
   select count(*) into got_count from public.honey_batches where id=batch_b;
   if got_count <> 0 then raise exception 'FAIL: user A read user B batch'; end if;
 
-  -- Test C: owner A cannot create a treatment tied to B's hive (expected RLS rejection).
+  -- Test C: A cannot update or delete B's rows. Under RLS these normally affect zero rows.
+  update public.apiaries set name='TAMPERED BY A' where id=apiary_b;
+  get diagnostics got_count = row_count;
+  if got_count <> 0 then raise exception 'FAIL: user A updated user B apiary'; end if;
+  delete from public.apiaries where id=apiary_b;
+  get diagnostics got_count = row_count;
+  if got_count <> 0 then raise exception 'FAIL: user A deleted user B apiary'; end if;
+
+  -- Test D: owner A cannot create a treatment tied to B's hive (expected RLS rejection).
   begin
     insert into public.hive_treatments(user_id,hive_id,product_name)
     values (uid_a, hive_b, 'must fail');
@@ -78,7 +86,7 @@ begin
     null;
   end;
 
-  -- Test D: movement cannot reference someone else's medicine or treatment.
+  -- Test E: movement cannot reference someone else's medicine or treatment.
   begin
     insert into public.medicine_stock_movements(user_id,medicine_id,treatment_id,movement_type,quantity_change,quantity_before,quantity_after,medicine_name)
     values (uid_a, medicine_b, null, 'test', -1, 10, 9, 'must fail');
@@ -88,7 +96,9 @@ begin
   end;
 
   reset role;
-  raise notice 'RLS smoke tests passed: own read allowed; cross-owner reads hidden; cross-owner treatment and medicine movement inserts rejected.';
+  select count(*) into got_count from public.apiaries where id=apiary_b and name='RLS test apiary B';
+  if got_count <> 1 then raise exception 'FAIL: user B apiary was changed or deleted'; end if;
+  raise notice 'RLS smoke tests passed: own read allowed; cross-owner read hidden; cross-owner update/delete have zero rows; cross-owner treatment and medicine movement inserts rejected.';
 end
 $test$;
 
