@@ -1984,7 +1984,7 @@ function setAuthMethod(method){
   phoneBtn.className='btn '+(phone?'':'secondary');
   emailBtn.setAttribute('aria-pressed',String(!phone));
   phoneBtn.setAttribute('aria-pressed',String(phone));
-  hint.textContent=phone?'Вход по телефону временно недоступен: серверный модуль ещё не подключён.':'Введите email и пароль. После регистрации войдите в личный журнал; доступ определяется настройками аккаунта.';
+  hint.textContent=phone?'Вход по телефону без SMS. Используйте номер в международном формате и пароль.':'Введите email и пароль. Доступ проверяется при входе.';
   $('authMessage').textContent='';
 }
 function openRecoveryPanel(setPassword=false){
