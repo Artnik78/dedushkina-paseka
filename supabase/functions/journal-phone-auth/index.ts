@@ -27,6 +27,21 @@ function validPassword(value: unknown): value is string {
     /[a-z]/.test(value) && /[A-Z]/.test(value) && /\d/.test(value) && /[^A-Za-z0-9]/.test(value);
 }
 
+// Supabase now exposes named API keys as JSON maps, while legacy deployments
+// may still expose the old single-key variables. Prefer legacy/singular values
+// when present, then fall back to the default key in the named-key map.
+function namedDefaultKey(variable: string): string | undefined {
+  const raw = Deno.env.get(variable);
+  if (!raw) return undefined;
+  try {
+    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    const value = parsed?.default;
+    return typeof value === "string" && value.length > 0 ? value : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 Deno.serve(async (req: Request) => {
   const origin = req.headers.get("origin");
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -34,9 +49,17 @@ Deno.serve(async (req: Request) => {
   if (req.method !== "POST") return reply(405, { error: "Method not allowed" });
 
   const url = Deno.env.get("SUPABASE_URL");
-  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-  const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? Deno.env.get("SUPABASE_PUBLISHABLE_KEY");
-  if (!url || !serviceKey || !anonKey) return reply(500, { error: "Auth service is not configured" });
+  const serviceKey =
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ??
+    Deno.env.get("SUPABASE_SECRET_KEY") ??
+    namedDefaultKey("SUPABASE_SECRET_KEYS");
+  const anonKey =
+    Deno.env.get("SUPABASE_ANON_KEY") ??
+    Deno.env.get("SUPABASE_PUBLISHABLE_KEY") ??
+    namedDefaultKey("SUPABASE_PUBLISHABLE_KEYS");
+  if (!url || !serviceKey || !anonKey) {
+    return reply(500, { error: "Auth service is not configured" });
+  }
 
   let body: Record<string, unknown>;
   try {
