@@ -91,7 +91,7 @@ async function run(){
   d.jar_number=jarNumber;d.jar_code=code;
   put('honeyType',d.honey_type);put('batchNumber','Партия '+d.batch_number);
   put('jarNumber','№ '+d.jar_number+' из '+d.jar_count);put('jarSize',Number(d.jar_size_g).toLocaleString('ru-RU')+' г');
-  put('packDate',showDate(d.packaging_date));put('labelCode',d.label_code);el('labelCodeCard').hidden=!d.label_code;
+  put('packDate',showDate(d.packaging_date));put('labelCode',d.label_code);el('labelCodeCard').hidden=!d.label_code;el('labelCodeCard').hidden=!d.label_code;
   put('apiaryName',d.apiary_name);put('collectionPlace',d.collection_place||d.apiary_location);
   put('collectionDate',showDate(d.collection_date));put('collectionPeriod',d.collection_period);
   put('sourceStep',d.apiary_name+(d.apiary_location?' · '+d.apiary_location:''));
