@@ -2268,7 +2268,7 @@ document.addEventListener('click',async e=>{
       });
       const payload=await res.json().catch(()=>({}));
       if(!res.ok)throw new Error(payload.error||'HTTP '+res.status);
-      toast('Аккаунт пользователя удалён');
+      toast(payload.message||'Пользователь удалён из списка журнала');
       await loadJournalUsers();
     }catch(err){toast('Не удалось удалить пользователя: '+(err.message||err));}
     finally{del.disabled=false}
