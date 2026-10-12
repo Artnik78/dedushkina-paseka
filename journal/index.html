@@ -4135,7 +4135,7 @@ function communityRenderFeed(){
     const commentsHtml=comments.map(c=>{
       const cp=communityProfilesCache[c.user_id]||{};
       const own=c.user_id===communityUserId;
-      return '<div class="community-comment"><div class="community-author">'+esc(cp.display_name||'Пасечник')+'</div><div class="community-meta">'+esc(communityDate(c.created_at))+(c.is_helpful?' · ✓ Полезный ответ':'')+'</div><div class="community-comment-body">'+esc(c.body)+'</div>'+(own?'<div class="community-comment-actions"><button type="button" class="btn secondary" data-community-delete-comment="'+esc(c.id)+'">Удалить мой ответ</button></div>':'<div class="community-comment-actions"><button type="button" class="btn secondary" data-community-report-comment="'+esc(c.id)+'">Пожаловаться</button></div>')+'</div>';
+      return '<div class="community-comment"><div class="community-author">'+esc(cp.display_name||'Пасечник')+'</div><div class="community-meta">'+esc(communityDate(c.created_at))+(c.is_helpful?' · ✓ Полезный ответ':'')+'</div><div class="community-comment-body">'+esc(c.body)+'</div>'+(own?'<div class="community-comment-actions"><button type="button" class="btn secondary" data-community-delete-comment="'+esc(c.id)+'">Удалить мой ответ</button></div>':(communityIsModerator?'<div class="community-comment-actions"><button type="button" class="btn secondary" data-community-moderate-delete-comment="'+esc(c.id)+'">Удалить ответ (модерация)</button></div>':'<div class="community-comment-actions"><button type="button" class="btn secondary" data-community-report-comment="'+esc(c.id)+'">Пожаловаться</button></div>'))+'</div>';
     }).join('');
     const ownPost=p.user_id===communityUserId;
     const hidden=p.is_hidden?'<span class="community-topic" style="background:#fde8e4;color:#9d3325">Скрыта</span>':'';
@@ -4230,6 +4230,7 @@ $('communityFeed')?.addEventListener('click',async e=>{
   const focus=e.target.closest('[data-community-focus]');
   if(focus){const form=document.querySelector('[data-community-comment-form="'+CSS.escape(focus.dataset.communityFocus)+'"]');form?.querySelector('textarea')?.focus();form?.scrollIntoView({behavior:'smooth',block:'center'});return;}
   const deleteComment=e.target.closest('[data-community-delete-comment]');
+  const moderateDeleteComment=e.target.closest('[data-community-moderate-delete-comment]');
   const deletePost=e.target.closest('[data-community-delete-post]');
   const reportPost=e.target.closest('[data-community-report-post]');
   const reportComment=e.target.closest('[data-community-report-comment]');
@@ -4249,6 +4250,13 @@ $('communityFeed')?.addEventListener('click',async e=>{
       const {error}=await db.from('community_reports').update({status:reportStatus.dataset.status}).eq('id',reportStatus.dataset.communityReportStatus);
       if(error)throw error;
       toast('Статус жалобы обновлён.');await communityLoad();return;
+    }
+    if(moderateDeleteComment){
+      if(!communityIsModerator)throw new Error('Недостаточно прав для модерации.');
+      if(!confirm('Удалить этот ответ по правилам сообщества?'))return;
+      const {error}=await db.from('community_comments').delete().eq('id',moderateDeleteComment.dataset.communityModerateDeleteComment);
+      if(error)throw error;
+      toast('Ответ удалён модератором.');await communityLoad();return;
     }
     if(deleteComment){
       if(!confirm('Удалить ваш ответ?'))return;
