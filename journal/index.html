@@ -497,6 +497,17 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
           <div class="field"><label>Метод контроля варроа</label><select name="varroa_method">
             <option value="">Не проверялся</option><option>Сахарная пудра</option><option>Спиртовая смывка</option><option>Естественный осыпь</option><option>Поддон</option><option>Визуальная оценка</option><option>Другой</option>
           </select></div>
+          <div class="field full" id="varroaWashTool" style="border:1px solid var(--line);border-radius:12px;padding:14px;background:var(--panel,#fff)">
+            <h4 style="margin:0 0 8px">🧪 Оценка заражённости клещом Varroa (смыв)</h4>
+            <p class="muted" style="margin:0 0 10px">Отберите пробу примерно из 200–300 взрослых пчёл. Подсчитайте число обнаруженных клещей и укажите фактическое число пчёл в пробе.</p>
+            <div class="form" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px">
+              <div class="field"><label for="varroaBeeCount">Пчёл в пробе</label><input id="varroaBeeCount" type="number" min="1" max="1000" step="1" value="300" inputmode="numeric"></div>
+              <div class="field"><label for="varroaMiteCount">Найдено клещей</label><input id="varroaMiteCount" type="number" min="0" step="1" placeholder="Например, 9" inputmode="numeric"></div>
+            </div>
+            <div id="varroaWashResult" aria-live="polite" style="margin-top:10px;padding:10px;border-radius:8px;background:#f5f0e4">Введите количество клещей, чтобы рассчитать результат.</div>
+            <button type="button" class="btn secondary" id="varroaApplyResult" style="margin-top:10px">Перенести результат в запись</button>
+            <p class="muted" style="margin:10px 0 0;font-size:12px">Расчёт: клещи ÷ пчёлы × 100. Используйте подходящий валидированный метод и средства защиты; не применяйте технический бензин или бытовые растворители. Оценка не заменяет ветеринарную рекомендацию по лечению.</p>
+          </div>
           <div class="field"><label>Результат варроа</label><input name="varroa_result" type="number" min="0" step="0.01" placeholder="Например, 3"></div>
           <div class="field"><label>Единица результата</label><select name="varroa_unit"><option value="">Не указана</option><option>клещей / 100 пчёл</option><option>клещей / сутки</option><option>% поражения</option><option>условная оценка</option></select></div>
           <div class="field"><label>Заболевание</label><select name="disease"><option value="">Не выявлено</option><option>Варроатоз</option><option>Нозематоз</option><option>Гнилец</option><option>Аскосфероз</option><option>Вирусное заболевание</option><option>Другое</option></select></div>
@@ -3958,6 +3969,39 @@ document.addEventListener('click',e=>{if(e.target.closest('#closeHiveQr,#closeHi
 </script>
 
 <style id="beekeeper-calculators-style">.calculator-grid{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}.calculator-panel{margin-top:0;min-width:0}.calculator-result{margin-top:14px;padding:12px;border-radius:10px;background:#f8f3e5;border:1px solid #ead9a8;line-height:1.6;overflow-wrap:anywhere}.calculator-result strong{color:var(--green)}.calculator-result .calc-main{font-size:20px;font-weight:800;color:var(--green)}@media(max-width:700px){#page-calculators .calculator-grid{grid-template-columns:minmax(0,1fr)!important;gap:12px}#page-calculators .calculator-panel{padding:13px}#page-calculators .form{grid-template-columns:repeat(2,minmax(0,1fr))!important}#page-calculators .form .field{min-width:0}#page-calculators .calculator-result{font-size:14px}}</style>
+<script id="varroa-wash-calculator">
+(function(){
+  const bees=document.getElementById('varroaBeeCount');
+  const mites=document.getElementById('varroaMiteCount');
+  const output=document.getElementById('varroaWashResult');
+  const form=document.getElementById('healthForm');
+  const update=()=>{
+    if(!bees||!mites||!output)return;
+    const b=Number(bees.value), m=Number(mites.value);
+    if(!bees.value||!mites.value||!Number.isFinite(b)||!Number.isFinite(m)||b<=0||m<0){
+      output.textContent='Введите число пчёл и найденных клещей.';
+      return;
+    }
+    const pct=m/b*100;
+    output.textContent='Результат: '+pct.toLocaleString('ru-RU',{maximumFractionDigits:2})+'% заражённости ('+m+' клещей на '+b+' пчёл).';
+  };
+  bees?.addEventListener('input',update); mites?.addEventListener('input',update);
+  document.getElementById('varroaApplyResult')?.addEventListener('click',()=>{
+    const b=Number(bees?.value), m=Number(mites?.value);
+    if(!bees?.value||!mites?.value||!Number.isFinite(b)||!Number.isFinite(m)||b<=0||m<0){
+      if(output)output.textContent='Проверьте значения: число пчёл должно быть больше нуля, число клещей — неотрицательным.';
+      return;
+    }
+    const pct=m/b*100;
+    if(form?.elements.varroa_result)form.elements.varroa_result.value=pct.toFixed(2);
+    if(form?.elements.varroa_unit)form.elements.varroa_unit.value='% поражения';
+    if(form?.elements.varroa_method&&!form.elements.varroa_method.value)form.elements.varroa_method.value='Спиртовая смывка';
+    if(form?.elements.symptoms&&!form.elements.symptoms.value)form.elements.symptoms.value='Смыв: '+m+' клещей в пробе из '+b+' пчёл; расчётная заражённость '+pct.toLocaleString('ru-RU',{maximumFractionDigits:2})+'%.';
+    if(output)output.textContent='Результат перенесён в форму записи. Нажмите «Сохранить запись о здоровье», чтобы сохранить его в журнале.';
+  });
+  update();
+})();
+</script>
 </body>
 </html>
 
