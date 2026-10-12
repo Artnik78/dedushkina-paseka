@@ -4214,10 +4214,19 @@ $('communityProfileForm')?.addEventListener('submit',async e=>{
   const btn=form.querySelector('button[type="submit"]');if(btn)btn.disabled=true;
   try{
     await communityGetUser();
-    const f=formData(form);
-    const display_name=String(f.display_name||'').trim();
+    // Read named fields directly instead of constructing FormData; this also
+    // avoids failures if the form reference is lost during asynchronous work.
+    const display_name=String($('communityDisplayName')?.value||'').trim();
+    const region=String($('communityRegion')?.value||'').trim();
+    const about=String($('communityAbout')?.value||'').trim();
     if(display_name.length<2)throw new Error('Укажите имя или псевдоним (минимум 2 символа).');
-    const {error}=await db.from('community_profiles').upsert({user_id:communityUserId,display_name,region:String(f.region||'').trim()||null,about:String(f.about||'').trim()||null,updated_at:new Date().toISOString()},{onConflict:'user_id'});
+    const {error}=await db.from('community_profiles').upsert({
+      user_id:communityUserId,
+      display_name,
+      region:region||null,
+      about:about||null,
+      updated_at:new Date().toISOString()
+    },{onConflict:'user_id'});
     if(error)throw error;
     toast('Профиль сообщества сохранён.');
     await communityLoad();
