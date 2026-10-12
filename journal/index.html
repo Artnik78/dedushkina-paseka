@@ -2277,11 +2277,20 @@ document.addEventListener('click',async e=>{
   const b=e.target.closest('[data-user-access]'); if(!b)return;
   const id=b.dataset.userAccess, allow=b.dataset.userAllowed!=='1';
   b.disabled=true;
-  const {error}=await db.from('journal_users').update({allowed:allow}).eq('user_id',id);
-  b.disabled=false;
-  if(error){toast('Ошибка: '+error.message);return}
-  toast(allow?'Доступ разрешён':'Пользователь заблокирован');
-  loadJournalUsers();
+  try{
+    const {data:{session}}=await db.auth.getSession();
+    if(!session?.access_token)throw new Error('Необходимо войти как администратор.');
+    const res=await fetch('https://uycjzsttxhtwochgghrs.supabase.co/functions/v1/journal-admin-set-access',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token,'apikey':SUPABASE_KEY},
+      body:JSON.stringify({user_id:id,allowed:allow})
+    });
+    const payload=await res.json().catch(()=>({}));
+    if(!res.ok)throw new Error(payload.error||'HTTP '+res.status);
+    toast(payload.message||(allow?'Доступ разрешён':'Пользователь заблокирован'));
+    await loadJournalUsers();
+  }catch(err){toast('Не удалось изменить доступ: '+(err.message||err));}
+  finally{b.disabled=false}
 });
 
 async function getTable(table,order='created_at'){
