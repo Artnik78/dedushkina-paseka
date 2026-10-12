@@ -1010,6 +1010,7 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
         </div>
         <div id="communityFeed" aria-live="polite"><div class="empty">Загрузка сообщества…</div></div>
       </div>
+      <div class="panel" id="communityModerationPanel" style="display:none"><h3>🛡️ Модерация сообщества</h3><div id="communityReportsList"><div class="empty">Загрузка жалоб…</div></div></div>
       <div class="panel">
         <h3>Мой профиль сообщества</h3>
         <p class="sub">Показывается другим участникам только в сообществе. Email и телефон не публикуются.</p>
@@ -4018,6 +4019,7 @@ document.addEventListener('click',e=>{if(e.target.closest('#closeHiveQr,#closeHi
 /* Сообщество пасечников — тестовая версия */
 const communityTopics = ['Общее','Здоровье пчёл','Матки и селекция','Медосбор','Оборудование','Зимовка','Мёд и продукция'];
 let communityUserId = null;
+let communityIsModerator = false;
 let communityPostsCache = [];
 let communityCommentsCache = [];
 let communityProfilesCache = {};
@@ -4059,7 +4061,11 @@ async function communityLoad(){
     if(guestMode){communityNotice('В гостевом просмотре публикации сообщества недоступны. Войдите в одобренный аккаунт журнала, чтобы читать и публиковать сообщения.');return;}
     await communityGetUser();
     await communityEnsureProfile();
-    const {data:posts,error}=await db.from('community_posts').select('id,user_id,title,body,topic,created_at,updated_at').order('created_at',{ascending:false}).limit(60);
+    const {data:moderatorRow,error:moderatorError}=await db.from('community_moderators').select('user_id').eq('user_id',communityUserId).maybeSingle();
+    if(moderatorError)throw moderatorError;
+    communityIsModerator=!!moderatorRow;
+    if($('communityModerationPanel'))$('communityModerationPanel').style.display=communityIsModerator?'block':'none';
+    const {data:posts,error}=await db.from('community_posts').select('id,user_id,title,body,topic,is_hidden,created_at,updated_at').order('created_at',{ascending:false}).limit(60);
     if(error)throw error;
     communityPostsCache=posts||[];
     const ids=communityPostsCache.map(p=>p.id);
@@ -4093,6 +4099,7 @@ async function communityLoad(){
     }
     await communityLoadOwnProfile();
     communityRenderFeed();
+    await communityRenderModeration();
   }catch(e){
     console.error('Community load error',e);
     communityNotice('Не удалось загрузить сообщество: '+(e.message||'проверьте доступ к тестовой базе.'));
@@ -4131,7 +4138,9 @@ function communityRenderFeed(){
       return '<div class="community-comment"><div class="community-author">'+esc(cp.display_name||'Пасечник')+'</div><div class="community-meta">'+esc(communityDate(c.created_at))+(c.is_helpful?' · ✓ Полезный ответ':'')+'</div><div class="community-comment-body">'+esc(c.body)+'</div>'+(own?'<div class="community-comment-actions"><button type="button" class="btn secondary" data-community-delete-comment="'+esc(c.id)+'">Удалить мой ответ</button></div>':'<div class="community-comment-actions"><button type="button" class="btn secondary" data-community-report-comment="'+esc(c.id)+'">Пожаловаться</button></div>')+'</div>';
     }).join('');
     const ownPost=p.user_id===communityUserId;
-    return '<article class="community-post" id="community-post-'+esc(p.id)+'"><div class="community-post-head"><div><div class="community-author">'+esc(author)+'</div>'+region+'<div class="community-meta">'+esc(communityDate(p.created_at))+'</div></div><span class="community-topic">'+esc(p.topic||'Общее')+'</span></div><h3>'+esc(p.title)+'</h3><div class="community-post-body">'+esc(p.body)+'</div>'+imageHtml+'<div class="community-actions"><button type="button" class="btn secondary" data-community-focus="'+esc(p.id)+'">💬 Ответить ('+comments.length+')</button>'+(ownPost?'<button type="button" class="btn secondary" data-community-delete-post="'+esc(p.id)+'">Удалить публикацию</button>':'<button type="button" class="btn secondary" data-community-report-post="'+esc(p.id)+'">Пожаловаться</button>')+'</div><div class="community-comments"><div class="community-author">Ответы</div>'+(commentsHtml||'<p class="muted">Пока нет ответов. Можно начать обсуждение.</p>')+'<form class="community-comment-form" data-community-comment-form="'+esc(p.id)+'"><textarea name="body" rows="2" maxlength="3000" required placeholder="Напишите ответ или совет…"></textarea><button class="btn gold" type="submit">Ответить</button></form></div></article>';
+    const hidden=p.is_hidden?'<span class="community-topic" style="background:#fde8e4;color:#9d3325">Скрыта</span>':'';
+    const mod=communityIsModerator?'<button type="button" class="btn secondary" data-community-moderate-post="'+esc(p.id)+'" data-hidden="'+(p.is_hidden?'true':'false')+'">'+(p.is_hidden?'Показать':'Скрыть')+'</button>':'';
+    return '<article class="community-post" id="community-post-'+esc(p.id)+'"><div class="community-post-head"><div><div class="community-author">'+esc(author)+'</div>'+region+'<div class="community-meta">'+esc(communityDate(p.created_at))+'</div></div><div>'+hidden+' <span class="community-topic">'+esc(p.topic||'Общее')+'</span></div></div><h3>'+esc(p.title)+'</h3><div class="community-post-body">'+esc(p.body)+'</div>'+imageHtml+'<div class="community-actions"><button type="button" class="btn secondary" data-community-focus="'+esc(p.id)+'">💬 Ответить ('+comments.length+')</button>'+(ownPost?'<button type="button" class="btn secondary" data-community-delete-post="'+esc(p.id)+'">Удалить публикацию</button>':'<button type="button" class="btn secondary" data-community-report-post="'+esc(p.id)+'">Пожаловаться</button>')+mod+'</div><div class="community-comments"><div class="community-author">Ответы</div>'+(commentsHtml||'<p class="muted">Пока нет ответов. Можно начать обсуждение.</p>')+'<form class="community-comment-form" data-community-comment-form="'+esc(p.id)+'"><textarea name="body" rows="2" maxlength="3000" required placeholder="Напишите ответ или совет…"></textarea><button class="btn gold" type="submit">Ответить</button></form></div></article>';
   }).join('');
 }
 async function communityUploadImages(postId,files){
@@ -4224,8 +4233,23 @@ $('communityFeed')?.addEventListener('click',async e=>{
   const deletePost=e.target.closest('[data-community-delete-post]');
   const reportPost=e.target.closest('[data-community-report-post]');
   const reportComment=e.target.closest('[data-community-report-comment]');
+  const moderatePost=e.target.closest('[data-community-moderate-post]');
+  const reportStatus=e.target.closest('[data-community-report-status]');
   try{
     await communityGetUser();
+    if(moderatePost){
+      if(!communityIsModerator)throw new Error('Недостаточно прав.');
+      const wasHidden=moderatePost.dataset.hidden==='true';
+      const {error}=await db.from('community_posts').update({is_hidden:!wasHidden,updated_at:new Date().toISOString()}).eq('id',moderatePost.dataset.communityModeratePost);
+      if(error)throw error;
+      toast(wasHidden?'Публикация снова видна.':'Публикация скрыта.');await communityLoad();return;
+    }
+    if(reportStatus){
+      if(!communityIsModerator)throw new Error('Недостаточно прав.');
+      const {error}=await db.from('community_reports').update({status:reportStatus.dataset.status}).eq('id',reportStatus.dataset.communityReportStatus);
+      if(error)throw error;
+      toast('Статус жалобы обновлён.');await communityLoad();return;
+    }
     if(deleteComment){
       if(!confirm('Удалить ваш ответ?'))return;
       const {error}=await db.from('community_comments').delete().eq('id',deleteComment.dataset.communityDeleteComment).eq('user_id',communityUserId);
@@ -4251,11 +4275,20 @@ $('communityFeed')?.addEventListener('click',async e=>{
       if(reportComment)payload.comment_id=reportComment.dataset.communityReportComment;
       const {error}=await db.from('community_reports').insert(payload);
       if(error)throw error;
-      toast('Жалоба передана на рассмотрение.');
+      toast('Жалоба зарегистрирована.');
     }
   }catch(err){console.error(err);toast('Действие не выполнено: '+(err.message||'ошибка'));}
 });
 
+
+async function communityRenderModeration(){
+  const box=$('communityReportsList');if(!box||!communityIsModerator)return;
+  const {data:reports,error}=await db.from('community_reports').select('id,post_id,comment_id,reason,status,created_at').order('created_at',{ascending:false}).limit(100);
+  if(error){box.innerHTML='<div class="empty">Ошибка загрузки жалоб: '+esc(error.message)+'</div>';return;}
+  if(!reports?.length){box.innerHTML='<div class="empty">Новых жалоб нет.</div>';return;}
+  const labels={new:'Новая',reviewing:'На рассмотрении',resolved:'Решена',dismissed:'Отклонена'};
+  box.innerHTML=reports.map(r=>'<div class="community-post"><div><b>'+(r.post_id?'Публикация':'Ответ')+' '+esc(String(r.post_id||r.comment_id).slice(0,8))+'</b> · '+esc(labels[r.status]||r.status)+'</div><p>'+esc(r.reason)+'</p><div class="community-actions">'+(r.status!=='resolved'?'<button class="btn secondary" type="button" data-community-report-status="'+esc(r.id)+'" data-status="resolved">Решена</button>':'')+(r.status!=='dismissed'?'<button class="btn secondary" type="button" data-community-report-status="'+esc(r.id)+'" data-status="dismissed">Отклонить</button>':'')+'</div></div>').join('');
+}
 </script>
 <script id="mobile-nav-script">(function(){function setupMobileNav(){const nav=document.querySelector('.nav');if(!nav||nav.dataset.mobileReady)return;nav.dataset.mobileReady='1';const b=document.createElement('button');b.type='button';b.className='mobile-more-btn';b.textContent='Ещё ›';b.setAttribute('aria-expanded','false');nav.appendChild(b);function close(){nav.classList.remove('nav-open');nav.classList.add('nav-collapsed');b.textContent='Ещё ›';b.setAttribute('aria-expanded','false')}b.onclick=()=>{const open=nav.classList.toggle('nav-open');nav.classList.toggle('nav-collapsed',!open);b.textContent=open?'Свернуть ‹':'Ещё ›';b.setAttribute('aria-expanded',String(open))};nav.querySelectorAll('button[data-page]').forEach(x=>x.addEventListener('click',()=>{if(window.innerWidth<=700)close()}));if(window.innerWidth<=700)close()}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setupMobileNav);else setupMobileNav()})();</script><script id="mobile-quick-script">(function(){function setup(){document.querySelectorAll('[data-quick-page]').forEach(b=>{b.onclick=()=>{showPage(b.dataset.quickPage);setTimeout(()=>{const f=document.getElementById(b.dataset.quickForm);if(f){f.closest('.panel')?.scrollIntoView({behavior:'smooth',block:'start'});const first=f.querySelector('input:not([type=hidden]),select,textarea');if(first)first.focus()}},80)}})}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup);else setup()})();</script><script id="mobile-inspections-script">function bindMobileInspectionCards(){document.querySelectorAll('.inspection-mobile-card').forEach(b=>b.onclick=()=>showInspectionDetails(b.dataset.inspectionId))}document.addEventListener('click',e=>{const b=e.target.closest('.inspection-mobile-card');if(b)showInspectionDetails(b.dataset.inspectionId)});</script><script id="mobile-task-done-script">document.addEventListener('click',async e=>{const b=e.target.closest('.task-done-btn');if(!b)return;e.preventDefault();const id=b.dataset.taskId;const t=state.tasks.find(x=>String(x.id)===String(id));if(!t)return;if(guestMode){t.status='Выполнена';renderAll();toast('Напоминание выполнено');return}b.disabled=true;const {error}=await db.from('tasks').update({status:'Выполнена'}).eq('id',id);if(error){b.disabled=false;toast('Ошибка: '+error.message);return}toast('Напоминание выполнено');await loadAll()});</script><div id="hiveQrModal" class="event-modal" style="z-index:55"><div class="event-modal-box" style="width:min(430px,100%);text-align:center"><div class="event-modal-head"><h3 id="hiveQrTitle">▣ QR-код улья</h3><button type="button" class="close-btn" id="closeHiveQr">×</button></div><div id="hiveQrCode" style="display:flex;justify-content:center;align-items:center;min-height:250px;padding:8px"></div><div class="muted" style="margin:4px 0 10px">Наведите камерой телефона. После входа откроется карточка этого улья.</div><div id="hiveQrUrl" style="font-size:10px;word-break:break-all;color:var(--muted);background:#faf8ef;border:1px solid var(--line);border-radius:8px;padding:8px;text-align:left"></div><div class="actions" style="justify-content:center;margin-bottom:0"><button type="button" class="btn gold" id="hiveQrDownload">Скачать QR</button><button type="button" class="btn secondary" id="closeHiveQr2">Закрыть</button></div></div></div><div id="honeyJarQrModal" class="event-modal" style="z-index:80"><div class="event-modal-box" style="width:min(1000px,96vw);max-height:90vh;overflow:auto"><div class="event-modal-head"><h3 id="honeyJarQrTitle">QR-коды банок</h3><button type="button" class="close-btn" onclick="document.getElementById('honeyJarQrModal').style.display='none'">×</button></div><div id="honeyJarQrItems"></div></div></div>
 <script id="beekeeper-calculators-script">
