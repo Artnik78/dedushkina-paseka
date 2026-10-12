@@ -2234,10 +2234,12 @@ async function loadJournalUsers(){
         : seen&&!Number.isNaN(seen.getTime())
           ? 'Последняя активность: '+seen.toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})
           : 'Активность ещё не записана';
+      const identity=String(u.email||u.phone||u.user_id);
       return '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 0;border-bottom:1px solid var(--line)">'+
         '<div><b>'+esc(u.display_name||u.email||u.phone||'—')+'</b><div class="muted">'+(u.phone&&!u.email?'Вход по телефону · ':'')+(owner?'Владелец':'Пользователь')+' · '+(active?'🟢 Доступ разрешён':'🔴 Доступ заблокирован')+'</div><div class="muted" style="margin-top:4px">'+esc(activityLabel)+'</div></div>'+
         (owner?'':'<div style="display:flex;gap:8px;flex-wrap:wrap">'+
-          '<button type="button" class="btn '+(active?'danger':'gold')+'" data-user-access="'+esc(u.user_id)+'" data-user-allowed="'+(active?'1':'0')+'">'+(active?'Заблокировать':'Разрешить доступ')+'</button></div>')+
+          '<button type="button" class="btn '+(active?'danger':'gold')+'" data-user-access="'+esc(u.user_id)+'" data-user-allowed="'+(active?'1':'0')+'">'+(active?'Заблокировать':'Разрешить доступ')+'</button>'+
+          '<button type="button" class="btn danger" data-user-delete="'+esc(u.user_id)+'" data-user-email="'+esc(identity)+'">Удалить</button></div>')+
         '</div>';
     }).join('')||'<div class="empty">Пользователей пока нет.</div>';
   }catch(error){
