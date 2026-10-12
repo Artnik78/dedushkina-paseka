@@ -51,6 +51,8 @@ begin
 end
 $fixtures$;
 
+-- The authenticated role needs read access to this transaction-local fixture table.
+grant select on rls_smoke_ids to authenticated;
 -- Role switch must be a top-level SQL statement, not inside a DO/function.
 set local role authenticated;
 select set_config('request.jwt.claim.sub', (select uid_a::text from rls_smoke_ids), true);
