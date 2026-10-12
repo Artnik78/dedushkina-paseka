@@ -32,16 +32,17 @@ begin
 end
 $fixtures$;
 
--- Role switch occurs at top level, outside PL/pgSQL.
+-- Save the test code in a transaction-local setting before switching roles;
+-- the anon role intentionally cannot read the temporary fixture table.
+select set_config('test.qr_code',(select code from qr_smoke_ids),true);
 set local role anon;
 
 do $checks$
-declare x qr_smoke_ids%rowtype; result_json jsonb;
+declare test_code text := current_setting('test.qr_code'); result_json jsonb;
 begin
-  select * into strict x from qr_smoke_ids;
-  select public.get_honey_jar_trace(x.code) into result_json;
+  select public.get_honey_jar_trace(test_code) into result_json;
   if result_json is null then raise exception 'FAIL: known QR code returned no passport'; end if;
-  if result_json->>'jar_code' is distinct from x.code then raise exception 'FAIL: unexpected jar code'; end if;
+  if result_json->>'jar_code' is distinct from test_code then raise exception 'FAIL: unexpected jar code'; end if;
   if result_json->>'batch_number' is distinct from 'QR-TEST-BATCH' then raise exception 'FAIL: wrong batch in QR response'; end if;
   if result_json ? 'jar_count' or result_json ? 'quantity_kg' or result_json ? 'user_id' or result_json ? 'email' then
     raise exception 'FAIL: QR response exposes a private field';
