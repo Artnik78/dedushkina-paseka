@@ -2181,7 +2181,8 @@ if($('signupBtn')) $('signupBtn').onclick=async()=>{
       const payload=await callPhoneAuth('register',identifier,password,displayName);
       $('authMessage').textContent=payload.message||'Аккаунт создан. Теперь войдите по номеру телефона и паролю.';
     }else{
-      const {data,error}=await db.auth.signUp({email:identifier,password,options:{data:{display_name:displayName||null}}});
+      const emailRedirectTo=window.location.origin+window.location.pathname;
+      const {data,error}=await db.auth.signUp({email:identifier,password,options:{emailRedirectTo,data:{display_name:displayName||null}}});
       if(error)throw error;
       if(data.session){$('authMessage').textContent='Регистрация выполнена. Открываем ваш личный журнал…';}
       else $('authMessage').textContent='Аккаунт создан. Проверьте почту и подтвердите email, если пришло письмо, затем войдите в журнал.';
