@@ -62,6 +62,7 @@ do $checks$
 declare
   x rls_smoke_ids%rowtype;
   n integer;
+  rejected boolean := false;
 begin
   select * into strict x from rls_smoke_ids;
 
@@ -85,9 +86,9 @@ begin
     insert into public.hive_treatments(user_id,hive_id,product_name)
     values (x.uid_a,x.hive_b,'must fail');
   exception when insufficient_privilege or check_violation or foreign_key_violation or not_null_violation then
-    return;
+    rejected := true;
   end;
-  raise exception 'FAIL: cross-owner treatment insert unexpectedly succeeded';
+  if not rejected then raise exception 'FAIL: cross-owner treatment insert unexpectedly succeeded'; end if;
 end
 $checks$;
 
