@@ -4210,10 +4210,11 @@ $('communityFeed')?.addEventListener('submit',async e=>{
 $('communityProfileForm')?.addEventListener('submit',async e=>{
   e.preventDefault();
   if(guestMode){toast('Профиль доступен только авторизованным участникам.');return;}
-  const btn=e.currentTarget.querySelector('button[type="submit"]');if(btn)btn.disabled=true;
+  const form=e.currentTarget;
+  const btn=form.querySelector('button[type="submit"]');if(btn)btn.disabled=true;
   try{
     await communityGetUser();
-    const f=formData(e.currentTarget);
+    const f=formData(form);
     const display_name=String(f.display_name||'').trim();
     if(display_name.length<2)throw new Error('Укажите имя или псевдоним (минимум 2 символа).');
     const {error}=await db.from('community_profiles').upsert({user_id:communityUserId,display_name,region:String(f.region||'').trim()||null,about:String(f.about||'').trim()||null,updated_at:new Date().toISOString()},{onConflict:'user_id'});
