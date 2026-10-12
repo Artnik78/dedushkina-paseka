@@ -1112,7 +1112,7 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
       </div>
       <div class="panel" id="userAccessPanel" style="display:none">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
-          <div><h3 style="margin-bottom:4px">👥 Пользователи журнала</h3><p class="muted">Только владелец может разрешать и блокировать доступ.</p></div>
+          <div><h3 style="margin-bottom:4px">👥 Пользователи журнала</h3><p class="muted">Администратор тестового журнала может разрешать и блокировать доступ.</p></div>
           <button class="btn secondary" type="button" id="refreshUsersBtn">Обновить</button>
         </div>
         <div id="userAccessList" class="empty">Загрузка...</div>
@@ -1804,7 +1804,12 @@ async function showApp(user){
   const shownIdentity=profile.phone||user.phone||user.email||'Пользователь';
   $('userEmail').textContent=shownIdentity;
   syncHomeUser(shownIdentity,profile.display_name);
-  const owner=false; // development multi-user mode: no legacy single-owner approval panel
+  let owner=false;
+  try{
+    const {data:adminRow,error:adminError}=await db.from('journal_admins').select('user_id').eq('user_id',user.id).maybeSingle();
+    if(adminError)throw adminError;
+    owner=!!adminRow;
+  }catch(adminCheckError){console.error('Не удалось проверить роль администратора:',adminCheckError);}
   const p=$('userAccessPanel'); if(p)p.style.display=owner?'block':'none';
   startJournalActivityTracking();
   if(owner) loadJournalUsers();
@@ -2232,8 +2237,7 @@ async function loadJournalUsers(){
       return '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 0;border-bottom:1px solid var(--line)">'+
         '<div><b>'+esc(u.display_name||u.email||u.phone||'—')+'</b><div class="muted">'+(u.phone&&!u.email?'Вход по телефону · ':'')+(owner?'Владелец':'Пользователь')+' · '+(active?'🟢 Доступ разрешён':'🔴 Доступ заблокирован')+'</div><div class="muted" style="margin-top:4px">'+esc(activityLabel)+'</div></div>'+
         (owner?'':'<div style="display:flex;gap:8px;flex-wrap:wrap">'+
-          '<button type="button" class="btn '+(active?'danger':'gold')+'" data-user-access="'+esc(u.user_id)+'" data-user-allowed="'+(active?'1':'0')+'">'+(active?'Заблокировать':'Разрешить доступ')+'</button>'+
-          '<button type="button" class="btn danger" data-user-delete="'+esc(u.user_id)+'" data-user-email="'+esc(u.email||u.phone||'')+'">Удалить пользователя</button></div>')+
+          '<button type="button" class="btn '+(active?'danger':'gold')+'" data-user-access="'+esc(u.user_id)+'" data-user-allowed="'+(active?'1':'0')+'">'+(active?'Заблокировать':'Разрешить доступ')+'</button></div>')+
         '</div>';
     }).join('')||'<div class="empty">Пользователей пока нет.</div>';
   }catch(error){
