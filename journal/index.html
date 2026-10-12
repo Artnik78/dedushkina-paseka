@@ -416,23 +416,6 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
     <section id="page-hives" class="section">
       <h1>Ульи</h1><p class="sub">Учёт ульев и пчелиных семей.</p>
       <div class="panel">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
-          <h3 style="margin:0">Список ульев</h3>
-          <span class="muted" id="hivesCountLabel">0 ульев</span>
-        </div>
-        <div class="form hive-filter-grid" style="margin-top:14px">
-          <div class="field"><label>Поиск по номеру / месту / заметкам</label><input id="hiveSearch" placeholder="Например, 125 или Ряд 3"></div>
-          <div class="field"><label>Пасека</label><select id="hiveApiaryFilter"><option value="">Все пасеки</option></select></div>
-          <div class="field"><label>Состояние</label><select id="hiveStatusFilter"><option value="">Все состояния</option><option>Активен</option><option>Зимовка</option><option>Пустой</option></select></div>
-        </div>
-        <div id="hivesList" class="table-wrap"></div>
-        <div class="actions" style="justify-content:center;margin-top:14px">
-          <button type="button" class="btn secondary" id="hivesPrevBtn">← Назад</button>
-          <span class="muted" id="hivesPageLabel">Страница 1</span>
-          <button type="button" class="btn secondary" id="hivesNextBtn">Вперёд →</button>
-        </div>
-      </div>
-      <div class="panel">
         <h3 id="hiveFormTitle">Новый улей</h3>
         <form id="hiveForm" class="form">
           <input type="hidden" name="id">
@@ -448,6 +431,23 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
           <div class="field full"><label>Примечание</label><textarea name="notes"></textarea></div>
           <div class="actions"><button class="btn" id="hiveSaveBtn">Сохранить улей</button><button type="button" class="btn secondary" id="hiveCancelBtn" style="display:none">Отмена</button></div>
         </form>
+      </div>
+      <div class="panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+          <h3 style="margin:0">Список ульев</h3>
+          <span class="muted" id="hivesCountLabel">0 ульев</span>
+        </div>
+        <div class="form hive-filter-grid" style="margin-top:14px">
+          <div class="field"><label>Поиск по номеру / месту / заметкам</label><input id="hiveSearch" placeholder="Например, 125 или Ряд 3"></div>
+          <div class="field"><label>Пасека</label><select id="hiveApiaryFilter"><option value="">Все пасеки</option></select></div>
+          <div class="field"><label>Состояние</label><select id="hiveStatusFilter"><option value="">Все состояния</option><option>Активен</option><option>Зимовка</option><option>Пустой</option></select></div>
+        </div>
+        <div id="hivesList" class="table-wrap"></div>
+        <div class="actions" style="justify-content:center;margin-top:14px">
+          <button type="button" class="btn secondary" id="hivesPrevBtn">← Назад</button>
+          <span class="muted" id="hivesPageLabel">Страница 1</span>
+          <button type="button" class="btn secondary" id="hivesNextBtn">Вперёд →</button>
+        </div>
       </div>
       <div class="panel" id="hiveHistoryPanel" style="display:none">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
