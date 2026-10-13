@@ -1410,6 +1410,52 @@ footer{border-top:1px solid rgba(233,215,184,.18);line-height:1.6}
  #candles .items.compact-products>.item>h3,
  #other .items.compact-products>.item>h3{min-height:2.6em;font-size:15px;line-height:1.3}
 }
+
+/* Финальное выравнивание карточек в оставшихся разделах каталога */
+#balms .items.compact-products,
+#infusions .items.compact-products{
+  align-items:stretch;
+  grid-auto-rows:1fr;
+}
+#balms .items.compact-products>.item,
+#infusions .items.compact-products>.item{
+  align-self:stretch;
+  height:100%;
+  min-height:0;
+  box-sizing:border-box;
+}
+#balms .items.compact-products>.item>img.product-label,
+#infusions .items.compact-products>.item>img.product-label{
+  flex:0 0 145px;
+  height:145px;
+  max-height:145px;
+  width:100%;
+  object-fit:contain;
+}
+#balms .items.compact-products>.item>h3,
+#infusions .items.compact-products>.item>h3{
+  min-height:2.6em;
+  line-height:1.3;
+}
+#balms .items.compact-products>.item>p,
+#infusions .items.compact-products>.item>p{margin-top:auto!important}
+#candles .items.compact-products>.item>p:not(:last-child){min-height:3em}
+#candles .items.compact-products>.item>p:last-child{margin-top:auto!important}
+#other .items.compact-products>.item>h3{min-height:2.6em}
+#other .items.compact-products>.item>p{margin-top:auto}
+#soap .items.compact-products>.item>h3{min-height:3.9em}
+#candles .items.compact-products>.item>h3{min-height:3.9em}
+.gift-grid{align-items:stretch;grid-auto-rows:1fr}
+.gift-grid>.gift-card{height:100%;box-sizing:border-box;display:flex;flex-direction:column}
+.gift-grid>.gift-card>.gift-card-body{display:flex;flex:1;flex-direction:column}
+.gift-grid>.gift-card .gift-actions{margin-top:auto}
+@media(max-width:700px){
+ #balms .items.compact-products>.item>img.product-label,
+ #infusions .items.compact-products>.item>img.product-label{flex-basis:125px;height:125px;max-height:125px}
+ #balms .items.compact-products>.item>h3,
+ #infusions .items.compact-products>.item>h3{min-height:2.6em;font-size:15px}
+ #candles .items.compact-products>.item>h3{min-height:3.9em}
+}
 </style></head><body>
 <div class="top"><div class="wrap topinner"><a class="brand" href="#home"><span class="bee">🐝</span><span><strong>Дедушкина пасека</strong><small>НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</small></span></a><nav class="nav"><a href="#home">Главная</a><a href="#catalog">Каталог</a><a href="#about">О пасеке</a><a href="#gifts">🎁 Подарочные наборы</a><a href="#info">Полезная информация</a><a href="#delivery">Доставка</a><a href="#contacts">Контакты</a></nav></div></div>
 <header class="hero" id="home"><div class="herobox"><div class="hero-kicker">🐝 СЕМЕЙНАЯ ПАСЕКА · КЛЕЦКИЙ РАЙОН</div><h1>Дедушкина пасека</h1><div class="ornament">── 🐝 ──</div><p class="sub">НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</p><p class="motto">Мёд и продукты пчеловодства с заботой о природе</p><div class="virtues"><div><span>♧</span>Натурально<br/>и полезно</div><div><span>⬡</span>Собственное<br/>производство</div><div><span>♡</span>Традиции<br/>и качество</div></div></div></header>
