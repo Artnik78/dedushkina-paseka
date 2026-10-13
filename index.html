@@ -406,25 +406,47 @@
   var mixCount=document.getElementById('giftMixCount');
   var mixSubmit=document.getElementById('giftMixSubmit');
   var mixClose=document.getElementById('giftMixClose');
+  var mixTitle=document.getElementById('giftMixTitle');
+  var mixNote=document.getElementById('giftMixNote');
+  var candlePicker=document.getElementById('giftCandlePicker');
+  var candleSelect=document.getElementById('giftCandleSelect');
+  var activeGift=null;
   var mixTotal=0;
+  var creamFlavors=Array.from(document.querySelectorAll('#cream .cream-item h3')).map(function(h){return h.textContent.trim();});
+  var giftConfig={
+    'Медовый набор №1':{count:7,price:'95 руб.'},
+    'Медовый набор №2':{count:2,price:'35 руб.'},
+    'Медовый набор №3':{count:3,price:'69 руб.'},
+    'Медовый набор №4':{count:3,price:'54 руб.',candle:true}
+  };
   function updateMix(){
     mixTotal=0;
     mixList.querySelectorAll('select').forEach(function(sel){mixTotal+=Number(sel.value||0);});
-    mixCount.textContent='Выбрано: '+mixTotal+' из 7 баночек';
-    mixSubmit.disabled=mixTotal!==7;
-    mixSubmit.textContent=mixTotal===7?'Добавить набор в корзину — 95 руб.':'Выберите ещё '+(7-mixTotal)+' баночек';
+    var cfg=giftConfig[activeGift]||{count:0,price:''};
+    mixCount.textContent='Выбрано: '+mixTotal+' из '+cfg.count+' баночек';
+    var candleOk=!cfg.candle||!!candleSelect.value;
+    mixSubmit.disabled=mixTotal!==cfg.count||!candleOk;
+    if(mixTotal!==cfg.count)mixSubmit.textContent='Выберите ещё '+(cfg.count-mixTotal)+' баночек';
+    else if(!candleOk)mixSubmit.textContent='Выберите свечу';
+    else mixSubmit.textContent='Добавить набор в корзину — '+cfg.price;
   }
-  function openMix(){
+  function openMix(name){
+    var cfg=giftConfig[name];if(!cfg)return;
+    activeGift=name;
+    mixTitle.textContent='🍯 Соберите '+name.toLowerCase();
+    mixNote.textContent='Выберите вкусы взбитого мёда. В набор должно войти ровно '+cfg.count+' баночек. Цена набора — '+cfg.price+(cfg.candle?' В комплект также входит одна свеча.':'');
+    candlePicker.hidden=!cfg.candle;
+    candleSelect.value='';
     mixList.innerHTML='';
-    document.querySelectorAll('#cream .cream-item h3').forEach(function(h3){
+    creamFlavors.forEach(function(flavor){
       var row=document.createElement('div');row.className='gift-mix-row';
-      var label=document.createElement('label');label.textContent=h3.textContent.trim();
-      var select=document.createElement('select');select.setAttribute('aria-label','Количество: '+h3.textContent.trim());
-      for(var n=0;n<=7;n++){var opt=document.createElement('option');opt.value=String(n);opt.textContent=String(n)+' шт.';select.appendChild(opt);}
+      var label=document.createElement('label');label.textContent=flavor;
+      var select=document.createElement('select');select.setAttribute('aria-label','Количество: '+flavor);
+      for(var n=0;n<=cfg.count;n++){var opt=document.createElement('option');opt.value=String(n);opt.textContent=String(n)+' шт.';select.appendChild(opt);}
       select.addEventListener('change',function(){
         var otherTotal=0;
         mixList.querySelectorAll('select').forEach(function(sel){if(sel!==select)otherTotal+=Number(sel.value||0);});
-        if(Number(select.value)+otherTotal>7){select.value=String(Math.max(0,7-otherTotal));}
+        if(Number(select.value)+otherTotal>cfg.count)select.value=String(Math.max(0,cfg.count-otherTotal));
         updateMix();
       });
       row.append(label,select);mixList.appendChild(row);
@@ -433,16 +455,18 @@
   }
   function closeMix(){mixModal.classList.remove('open');mixModal.setAttribute('aria-hidden','true');document.body.style.overflow='';}
   mixClose.addEventListener('click',closeMix);
+  candleSelect.addEventListener('change',updateMix);
   mixModal.addEventListener('click',function(e){if(e.target===mixModal)closeMix();});
   mixSubmit.addEventListener('click',function(){
-    if(mixTotal!==7)return;
+    var cfg=giftConfig[activeGift];if(!cfg||mixTotal!==cfg.count||(cfg.candle&&!candleSelect.value))return;
     var details=[];
     mixList.querySelectorAll('.gift-mix-row').forEach(function(row){
       var qty=Number(row.querySelector('select').value||0);
       if(qty>0)details.push(row.querySelector('label').textContent+' — '+qty+' шт.');
     });
+    if(cfg.candle)details.push('Свеча: '+candleSelect.value);
     if(window.addCartItem){
-      window.addCartItem('Медовый набор №1 — 7 баночек взбитого мёда',details.join('; ')+'; Цена набора: 95 руб.');
+      window.addCartItem(activeGift+' — '+cfg.count+' баночки взбитого мёда',details.join('; ')+'; Цена набора: '+cfg.price);
       closeMix();
       var cartButton=document.getElementById('cartFab');if(cartButton)cartButton.click();
     }
@@ -451,12 +475,11 @@
     btn.addEventListener('click',function(){
       var name=btn.getAttribute('data-order-gift')||'Подарочный набор';
       var price=btn.getAttribute('data-gift-price')||'';
-      if(name==='Медовый набор №1'){openMix();return;}
+      if(giftConfig[name]){openMix(name);return;}
       var option=price==='Цена уточняется'?'Цена уточняется':price;
       if(window.addCartItem){
         window.addCartItem(name,option);
-        var cartButton=document.getElementById('cartFab');
-        if(cartButton) cartButton.click();
+        var cartButton=document.getElementById('cartFab');if(cartButton)cartButton.click();
       } else {
         window.location.href='viber://chat?number=%2B375445748112&draft='+encodeURIComponent('Здравствуйте! Хочу заказать: '+name+(price?' — '+price:''));
       }
