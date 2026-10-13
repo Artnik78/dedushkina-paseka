@@ -2025,10 +2025,15 @@ if($('sendRecoveryEmailBtn')) $('sendRecoveryEmailBtn').onclick=async()=>{
   if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
     $('recoveryMessage').textContent='Введите корректный email, указанный при регистрации.';return;
   }
+  const turnstileToken=window.turnstile&&window.turnstile.getResponse?window.turnstile.getResponse():'';
+  if(!turnstileToken){
+    $('recoveryMessage').textContent='Подтвердите проверку безопасности Cloudflare перед восстановлением доступа.';
+    return;
+  }
   const button=$('sendRecoveryEmailBtn');button.disabled=true;
   try{
     const redirectTo=window.location.origin+window.location.pathname;
-    const {error}=await db.auth.resetPasswordForEmail(email,{redirectTo});
+    const {error}=await db.auth.resetPasswordForEmail(email,{redirectTo,captchaToken:turnstileToken});
     if(error)throw error;
     $('recoveryMessage').textContent='Если для этого адреса зарегистрирован аккаунт, письмо со ссылкой для смены пароля отправлено. Проверьте входящие и папку «Спам».';
   }catch(error){
