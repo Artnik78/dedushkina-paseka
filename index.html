@@ -1216,6 +1216,108 @@ footer{border-top:1px solid rgba(233,215,184,.18);line-height:1.6}
 }
 @media(prefers-reduced-motion:reduce){.popular-card,.about .btn,.delivery-card{transition:none}}
 
+
+/* Общий адаптивный вид всех окон с информацией о товарах */
+.honey-info-modal,.cream-info-modal,.honeycomb-info-modal,.detail-info-modal{
+ background:rgba(34,23,12,.68);
+ backdrop-filter:blur(4px);
+ -webkit-backdrop-filter:blur(4px);
+}
+.honeycomb-info-box,.detail-info-modal .detail-info-box{
+ scrollbar-gutter:stable;
+ overscroll-behavior:contain;
+ scroll-behavior:smooth;
+ border:1px solid #e2cfaa;
+ background:linear-gradient(180deg,#fffdf8 0%,#fff6e5 100%);
+}
+.honeycomb-info-head h2,.detail-info-head h2{color:#50351f;line-height:1.2;text-wrap:balance}
+.honeycomb-info-head p,.detail-info-head p{line-height:1.5}
+.honeycomb-info-card,.detail-info-card{
+ min-width:0;
+ border-color:#e2cfaa;
+ background:#fffdf8;
+ box-shadow:0 3px 12px rgba(75,48,18,.045);
+}
+.honeycomb-info-card h3,.detail-info-card h3{color:#50351f;line-height:1.35;text-wrap:balance}
+.honeycomb-info-card p,.honeycomb-info-card li,.detail-info-card p,.detail-info-card li{color:#5d4a35;line-height:1.6}
+.honeycomb-info-benefit,.detail-info-benefit{min-width:0;background:#fff9ed;border-color:#dfc99f;overflow-wrap:anywhere}
+.honeycomb-info-benefit b,.detail-info-benefit b{color:#5a7138;line-height:1.4}
+.honeycomb-info-footer,.detail-info-footer{
+ margin-top:16px;
+ padding-top:13px;
+ border-top:1px solid #e2cfaa;
+ color:#80684a;
+ font-size:13px;
+ line-height:1.65;
+ overflow-wrap:anywhere;
+}
+.honeycomb-info-footer a,.detail-info-footer a{color:#67471f;text-underline-offset:3px}
+.honeycomb-info-close,.detail-info-close{
+ z-index:4;
+ border:1px solid #d9c39a;
+ background:#f6e8cc;
+ color:#50351f;
+ box-shadow:0 2px 8px rgba(60,40,20,.12);
+}
+.honeycomb-info-close:hover,.detail-info-close:hover{background:#e8d4ad}
+.honey-info-modal .info-gallery,.cream-info-modal .info-gallery,
+.detail-info-modal .info-gallery{align-items:stretch}
+.honey-info-modal .info-gallery figure,.cream-info-modal .info-gallery figure,
+.detail-info-modal .info-gallery figure{min-width:0;height:100%}
+.honey-info-modal .info-gallery img,.cream-info-modal .info-gallery img,
+.detail-info-modal .info-gallery img{object-fit:contain}
+.detail-info-modal .detail-info-wide{grid-column:1/-1}
+@media(max-width:700px){
+ .honey-info-modal,.cream-info-modal,.honeycomb-info-modal,.detail-info-modal{
+  align-items:flex-end;
+  padding:8px 8px calc(70px + env(safe-area-inset-bottom));
+ }
+ .honey-info-modal .detail-info-box,.cream-info-modal .detail-info-box,
+ .detail-info-modal .detail-info-box{
+  width:100%;
+  max-width:none;
+  max-height:80dvh;
+  padding:15px 12px 17px;
+  border-radius:20px 20px 14px 14px;
+ }
+ .honeycomb-info-box{
+  width:100%;
+  max-width:none;
+  max-height:80dvh;
+  padding:15px 12px 17px;
+  border-radius:20px 20px 14px 14px;
+ }
+ .detail-info-head,.honeycomb-info-head{
+  padding:4px 42px 13px 4px;
+  text-align:left;
+ }
+ .detail-info-head h2,.honeycomb-info-head h2{font-size:23px;line-height:1.25}
+ .detail-info-head p,.honeycomb-info-head p{font-size:13px;line-height:1.45;margin-top:7px}
+ .detail-info-close,.honeycomb-info-close{
+  top:9px;right:9px;width:38px;height:38px;border-radius:12px;font-size:25px
+ }
+ .detail-info-grid,.honeycomb-info-grid{grid-template-columns:minmax(0,1fr);gap:10px;margin-top:12px}
+ .detail-info-card,.honeycomb-info-card{padding:12px;border-radius:13px}
+ .detail-info-card h3,.honeycomb-info-card h3{font-size:16px;margin:0 0 8px}
+ .detail-info-card p,.detail-info-card li,.honeycomb-info-card p,.honeycomb-info-card li{font-size:13px;line-height:1.55}
+ .detail-info-card ul,.honeycomb-info-card ul{padding-left:18px}
+ .detail-info-benefits,.honeycomb-benefits{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .detail-info-benefit,.honeycomb-benefit{padding:9px;font-size:12px;line-height:1.45}
+ .detail-info-footer,.honeycomb-info-footer{font-size:12px;line-height:1.6;padding-top:12px;margin-top:12px}
+ .detail-info-modal .detail-info-wide{grid-column:auto}
+ .detail-info-modal .info-gallery{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:12px 0 16px}
+ .detail-info-modal .info-gallery img{height:112px;padding:4px}
+ .detail-info-modal .info-gallery figcaption{padding:7px 5px;font-size:12px;line-height:1.35;overflow-wrap:anywhere}
+}
+@media(max-width:360px){
+ .honey-info-modal .detail-info-box,.cream-info-modal .detail-info-box,
+ .detail-info-modal .detail-info-box,.honeycomb-info-box{padding:13px 10px 15px}
+ .detail-info-head h2,.honeycomb-info-head h2{font-size:21px}
+ .detail-info-card,.honeycomb-info-card{padding:10px}
+ .detail-info-benefits,.honeycomb-benefits{grid-template-columns:minmax(0,1fr)}
+ .detail-info-modal .info-gallery img{height:100px}
+}
+
 </style></head><body>
 <div class="top"><div class="wrap topinner"><a class="brand" href="#home"><span class="bee">🐝</span><span><strong>Дедушкина пасека</strong><small>НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</small></span></a><nav class="nav"><a href="#home">Главная</a><a href="#catalog">Каталог</a><a href="#about">О пасеке</a><a href="#gifts">🎁 Подарочные наборы</a><a href="#info">Полезная информация</a><a href="#delivery">Доставка</a><a href="#contacts">Контакты</a></nav></div></div>
 <header class="hero" id="home"><div class="herobox"><div class="hero-kicker">🐝 СЕМЕЙНАЯ ПАСЕКА · КЛЕЦКИЙ РАЙОН</div><h1>Дедушкина пасека</h1><div class="ornament">── 🐝 ──</div><p class="sub">НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</p><p class="motto">Мёд и продукты пчеловодства с заботой о природе</p><div class="virtues"><div><span>♧</span>Натурально<br/>и полезно</div><div><span>⬡</span>Собственное<br/>производство</div><div><span>♡</span>Традиции<br/>и качество</div></div></div></header>
@@ -1318,7 +1420,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </div></div></section>
 <section class="detail" id="info"><div class="wrap"><h2>📚 Полезная информация</h2><p>Информация о сортах мёда, хранении продуктов и цифровых паспортах партий.</p><div class="items">
 <div class="item"><h3>🍯 Натуральный мёд</h3><p>Подробно о сортах мёда, составе, пользе, кристаллизации, употреблении и хранении.</p><button type="button" class="info-button" data-open-honey-info>Подробнее о натуральном мёде</button></div>
-<div class="item"><h3>🍯 Взбитый мёд</h3><p>Как получают взбитый мёд, чем он отличается от обычного, как хранить и как употреблять разные вкусы.</p><button type="button" class="info-button" data-open-cream-info>Подробнее о взбитый мёде</button></div>
+<div class="item"><h3>🍯 Взбитый мёд</h3><p>Как получают взбитый мёд, чем он отличается от обычного, как хранить и как употреблять разные вкусы.</p><button type="button" class="info-button" data-open-cream-info>Подробнее о взбитом мёде</button></div>
 <div class="item"><h3>🍯 Сотовый мёд</h3><p>Натуральный мёд в естественных восковых сотах. Узнайте о составе, пользе, употреблении и хранении.</p><button type="button" class="info-button honeycomb-info-trigger" data-open-honeycomb-info>Подробнее о сотовом мёде</button></div>
 <div class="item"><h3>🌲 Лесной мёд</h3><img alt="Листовка Лесной мёд" class="product-label" src="images/flyer-forest.png"/><a class="viber-order" href="images/flyer-forest.png" target="_blank">Открыть листовку</a></div>
 <div class="item"><h3>🌸 Майский мёд</h3><img alt="Листовка Майский мёд" class="product-label" src="images/flyer-may.png"/><a class="viber-order" href="images/flyer-may.png" target="_blank">Открыть листовку</a></div>
