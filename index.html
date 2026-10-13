@@ -732,25 +732,22 @@ document.addEventListener('DOMContentLoaded',function(){
   });
   fab.onclick=openCart;closeBtn.onclick=closeCart;overlay.onclick=closeCart;
   clearBtn.onclick=function(){cart=[];save();render();};
-  checkout.onclick=async function(){
+  checkout.onclick=function(){
     if(!cart.length){openCart();return;}
-    let msg='Здравствуйте! Хочу оформить заказ:\n';
-    cart.forEach(function(x,i){msg+=(i+1)+'. '+x.name+' — '+x.qty+' шт.'+(x.options?' ('+x.options+')':'')+'\n';});
-    msg+='\nВсего позиций: '+totalQty()+'.';
-    let copied=false;
-    try{
-      if(navigator.clipboard && navigator.clipboard.writeText){await navigator.clipboard.writeText(msg);copied=true;}
-    }catch(e){}
-    if(!copied){
-      const field=document.createElement('textarea');field.value=msg;field.setAttribute('readonly','');
-      field.style.position='fixed';field.style.left='0';field.style.top='0';field.style.opacity='1';
-      field.style.width='100%';field.style.height='120px';field.style.zIndex='100000';
-      document.body.appendChild(field);field.focus();field.select();
-      alert('Автоматическое копирование заблокировано браузером. Заказ выделен — нажмите Ctrl+C, затем откройте Viber.');
-      return;
-    }
-    alert('Заказ скопирован. Сейчас откроется чат Viber. Нажмите Ctrl+V в поле сообщения и затем «Отправить».');
-    window.location.href='viber://chat?number='+VIBER_NUMBER;
+    let msg='Здравствуйте! Хочу оформить заказ на «Дедушкиной пасеке»:\n';
+    cart.forEach(function(x,i){
+      msg+=(i+1)+'. '+x.name+' — '+x.qty+' шт.';
+      if(x.options) msg+=' ('+x.options+')';
+      msg+='\n';
+    });
+    msg+='\nВсего: '+totalQty()+' шт.\nПожалуйста, подтвердите наличие и итоговую стоимость.';
+    const draftUrl='https://viber.me/375445748112?draft='+encodeURIComponent(msg);
+    const previousText=checkout.textContent;
+    checkout.textContent='Открываем Viber…';
+    checkout.disabled=true;
+    // Не очищаем корзину: если Viber не подставит черновик, заказ не потеряется.
+    window.location.href=draftUrl;
+    setTimeout(function(){checkout.textContent=previousText;checkout.disabled=false;},1800);
   };
   window.addCartItem=function(name,options){ let existing=cart.find(function(x){return x.name===name;}); if(existing) existing.qty++; else cart.push({name:name,qty:1,options:options}); save(); render(); };
   render();
