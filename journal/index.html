@@ -2097,7 +2097,7 @@ if($('signupBtn')) $('signupBtn').onclick=async()=>{
   $('authMessage').textContent='';
   const turnstileToken=window.turnstile&&window.turnstile.getResponse?window.turnstile.getResponse():'';
   if(!turnstileToken){$('authMessage').textContent='Подтвердите проверку безопасности Cloudflare перед регистрацией.';return;}
-  try{const check=await fetch(SUPABASE_URL+'/functions/v1/journal-turnstile-verify',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY},body:JSON.stringify({token:turnstileToken,action:'signup'})});const result=await check.json().catch(()=>({}));if(!check.ok||result.success!==true)throw new Error(result.error||'Проверка безопасности не пройдена. Попробуйте ещё раз.');}catch(e){$('authMessage').textContent=e.message||'Не удалось проверить безопасность. Попробуйте ещё раз.';if(window.turnstile)window.turnstile.reset();return;}
+  if(authMethod!=='phone'){try{const check=await fetch(SUPABASE_URL+'/functions/v1/journal-turnstile-verify',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY},body:JSON.stringify({token:turnstileToken,action:'signup'})});const result=await check.json().catch(()=>({}));if(!check.ok||result.success!==true)throw new Error(result.error||'Проверка безопасности не пройдена. Попробуйте ещё раз.');}catch(e){$('authMessage').textContent=e.message||'Не удалось проверить безопасность. Попробуйте ещё раз.';if(window.turnstile)window.turnstile.reset();return;}}
   const identifier=$('authIdentifier').value.trim(), password=$('authPassword').value;
   const displayName=$('authDisplayName').value.trim();
   if(!identifier || !password){$('authMessage').textContent='Введите '+(authMethod==='phone'?'номер телефона':'email')+' и пароль.';return}
