@@ -679,10 +679,31 @@ document.addEventListener('DOMContentLoaded',function(){
   const fab=document.getElementById('cartFab'), panel=document.getElementById('cartPanel'), overlay=document.getElementById('cartOverlay'), closeBtn=document.getElementById('cartClose'), list=document.getElementById('cartList'), count=document.getElementById('cartCount'), summary=document.getElementById('cartSummary'), checkout=document.getElementById('cartCheckout'), clearBtn=document.getElementById('cartClear');
   function save(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(cart));}catch(e){}}
   function totalQty(){return cart.reduce((n,x)=>n+x.qty,0)}
+  function priceOf(item){
+    if(Number.isFinite(Number(item.price))&&item.price!==''&&item.price!==null)return Number(item.price);
+    const text=String(item.options||'');
+    const pack=text.match(/Цена набора\\s*[:—-]\\s*(\\d+(?:[,.]\\d+)?)\\s*(?:руб|BYN)/i);
+    if(pack)return Number(pack[1].replace(',','.'));
+    const matches=Array.from(text.matchAll(/(\\d+(?:[,.]\\d+)?)\\s*(?:руб|BYN)/gi));
+    if(matches.length!==1)return null;
+    return Number(matches[0][1].replace(',','.'));
+  }
+  function money(value){return value.toLocaleString('ru-RU',{minimumFractionDigits:0,maximumFractionDigits:2})+' руб.'}
+  function priceSummary(){
+    let known=0,unknown=0;
+    cart.forEach(function(item){const p=priceOf(item);if(p===null||!Number.isFinite(p))unknown+=item.qty;else known+=p*item.qty;});
+    if(!unknown)return 'Итого: '+money(known);
+    if(known>0)return 'Итого: '+money(known)+' + '+unknown+' поз. без цены';
+    return 'Итого: уточняется';
+  }
   function openCart(){panel.classList.add('open');overlay.classList.add('open');panel.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';}
   function closeCart(){panel.classList.remove('open');overlay.classList.remove('open');panel.setAttribute('aria-hidden','true');document.body.style.overflow='';}
   function render(){
-    const total=totalQty(); count.textContent=total; summary.textContent='Товаров: '+total;
+    const total=totalQty(); count.textContent=total;
+    const summaryText='Товаров: '+total+' · '+priceSummary();
+    summary.textContent=summaryText;
+    const fabLabel=fab.firstChild;
+    if(fabLabel&&fabLabel.nodeType===Node.TEXT_NODE)fabLabel.textContent='🛒 Корзина · '+priceSummary()+' ';
     if(!cart.length){list.innerHTML='<div class="cart-empty">Корзина пока пуста.<br>Нажмите «Заказать» у нужного товара.</div>';return;}
     list.innerHTML='';
     cart.forEach(function(item,i){
@@ -690,6 +711,8 @@ document.addEventListener('DOMContentLoaded',function(){
       const left=document.createElement('div');
       const name=document.createElement('div');name.className='cart-name';name.textContent=item.name;left.appendChild(name);
       if(item.options){const opt=document.createElement('div');opt.className='cart-options';opt.textContent=item.options;left.appendChild(opt);}
+      const itemPrice=priceOf(item);
+      if(itemPrice!==null&&Number.isFinite(itemPrice)){const line=document.createElement('div');line.className='cart-options';line.textContent='Цена: '+money(itemPrice)+' × '+item.qty+' = '+money(itemPrice*item.qty);left.appendChild(line);}
       const controls=document.createElement('div');controls.className='cart-controls';
       const minus=document.createElement('button');minus.className='qty-btn';minus.type='button';minus.textContent='−';minus.onclick=function(){if(item.qty>1)item.qty--;else cart.splice(i,1);save();render();};
       const qty=document.createElement('span');qty.className='qty-value';qty.textContent=item.qty;
