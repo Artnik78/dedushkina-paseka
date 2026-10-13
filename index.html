@@ -530,6 +530,36 @@
  .choice-list-row{grid-template-columns:minmax(0,1fr);gap:8px}
  .choice-list-row .viber-order{width:100%}
 }
+
+/* Корзина: чёткая иерархия, итог всегда заметен */
+.cart-head{position:sticky;top:0;z-index:2;padding:16px 18px;background:#fffaf0;border-bottom:1px solid #eadbc2}
+.cart-head h2{margin:0;font-size:23px;line-height:1.2}
+.cart-close{flex:0 0 42px;width:42px;height:42px;border-radius:14px;font-size:27px}
+.cart-list{overscroll-behavior:contain;padding:12px 14px 18px}
+.cart-row{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;margin:0 0 10px;padding:14px;border:1px solid #eadbc2;border-radius:16px;background:#fffdf8}
+.cart-row>div:first-child{min-width:0}
+.cart-name{font-size:16px;line-height:1.35;font-weight:800;color:#49331f;overflow-wrap:anywhere}
+.cart-options{margin-top:5px;font-size:13px;line-height:1.45;color:#71604b;overflow-wrap:anywhere}
+.cart-controls{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:12px}
+.qty-btn{display:inline-flex;align-items:center;justify-content:center;min-width:42px;min-height:42px;border:1px solid #d9c39a;border-radius:12px;background:#fff5df;color:#50371e;font-size:22px;font-weight:700;cursor:pointer}
+.qty-value{min-width:28px;text-align:center;font-size:16px;font-weight:800;font-variant-numeric:tabular-nums}
+.remove-btn{min-height:42px;margin-left:auto;padding:8px 12px;border:1px solid #e5c9c0;border-radius:12px;background:#fff7f4;color:#9b3d2f;font-size:13px;font-weight:700;cursor:pointer}
+.cart-foot{position:sticky;bottom:0;z-index:3;margin-top:auto;padding:13px 16px calc(14px + env(safe-area-inset-bottom));border-top:1px solid #e3d1ad;background:rgba(255,250,240,.98);box-shadow:0 -7px 20px rgba(65,42,15,.08)}
+.cart-summary{margin:0 0 12px;padding:12px 13px;border:1px solid #e0c994;border-radius:14px;background:linear-gradient(135deg,#fff3d4,#f2dfb4);color:#4b321b;font-size:17px;line-height:1.35;font-weight:800;font-variant-numeric:tabular-nums}
+.cart-checkout{min-height:50px;border-radius:14px;font-size:16px;font-weight:800}
+.cart-clear{min-height:42px;border-radius:13px}
+.cart-note{max-height:48px;overflow:auto;font-size:11px;line-height:1.35}
+.cart-empty{margin:10px 0;padding:24px 16px;border:1px dashed #d9c39a;border-radius:16px;background:#fffdf8;text-align:center;color:#78664f;line-height:1.6}
+@media(max-width:600px){
+ .cart-panel{height:100dvh;max-height:100dvh}
+ .cart-head{padding:12px 14px}
+ .cart-head h2{font-size:21px}
+ .cart-list{flex:1;min-height:0;overflow-y:auto;padding:10px 12px 14px}
+ .cart-foot{padding:10px 12px calc(12px + env(safe-area-inset-bottom))}
+ .cart-summary{font-size:16px;padding:11px 12px;margin-bottom:9px}
+ .cart-checkout{min-height:52px}
+ .cart-note{max-height:34px}
+}
 </style></head><body>
 <div class="top"><div class="wrap topinner"><a class="brand" href="#home"><span class="bee">🐝</span><span><strong>Дедушкина пасека</strong><small>НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</small></span></a><nav class="nav"><a href="#home">Главная</a><a href="#catalog">Каталог</a><a href="#about">О пасеке</a><a href="#gifts">🎁 Подарочные наборы</a><a href="#info">Полезная информация</a><a href="#delivery">Доставка</a><a href="#contacts">Контакты</a></nav></div></div>
 <header class="hero" id="home"><div class="herobox"><div class="hero-kicker">🐝 СЕМЕЙНАЯ ПАСЕКА · КЛЕЦКИЙ РАЙОН</div><h1>Дедушкина пасека</h1><div class="ornament">── 🐝 ──</div><p class="sub">НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</p><p class="motto">Мёд и продукты пчеловодства с заботой о природе</p><div class="hero-actions"><a class="hero-primary" href="#honey">Выбрать мёд <span aria-hidden="true">→</span></a><a class="hero-secondary" href="#gifts">Подарочные наборы</a></div><div class="virtues"><div><span>♧</span>Натурально<br/>и полезно</div><div><span>⬡</span>Собственное<br/>производство</div><div><span>♡</span>Традиции<br/>и качество</div></div></div></header>
