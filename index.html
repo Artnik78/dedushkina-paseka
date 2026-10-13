@@ -1122,16 +1122,7 @@ document.addEventListener('DOMContentLoaded',function(){
     });
     btn.replaceWith(cartBtn);
   });
-  // Для «Мёд разнотравье» кнопка заказа добавлена отдельно, сохраняя паспорт партии.
-  const meadow=document.querySelector('#honey .item:nth-child(3)');
-  if(meadow && !meadow.querySelector('.cart-add')){
-    const title=meadow.querySelector('h3');
-    const actions=document.createElement('div');actions.className='actions';
-    const info=document.createElement('a');info.className='info-button';info.href='#info';info.textContent='Информация';
-    const btn=document.createElement('button');btn.type='button';btn.className='viber-order cart-add';btn.textContent='Заказать';
-    btn.onclick=function(){const name=title.innerText.trim();let x=cart.find(a=>a.name===name);if(x)x.qty++;else cart.push({name:name,qty:1,options:'0,1 л — 5 руб.; 0,28 л — 7 руб.; 0,5 л — 12,50 руб.; 1 л — 25 руб.'});save();render();};
-    actions.append(info,btn);meadow.appendChild(actions);
-  }
+  // Заказ и выбор объёма открываются нажатием на изображение, как у других видов мёда.
   document.querySelectorAll('.cream-size-order').forEach(function(btn){
     btn.addEventListener('click',function(){
       const name=btn.getAttribute('data-name');
