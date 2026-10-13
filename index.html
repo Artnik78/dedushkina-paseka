@@ -928,6 +928,40 @@ footer{border-top:1px solid rgba(233,215,184,.18);line-height:1.6}
  #cream .items.compact-products,#soap .items.compact-products,#candles .items.compact-products,#balms .items.compact-products,#infusions .items.compact-products,#other .items.compact-products{grid-template-columns:repeat(3,minmax(0,1fr));align-items:start;grid-auto-rows:max-content}
  #cream .items.compact-products>.item,#soap .items.compact-products>.item,#candles .items.compact-products>.item,#balms .items.compact-products>.item,#infusions .items.compact-products>.item,#other .items.compact-products>.item{align-self:start;min-width:0}
 }
+
+/* Финальная унификация карточек подарочных наборов */
+# gifts-placeholder{display:none}
+#gifts .gift-grid{align-items:stretch;gap:14px}
+#gifts .gift-card{display:flex;flex-direction:column;min-width:0;overflow:hidden;height:100%;background:#fffdf8;border:1px solid #e2cfaa;border-radius:16px;box-shadow:0 5px 18px rgba(75,48,18,.08)}
+#gifts .gift-card img{display:block;width:100%;height:200px;object-fit:contain;object-position:center;padding:10px;background:radial-gradient(ellipse at center,#fffdf7 0%,#f5ead6 100%)}
+#gifts .gift-card-body{display:flex;flex:1;flex-direction:column;align-items:stretch;padding:15px}
+#gifts .gift-card h3{margin:0 0 9px;font-size:17px;line-height:1.35;color:#392514}
+#gifts .gift-card p{font-size:14px;line-height:1.5;margin:0 0 9px}
+#gifts .gift-card .gift-note:has(strong){align-self:flex-start;margin:2px 0 10px;padding:7px 11px;border:1px solid #e4d0a5;border-radius:999px;background:#fff1d0;color:#583a1e;font-size:15px;font-weight:800}
+#gifts .gift-actions{margin-top:auto;padding-top:8px}
+#gifts .gift-order-btn,#gifts .gift-cta .btn{display:flex;align-items:center;justify-content:center;width:100%;min-height:46px;padding:11px 12px;border:1px solid #cbb17f;border-radius:12px;background:#d9c39a;color:#392514;font-size:15px;font-weight:700;text-align:center;text-decoration:none;cursor:pointer}
+#gifts .gift-order-btn:hover,#gifts .gift-cta .btn:hover{background:#cbb17f;color:#392514}
+#gifts .gift-cta{margin-top:16px}
+#gifts .gift-cta .btn{max-width:420px;margin:0 auto}
+@media(max-width:700px){
+ #gifts .gift-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ #gifts .gift-card{border-radius:13px}
+ #gifts .gift-card img{height:145px;padding:6px}
+ #gifts .gift-card-body{padding:10px}
+ #gifts .gift-card h3{font-size:14px;line-height:1.3;margin-bottom:7px}
+ #gifts .gift-card p{font-size:12px;line-height:1.4;margin-bottom:7px}
+ #gifts .gift-card .gift-note:has(strong){font-size:13px;padding:6px 8px}
+ #gifts .gift-order-btn{min-height:42px;padding:9px 6px;font-size:13px}
+ #gifts .gift-cta .btn{font-size:14px;padding:11px 10px}
+}
+@media(max-width:360px){
+ #gifts .gift-grid{grid-template-columns:minmax(0,1fr)}
+ #gifts .gift-card img{height:180px}
+ #gifts .gift-card-body{padding:13px}
+ #gifts .gift-card h3{font-size:16px}
+ #gifts .gift-card p{font-size:13px}
+ #gifts .gift-order-btn{font-size:14px}
+}
 </style></head><body>
 <div class="top"><div class="wrap topinner"><a class="brand" href="#home"><span class="bee">🐝</span><span><strong>Дедушкина пасека</strong><small>НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</small></span></a><nav class="nav"><a href="#home">Главная</a><a href="#catalog">Каталог</a><a href="#about">О пасеке</a><a href="#gifts">🎁 Подарочные наборы</a><a href="#info">Полезная информация</a><a href="#delivery">Доставка</a><a href="#contacts">Контакты</a></nav></div></div>
 <header class="hero" id="home"><div class="herobox"><div class="hero-kicker">🐝 СЕМЕЙНАЯ ПАСЕКА · КЛЕЦКИЙ РАЙОН</div><h1>Дедушкина пасека</h1><div class="ornament">── 🐝 ──</div><p class="sub">НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</p><p class="motto">Мёд и продукты пчеловодства с заботой о природе</p><div class="virtues"><div><span>♧</span>Натурально<br/>и полезно</div><div><span>⬡</span>Собственное<br/>производство</div><div><span>♡</span>Традиции<br/>и качество</div></div></div></header>
