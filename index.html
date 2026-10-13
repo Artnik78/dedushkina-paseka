@@ -722,24 +722,14 @@ document.addEventListener('DOMContentLoaded',function(){
   });
   fab.onclick=openCart;closeBtn.onclick=closeCart;overlay.onclick=closeCart;
   clearBtn.onclick=function(){cart=[];save();render();};
-  checkout.onclick=async function(){
+  checkout.onclick=function(){
     if(!cart.length){openCart();return;}
     let msg='Здравствуйте! Хочу оформить заказ:\n';
     cart.forEach(function(x,i){msg+=(i+1)+'. '+x.name+' — '+x.qty+' шт.'+(x.options?' ('+x.options+')':'')+'\n';});
     msg+='\nВсего позиций: '+totalQty()+'.';
-    let copied=false;
-    try{
-      if(navigator.clipboard && navigator.clipboard.writeText){await navigator.clipboard.writeText(msg);copied=true;}
-    }catch(e){}
-    if(!copied){
-      const field=document.createElement('textarea');field.value=msg;field.setAttribute('readonly','');
-      field.style.position='fixed';field.style.left='-9999px';document.body.appendChild(field);field.select();
-      try{copied=document.execCommand('copy');}catch(e){}field.remove();
-    }
-    if(!copied){alert('Не удалось скопировать заказ. Корзина сохранена — попробуйте ещё раз.');return;}
+    const direct='https://viber.me/375445748112?draft='+encodeURIComponent(msg);
     cart=[];save();render();closeCart();
-    alert('Заказ скопирован. Сейчас откроется Viber. Вставьте заказ сочетанием Ctrl+V и нажмите «Отправить».');
-    window.location.href='viber://chat?number='+VIBER_NUMBER;
+    window.location.href=direct;
   };
   window.addCartItem=function(name,options){ let existing=cart.find(function(x){return x.name===name;}); if(existing) existing.qty++; else cart.push({name:name,qty:1,options:options}); save(); render(); };
   render();
