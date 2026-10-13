@@ -727,7 +727,7 @@ document.addEventListener('DOMContentLoaded',function(){
     let msg='Здравствуйте! Хочу оформить заказ:\n';
     cart.forEach(function(x,i){msg+=(i+1)+'. '+x.name+' — '+x.qty+' шт.'+(x.options?' ('+x.options+')':'')+'\n';});
     msg+='\nВсего позиций: '+totalQty()+'.';
-    const direct='https://viber.me/375445748112?draft='+encodeURIComponent(msg);
+    const direct='viber://chat?number='+VIBER_NUMBER+'&draft='+encodeURIComponent(msg);
     try{navigator.clipboard && navigator.clipboard.writeText(msg).catch(function(){});}catch(e){}
     cart=[];save();render();closeCart();
     window.location.href=direct;
