@@ -1162,6 +1162,60 @@ footer{border-top:1px solid rgba(233,215,184,.18);line-height:1.6}
  .tile,.tile img,.nav a{transition:none}
 }
 
+
+/* Финальная полировка блоков главной страницы */
+.popular{position:relative;padding:34px 0 38px;background:linear-gradient(180deg,#f8edda 0%,#fff8eb 100%);border-top:1px solid #ead9b9;border-bottom:1px solid #ead9b9}
+.popular h2{margin:0 0 20px;color:#50351f;font-size:clamp(26px,3vw,36px);line-height:1.2;text-align:center}
+.popular-grid{align-items:stretch;gap:16px}
+.popular-card{min-width:0;border:1px solid #e5d4b7;border-radius:17px;background:#fffdf8;box-shadow:0 5px 16px rgba(75,48,18,.07);transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+.popular-card:hover{transform:translateY(-3px);border-color:#cdb184;box-shadow:0 10px 24px rgba(75,48,18,.12)}
+.popular-card:focus-visible{outline:3px solid #a47734;outline-offset:3px}
+.popular-card img{height:165px;background:radial-gradient(ellipse at center,#fffdf8 0%,#f5ead6 100%)}
+.popular-card-body{display:flex;flex:1;flex-direction:column;align-items:center;padding:14px 12px 16px}
+.popular-badge{background:#f3e3c1;color:#67471f}
+.popular-card h3{font-size:clamp(16px,1.5vw,19px);line-height:1.3;color:#50351f;text-wrap:balance}
+.popular-card p{font-size:13px;line-height:1.45}
+.about{border-top:1px solid #e5d4b7;border-bottom:1px solid #e5d4b7}
+.about>img{min-width:0}
+.about .copy{position:relative}
+.about-kicker{line-height:1.5}
+.about-points span{color:#5d472f;line-height:1.35}
+.about .btn{background:#d9c39a;color:#392514;border:1px solid #cbb17f;box-shadow:0 3px 10px rgba(75,48,18,.08);transition:background .18s ease,transform .18s ease}
+.about .btn:hover{background:#cbb17f;transform:translateY(-1px)}
+.delivery-section{border-top:1px solid #ead9b9;border-bottom:1px solid #ead9b9}
+.delivery-intro>span{display:inline-block;margin-bottom:4px}
+.delivery-intro h2{font-size:clamp(27px,3vw,36px);line-height:1.2;text-wrap:balance}
+.delivery-intro p{max-width:620px;margin:8px auto 0;line-height:1.55}
+.delivery-grid{align-items:stretch}
+.delivery-card{position:relative;gap:4px;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+.delivery-card:hover{transform:translateY(-2px);border-color:#cdb184;box-shadow:0 9px 22px rgba(75,48,18,.10)}
+.delivery-card h3{color:#50351f}
+.delivery-card p{line-height:1.55}
+.delivery-note{border:1px solid #e5d4b7;color:#6f5a43}
+.delivery-note strong{color:#50351f}
+@media(max-width:700px){
+ .popular{padding:24px 0 27px}
+ .popular h2{font-size:25px;margin-bottom:14px}
+ .popular-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ .popular-card{border-radius:13px}
+ .popular-card img{height:120px;padding:6px}
+ .popular-card-body{padding:10px 7px 12px}
+ .popular-badge{font-size:10px;padding:4px 7px;margin-bottom:6px}
+ .popular-card h3{font-size:14px;line-height:1.3}
+ .popular-card p{font-size:11px;line-height:1.4}
+ .about .copy{padding:24px 15px}
+ .delivery-card:hover,.popular-card:hover{transform:none}
+ .delivery-intro h2{font-size:25px}
+}
+@media(max-width:360px){
+ .popular-grid{gap:7px}
+ .popular-card img{height:105px}
+ .popular-card-body{padding:9px 6px 10px}
+ .popular-card h3{font-size:13px}
+ .popular-card p{font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){.popular-card,.about .btn,.delivery-card{transition:none}}
+
 </style></head><body>
 <div class="top"><div class="wrap topinner"><a class="brand" href="#home"><span class="bee">🐝</span><span><strong>Дедушкина пасека</strong><small>НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</small></span></a><nav class="nav"><a href="#home">Главная</a><a href="#catalog">Каталог</a><a href="#about">О пасеке</a><a href="#gifts">🎁 Подарочные наборы</a><a href="#info">Полезная информация</a><a href="#delivery">Доставка</a><a href="#contacts">Контакты</a></nav></div></div>
 <header class="hero" id="home"><div class="herobox"><div class="hero-kicker">🐝 СЕМЕЙНАЯ ПАСЕКА · КЛЕЦКИЙ РАЙОН</div><h1>Дедушкина пасека</h1><div class="ornament">── 🐝 ──</div><p class="sub">НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</p><p class="motto">Мёд и продукты пчеловодства с заботой о природе</p><div class="virtues"><div><span>♧</span>Натурально<br/>и полезно</div><div><span>⬡</span>Собственное<br/>производство</div><div><span>♡</span>Традиции<br/>и качество</div></div></div></header>
