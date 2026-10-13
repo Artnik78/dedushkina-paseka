@@ -722,14 +722,24 @@ document.addEventListener('DOMContentLoaded',function(){
   });
   fab.onclick=openCart;closeBtn.onclick=closeCart;overlay.onclick=closeCart;
   clearBtn.onclick=function(){cart=[];save();render();};
-  checkout.onclick=function(){
+  checkout.onclick=async function(){
     if(!cart.length){openCart();return;}
     let msg='Здравствуйте! Хочу оформить заказ:\n';
     cart.forEach(function(x,i){msg+=(i+1)+'. '+x.name+' — '+x.qty+' шт.'+(x.options?' ('+x.options+')':'')+'\n';});
     msg+='\nВсего позиций: '+totalQty()+'.';
-    const direct='viber://chat?number='+VIBER_NUMBER+'&draft='+encodeURIComponent(msg);
-    try{navigator.clipboard && navigator.clipboard.writeText(msg).catch(function(){});}catch(e){}
+    const direct='viber://chat?number='+VIBER_NUMBER;
+    let copied=false;
+    try{
+      if(navigator.clipboard && navigator.clipboard.writeText){await navigator.clipboard.writeText(msg);copied=true;}
+    }catch(e){}
+    if(!copied){
+      const field=document.createElement('textarea');field.value=msg;field.setAttribute('readonly','');
+      field.style.position='fixed';field.style.left='-9999px';document.body.appendChild(field);field.select();
+      try{copied=document.execCommand('copy');}catch(e){}field.remove();
+    }
+    if(!copied){alert('Не удалось автоматически скопировать заказ. Корзина сохранена — скопируйте заказ вручную и повторите.');return;}
     cart=[];save();render();closeCart();
+    alert('Заказ скопирован. В открывшемся чате Viber нажмите Ctrl+V и отправьте сообщение.');
     window.location.href=direct;
   };
   window.addCartItem=function(name,options){ let existing=cart.find(function(x){return x.name===name;}); if(existing) existing.qty++; else cart.push({name:name,qty:1,options:options}); save(); render(); };
