@@ -2097,7 +2097,7 @@ if($('signupBtn')) $('signupBtn').onclick=async()=>{
   $('authMessage').textContent='';
   const turnstileToken=window.turnstile&&window.turnstile.getResponse?window.turnstile.getResponse():'';
   if(!turnstileToken){$('authMessage').textContent='Подтвердите проверку безопасности Cloudflare перед регистрацией.';return;}
-  if(authMethod!=='phone'){try{const check=await fetch(SUPABASE_URL+'/functions/v1/journal-turnstile-verify',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY},body:JSON.stringify({token:turnstileToken,action:'signup'})});const result=await check.json().catch(()=>({}));if(!check.ok||result.success!==true)throw new Error(result.error||'Проверка безопасности не пройдена. Попробуйте ещё раз.');}catch(e){$('authMessage').textContent=e.message||'Не удалось проверить безопасность. Попробуйте ещё раз.';if(window.turnstile)window.turnstile.reset();return;}}
+
   const identifier=$('authIdentifier').value.trim(), password=$('authPassword').value;
   const displayName=$('authDisplayName').value.trim();
   if(!identifier || !password){$('authMessage').textContent='Введите '+(authMethod==='phone'?'номер телефона':'email')+' и пароль.';return}
@@ -2111,7 +2111,7 @@ if($('signupBtn')) $('signupBtn').onclick=async()=>{
       const payload=await callPhoneAuth('register',identifier,password,displayName);
       $('authMessage').textContent=payload.message||'Заявка создана. Дождитесь одобрения владельца журнала.';
     }else{
-      const {data,error}=await db.auth.signUp({email:identifier,password});
+      const {data,error}=await db.auth.signUp({email:identifier,password,options:{captchaToken:turnstileToken}});
       if(error)throw error;
       if(data.session){$('authMessage').textContent='Регистрация отправлена владельцу журнала на одобрение. Доступ откроется после одобрения администратором.';await db.auth.signOut({scope:'local'});}
       else $('authMessage').textContent='Аккаунт создан. Подтвердите email, если потребуется. Владелец журнала получит уведомление, а доступ откроется после одобрения администратором.';
