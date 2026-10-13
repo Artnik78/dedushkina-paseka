@@ -962,6 +962,38 @@ footer{border-top:1px solid rgba(233,215,184,.18);line-height:1.6}
  #gifts .gift-card p{font-size:13px}
  #gifts .gift-order-btn{font-size:14px}
 }
+
+/* Единый премиальный вид карточек мыла, свечей и других товаров */
+#soap .items.compact-products>.item,
+#candles .items.compact-products>.item,
+#other .items.compact-products>.item{box-sizing:border-box;border:1px solid #e2cfaa;border-radius:15px;background:linear-gradient(180deg,#fffdf8 0%,#fff8eb 100%);box-shadow:0 5px 16px rgba(75,48,18,.07);padding:11px;overflow:hidden}
+#soap .items.compact-products>.item img.product-label,
+#candles .items.compact-products>.item img.product-label,
+#other .items.compact-products>.item img.product-label{display:block;width:100%;height:155px;max-height:155px;object-fit:contain;object-position:center;background:radial-gradient(ellipse at center,#fffdf7 0%,#f5ead6 100%);border-radius:11px;padding:5px;margin:0 0 9px;cursor:pointer}
+#soap .items.compact-products>.item h3,
+#candles .items.compact-products>.item h3,
+#other .items.compact-products>.item h3{font-size:15px;line-height:1.32;color:#50351f;margin:0 0 8px;overflow-wrap:anywhere}
+#soap .items.compact-products>.item p,
+#candles .items.compact-products>.item p,
+#other .items.compact-products>.item p{font-size:13px;line-height:1.45;color:#59452f;margin:0 0 7px;overflow-wrap:anywhere}
+#soap .items.compact-products>.item p[style*="margin:0"],
+#candles .items.compact-products>.item p[style*="margin:0"],
+#other .items.compact-products>.item p[style*="margin:0"]{margin-bottom:0!important}
+#soap .items.compact-products>.item:hover,
+#candles .items.compact-products>.item:hover,
+#other .items.compact-products>.item:hover{border-color:#d3b77f;box-shadow:0 8px 20px rgba(75,48,18,.11)}
+@media(max-width:700px){
+ #soap .items.compact-products>.item,#candles .items.compact-products>.item,#other .items.compact-products>.item{padding:8px;border-radius:12px}
+ #soap .items.compact-products>.item img.product-label,#candles .items.compact-products>.item img.product-label,#other .items.compact-products>.item img.product-label{height:125px;max-height:125px;padding:4px;margin-bottom:7px}
+ #soap .items.compact-products>.item h3,#candles .items.compact-products>.item h3,#other .items.compact-products>.item h3{font-size:13px;line-height:1.3;margin-bottom:6px}
+ #soap .items.compact-products>.item p,#candles .items.compact-products>.item p,#other .items.compact-products>.item p{font-size:11px;line-height:1.4;margin-bottom:5px}
+}
+@media(max-width:360px){
+ #soap .items.compact-products,#candles .items.compact-products,#other .items.compact-products{grid-template-columns:minmax(0,1fr)}
+ #soap .items.compact-products>.item img.product-label,#candles .items.compact-products>.item img.product-label,#other .items.compact-products>.item img.product-label{height:175px;max-height:175px}
+ #soap .items.compact-products>.item h3,#candles .items.compact-products>.item h3,#other .items.compact-products>.item h3{font-size:15px}
+ #soap .items.compact-products>.item p,#candles .items.compact-products>.item p,#other .items.compact-products>.item p{font-size:13px}
+}
 </style></head><body>
 <div class="top"><div class="wrap topinner"><a class="brand" href="#home"><span class="bee">🐝</span><span><strong>Дедушкина пасека</strong><small>НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</small></span></a><nav class="nav"><a href="#home">Главная</a><a href="#catalog">Каталог</a><a href="#about">О пасеке</a><a href="#gifts">🎁 Подарочные наборы</a><a href="#info">Полезная информация</a><a href="#delivery">Доставка</a><a href="#contacts">Контакты</a></nav></div></div>
 <header class="hero" id="home"><div class="herobox"><div class="hero-kicker">🐝 СЕМЕЙНАЯ ПАСЕКА · КЛЕЦКИЙ РАЙОН</div><h1>Дедушкина пасека</h1><div class="ornament">── 🐝 ──</div><p class="sub">НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</p><p class="motto">Мёд и продукты пчеловодства с заботой о природе</p><div class="virtues"><div><span>♧</span>Натурально<br/>и полезно</div><div><span>⬡</span>Собственное<br/>производство</div><div><span>♡</span>Традиции<br/>и качество</div></div></div></header>
