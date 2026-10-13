@@ -490,6 +490,24 @@
  .hero-primary{min-width:190px}
  .hero-secondary{min-width:190px}
 }
+
+/* Каталог: цена заметна сразу, карточки выглядят единообразно */
+.item.choice-item{display:flex;flex-direction:column;align-items:stretch;min-width:0;overflow:hidden}
+.item.choice-item>img.product-label{width:100%;object-fit:contain;flex:0 0 auto}
+.item.choice-item>h3{margin-top:2px;min-height:2.4em}
+.item.choice-item>.price-tag{align-self:flex-start;display:inline-flex;align-items:center;gap:5px;margin:5px 0 9px;padding:7px 11px;border:1px solid #e6d3a9;border-radius:999px;background:linear-gradient(135deg,#fff7e4,#f3dfb2);color:#563817;font-size:15px;font-weight:800;letter-spacing:.1px}
+.item.choice-item>.price-options{font-size:13px;line-height:1.55;color:#5c5142;background:#faf6ee;border-radius:10px;padding:8px 10px!important;margin:0 0 9px!important}
+.item.choice-item>a:not(.viber-order){align-self:flex-start;margin-top:auto;padding-top:7px;font-size:13px;font-weight:700}
+.item.choice-item:focus-within,.item.choice-item:hover{border-color:#d6b878;box-shadow:0 8px 24px rgba(82,54,20,.09)}
+@media(max-width:600px){
+ .item.choice-item{padding:12px!important;border-radius:16px}
+ .item.choice-item>img.product-label{height:160px;margin-bottom:10px}
+ .item.choice-item>h3{font-size:17px;min-height:0;margin-bottom:7px}
+ .item.choice-item>.price-tag{font-size:14px;margin:3px 0 8px}
+ .item.choice-item>.price-options{font-size:12px;padding:7px 8px!important}
+ .item.choice-item>a:not(.viber-order){font-size:12px}
+}
+@media(max-width:380px){.item.choice-item>img.product-label{height:145px}}
 </style></head><body>
 <div class="top"><div class="wrap topinner"><a class="brand" href="#home"><span class="bee">🐝</span><span><strong>Дедушкина пасека</strong><small>НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</small></span></a><nav class="nav"><a href="#home">Главная</a><a href="#catalog">Каталог</a><a href="#about">О пасеке</a><a href="#gifts">🎁 Подарочные наборы</a><a href="#info">Полезная информация</a><a href="#delivery">Доставка</a><a href="#contacts">Контакты</a></nav></div></div>
 <header class="hero" id="home"><div class="herobox"><div class="hero-kicker">🐝 СЕМЕЙНАЯ ПАСЕКА · КЛЕЦКИЙ РАЙОН</div><h1>Дедушкина пасека</h1><div class="ornament">── 🐝 ──</div><p class="sub">НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</p><p class="motto">Мёд и продукты пчеловодства с заботой о природе</p><div class="hero-actions"><a class="hero-primary" href="#honey">Выбрать мёд <span aria-hidden="true">→</span></a><a class="hero-secondary" href="#gifts">Подарочные наборы</a></div><div class="virtues"><div><span>♧</span>Натурально<br/>и полезно</div><div><span>⬡</span>Собственное<br/>производство</div><div><span>♡</span>Традиции<br/>и качество</div></div></div></header>
@@ -1200,4 +1218,37 @@ document.addEventListener('DOMContentLoaded',function(){
    }
  });
 })();
-</script></body></html>
+</script>
+<script>
+/* Показываем минимальную цену из вариантов товара, не подменяя цену заказа. */
+(function(){
+  function addStartingPrices(){
+    document.querySelectorAll('.item.choice-item').forEach(function(card){
+      if(card.querySelector('.price-tag')) return;
+      var trigger=card.querySelector('[data-options]');
+      if(!trigger) return;
+      var options=trigger.getAttribute('data-options')||'';
+      var prices=[];
+      options.split('|').forEach(function(option){
+        var matches=Array.from(option.matchAll(/(\d+(?:[,.]\d+)?)\s*(?:руб|BYN)/gi));
+        matches.forEach(function(match){
+          var value=parseFloat(match[1].replace(',','.'));
+          if(Number.isFinite(value)) prices.push({value:value,label:match[1].replace('.',',')});
+        });
+      });
+      if(!prices.length) return;
+      prices.sort(function(a,b){return a.value-b.value});
+      var badge=document.createElement('div');
+      badge.className='price-tag';
+      badge.textContent='от '+prices[0].label+' руб.';
+      var title=card.querySelector('h3');
+      if(title) title.insertAdjacentElement('afterend',badge);
+      var paragraph=card.querySelector('p');
+      if(paragraph && /руб|BYN/i.test(paragraph.textContent)) paragraph.classList.add('price-options');
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',addStartingPrices);
+  else addStartingPrices();
+})();
+</script>
+</body></html>
