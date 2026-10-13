@@ -2086,7 +2086,9 @@ if($('loginBtn')) $('loginBtn').onclick=async()=>{
       if(error)throw error;
       $('authMessage').textContent='Вход выполнен. Загружаем журнал…';
     }else{
-      const {data,error}=await db.auth.signInWithPassword({email:identifier,password});
+      const turnstileToken=window.turnstile&&window.turnstile.getResponse?window.turnstile.getResponse():'';
+      if(!turnstileToken)throw new Error('Подтвердите проверку безопасности Cloudflare перед входом.');
+      const {data,error}=await db.auth.signInWithPassword({email:identifier,password,options:{captchaToken:turnstileToken}});
       if(error)throw error;
       if(data&&data.user)$('authMessage').textContent='Вход выполнен…';
     }
