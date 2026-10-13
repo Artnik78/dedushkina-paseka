@@ -560,6 +560,20 @@
  .cart-checkout{min-height:52px}
  .cart-note{max-height:34px}
 }
+
+/* Быстрые категории рядом с поиском */
+.search-quick-links{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:8px;max-width:900px;margin:12px auto 4px}
+.search-quick-links a{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:8px 13px;border:1px solid #e2cfaa;border-radius:999px;background:#fffdf8;color:#654622;text-decoration:none;font:600 13px/1.2 Arial,sans-serif;transition:background .15s,border-color .15s,transform .15s}
+.search-quick-links a:hover,.search-quick-links a:focus-visible{background:#f5e4bf;border-color:#c7a46b;transform:translateY(-1px)}
+@media(max-width:700px){
+ .product-search{padding:18px 0 13px;scroll-margin-top:12px}
+ .product-search-box label{text-align:left;font-size:18px;margin:0 0 10px 3px}
+ .product-search-input{min-height:50px;padding-left:15px;border-radius:15px;box-shadow:0 3px 12px rgba(70,45,20,.07)}
+ .product-search-clear{bottom:6px;right:6px}
+ .search-quick-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:12px 0 0}
+ .search-quick-links a{min-height:44px;padding:9px 8px;border-radius:12px;font-size:12px;text-align:center}
+}
+@media(max-width:360px){.search-quick-links a{font-size:11px}}
 </style></head><body>
 <div class="top"><div class="wrap topinner"><a class="brand" href="#home"><span class="bee">🐝</span><span><strong>Дедушкина пасека</strong><small>НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</small></span></a><nav class="nav"><a href="#home">Главная</a><a href="#catalog">Каталог</a><a href="#about">О пасеке</a><a href="#gifts">🎁 Подарочные наборы</a><a href="#info">Полезная информация</a><a href="#delivery">Доставка</a><a href="#contacts">Контакты</a></nav></div></div>
 <header class="hero" id="home"><div class="herobox"><div class="hero-kicker">🐝 СЕМЕЙНАЯ ПАСЕКА · КЛЕЦКИЙ РАЙОН</div><h1>Дедушкина пасека</h1><div class="ornament">── 🐝 ──</div><p class="sub">НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</p><p class="motto">Мёд и продукты пчеловодства с заботой о природе</p><div class="hero-actions"><a class="hero-primary" href="#honey">Выбрать мёд <span aria-hidden="true">→</span></a><a class="hero-secondary" href="#gifts">Подарочные наборы</a></div><div class="virtues"><div><span>♧</span>Натурально<br/>и полезно</div><div><span>⬡</span>Собственное<br/>производство</div><div><span>♡</span>Традиции<br/>и качество</div></div></div></header>
@@ -581,6 +595,9 @@
 <button class="product-search-clear" id="productSearchClear" type="button" aria-label="Очистить поиск">×</button>
 <div class="search-result" id="searchResult"></div>
 <div class="search-no-results" id="searchNoResults">Ничего не найдено. Попробуйте другое название.</div>
+</div>
+<div class="search-quick-links" aria-label="Быстрый переход по категориям">
+<a href="#honey">🍯 Натуральный мёд</a><a href="#cream">🥄 Взбитый мёд</a><a href="#soap">🧼 Мыло</a><a href="#candles">🕯️ Свечи</a><a href="#gifts">🎁 Подарки</a><a href="#other">🐝 Другое</a>
 </div>
 </div>
 </section><section class="popular" id="popular"><div class="wrap"><h2>⭐ Популярные товары</h2><div class="popular-grid"><a class="popular-card" href="#honey"><img src="images/honey-meadow.png" alt="Мёд разнотравье"><div class="popular-card-body"><span class="popular-badge">⭐ Популярное</span><h3>Мёд разнотравье</h3><p>Натуральный мёд · Клецкий район</p></div></a><a class="popular-card" href="#honey"><img src="images/honey-may.png" alt="Майский мёд"><div class="popular-card-body"><span class="popular-badge">🌸 Популярное</span><h3>Майский мёд</h3><p>Ароматный весенний мёд</p></div></a><a class="popular-card" href="#cream"><img src="images/cream.jpg" alt="Взбитый мёд"><div class="popular-card-body"><span class="popular-badge">🍯 Популярное</span><h3>Взбитый мёд</h3><p>Нежный мёд с добавками</p></div></a><a class="popular-card" href="#gifts"><img src="images/gift-set-1-new.jpg?v=20261006-2" alt="Медовый набор №1"><div class="popular-card-body"><span class="popular-badge">🎁 Подарок</span><h3>Медовый набор №1</h3><p>Подарочный набор с мёдом</p></div></a></div></div></section><section class="about" id="about"><img alt="Пчела на цветке" src="images/bee.jpg"/><div class="copy"><span class="about-kicker">🐝 КЛЕЦКИЙ РАЙОН · БЕЛАРУСЬ</span><h2>О Дедушкиной пасеке</h2><p class="about-lead">Натуральный мёд и продукты пчеловодства с собственной пасеки.</p><p>«Дедушкина пасека» находится в Голынке, Клецком районе Минской области. Мы бережно относимся к пчёлам, природе и качеству каждого продукта.</p><div class="about-points"><span>🍯 Натуральный мёд</span><span>🐝 Собственная пасека</span><span>🌿 Бережное производство</span><span>📋 Цифровые паспорта</span></div><a class="btn" href="#contacts">Связаться с нами →</a></div><img alt="Ульи на пасеке" src="images/about-apiary.jpg"/></section>
