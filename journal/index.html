@@ -17,6 +17,7 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <title>Цифровой журнал пасечника</title>
 <script id="hive-qr-lib" src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{scope:"./"}).catch(()=>{}));}</script>
 <style id="pwa-install-style">
@@ -225,6 +226,7 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
     <div class="field"><label id="authIdentifierLabel" for="authIdentifier">Email</label><input id="authIdentifier" type="email" autocomplete="email" placeholder="Ваш email"></div>
     <div class="field"><label for="authPassword">Пароль</label><input id="authPassword" type="password" autocomplete="current-password" placeholder="Не менее 8 символов" maxlength="128" aria-describedby="passwordRequirements"></div>
     <p class="muted" id="passwordRequirements" style="display:none;margin-top:-4px">Для регистрации: минимум 8 символов, строчные и заглавные латинские буквы, цифра и специальный символ (например ! или #).</p>
+    <div class="cf-turnstile" id="signupTurnstile" data-sitekey="0x4AAAAAAFVRRKyWkIBv6dtO" data-action="signup"></div>
     <p class="muted" id="authMethodHint">Введите email и пароль. Доступ к журналу откроется после одобрения владельцем.</p>
     <div class="auth-message" id="authMessage"></div>
     <div class="actions">
@@ -2093,6 +2095,9 @@ if($('loginBtn')) $('loginBtn').onclick=async()=>{
 };
 if($('signupBtn')) $('signupBtn').onclick=async()=>{
   $('authMessage').textContent='';
+  const turnstileToken=window.turnstile&&window.turnstile.getResponse?window.turnstile.getResponse():'';
+  if(!turnstileToken){$('authMessage').textContent='Подтвердите проверку безопасности Cloudflare перед регистрацией.';return;}
+  try{const check=await fetch(SUPABASE_URL+'/functions/v1/journal-turnstile-verify',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY},body:JSON.stringify({token:turnstileToken,action:'signup'})});const result=await check.json().catch(()=>({}));if(!check.ok||result.success!==true)throw new Error(result.error||'Проверка безопасности не пройдена. Попробуйте ещё раз.');}catch(e){$('authMessage').textContent=e.message||'Не удалось проверить безопасность. Попробуйте ещё раз.';if(window.turnstile)window.turnstile.reset();return;}
   const identifier=$('authIdentifier').value.trim(), password=$('authPassword').value;
   const displayName=$('authDisplayName').value.trim();
   if(!identifier || !password){$('authMessage').textContent='Введите '+(authMethod==='phone'?'номер телефона':'email')+' и пароль.';return}
