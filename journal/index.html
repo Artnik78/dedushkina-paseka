@@ -18,6 +18,7 @@
 <title>Цифровой журнал пасечника</title>
 <script id="hive-qr-lib" src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{scope:"./"}).catch(()=>{}));}</script>
 <style id="pwa-install-style">
 #pwaInstallBtn{position:fixed;right:16px;bottom:16px;z-index:9999;border:0;border-radius:14px;padding:13px 16px;background:#d8a32b;color:#2f220f;font:700 15px system-ui,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.22);display:none}
@@ -262,6 +263,7 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
     <div class="field"><label for="authPassword">Пароль</label><input id="authPassword" type="password" autocomplete="current-password" placeholder="Не менее 8 символов" maxlength="128" aria-describedby="passwordRequirements"></div>
     <p class="muted" id="passwordRequirements" style="display:none;margin-top:-4px">Для регистрации: минимум 8 символов, строчные и заглавные латинские буквы, цифра и специальный символ (например ! или #).</p>
     <p class="muted" id="authMethodHint">Введите email и пароль. Доступ к журналу откроется после одобрения владельцем.</p>
+    <div class="field" id="captchaField"><label>Проверка безопасности</label><div class="cf-turnstile" data-sitekey="0x4AAAAAAFVRRKyWkIBv6dtO" data-theme="light"></div><small class="muted">Подтвердите, что вы не робот, перед входом или регистрацией.</small></div>
     <div class="auth-message" id="authMessage"></div>
     <div class="actions">
       <button class="btn" id="loginBtn">Войти</button>
@@ -2139,11 +2141,17 @@ if($('saveRecoveryPasswordBtn')) $('saveRecoveryPasswordBtn').onclick=async()=>{
 if($('authMethodEmail')) $('authMethodEmail').onclick=()=>setAuthMethod('email');
 if($('authMethodPhone')) $('authMethodPhone').onclick=()=>setAuthMethod('phone');
 if($('guestBtn')) $('guestBtn').onclick=showGuest;
-async function callPhoneAuth(action, phone, password, displayName){
+function getCaptchaToken(){
+  try{return window.turnstile?.getResponse?.()||''}catch(_){return ''}
+}
+function resetCaptcha(){
+  try{if(window.turnstile)window.turnstile.reset()}catch(_){}
+}
+async function callPhoneAuth(action, phone, password, displayName, captchaToken){
   const response=await fetch(SUPABASE_URL+'/functions/v1/journal-phone-auth',{
     method:'POST',
     headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY},
-    body:JSON.stringify({action,phone,password,...(displayName?{display_name:displayName}:{})})
+    body:JSON.stringify({action,phone,password,captcha_token:captchaToken,...(displayName?{display_name:displayName}:{})})
   });
   const payload=await response.json().catch(()=>({}));
   if(!response.ok)throw new Error(payload.error||('Ошибка авторизации: HTTP '+response.status));
@@ -2152,29 +2160,33 @@ async function callPhoneAuth(action, phone, password, displayName){
 if($('loginBtn')) $('loginBtn').onclick=async()=>{
   $('authMessage').textContent='';
   const identifier=$('authIdentifier').value.trim(), password=$('authPassword').value;
+  const captchaToken=getCaptchaToken();
+  if(!captchaToken){$('authMessage').textContent='Подтвердите проверку безопасности CAPTCHA.';return}
   if(!identifier || !password){$('authMessage').textContent='Введите email и пароль.';return}
   if(authMethod==='phone'&&!/^\+[1-9]\d{7,14}$/.test(identifier)){$('authMessage').textContent='Укажите номер в международном формате, например +375291234567.';return}
   if(authMethod==='phone'&&(password.length<8||password.length>128)){$('authMessage').textContent='Пароль должен содержать от 8 до 128 символов.';return}
   $('loginBtn').disabled=true;
   try{
     if(authMethod==='phone'){
-      const payload=await callPhoneAuth('login',identifier,password);
+      const payload=await callPhoneAuth('login',identifier,password,null,captchaToken);
       const {error}=await db.auth.setSession({access_token:payload.access_token,refresh_token:payload.refresh_token});
       if(error)throw error;
       $('authMessage').textContent='Вход выполнен. Загружаем журнал…';
     }else{
-      const {data,error}=await db.auth.signInWithPassword({email:identifier,password});
+      const {data,error}=await db.auth.signInWithPassword({email:identifier,password,options:{captchaToken}});
       if(error)throw error;
       if(data&&data.user)$('authMessage').textContent='Вход выполнен…';
     }
   }catch(error){
     $('authMessage').textContent=error.message||'Не удалось войти. Проверьте данные и попробуйте снова.';
-  }finally{$('loginBtn').disabled=false}
+  }finally{$('loginBtn').disabled=false;resetCaptcha()}
 };
 if($('signupBtn')) $('signupBtn').onclick=async()=>{
   $('authMessage').textContent='';
   const identifier=$('authIdentifier').value.trim(), password=$('authPassword').value;
   const displayName=$('authDisplayName').value.trim();
+  const captchaToken=getCaptchaToken();
+  if(!captchaToken){$('authMessage').textContent='Подтвердите проверку безопасности CAPTCHA.';return}
   if(!identifier || !password){$('authMessage').textContent='Введите email и пароль.';return}
   if(password.length<8 || password.length>128){$('authMessage').textContent='Пароль должен содержать от 8 до 128 символов.';return}
   if(!/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/[0-9]/.test(password) || !/[^A-Za-z0-9]/.test(password)){$('authMessage').textContent='Пароль должен содержать строчные и заглавные латинские буквы, цифру и специальный символ.';return}
@@ -2183,18 +2195,18 @@ if($('signupBtn')) $('signupBtn').onclick=async()=>{
   $('signupBtn').disabled=true;
   try{
     if(authMethod==='phone'){
-      const payload=await callPhoneAuth('register',identifier,password,displayName);
+      const payload=await callPhoneAuth('register',identifier,password,displayName,captchaToken);
       $('authMessage').textContent=payload.message||'Аккаунт создан. Теперь войдите по номеру телефона и паролю.';
     }else{
       const emailRedirectTo=window.location.origin+window.location.pathname;
-      const {data,error}=await db.auth.signUp({email:identifier,password,options:{emailRedirectTo,data:{display_name:displayName||null}}});
+      const {data,error}=await db.auth.signUp({email:identifier,password,options:{emailRedirectTo,captchaToken,data:{display_name:displayName||null}}});
       if(error)throw error;
       if(data.session){$('authMessage').textContent='Регистрация выполнена. Открываем ваш личный журнал…';}
       else $('authMessage').textContent='Аккаунт создан. Проверьте почту и подтвердите email, если пришло письмо, затем войдите в журнал.';
     }
   }catch(error){
     $('authMessage').textContent=error.message||'Не удалось зарегистрироваться. Проверьте данные и попробуйте снова.';
-  }finally{$('signupBtn').disabled=false}
+  }finally{$('signupBtn').disabled=false;resetCaptcha()}
 };
 if($('logoutBtn')) $('logoutBtn').onclick=async()=>{
   $('logoutBtn').disabled=true;
