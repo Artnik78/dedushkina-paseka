@@ -1098,6 +1098,70 @@ footer{border-top:1px solid rgba(233,215,184,.18);line-height:1.6}
  .detail-info-card h3{font-size:15px}
 }
 
+
+/* Единый стиль шапки, главного экрана и переходов в каталог */
+.top{position:relative;z-index:20;background:linear-gradient(180deg,#fff6e5 0%,#fff0d5 100%);box-shadow:0 3px 14px rgba(71,46,19,.055)}
+.topinner{width:min(1440px,94%);min-height:82px;gap:18px;padding-top:8px;padding-bottom:8px}
+.brand{flex-shrink:0;gap:11px}
+.brand .bee{filter:drop-shadow(0 2px 2px rgba(91,59,22,.12))}
+.brand strong{color:#4a2e16;letter-spacing:-.45px;text-shadow:0 1px 0 rgba(255,255,255,.7)}
+.brand small{margin-top:4px;color:#80613c;letter-spacing:1.25px;line-height:1.35}
+.nav{gap:7px}
+.nav a{padding:9px 10px;border:1px solid transparent;border-radius:22px;transition:background .18s ease,border-color .18s ease,color .18s ease}
+.nav a:hover,.nav a:focus-visible{background:#fff9ed;border-color:#e5d2ad;color:#67471f;outline:none}
+.hero{position:relative;isolation:isolate}
+.herobox{width:min(920px,92%);border:1px solid rgba(255,248,229,.6);border-radius:20px;box-shadow:0 12px 34px rgba(35,22,8,.12);backdrop-filter:blur(2px)}
+.hero-kicker{color:#54381e}
+.hero h1{text-wrap:balance;letter-spacing:-1.2px}
+.hero .sub{font-weight:700;letter-spacing:.5px}
+.virtues>div{padding:8px 10px;border-radius:13px;background:rgba(255,249,235,.56);border:1px solid rgba(255,248,229,.65)}
+.catalog{border-top:1px solid #ead9b9;border-bottom:1px solid #ead9b9}
+.catalog .heading{color:#50351f;text-wrap:balance;letter-spacing:-.35px}
+.tile{border:1px solid rgba(115,78,35,.16);box-shadow:0 4px 12px rgba(56,35,12,.10);transition:box-shadow .2s ease,transform .2s ease}
+.tile .name{line-height:1.25;text-shadow:0 1px 3px rgba(0,0,0,.25)}
+.tile:focus-visible{outline:3px solid #a47734;outline-offset:3px}
+.popular h2,.detail h2,.why-us h2,.contacts-new h2,.reviews-intro h2{color:#50351f;text-wrap:balance}
+@media(max-width:700px){
+ .topinner{width:100%;min-height:0;flex-direction:column;align-items:stretch;gap:10px;padding:12px 12px 8px}
+ .brand{justify-content:center;gap:8px;max-width:100%}
+ .brand>span:last-child{min-width:0}
+ .brand strong{display:block;font-size:clamp(20px,5.5vw,25px);letter-spacing:-.5px;white-space:normal}
+ .brand small{font-size:7.5px;letter-spacing:.75px;line-height:1.35}
+ .nav{width:calc(100% + 24px);margin:0 -12px;flex-wrap:nowrap;justify-content:flex-start;gap:6px;overflow-x:auto;overflow-y:hidden;padding:2px 12px 7px;scrollbar-width:thin;scrollbar-color:#d8bd8c transparent;-webkit-overflow-scrolling:touch}
+ .nav a{flex:0 0 auto;padding:8px 11px;font-size:13px;border-color:#ead8b7;background:rgba(255,250,240,.72)}
+ .hero{min-height:360px;padding:24px 12px;background-position:center}
+ .herobox{width:100%;max-width:560px;padding:22px 12px;border-radius:16px}
+ .hero h1{font-size:clamp(33px,8.8vw,46px);line-height:1.08;letter-spacing:-.8px}
+ .hero-kicker{font-size:9px;letter-spacing:.8px;line-height:1.5}
+ .hero .sub{font-size:12px;line-height:1.45}
+ .hero .motto{font-size:14px;line-height:1.45}
+ .virtues{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:16px}
+ .virtues>div{min-width:0;padding:8px 3px;font-size:11px;line-height:1.35}
+ .virtues span{font-size:23px}
+ .catalog{padding:17px 0 20px}
+ .catalog .heading{font-size:clamp(22px,6vw,28px);line-height:1.2;margin-bottom:13px}
+ .cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ .tile,.tile.wide{grid-column:span 1;height:145px;border-radius:12px;min-width:0}
+ .tile .name{font-size:14px;padding:28px 8px 9px;gap:5px}
+ .arrow{width:22px;height:22px;font-size:16px}
+}
+@media(max-width:380px){
+ .topinner{padding-left:8px;padding-right:8px}
+ .brand .bee{font-size:23px}
+ .brand strong{font-size:19px}
+ .brand small{font-size:7px;letter-spacing:.45px}
+ .nav{width:calc(100% + 16px);margin-left:-8px;margin-right:-8px;padding-left:8px;padding-right:8px}
+ .nav a{font-size:12px;padding:8px 9px}
+ .hero{min-height:340px}
+ .herobox{padding:18px 9px}
+ .virtues>div{font-size:10px}
+ .tile,.tile.wide{height:132px}
+ .tile .name{font-size:12px;padding:24px 7px 8px}
+}
+@media(prefers-reduced-motion:reduce){
+ .tile,.tile img,.nav a{transition:none}
+}
+
 </style></head><body>
 <div class="top"><div class="wrap topinner"><a class="brand" href="#home"><span class="bee">🐝</span><span><strong>Дедушкина пасека</strong><small>НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</small></span></a><nav class="nav"><a href="#home">Главная</a><a href="#catalog">Каталог</a><a href="#about">О пасеке</a><a href="#gifts">🎁 Подарочные наборы</a><a href="#info">Полезная информация</a><a href="#delivery">Доставка</a><a href="#contacts">Контакты</a></nav></div></div>
 <header class="hero" id="home"><div class="herobox"><div class="hero-kicker">🐝 СЕМЕЙНАЯ ПАСЕКА · КЛЕЦКИЙ РАЙОН</div><h1>Дедушкина пасека</h1><div class="ornament">── 🐝 ──</div><p class="sub">НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</p><p class="motto">Мёд и продукты пчеловодства с заботой о природе</p><div class="virtues"><div><span>♧</span>Натурально<br/>и полезно</div><div><span>⬡</span>Собственное<br/>производство</div><div><span>♡</span>Традиции<br/>и качество</div></div></div></header>
