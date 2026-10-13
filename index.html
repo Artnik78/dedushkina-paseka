@@ -814,6 +814,68 @@ footer{border-top:1px solid rgba(233,215,184,.18);line-height:1.6}
 @media(max-width:370px){
  .items>.item img.product-label{height:180px;max-height:180px}
 }
+
+/* Финальная унификация карточек каталога: заголовок, цена и действия */
+.items>.item{
+  border:1px solid #e4d3b5;
+  border-radius:16px;
+  background:#fffdf8;
+  box-shadow:0 4px 13px rgba(75,48,18,.06);
+}
+.items>.item h3{color:#50351f;line-height:1.28}
+.items>.item .price-tag{
+  display:inline-flex;
+  align-self:flex-start;
+  max-width:100%;
+  padding:7px 11px;
+  border:1px solid #e4d0a5;
+  border-radius:999px;
+  background:#fff1d0;
+  color:#583a1e;
+  font-size:14px;
+  font-weight:800;
+}
+.items>.item .digital-passport,
+.items>.item a[href*="паспорт"]{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  align-self:flex-start;
+  max-width:100%;
+  padding:7px 11px;
+  border:1px solid #e4d0a5;
+  border-radius:999px;
+  background:#fff1d0;
+  color:#583a1e;
+  font-size:13px;
+  line-height:1.25;
+  text-decoration:none;
+}
+.items>.item .actions{display:flex;flex-direction:column;gap:9px;margin-top:auto;padding-top:12px}
+.items>.item .actions button,
+.items>.item .actions a,
+.items>.item>.viber-order,
+.items>.item>.info-button{
+  box-sizing:border-box;
+  width:100%;
+  min-height:46px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:11px 12px;
+  border-radius:13px;
+  font-size:14px;
+  font-weight:800;
+  text-align:center;
+}
+.items>.item .info-button{background:#d9c39a!important;color:#392514!important;border:1px solid #c8ad7e!important}
+@media(max-width:700px){
+  .items>.item{padding:11px;border-radius:14px}
+  .items>.item h3{font-size:16px}
+  .items>.item .price-tag{font-size:13px;padding:6px 9px}
+  .items>.item .digital-passport,.items>.item a[href*="паспорт"]{font-size:12px;padding:7px 8px}
+  .items>.item .actions button,.items>.item .actions a,.items>.item>.viber-order,.items>.item>.info-button{min-height:44px;font-size:13px;padding:10px 8px}
+}
 </style></head><body>
 <div class="top"><div class="wrap topinner"><a class="brand" href="#home"><span class="bee">🐝</span><span><strong>Дедушкина пасека</strong><small>НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</small></span></a><nav class="nav"><a href="#home">Главная</a><a href="#catalog">Каталог</a><a href="#about">О пасеке</a><a href="#gifts">🎁 Подарочные наборы</a><a href="#info">Полезная информация</a><a href="#delivery">Доставка</a><a href="#contacts">Контакты</a></nav></div></div>
 <header class="hero" id="home"><div class="herobox"><div class="hero-kicker">🐝 СЕМЕЙНАЯ ПАСЕКА · КЛЕЦКИЙ РАЙОН</div><h1>Дедушкина пасека</h1><div class="ornament">── 🐝 ──</div><p class="sub">НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</p><p class="motto">Мёд и продукты пчеловодства с заботой о природе</p><div class="virtues"><div><span>♧</span>Натурально<br/>и полезно</div><div><span>⬡</span>Собственное<br/>производство</div><div><span>♡</span>Традиции<br/>и качество</div></div></div></header>
