@@ -902,6 +902,21 @@ footer{border-top:1px solid rgba(233,215,184,.18);line-height:1.6}
  .items>.item img.product-label{height:112px;max-height:112px}
  .items>.item h3{font-size:14px}
 }
+
+/* Натуральный мёд: компактная раскладка карточек без пустых рядов */
+@media(max-width:700px){
+ #honey .items.honey-masonry{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-flow:row;align-items:start;gap:10px}
+ #honey .items.honey-masonry>.item{align-self:start;height:auto;min-height:0;margin:0}
+ #honey .items.honey-masonry>.item:nth-child(4){grid-column:auto}
+ #honey .items.honey-masonry>.item:nth-child(5){grid-column:auto}
+ #honey .items.honey-masonry>.item p{margin-bottom:8px!important}
+ #honey .items.honey-masonry>.item a{margin-top:4px}
+}
+/* На широком экране раскладка остаётся обычной сеткой */
+@media(min-width:701px){
+ #honey .items.honey-masonry{grid-template-columns:repeat(3,minmax(0,1fr));align-items:start;grid-auto-rows:max-content}
+ #honey .items.honey-masonry>.item{align-self:start}
+}
 </style></head><body>
 <div class="top"><div class="wrap topinner"><a class="brand" href="#home"><span class="bee">🐝</span><span><strong>Дедушкина пасека</strong><small>НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</small></span></a><nav class="nav"><a href="#home">Главная</a><a href="#catalog">Каталог</a><a href="#about">О пасеке</a><a href="#gifts">🎁 Подарочные наборы</a><a href="#info">Полезная информация</a><a href="#delivery">Доставка</a><a href="#contacts">Контакты</a></nav></div></div>
 <header class="hero" id="home"><div class="herobox"><div class="hero-kicker">🐝 СЕМЕЙНАЯ ПАСЕКА · КЛЕЦКИЙ РАЙОН</div><h1>Дедушкина пасека</h1><div class="ornament">── 🐝 ──</div><p class="sub">НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</p><p class="motto">Мёд и продукты пчеловодства с заботой о природе</p><div class="virtues"><div><span>♧</span>Натурально<br/>и полезно</div><div><span>⬡</span>Собственное<br/>производство</div><div><span>♡</span>Традиции<br/>и качество</div></div></div></header>
@@ -916,7 +931,7 @@ footer{border-top:1px solid rgba(233,215,184,.18);line-height:1.6}
 <a class="tile" href="#other"><img alt="Другие продукты пасеки" src="images/other.jpg"/><span class="name">Другие продукты <span class="arrow">›</span></span></a>
 </div></div></section>
 <section class="popular" id="popular"><div class="wrap"><h2>⭐ Популярные товары</h2><div class="popular-grid"><a class="popular-card" href="#honey"><img src="images/honey-meadow.png" alt="Мёд разнотравье"><div class="popular-card-body"><span class="popular-badge">⭐ Популярное</span><h3>Мёд разнотравье</h3><p>Натуральный мёд · Клецкий район</p></div></a><a class="popular-card" href="#honey"><img src="images/honey-may.png" alt="Майский мёд"><div class="popular-card-body"><span class="popular-badge">🌸 Популярное</span><h3>Майский мёд</h3><p>Ароматный весенний мёд</p></div></a><a class="popular-card" href="#cream"><img src="images/cream.jpg" alt="Взбитый мёд"><div class="popular-card-body"><span class="popular-badge">🍯 Популярное</span><h3>Взбитый мёд</h3><p>Нежный мёд с добавками</p></div></a><a class="popular-card" href="#gifts"><img src="images/gift-set-1-new.jpg?v=20261006-2" alt="Медовый набор №1"><div class="popular-card-body"><span class="popular-badge">🎁 Подарок</span><h3>Медовый набор №1</h3><p>Подарочный набор с мёдом</p></div></a></div></div></section><section class="about" id="about"><img alt="Пчела на цветке" src="images/bee.jpg"/><div class="copy"><span class="about-kicker">🐝 КЛЕЦКИЙ РАЙОН · БЕЛАРУСЬ</span><h2>О Дедушкиной пасеке</h2><p class="about-lead">Натуральный мёд и продукты пчеловодства с собственной пасеки.</p><p>«Дедушкина пасека» находится в Голынке, Клецком районе Минской области. Мы бережно относимся к пчёлам, природе и качеству каждого продукта.</p><div class="about-points"><span>🍯 Натуральный мёд</span><span>🐝 Собственная пасека</span><span>🌿 Бережное производство</span><span>📋 Цифровые паспорта</span></div><a class="btn" href="#contacts">Связаться с нами →</a></div><img alt="Ульи на пасеке" src="images/about-apiary.jpg"/></section>
-<section class="detail" id="honey"><div class="wrap"><h2>🍯 Натуральный мёд</h2><p class="cream-intro">Нажмите на изображение товара, чтобы выбрать вариант и заказать.</p><div class="items">
+<section class="detail" id="honey"><div class="wrap"><h2>🍯 Натуральный мёд</h2><p class="cream-intro">Нажмите на изображение товара, чтобы выбрать вариант и заказать.</p><div class="items honey-masonry">
 <div class="item choice-item"><img alt="Майский мёд" class="product-label choice-trigger" data-choice="honey" data-options="0,1 л — 5 руб.|0,28 л — 7 руб.|0,5 л — 12,50 руб.|1 л — 25 руб." src="images/honey-may.png"/><h3>Майский мёд</h3><p style="margin:0">0,1 л — 5 руб.; 0,28 л — 7 руб.; 0,5 л — 12,50 руб.; 1 л — 25 руб.</p><a href="майский-мед/">Цифровой паспорт</a></div>
 <div class="item choice-item"><img alt="Лесной мёд" class="product-label choice-trigger" data-choice="honey" data-options="0,1 л — 5 руб.|0,28 л — 7 руб.|0,5 л — 12,50 руб.|1 л — 25 руб." src="images/honey-forest.png"/><h3>Лесной мёд</h3><p style="margin:0">0,1 л — 5 руб.; 0,28 л — 7 руб.; 0,5 л — 12,50 руб.; 1 л — 25 руб.</p><a href="2026-002/">Цифровой паспорт</a></div>
 <div class="item choice-item"><img alt="Мёд разнотравье" class="product-label choice-trigger" data-choice="honey" data-options="0,1 л — 5 руб.|0,28 л — 7 руб.|0,5 л — 12,50 руб.|1 л — 25 руб." src="images/honey-meadow.png"/><h3>Мёд разнотравье</h3><p>0,1 л — 5 руб.; 0,28 л — 7 руб.; 0,5 л — 12,50 руб.; 1 л — 25 руб.</p><a href="2026-001/">Цифровой паспорт</a></div>
