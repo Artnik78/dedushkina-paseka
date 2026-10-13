@@ -400,7 +400,7 @@
     <div class="gift-cta"><a class="btn" href="viber://chat?number=%2B375445748112">Подобрать подарочный набор</a></div>
   </div>
 </section><script>
-(function(){
+document.addEventListener('DOMContentLoaded',function(){
   var mixModal=document.getElementById('giftMixModal'),mixList=document.getElementById('giftMixList'),mixCount=document.getElementById('giftMixCount'),mixSubmit=document.getElementById('giftMixSubmit'),mixClose=document.getElementById('giftMixClose'),mixTitle=document.getElementById('giftMixTitle'),mixNote=document.getElementById('giftMixNote'),candlePicker=document.getElementById('giftCandlePicker'),candleSelect=document.getElementById('giftCandleSelect'),activeGift=null,mixTotal=0;
   var creamFlavors=Array.from(document.querySelectorAll('#cream .cream-item h3')).map(function(h){return h.textContent.trim();});
   var giftConfig={'Медовый набор №1':{count:7,price:'95 руб.'},'Медовый набор №2':{count:2,price:'35 руб.'},'Медовый набор №3':{count:3,price:'69 руб.'},'Медовый набор №4':{count:3,price:'54 руб.',candle:true}};
@@ -437,7 +437,7 @@
     if(window.addCartItem){window.addCartItem(name,option);var cartButton=document.getElementById('cartFab');if(cartButton)cartButton.click();}
     else window.location.href='viber://chat?number=%2B375445748112&draft='+encodeURIComponent('Здравствуйте! Хочу заказать: '+name+(price?' — '+price:''));
   });});
-})();
+});
 </script><section class="detail" id="balms"><div class="wrap"><h2>🌿 Мази</h2><p class="cream-intro">Нажмите на изображение мази, чтобы выбрать объём и заказать.</p><div class="items">
 <div class="item choice-item"><img alt="Мазь на основе воска" class="product-label choice-trigger" data-choice="product" data-options="50 мл — 7 руб.|100 мл — 11 руб." src="images/balm-wax.png"/><h3>Мазь на основе воска</h3><p style="margin:0">50 мл — 7 руб.; 100 мл — 11 руб.</p></div>
 </div></div></section><section class="detail" id="infusions"><div class="wrap"><h2>🌱 Настои</h2><p class="cream-intro">Настойки пасеки. Нажмите на изображение, чтобы выбрать товар и заказать.</p><div class="items"><div class="item choice-item"><img alt="Настойка на сосновых шишках" class="product-label choice-trigger" data-choice="product" data-options="250 мл — 18 руб." src="images/tc.jpg?v=20261013"/><h3>Настойка на сосновых шишках</h3><p style="margin:0">250 мл — 18 руб.</p></div><div class="item choice-item"><img alt="Настойка прополиса" class="product-label choice-trigger" data-choice="product" data-options="200 мл — 30 руб." src="images/tp.jpg?v=20261013"/><h3>Настойка прополиса</h3><p style="margin:0">200 мл — 30 руб.</p></div></div></div></section><section class="detail" id="other"><div class="wrap"><h2>🐝 Другие продукты</h2><p class="cream-intro">Нажмите на изображение товара, чтобы выбрать вариант и заказать.</p><div class="items">
