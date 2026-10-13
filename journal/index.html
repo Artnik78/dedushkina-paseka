@@ -1077,15 +1077,21 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
 <div id="journalError" style="display:none;position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:99999;max-width:min(900px,92vw);padding:14px 18px;border:2px solid #b33;border-radius:12px;background:#fff4f2;color:#7a2018;box-shadow:0 8px 30px rgba(0,0,0,.2);font:14px/1.45 Arial,sans-serif;white-space:pre-wrap"></div><div class="toast" id="toast"></div>
 
 <script>
-const SUPABASE_URL = 'https://owpzcjvseleqeqibwuqj.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_1eM3o5IehFq-IvjWkHLiCA_RMXGHfw5';
+// Keep the live GitHub Pages journal isolated from the Vercel test journal.
+const IS_PRODUCTION_JOURNAL = window.location.hostname === 'artnik78.github.io';
+const SUPABASE_URL = IS_PRODUCTION_JOURNAL
+  ? 'https://owpzcjvseleqeqibwuqj.supabase.co'
+  : 'https://uycjzsttxhtwochgghrs.supabase.co';
+const SUPABASE_KEY = IS_PRODUCTION_JOURNAL
+  ? 'sb_publishable_1eM3o5IehFq-IvjWkHLiCA_RMXGHfw5'
+  : 'sb_publishable_ySg6j14PYR-uhz_Od9WeCQ_IP0WTY7t';
 const { createClient } = window.supabase;
 // Capture the recovery intent before Supabase processes and cleans the URL hash.
 // Supabase may return either an implicit recovery hash or a PKCE ?code= link.
 const recoverySearchParams = new URLSearchParams(window.location.search);
 const recoveryHashParams = new URLSearchParams((window.location.hash || '').replace(/^#/, ''));
 const recoveryLinkDetected = recoveryHashParams.get('type') === 'recovery' || recoverySearchParams.get('type') === 'recovery' || recoverySearchParams.has('code');
-const db = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { storageKey: 'dedushkina-paseka-journal-auth' } });
+const db = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { storageKey: IS_PRODUCTION_JOURNAL ? 'dedushkina-paseka-journal-auth' : 'dedushkina-paseka-journal-test-auth' } });
 
 const state = {contacts:[], hives:[], inspections:[], workLogs:[], hiveMovements:[], health:[], treatments:[], queens:[], queenBatches:[], colonyOperations:[], waxOperations:[], apiaryProductsOperations:[], photos:[], honey:[], honeyPackagingRuns:[], honeyJarLabels:[], honeySales:[], tasks:[], finance:[], apiaries:[], medicines:[], medicineStockMovements:[], disinfection:[], beeFamilies:[]};
 let guestMode=false;
@@ -2192,7 +2198,7 @@ document.addEventListener('click',async e=>{
     try{
       const {data:{session}}=await db.auth.getSession();
       if(!session?.access_token)throw new Error('Необходимо войти как администратор.');
-      const res=await fetch('https://owpzcjvseleqeqibwuqj.supabase.co/functions/v1/journal-admin-delete-user',{
+      const res=await fetch(SUPABASE_URL+'/functions/v1/journal-admin-delete-user',{
         method:'POST',
         headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token,'apikey':SUPABASE_KEY},
         body:JSON.stringify({user_id:id})
