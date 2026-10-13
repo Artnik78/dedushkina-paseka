@@ -2065,7 +2065,7 @@ async function callPhoneAuth(action, phone, password, displayName){
   const response=await fetch(SUPABASE_URL+'/functions/v1/journal-phone-auth',{
     method:'POST',
     headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY},
-    body:JSON.stringify({action,phone,password,...(displayName?{display_name:displayName}:{})})
+    body:JSON.stringify({action,phone,password,...(displayName?{display_name:displayName}:{}),...(window.turnstile&&window.turnstile.getResponse&&window.turnstile.getResponse()?{turnstile_token:window.turnstile.getResponse()}:{})})
   });
   const payload=await response.json().catch(()=>({}));
   if(!response.ok)throw new Error(payload.error||('Ошибка авторизации: HTTP '+response.status));
