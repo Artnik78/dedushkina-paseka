@@ -682,9 +682,9 @@ document.addEventListener('DOMContentLoaded',function(){
   function priceOf(item){
     if(Number.isFinite(Number(item.price))&&item.price!==''&&item.price!==null)return Number(item.price);
     const text=String(item.options||'');
-    const pack=text.match(/Цена набора\\s*[:—-]\\s*(\\d+(?:[,.]\\d+)?)\\s*(?:руб|BYN)/i);
+    const pack=text.match(/Цена набора\s*[:—-]\s*(\d+(?:[,.]\d+)?)\s*(?:руб|BYN)/i);
     if(pack)return Number(pack[1].replace(',','.'));
-    const matches=Array.from(text.matchAll(/(\\d+(?:[,.]\\d+)?)\\s*(?:руб|BYN)/gi));
+    const matches=Array.from(text.matchAll(/(\d+(?:[,.]\d+)?)\s*(?:руб|BYN)/gi));
     if(matches.length!==1)return null;
     return Number(matches[0][1].replace(',','.'));
   }
