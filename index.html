@@ -574,6 +574,23 @@
  .search-quick-links a{min-height:44px;padding:9px 8px;border-radius:12px;font-size:12px;text-align:center}
 }
 @media(max-width:360px){.search-quick-links a{font-size:11px}}
+
+/* Быстрый поиск: готовые запросы, крупные сенсорные кнопки */
+.product-search-box{position:relative}
+.product-search-input{min-height:50px;padding:13px 44px 13px 15px;border:1px solid #d9c39a;border-radius:15px;background:#fffdf8;font-size:16px;box-shadow:0 3px 12px rgba(80,55,25,.06)}
+.product-search-input:focus{outline:3px solid rgba(102,92,172,.2);border-color:#665cac}
+.search-suggestions{display:flex;gap:8px;overflow-x:auto;padding:11px 1px 5px;scrollbar-width:thin;overscroll-behavior-x:contain}
+.search-suggestions button{flex:0 0 auto;min-height:38px;padding:8px 12px;border:1px solid #e3d1ad;border-radius:999px;background:#fff8e9;color:#5a3d22;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+.search-suggestions button:active{background:#f0dfb9;transform:scale(.98)}
+.search-suggestions button:focus-visible{outline:3px solid rgba(102,92,172,.35);outline-offset:2px}
+.search-result{margin-top:9px;padding:8px 11px;border-radius:10px;background:#f4ead5;color:#5a3d22;font-size:13px;font-weight:700}
+@media(max-width:600px){
+ .product-search{scroll-margin-top:14px}
+ .product-search-box{padding:16px!important;border-radius:18px}
+ .product-search-box>label{display:block;margin-bottom:10px;font-size:18px;font-weight:800}
+ .product-search-input{width:100%;box-sizing:border-box}
+ .search-suggestions{margin-right:-3px;padding-bottom:8px}
+}
 </style></head><body>
 <div class="top"><div class="wrap topinner"><a class="brand" href="#home"><span class="bee">🐝</span><span><strong>Дедушкина пасека</strong><small>НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</small></span></a><nav class="nav"><a href="#home">Главная</a><a href="#catalog">Каталог</a><a href="#about">О пасеке</a><a href="#gifts">🎁 Подарочные наборы</a><a href="#info">Полезная информация</a><a href="#delivery">Доставка</a><a href="#contacts">Контакты</a></nav></div></div>
 <header class="hero" id="home"><div class="herobox"><div class="hero-kicker">🐝 СЕМЕЙНАЯ ПАСЕКА · КЛЕЦКИЙ РАЙОН</div><h1>Дедушкина пасека</h1><div class="ornament">── 🐝 ──</div><p class="sub">НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</p><p class="motto">Мёд и продукты пчеловодства с заботой о природе</p><div class="hero-actions"><a class="hero-primary" href="#honey">Выбрать мёд <span aria-hidden="true">→</span></a><a class="hero-secondary" href="#gifts">Подарочные наборы</a></div><div class="virtues"><div><span>♧</span>Натурально<br/>и полезно</div><div><span>⬡</span>Собственное<br/>производство</div><div><span>♡</span>Традиции<br/>и качество</div></div></div></header>
@@ -592,6 +609,13 @@
 <div class="product-search-box">
 <label for="productSearch">🔎 Найти товар</label>
 <input class="product-search-input" id="productSearch" type="search" placeholder="Например: мёд, мыло, свеча, взбитый мёд…" autocomplete="off">
+<div class="search-suggestions" aria-label="Популярные запросы">
+<button type="button" data-search-term="мёд">🍯 Мёд</button>
+<button type="button" data-search-term="взбитый">🥄 Взбитый мёд</button>
+<button type="button" data-search-term="мыло">🧼 Мыло</button>
+<button type="button" data-search-term="свеча">🕯️ Свечи</button>
+<button type="button" data-search-term="набор">🎁 Подарки</button>
+</div>
 <button class="product-search-clear" id="productSearchClear" type="button" aria-label="Очистить поиск">×</button>
 <div class="search-result" id="searchResult"></div>
 <div class="search-no-results" id="searchNoResults">Ничего не найдено. Попробуйте другое название.</div>
@@ -1239,6 +1263,14 @@ document.addEventListener('DOMContentLoaded',function(){
   }
   input.addEventListener('input',run);
   clear.addEventListener('click',function(){input.value='';run();input.focus();});
+  document.querySelectorAll('[data-search-term]').forEach(function(button){
+    button.addEventListener('click',function(){
+      input.value=button.getAttribute('data-search-term')||'';
+      run();
+      input.focus({preventScroll:true});
+      document.getElementById('search').scrollIntoView({behavior:'smooth',block:'start'});
+    });
+  });
 })();
 </script><nav class="mobile-bottom-nav" aria-label="Мобильная навигация">
 <a href="#home"><span>🏠</span>Главная</a>
