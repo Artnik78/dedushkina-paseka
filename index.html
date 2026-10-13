@@ -679,6 +679,53 @@
  .item img.product-label{height:180px}
  .gift-card img{height:190px}
 }
+
+/* Единый визуальный стиль для истории пасеки, доставки и контактов */
+.about{gap:0;align-items:stretch;background:#f5e8cf}
+.about>img{min-height:100%;max-height:320px;object-fit:cover;filter:saturate(.9)}
+.about .copy{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px clamp(18px,3vw,42px);background:linear-gradient(145deg,#fff8e9,#f4e4c6)}
+.about h2{color:#50351f;line-height:1.2}
+.about .copy p{max-width:520px;color:#6d5740}
+.about .copy .about-lead{font-size:18px;font-weight:700;color:#50351f}
+.about-points{width:100%;max-width:500px}
+.about-points span{display:flex;align-items:center;justify-content:center;min-height:40px;padding:8px;border:1px solid rgba(164,119,52,.17);border-radius:11px;background:rgba(255,255,255,.52);font-size:13px}
+.about .btn{min-height:44px;display:inline-flex;align-items:center;justify-content:center;padding:11px 22px;border-radius:13px;background:#68451f;font-weight:700;box-shadow:0 4px 12px rgba(75,48,18,.12)}
+.delivery-section{background:linear-gradient(180deg,#fffaf0,#f7eddc)}
+.delivery-intro h2{color:#50351f}
+.delivery-card{height:100%;border-radius:17px;background:rgba(255,253,248,.94);border-color:#e5d4b7;box-shadow:0 5px 16px rgba(75,48,18,.055)}
+.delivery-icon{display:grid;place-items:center;width:58px;height:58px;margin:0 auto 9px;border-radius:17px;background:#f6e7c8}
+.delivery-card h3{line-height:1.25}
+.delivery-note{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;border-radius:15px;background:#f8edda}
+.contacts-new{background:linear-gradient(145deg,#50331f,#342115);border-top:3px solid #c9a66b}
+.contacts-intro h2{color:#fff8e9}
+.contact-card{min-width:0;border-radius:16px;background:rgba(255,248,235,.07)}
+.contact-card:focus-visible{outline:3px solid #f1d39a;outline-offset:3px}
+footer{border-top:1px solid rgba(233,215,184,.18);line-height:1.6}
+@media(max-width:700px){
+ .about{grid-template-columns:minmax(0,1fr);gap:0}
+ .about>img{height:175px;max-height:175px;min-height:0}
+ .about .copy{padding:23px 16px}
+ .about h2{font-size:25px;margin-bottom:9px}
+ .about .copy .about-lead{font-size:16px}
+ .about .copy p{font-size:14px}
+ .about-points{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+ .about-points span{font-size:12px;line-height:1.25}
+ .about .btn{width:100%;max-width:340px;margin-top:14px}
+ .delivery-section{padding:28px 0}
+ .delivery-intro{margin-bottom:15px}
+ .delivery-intro h2{font-size:25px}
+ .delivery-grid{grid-template-columns:minmax(0,1fr);gap:9px}
+ .delivery-card{display:grid;grid-template-columns:48px minmax(0,1fr);column-gap:12px;align-items:center;padding:13px;text-align:left}
+ .delivery-icon{grid-row:span 2;width:46px;height:46px;margin:0;border-radius:13px;font-size:26px}
+ .delivery-card h3{font-size:16px;margin:0 0 4px}
+ .delivery-card p{font-size:13px}
+ .delivery-note{display:block;text-align:left;font-size:13px;line-height:1.5}
+ .delivery-note strong,.delivery-note span{display:block}
+ .delivery-note strong{margin-bottom:3px}
+ .contacts-new{padding:27px 12px}
+ .contact-actions{gap:8px}
+ .contact-card{min-height:96px}
+}
 </style></head><body>
 <div class="top"><div class="wrap topinner"><a class="brand" href="#home"><span class="bee">🐝</span><span><strong>Дедушкина пасека</strong><small>НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</small></span></a><nav class="nav"><a href="#home">Главная</a><a href="#catalog">Каталог</a><a href="#about">О пасеке</a><a href="#gifts">🎁 Подарочные наборы</a><a href="#info">Полезная информация</a><a href="#delivery">Доставка</a><a href="#contacts">Контакты</a></nav></div></div>
 <header class="hero" id="home"><div class="herobox"><div class="hero-kicker">🐝 СЕМЕЙНАЯ ПАСЕКА · КЛЕЦКИЙ РАЙОН</div><h1>Дедушкина пасека</h1><div class="ornament">── 🐝 ──</div><p class="sub">НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</p><p class="motto">Мёд и продукты пчеловодства с заботой о природе</p><div class="virtues"><div><span>♧</span>Натурально<br/>и полезно</div><div><span>⬡</span>Собственное<br/>производство</div><div><span>♡</span>Традиции<br/>и качество</div></div></div></header>
