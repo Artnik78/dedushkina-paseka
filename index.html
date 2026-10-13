@@ -28,7 +28,7 @@
 .about-points span{transition:transform .15s ease}
 .about-points span:hover{transform:translateY(-2px)}
 @media(max-width:700px){.about-kicker{font-size:9px;letter-spacing:1px}.about-lead{font-size:17px!important}.about .btn{margin-top:12px}}
-.detail{padding:45px 0;background:#fffaf0}.detail:nth-of-type(even){background:#f5ead6}.detail h2{text-align:center;font-size:32px}.gift-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-top:20px}.gift-card{background:linear-gradient(180deg,#fffaf0,#f6ead2);border:1px solid #e1d0b0;border-radius:16px;overflow:hidden;box-shadow:0 5px 16px rgba(70,45,20,.08);display:flex;flex-direction:column}.gift-card img{width:100%;height:190px;object-fit:contain;background:#f8f0df;padding:8px;box-sizing:border-box}.gift-card-body{padding:16px}.gift-card h3{margin:0 0 8px;color:#5a3d22}.gift-card p{line-height:1.5;margin:0 0 12px;color:#675644}.gift-card .gift-note{font-size:14px;color:#8a6a42}.gift-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.gift-actions button{flex:1;min-width:105px}.gift-order-btn{border:0;border-radius:24px;padding:10px 16px;background:#765126;color:#fff;font-weight:700;cursor:pointer}.gift-order-btn:hover{background:#5c3d1c}.gift-cta{text-align:center;margin-top:24px}.gift-cta .btn{display:inline-block;padding:11px 24px;border-radius:25px;background:#987044;color:#fff;text-decoration:none}.gift-intro{text-align:center;max-width:760px;margin:0 auto;color:#675644;line-height:1.6}@media(max-width:900px){.gift-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:650px){.gift-grid{grid-template-columns:1fr}}
+.detail{padding:45px 0;background:#fffaf0}.detail:nth-of-type(even){background:#f5ead6}.detail h2{text-align:center;font-size:32px}.gift-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-top:20px}.gift-card{background:linear-gradient(180deg,#fffaf0,#f6ead2);border:1px solid #e1d0b0;border-radius:16px;overflow:hidden;box-shadow:0 5px 16px rgba(70,45,20,.08);display:flex;flex-direction:column}.gift-card img{width:100%;height:190px;object-fit:contain;background:#f8f0df;padding:8px;box-sizing:border-box}.gift-card-body{padding:16px}.gift-card h3{margin:0 0 8px;color:#5a3d22}.gift-card p{line-height:1.5;margin:0 0 12px;color:#675644}.gift-card .gift-note{font-size:14px;color:#8a6a42}.gift-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.gift-actions button{flex:1;min-width:105px}.gift-order-btn{border:0;border-radius:24px;padding:10px 16px;background:#765126;color:#fff;font-weight:700;cursor:pointer}.gift-order-btn:hover{background:#5c3d1c}.gift-mix-modal{display:none;position:fixed;inset:0;z-index:10001;background:rgba(25,16,8,.65);align-items:center;justify-content:center;padding:14px;box-sizing:border-box}.gift-mix-modal.open{display:flex}.gift-mix-box{width:min(650px,96vw);max-height:92vh;overflow:auto;background:#fffaf0;border-radius:18px;padding:22px;box-shadow:0 10px 40px rgba(40,25,10,.35)}.gift-mix-head{display:flex;justify-content:space-between;gap:12px;align-items:start}.gift-mix-head h2{margin:0 0 8px;font-size:24px}.gift-mix-close{border:0;border-radius:50%;width:38px;height:38px;font-size:25px;background:#ead9ba;cursor:pointer;flex-shrink:0}.gift-mix-note{line-height:1.5;color:#675644}.gift-mix-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.gift-mix-row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 10px;border:1px solid #e1d0b0;border-radius:10px;background:#fff}.gift-mix-row label{font-size:14px}.gift-mix-row select{min-width:62px;padding:7px;border:1px solid #d8bd8c;border-radius:8px;background:white}.gift-mix-count{font-weight:700;margin:14px 0}.gift-mix-submit{width:100%;border:0;border-radius:24px;padding:13px;background:#765126;color:#fff;font-weight:700;font-size:16px;cursor:pointer}.gift-mix-submit:disabled{opacity:.45;cursor:not-allowed}@media(max-width:500px){.gift-mix-box{padding:16px}.gift-mix-list{grid-template-columns:1fr}.gift-mix-row{padding:8px 10px}}.gift-cta{text-align:center;margin-top:24px}.gift-cta .btn{display:inline-block;padding:11px 24px;border-radius:25px;background:#987044;color:#fff;text-decoration:none}.gift-intro{text-align:center;max-width:760px;margin:0 auto;color:#675644;line-height:1.6}@media(max-width:900px){.gift-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:650px){.gift-grid{grid-template-columns:1fr}}
 .items{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}.item{background:white;border:1px solid #e1d0b0;border-radius:10px;padding:18px}.item h3{margin:0 0 7px}.item p{margin:0 0 8px;line-height:1.5}.item a{color:#81551e}.contacts{padding:35px 15px;text-align:center;background:#432b1a;color:white}.contacts a{color:#fff}.contacts p{line-height:1.7}
 .contacts-new{padding:38px 15px}
 .contacts-intro{max-width:700px;margin:0 auto 20px}
@@ -401,10 +401,57 @@
   </div>
 </section><script>
 (function(){
+  var mixModal=document.getElementById('giftMixModal');
+  var mixList=document.getElementById('giftMixList');
+  var mixCount=document.getElementById('giftMixCount');
+  var mixSubmit=document.getElementById('giftMixSubmit');
+  var mixClose=document.getElementById('giftMixClose');
+  var mixTotal=0;
+  function updateMix(){
+    mixTotal=0;
+    mixList.querySelectorAll('select').forEach(function(sel){mixTotal+=Number(sel.value||0);});
+    mixCount.textContent='Выбрано: '+mixTotal+' из 7 баночек';
+    mixSubmit.disabled=mixTotal!==7;
+    mixSubmit.textContent=mixTotal===7?'Добавить набор в корзину — 95 руб.':'Выберите ещё '+(7-mixTotal)+' баночек';
+  }
+  function openMix(){
+    mixList.innerHTML='';
+    document.querySelectorAll('#cream .cream-item h3').forEach(function(h3){
+      var row=document.createElement('div');row.className='gift-mix-row';
+      var label=document.createElement('label');label.textContent=h3.textContent.trim();
+      var select=document.createElement('select');select.setAttribute('aria-label','Количество: '+h3.textContent.trim());
+      for(var n=0;n<=7;n++){var opt=document.createElement('option');opt.value=String(n);opt.textContent=String(n)+' шт.';select.appendChild(opt);}
+      select.addEventListener('change',function(){
+        var otherTotal=0;
+        mixList.querySelectorAll('select').forEach(function(sel){if(sel!==select)otherTotal+=Number(sel.value||0);});
+        if(Number(select.value)+otherTotal>7){select.value=String(Math.max(0,7-otherTotal));}
+        updateMix();
+      });
+      row.append(label,select);mixList.appendChild(row);
+    });
+    updateMix();mixModal.classList.add('open');mixModal.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';
+  }
+  function closeMix(){mixModal.classList.remove('open');mixModal.setAttribute('aria-hidden','true');document.body.style.overflow='';}
+  mixClose.addEventListener('click',closeMix);
+  mixModal.addEventListener('click',function(e){if(e.target===mixModal)closeMix();});
+  mixSubmit.addEventListener('click',function(){
+    if(mixTotal!==7)return;
+    var details=[];
+    mixList.querySelectorAll('.gift-mix-row').forEach(function(row){
+      var qty=Number(row.querySelector('select').value||0);
+      if(qty>0)details.push(row.querySelector('label').textContent+' — '+qty+' шт.');
+    });
+    if(window.addCartItem){
+      window.addCartItem('Медовый набор №1 — 7 баночек взбитого мёда',details.join('; ')+'; Цена набора: 95 руб.');
+      closeMix();
+      var cartButton=document.getElementById('cartFab');if(cartButton)cartButton.click();
+    }
+  });
   document.querySelectorAll('.gift-order-btn').forEach(function(btn){
     btn.addEventListener('click',function(){
       var name=btn.getAttribute('data-order-gift')||'Подарочный набор';
       var price=btn.getAttribute('data-gift-price')||'';
+      if(name==='Медовый набор №1'){openMix();return;}
       var option=price==='Цена уточняется'?'Цена уточняется':price;
       if(window.addCartItem){
         window.addCartItem(name,option);
@@ -627,6 +674,7 @@
     <div class="detail-info-footer">🐝 «Дедушкина пасека» · Голынка · Клецкий район · +375 44 574 81 12</div>
   </div>
 </div>
+<div aria-hidden="true" class="gift-mix-modal" id="giftMixModal"><div class="gift-mix-box" role="dialog" aria-modal="true" aria-labelledby="giftMixTitle"><div class="gift-mix-head"><div><h2 id="giftMixTitle">🍯 Соберите медовый набор №1</h2><p class="gift-mix-note">Выберите вкусы взбитого мёда. В набор должно войти ровно 7 баночек. Цена набора — 95 руб.</p></div><button type="button" class="gift-mix-close" id="giftMixClose" aria-label="Закрыть">×</button></div><div class="gift-mix-list" id="giftMixList"></div><div class="gift-mix-count" id="giftMixCount">Выбрано: 0 из 7 баночек</div><button type="button" class="gift-mix-submit" id="giftMixSubmit" disabled>Добавить набор в корзину — 95 руб.</button></div></div>
 <div aria-hidden="true" class="choice-list-modal" id="choiceListModal">
 <div aria-labelledby="choiceListTitle" aria-modal="true" class="choice-list-box" role="dialog">
 <button aria-label="Закрыть" class="choice-list-close" id="choiceListClose" type="button">×</button>
