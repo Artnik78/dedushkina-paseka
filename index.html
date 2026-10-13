@@ -876,6 +876,32 @@ footer{border-top:1px solid rgba(233,215,184,.18);line-height:1.6}
   .items>.item .digital-passport,.items>.item a[href*="паспорт"]{font-size:12px;padding:7px 8px}
   .items>.item .actions button,.items>.item .actions a,.items>.item>.viber-order,.items>.item>.info-button{min-height:44px;font-size:13px;padding:10px 8px}
 }
+
+/* Мобильный каталог: меньше лишних отступов, стабильная высота изображений */
+.items{align-items:start;grid-auto-rows:auto}
+.items>.item{align-self:start;min-width:0;box-sizing:border-box}
+.items>.item h3{overflow-wrap:anywhere}
+.items>.item p{overflow-wrap:anywhere}
+.items>.item img.product-label{width:100%;max-width:100%;object-fit:contain;background:#fffaf0;border-radius:11px}
+.items>.item:not(.choice-item){padding:14px}
+.items>.item:not(.choice-item) h3{margin-bottom:7px}
+.items>.item:not(.choice-item) p{font-size:14px;line-height:1.45}
+@media(max-width:700px){
+ .items{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;gap:10px}
+ .items>.item{padding:10px}
+ .items>.item img.product-label{height:125px;max-height:125px;margin-bottom:8px}
+ .items>.item h3{font-size:15px;line-height:1.25;margin-bottom:7px}
+ .items>.item p{font-size:12px;line-height:1.4}
+ .items>.item:not(.choice-item){padding:12px}
+ .items>.item:not(.choice-item) h3{font-size:15px}
+ .items>.item:not(.choice-item) p{font-size:12px}
+}
+@media(max-width:370px){
+ .items{gap:8px}
+ .items>.item{padding:8px}
+ .items>.item img.product-label{height:112px;max-height:112px}
+ .items>.item h3{font-size:14px}
+}
 </style></head><body>
 <div class="top"><div class="wrap topinner"><a class="brand" href="#home"><span class="bee">🐝</span><span><strong>Дедушкина пасека</strong><small>НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</small></span></a><nav class="nav"><a href="#home">Главная</a><a href="#catalog">Каталог</a><a href="#about">О пасеке</a><a href="#gifts">🎁 Подарочные наборы</a><a href="#info">Полезная информация</a><a href="#delivery">Доставка</a><a href="#contacts">Контакты</a></nav></div></div>
 <header class="hero" id="home"><div class="herobox"><div class="hero-kicker">🐝 СЕМЕЙНАЯ ПАСЕКА · КЛЕЦКИЙ РАЙОН</div><h1>Дедушкина пасека</h1><div class="ornament">── 🐝 ──</div><p class="sub">НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</p><p class="motto">Мёд и продукты пчеловодства с заботой о природе</p><div class="virtues"><div><span>♧</span>Натурально<br/>и полезно</div><div><span>⬡</span>Собственное<br/>производство</div><div><span>♡</span>Традиции<br/>и качество</div></div></div></header>
