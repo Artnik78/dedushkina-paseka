@@ -603,6 +603,35 @@
  .choice-modal-info{position:sticky;bottom:0;z-index:2;display:block;width:100%;min-height:50px;margin:14px 0 0;padding:13px 16px;border-radius:14px;background:#d9c39a;color:#392514;font-size:16px;font-weight:800;box-shadow:0 -4px 12px rgba(80,55,25,.08)}
 }
 .honeycomb-info-modal{z-index:10003}
+
+/* Завершённая мобильная навигация после удаления поиска */
+@media(max-width:700px){
+ .mobile-bottom-nav{grid-template-columns:repeat(4,minmax(0,1fr))}
+ .mobile-bottom-nav a{padding:8px 3px 7px;font-size:12px}
+ .mobile-bottom-nav a span{font-size:22px}
+}
+/* Категории каталога: аккуратные карточки с одинаковой геометрией */
+.catalog{padding:22px 0 28px;background:linear-gradient(180deg,#fff9ee 0%,#f8edda 100%)}
+.catalog .heading{margin-bottom:17px;color:#50351f;letter-spacing:.2px}
+.cards{gap:15px}
+.tile,.tile.wide{border:1px solid rgba(164,119,52,.18);border-radius:14px;box-shadow:0 5px 16px rgba(69,43,16,.09);isolation:isolate}
+.tile img{transform:scale(1.001)}
+.tile:focus-visible{outline:3px solid #665cac;outline-offset:3px}
+.tile .name{min-height:62px;padding:28px 13px 12px;font-size:clamp(15px,1.5vw,20px);font-weight:700;line-height:1.2;background:linear-gradient(180deg,rgba(30,17,7,0),rgba(30,17,7,.86))}
+.tile .arrow{width:28px;height:28px;background:rgba(255,255,255,.12)}
+@media(max-width:700px){
+ .catalog{padding:20px 0 24px}
+ .catalog .wrap{width:calc(100% - 24px)}
+ .catalog .heading{font-size:26px;line-height:1.2;margin-bottom:14px}
+ .cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .tile,.tile.wide{grid-column:span 1;height:142px;border-radius:13px}
+ .tile .name{min-height:58px;padding:25px 9px 9px;font-size:14px;gap:5px}
+ .tile .arrow{width:23px;height:23px;font-size:16px}
+}
+@media(max-width:360px){
+ .tile,.tile.wide{height:126px}
+ .tile .name{font-size:12px;padding:23px 7px 8px}
+}
 </style></head><body>
 <div class="top"><div class="wrap topinner"><a class="brand" href="#home"><span class="bee">🐝</span><span><strong>Дедушкина пасека</strong><small>НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</small></span></a><nav class="nav"><a href="#home">Главная</a><a href="#catalog">Каталог</a><a href="#about">О пасеке</a><a href="#gifts">🎁 Подарочные наборы</a><a href="#info">Полезная информация</a><a href="#delivery">Доставка</a><a href="#contacts">Контакты</a></nav></div></div>
 <header class="hero" id="home"><div class="herobox"><div class="hero-kicker">🐝 СЕМЕЙНАЯ ПАСЕКА · КЛЕЦКИЙ РАЙОН</div><h1>Дедушкина пасека</h1><div class="ornament">── 🐝 ──</div><p class="sub">НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</p><p class="motto">Мёд и продукты пчеловодства с заботой о природе</p><div class="virtues"><div><span>♧</span>Натурально<br/>и полезно</div><div><span>⬡</span>Собственное<br/>производство</div><div><span>♡</span>Традиции<br/>и качество</div></div></div></header>
