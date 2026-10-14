@@ -4437,7 +4437,7 @@ async function communityRenderModeration(){
       const opt=select && Array.from(select.options).find(o=>{
         const label=(o.textContent+" "+o.value).toLowerCase();
         return new RegExp("(?:улей\\s*)?(?:№\\s*)?"+number+"(?:\\D|$)").test(label) ||
-          (o.textContent.match(/\\d+/)?.[0]===number);
+          (o.textContent.match(/\d+/)?.[0]===number);
       });
       if(opt){select.value=opt.value;select.dispatchEvent(new Event("change",{bubbles:true}));}
       text=text.replace(hiveMatch[0]," ");
