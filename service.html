@@ -116,7 +116,7 @@ th,td{padding:11px;border-bottom:1px solid #e7edf2;text-align:left;white-space:n
 <section id="orderCard"><div class="card"><div class="toolbar"><button class="light" onclick="show('orders')">← К заказам</button></div><h2 id="orderCardTitle">Заказ</h2><div id="orderCardBody"></div></div></section>
 </main></div>
 
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async onload="window.renderLoginCaptcha&&window.renderLoginCaptcha()"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (async()=>{
@@ -132,12 +132,13 @@ try{
 window.sb=sb;
 let captchaToken='';
 let turnstileWidgetId=null;
-function renderLoginCaptcha(){
+window.renderLoginCaptcha=function(){
  if(!window.turnstile||turnstileWidgetId!==null)return;
  try{turnstileWidgetId=window.turnstile.render('#turnstile-container',{sitekey:'0x4AAAAAAFVRRKyWkIBv6dtO',callback:token=>{captchaToken=token;const m=$('authmsg');if(m&&m.textContent.includes('капч'))m.textContent='';},'expired-callback':()=>{captchaToken='';},'error-callback':()=>{captchaToken='';const m=$('authmsg');if(m)m.textContent='Не удалось загрузить проверку безопасности. Обновите страницу.';}});}catch(e){console.error('Turnstile render error',e);}
 }
-window.addEventListener('load',renderLoginCaptcha);
-setTimeout(renderLoginCaptcha,800);
+window.addEventListener('load',()=>setTimeout(window.renderLoginCaptcha,250));
+setTimeout(()=>window.renderLoginCaptcha(),800);
+setTimeout(()=>window.renderLoginCaptcha(),2500);
 window.loadRefillJournal=async function(){const {data,error}=await sb.from('service_cartridge_jobs').select('id,received_at,status,completed_at,issued_at,notes,service_clients(name),service_cartridges(model,barcode)').order('created_at',{ascending:false});if(error){alert(error.message);return}const names={received:'Принят',in_work:'В работе',refilled:'Заправлен',issued:'Выдан'};$('refillJournalRows').innerHTML=(data||[]).map(x=>{let b='';if(x.status==='received')b='<button class="light" onclick="changeRefillStatus(\''+x.id+'\',\'in_work\')">В работу</button>';if(x.status==='in_work')b='<button class="light" onclick="changeRefillStatus(\''+x.id+'\',\'refilled\')">Заправлен</button>';if(x.status==='refilled')b='<button class="light" onclick="changeRefillStatus(\''+x.id+'\',\'issued\')">Выдан</button>';return '<tr><td>'+esc(x.received_at||'')+'</td><td>'+esc(x.service_clients?.name||'—')+'</td><td>'+esc(x.service_cartridges?.model||'')+'</td><td>'+esc(x.service_cartridges?.barcode||'')+'</td><td>'+esc(names[x.status]||x.status)+'</td><td>'+esc(x.completed_at||'—')+'</td><td>'+b+' <button class="danger" onclick="deleteRefillJob(\''+x.id+'\')">Удалить</button></td></tr>'}).join('')||'<tr><td colspan="7" class="muted">Записей нет.</td></tr>'};
 window.receiveRefillJob=async function(cartridgeId){
  const {data:cartridge,error:cartridgeError}=await sb.from('service_cartridges').select('id,client_id,model,barcode').eq('id',cartridgeId).single();
