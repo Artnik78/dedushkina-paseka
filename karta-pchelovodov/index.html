@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f7f0dc">
+<title>Карта белорусских пчеловодов</title>
+<style>
+:root{--green:#244a2e;--gold:#f3b51b;--cream:#fffaf0;--ink:#25291f;--muted:#6b7065;--line:#e7dfca}
+*{box-sizing:border-box}body{margin:0;background:#f6f2e7;color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+header{background:linear-gradient(115deg,#183d26,#426b39);color:white;padding:24px clamp(16px,4vw,54px) 30px}
+.top{max-width:1200px;margin:auto}.eyebrow{color:#f6ce5a;text-transform:uppercase;letter-spacing:.12em;font-size:.78rem;font-weight:800}
+h1{font-family:Georgia,serif;font-size:clamp(2rem,5vw,3.5rem);line-height:1.03;margin:9px 0}.lead{max-width:680px;color:#e7eddf;margin:12px 0 20px}
+nav{display:flex;gap:10px;flex-wrap:wrap}.navitem{color:#fff;text-decoration:none;padding:8px 12px;border:1px solid #ffffff40;border-radius:20px;font-size:.92rem}
+main{max-width:1200px;margin:22px auto;padding:0 16px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}.stat,.panel,.profile{background:var(--cream);border:1px solid var(--line);border-radius:16px;padding:16px}.stat strong{display:block;font-size:1.4rem;color:var(--green)}.stat span{font-size:.85rem;color:var(--muted)}
+.layout{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(290px,.7fr);gap:18px}.panel h2{font-size:1.2rem;margin:0 0 12px;color:var(--green)}.map{min-height:360px;display:grid;place-items:center;background:radial-gradient(ellipse at 50% 45%,#e5edce,#f8f1dc 72%);border-radius:12px;overflow:hidden;position:relative}
+.belarus{width:min(88%,460px);height:auto;filter:drop-shadow(0 8px 5px #455b2730)}.region{fill:#b8cf91;stroke:#fffdf3;stroke-width:3;cursor:pointer;transition:fill .15s}.region:hover,.region.active{fill:#f4c54b}.city{font-size:13px;fill:#29432b;font-weight:700;pointer-events:none}.pin{fill:#fffaf0;stroke:#b77900;stroke-width:3;cursor:pointer}.pin:hover{fill:#f4c54b}
+.mapnote{font-size:.82rem;color:var(--muted);margin:10px 0 0}.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.filters input,.filters select,.field input,.field select,.field textarea{width:100%;padding:11px 12px;border:1px solid #d8d0bc;border-radius:10px;background:white;font:inherit}.filters input{flex:1;min-width:170px}.filters select{width:auto;flex:1;min-width:140px}
+.cards{display:grid;gap:10px}.apiary{padding:13px;border:1px solid var(--line);border-radius:12px;background:#fffdf7}.apiary h3{margin:0 0 3px;color:var(--green)}.meta{color:var(--muted);font-size:.9rem}.tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}.tag{background:#edf2e3;color:#345637;border-radius:20px;padding:4px 8px;font-size:.78rem}.btn{border:0;border-radius:10px;background:var(--gold);color:#29240f;padding:11px 15px;font:inherit;font-weight:750;cursor:pointer}.btn.secondary{background:#e8eddf;color:var(--green)}.full{width:100%}.empty{color:var(--muted);padding:18px;text-align:center}
+form{display:grid;gap:12px}.field{display:grid;gap:5px}.field label{font-size:.9rem;font-weight:650}.small{font-size:.82rem;color:var(--muted)}footer{text-align:center;padding:28px 16px;color:var(--muted);font-size:.86rem}
+@media(max-width:760px){.layout{grid-template-columns:1fr}.stats{gap:7px}.stat{padding:12px 10px}.stat strong{font-size:1.15rem}.map{min-height:300px}.profile{order:-1}}
+</style>
+</head>
+<body>
+<header><div class="top"><div class="eyebrow">Люди · Пасеки · Натуральный мёд</div><h1>Карта белорусских<br>пчеловодов</h1><p class="lead">Находим пасеки рядом, знакомимся с пчеловодами Беларуси и открываем мир пчеловодства вместе.</p><nav><a class="navitem" href="#map">🗺 Карта</a><a class="navitem" href="#directory">🐝 Пчеловоды</a><a class="navitem" href="#add">＋ Добавить пасеку</a></nav></div></header>
+<main>
+<div class="stats"><div class="stat"><strong id="count">2</strong><span>демонстрационные карточки</span></div><div class="stat"><strong>6</strong><span>областей Беларуси</span></div><div class="stat"><strong>Бесплатно</strong><span>для первых участников</span></div></div>
+<div class="layout">
+<section class="panel" id="map"><h2>Выберите область на карте</h2><div class="map">
+<svg class="belarus" viewBox="0 0 500 340" role="img" aria-label="Схематичная карта Беларуси с областями">
+<path class="region" data-region="Гродненская" d="M55 102 L112 76 L164 91 L174 132 L139 160 L103 151 L66 169 L35 143Z"/>
+<path class="region" data-region="Минская" d="M164 91 L225 69 L274 91 L280 139 L249 174 L213 188 L174 160 L174 132Z"/>
+<path class="region" data-region="Брестская" d="M35 143 L66 169 L103 151 L139 160 L151 205 L120 239 L75 226 L42 190Z"/>
+<path class="region" data-region="Витебская" d="M225 69 L240 28 L310 34 L343 71 L325 109 L280 139 L274 91Z"/>
+<path class="region" data-region="Могилёвская" d="M280 139 L325 109 L365 126 L386 164 L353 201 L310 192 L249 174Z"/>
+<path class="region" data-region="Гомельская" d="M249 174 L310 192 L353 201 L376 240 L337 275 L275 263 L236 224 L213 188Z"/>
+<text class="city" x="66" y="126">Гродно</text><text class="city" x="180" y="127">Минск</text><text class="city" x="255" y="62">Витебск</text><text class="city" x="311" y="158">Могилёв</text><text class="city" x="289" y="235">Гомель</text><text class="city" x="71" y="202">Брест</text>
+<circle class="pin" data-region="Минская" cx="207" cy="143" r="7"/><circle class="pin" data-region="Брестская" cx="105" cy="196" r="7"/>
+</svg></div><p class="mapnote">Это схематичная карта для первого прототипа, не точная навигационная карта. Нажмите на область, чтобы отфильтровать список.</p></section>
+<section class="profile"><h2>Найти пасеку</h2><div class="filters"><input id="search" placeholder="Название, район, продукция…" aria-label="Поиск"><select id="region" aria-label="Область"><option value="">Все области</option><option>Брестская</option><option>Витебская</option><option>Гомельская</option><option>Гродненская</option><option>Минская</option><option>Могилёвская</option></select></div><div class="filters"><select id="product" aria-label="Продукция"><option value="">Любая продукция</option><option>Мёд</option><option>Перга</option><option>Воск</option><option>Матки и пчелопакеты</option><option>Экскурсии</option></select><button class="btn" id="reset">Сбросить</button></div><div id="cards" class="cards"></div></section>
+</div>
+<section class="panel" id="add" style="margin-top:18px"><h2>Предложить свою пасеку</h2><p>Заполните заявку. В этой демонстрационной версии данные никуда не отправляются — форма показывает, как будет выглядеть регистрация после подключения базы данных.</p>
+<form id="request"><div class="field"><label for="name">Название пасеки *</label><input id="name" required placeholder="Например, Дедушкина пасека"></div><div class="field"><label for="owner">Имя пчеловода</label><input id="owner" placeholder="Как к вам обращаться"></div><div class="field"><label for="area">Область *</label><select id="area" required><option value="">Выберите область</option><option>Брестская</option><option>Витебская</option><option>Гомельская</option><option>Гродненская</option><option>Минская</option><option>Могилёвская</option></select></div><div class="field"><label for="district">Район / населённый пункт *</label><input id="district" required placeholder="Например, Клецкий район"></div><div class="field"><label for="goods">Что предлагаете</label><input id="goods" placeholder="Мёд, воск, экскурсии…"></div><div class="field"><label for="contact">Контакт для связи (по желанию)</label><input id="contact" placeholder="Телефон, email или ссылка"></div><button class="btn full" type="submit">Подготовить заявку</button><div id="notice" class="small" role="status"></div></form></section>
+</main><footer>Карта белорусских пчеловодов · Демонстрационный прототип · Публикация анкет — после согласия владельца и проверки.</footer>
+<script>
+const apiaries=[
+{name:"Дедушкина пасека",region:"Минская",district:"Клецкий район",goods:["Мёд","Воск"],description:"Демонстрационная карточка проекта. Контакты и координаты пока не опубликованы.",demo:true},
+{name:"Пример пасеки — Брестская область",region:"Брестская",district:"Населённый пункт не указан",goods:["Мёд","Перга"],description:"Учебная запись для проверки поиска. Не является реальным объявлением.",demo:true}
+];
+const cards=document.getElementById('cards'),search=document.getElementById('search'),region=document.getElementById('region'),product=document.getElementById('product');
+function render(){let q=search.value.trim().toLowerCase();let rows=apiaries.filter(a=>(!region.value||a.region===region.value)&&(!product.value||a.goods.includes(product.value))&&(!q||[a.name,a.region,a.district,a.goods.join(' ')].join(' ').toLowerCase().includes(q)));cards.innerHTML='';document.getElementById('count').textContent=apiaries.length;
+if(!rows.length){cards.innerHTML='<div class="empty">Ничего не найдено. Измените параметры поиска.</div>';return}
+rows.forEach(a=>{let el=document.createElement('article');el.className='apiary';let h=document.createElement('h3');h.textContent=a.name;let meta=document.createElement('div');meta.className='meta';meta.textContent='📍 '+a.region+' область · '+a.district;let desc=document.createElement('p');desc.textContent=a.description;let tags=document.createElement('div');tags.className='tags';a.goods.forEach(g=>{let t=document.createElement('span');t.className='tag';t.textContent=g;tags.append(t)});el.append(h,meta,desc,tags);cards.append(el)})}
+[search,region,product].forEach(x=>x.addEventListener('input',render));document.getElementById('reset').addEventListener('click',()=>{search.value='';region.value='';product.value='';document.querySelectorAll('.region').forEach(x=>x.classList.remove('active'));render()});
+document.querySelectorAll('.region,.pin').forEach(x=>x.addEventListener('click',()=>{region.value=x.dataset.region||'';document.querySelectorAll('.region').forEach(y=>y.classList.toggle('active',y.dataset.region===region.value));render();document.getElementById('directory')?.scrollIntoView({behavior:'smooth'})}));
+document.getElementById('request').addEventListener('submit',e=>{e.preventDefault();document.getElementById('notice').textContent='Заявка проверена только в демонстрационной форме и не отправлена. После подключения базы данных здесь появится отправка администратору на подтверждение.';});
+render();
+</script></body></html>
