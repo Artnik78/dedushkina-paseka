@@ -4459,7 +4459,7 @@ async function communityRenderModeration(){
         target.dispatchEvent(new Event("input",{bubbles:true}));
       };
       recognition.onerror=function(e){
-        const messages={not-allowed:"Нет доступа к микрофону. Разрешите его в настройках браузера.","audio-capture":"Микрофон не найден.","no-speech":"Речь не распознана. Попробуйте ещё раз.","network":"Сервис распознавания недоступен. Проверьте интернет."};
+        const messages={"not-allowed":"Нет доступа к микрофону. Разрешите его в настройках браузера.","audio-capture":"Микрофон не найден.","no-speech":"Речь не распознана. Попробуйте ещё раз.","network":"Сервис распознавания недоступен. Проверьте интернет."};
         if(message)message.textContent=messages[e.error]||("Не удалось распознать речь ("+e.error+"). Можно воспользоваться микрофоном клавиатуры.");
       };
       recognition.onstart=function(){target.dataset.voiceBase=target.value;};
