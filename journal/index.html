@@ -4416,62 +4416,95 @@ async function communityRenderModeration(){
   let activeTarget = null;
   let finalTranscript = "";
   const status = () => document.getElementById("inspectionVoiceStatus");
+  const form = () => document.getElementById("inspectionForm");
+  function setSelect(name, value){
+    const el=form()?.elements.namedItem(name);
+    if(!el || !value)return false;
+    const option=Array.from(el.options).find(o=>o.value.toLowerCase()===value.toLowerCase() || o.textContent.trim().toLowerCase()===value.toLowerCase());
+    if(!option)return false;
+    el.value=option.value;
+    el.dispatchEvent(new Event("change",{bubbles:true}));
+    return true;
+  }
+  function distributeSpeech(raw){
+    let text=raw;
+    const f=form();
+    if(!f)return raw;
+    // Route explicit hive references to the hive selector.
+    const hiveMatch=text.match(/(?:^|[,.!?;\s])(?:улей|улья|улье|семья|семью)\s*(?:номер\s*)?(?:№\s*)?(\d{1,4})(?=$|[,.!?;\s])/i);
+    if(hiveMatch){
+      const number=hiveMatch[1], select=f.elements.namedItem("hive_id");
+      const opt=select && Array.from(select.options).find(o=>{
+        const label=(o.textContent+" "+o.value).toLowerCase();
+        return new RegExp("(?:улей\\s*)?(?:№\\s*)?"+number+"(?:\\D|$)").test(label) ||
+          (o.textContent.match(/\\d+/)?.[0]===number);
+      });
+      if(opt){select.value=opt.value;select.dispatchEvent(new Event("change",{bubbles:true}));}
+      text=text.replace(hiveMatch[0]," ");
+    }
+    const rules=[
+      {name:"queen_breed",re:/\b(?:матка|матки|порода матки)\s*(?:порода\s*)?(карника|бакфаст|мешанка|итальянка|среднерусская|кавказская|другая)\b/ig},
+      {name:"queen_status",re:/\b(?:матка|матки)\s*(есть|молодая|нет|трутневая)\b/ig},
+      {name:"colony_strength",re:/\b(?:семья|сила семьи|семья по силе)\s*(сильная|средняя|слабая)\b/ig},
+      {name:"brood",re:/\b(?:расплод)\s*(хороший|нормальный|слабый|нет)\b/ig},
+      {name:"feed",re:/\b(?:корм|кормов)\s*(много|достаточно|мало|нет|мёд и перга|мед и перга|сироп)\b/ig}
+    ];
+    for(const rule of rules){
+      let m;
+      while((m=rule.re.exec(text))!==null){
+        let value=m[1].trim();
+        if(rule.name==="queen_breed")value=value.charAt(0).toUpperCase()+value.slice(1).toLowerCase();
+        else value=value.charAt(0).toUpperCase()+value.slice(1).toLowerCase();
+        if(rule.name==="feed" && /^мед и перга$/i.test(value))value="Мёд и перга";
+        setSelect(rule.name,value);
+        text=text.slice(0,m.index)+" "+text.slice(m.index+m[0].length);
+        rule.re.lastIndex=0;
+      }
+    }
+    return text.replace(/\s+/g," ").replace(/\s+([,.!?;])/g,"$1").trim();
+  }
   function resetButton(){
     if(activeButton){activeButton.setAttribute("aria-pressed","false");activeButton.textContent="🎙️ Диктовать";}
     activeButton=null;activeTarget=null;recognition=null;finalTranscript="";
   }
   document.querySelectorAll(".voice-dictation-btn").forEach(function(button){
     button.addEventListener("click",function(){
-    if(activeButton===button && recognition){
-      try{recognition.stop();}catch(e){resetButton();}
-      return;
-    }
-    if(activeButton && recognition){try{recognition.stop();}catch(e){} resetButton();}
-    const target=document.getElementById(button.dataset.voiceTarget);
-    const message=status();
-    const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
-    if(!target)return;
-    if(!SpeechRecognition){
-      if(message)message.textContent="В этом браузере нет встроенного распознавания речи. Используйте микрофон на клавиатуре телефона.";
-      return;
-    }
-    try{
-      recognition=new SpeechRecognition();
-      activeButton=button;activeTarget=target;finalTranscript="";
-      recognition.lang="ru-RU";
-      recognition.continuous=true;
-      recognition.interimResults=true;
-      recognition.maxAlternatives=1;
-      button.setAttribute("aria-pressed","true");
-      button.textContent="⏹ Остановить";
-      if(message)message.textContent="Слушаю… Говорите обычным русским языком. Нажмите «Остановить», затем проверьте текст.";
-      recognition.onresult=function(e){
-        let interim="";
-        for(let i=e.resultIndex;i<e.results.length;i++){
-          const phrase=e.results[i][0].transcript;
-          if(e.results[i].isFinal)finalTranscript+=phrase+" ";
-          else interim+=phrase;
-        }
-        const base=target.dataset.voiceBase||"";
-        const spoken=finalTranscript.trim();
-        target.value=(base+(base&&spoken?" ":"")+spoken+(interim?" "+interim:"")).trimStart();
-        target.dispatchEvent(new Event("input",{bubbles:true}));
-      };
-      recognition.onerror=function(e){
-        const messages={"not-allowed":"Нет доступа к микрофону. Разрешите его в настройках браузера.","audio-capture":"Микрофон не найден.","no-speech":"Речь не распознана. Попробуйте ещё раз.","network":"Сервис распознавания недоступен. Проверьте интернет."};
-        if(message)message.textContent=messages[e.error]||("Не удалось распознать речь ("+e.error+"). Можно воспользоваться микрофоном клавиатуры.");
-      };
-      recognition.onstart=function(){target.dataset.voiceBase=target.value;};
-      recognition.onend=function(){
-        if(message && !message.textContent.startsWith("Нет доступа") && !message.textContent.startsWith("Микрофон не найден") && !message.textContent.startsWith("Сервис распознавания"))message.textContent="Диктовка завершена. Проверьте текст и при необходимости исправьте его перед сохранением.";
-        delete target.dataset.voiceBase;
-        resetButton();
-      };
-      recognition.start();
-    }catch(error){
-      if(message)message.textContent="Не удалось запустить диктовку. Проверьте разрешение на микрофон или используйте микрофон клавиатуры.";
-      resetButton();
-    }
+      if(activeButton===button && recognition){try{recognition.stop();}catch(e){resetButton();}return;}
+      if(activeButton && recognition){try{recognition.stop();}catch(e){}resetButton();}
+      const target=document.getElementById(button.dataset.voiceTarget);
+      const message=status();
+      const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+      if(!target)return;
+      if(!SpeechRecognition){if(message)message.textContent="В этом браузере нет встроенного распознавания речи. Используйте микрофон на клавиатуре телефона.";return;}
+      try{
+        recognition=new SpeechRecognition();activeButton=button;activeTarget=target;finalTranscript="";
+        recognition.lang="ru-RU";recognition.continuous=true;recognition.interimResults=true;recognition.maxAlternatives=1;
+        button.setAttribute("aria-pressed","true");button.textContent="⏹ Остановить";
+        if(message)message.textContent="Слушаю… Например: «улей 1, матка бакфаст, расплод хороший». Команды распределяются по полям, остальной текст попадёт в заметки.";
+        recognition.onstart=function(){target.dataset.voiceBase=target.value;};
+        recognition.onresult=function(e){
+          let interim="";
+          for(let i=e.resultIndex;i<e.results.length;i++){
+            const phrase=e.results[i][0].transcript;
+            if(e.results[i].isFinal)finalTranscript+=phrase+" ";
+            else interim+=phrase;
+          }
+          const base=target.dataset.voiceBase||"";
+          const spoken=(finalTranscript+" "+interim).trim();
+          const combined=(base+(base&&spoken?" ":"")+spoken).trim();
+          target.value=distributeSpeech(combined);
+          target.dispatchEvent(new Event("input",{bubbles:true}));
+        };
+        recognition.onerror=function(e){
+          const messages={"not-allowed":"Нет доступа к микрофону. Разрешите его в настройках браузера.","audio-capture":"Микрофон не найден.","no-speech":"Речь не распознана. Попробуйте ещё раз.","network":"Сервис распознавания недоступен. Проверьте интернет."};
+          if(message)message.textContent=messages[e.error]||("Не удалось распознать речь ("+e.error+"). Можно воспользоваться микрофоном клавиатуры.");
+        };
+        recognition.onend=function(){
+          if(message && !message.textContent.startsWith("Нет доступа") && !message.textContent.startsWith("Микрофон не найден") && !message.textContent.startsWith("Сервис распознавания"))message.textContent="Диктовка завершена. Проверьте заполненные поля и заметки перед сохранением.";
+          delete target.dataset.voiceBase;resetButton();
+        };
+        recognition.start();
+      }catch(error){if(message)message.textContent="Не удалось запустить диктовку. Проверьте разрешение на микрофон или используйте микрофон клавиатуры.";resetButton();}
     });
   });
 })();
