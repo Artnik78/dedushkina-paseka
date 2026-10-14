@@ -3605,10 +3605,14 @@ $('hiveMoveForm').onsubmit=async e=>{
   const f=e.target,d=formData(f),h=state.hives.find(x=>String(x.id)===String(d.hive_id));
   if(!h){toast('Улей не найден');return}
   if(String(h.apiary_id||'')===String(d.to_apiary_id||'')){toast('Выберите другую пасеку');return}
-  const {error}=await db.from('hive_movements').insert({hive_id:h.id,from_apiary_id:h.apiary_id||null,to_apiary_id:d.to_apiary_id,movement_date:d.movement_date,reason:d.reason||'Перемещение улья',notes:d.notes.trim()||null});
-  if(error){toast('Ошибка записи перемещения: '+error.message);return}
+  const {data:movement,error}=await db.from('hive_movements').insert({hive_id:h.id,from_apiary_id:h.apiary_id||null,to_apiary_id:d.to_apiary_id,movement_date:d.movement_date,reason:d.reason||'Перемещение улья',notes:d.notes.trim()||null}).select('id').single();
+  if(error){toast('Перемещение не выполнено: не удалось записать историю. '+error.message);return}
   const {error:updateError}=await db.from('hives').update({apiary_id:d.to_apiary_id}).eq('id',h.id);
-  if(updateError){toast('История записана, но пасека улья не обновилась: '+updateError.message);await loadAll();return}
+  if(updateError){
+    const rollback=await db.from('hive_movements').delete().eq('id',movement.id);
+    toast('Не удалось обновить пасеку улья: '+updateError.message+(rollback.error?' Историю также не удалось отменить — сообщите администратору.':' Запись истории отменена.'));
+    await loadAll();return;
+  }
   $('hiveMoveModal').style.display='none';toast('Улей перемещён');await loadAll();showHiveFamily(h.id);
 };
 if($('closeHiveFamilyBtn')) $('closeHiveFamilyBtn').onclick=closeHiveFamily;
@@ -3629,12 +3633,20 @@ $('hiveForm').onsubmit=async e=>{
   if(d.id){
     const old=state.hives.find(x=>String(x.id)===String(d.id));
     const moved=old && String(old.apiary_id||'')!==String(d.apiary_id||'');
-    const {error}=await db.from('hives').update({apiary_id:d.apiary_id,hive_number:d.hive_number,hive_type:d.hive_type,queen_breed:d.queen_breed,queen_year:d.queen_year?Number(d.queen_year):null,hive_row:d.hive_row?Number(d.hive_row):null,hive_position:d.hive_position?Number(d.hive_position):null,location:d.location,status:d.status,notes:d.notes}).eq('id',d.id);
-    if(!error && moved){
-      const {error:moveError}=await db.from('hive_movements').insert({hive_id:d.id,from_apiary_id:old.apiary_id||null,to_apiary_id:d.apiary_id||null,movement_date:today(),reason:'Перемещение улья'});
-      if(moveError){toast('Улей перемещён, но история не записалась: '+moveError.message);resetHiveForm();await loadAll();return}
+    const hivePayload={apiary_id:d.apiary_id,hive_number:d.hive_number,hive_type:d.hive_type,queen_breed:d.queen_breed,queen_year:d.queen_year?Number(d.queen_year):null,hive_row:d.hive_row?Number(d.hive_row):null,hive_position:d.hive_position?Number(d.hive_position):null,location:d.location,status:d.status,notes:d.notes};
+    if(moved){
+      const {data:movement,error:moveError}=await db.from('hive_movements').insert({hive_id:d.id,from_apiary_id:old.apiary_id||null,to_apiary_id:d.apiary_id||null,movement_date:today(),reason:'Перемещение улья'}).select('id').single();
+      if(moveError){toast('Перемещение не выполнено: не удалось записать историю. '+moveError.message);return}
+      const {error}=await db.from('hives').update(hivePayload).eq('id',d.id);
+      if(error){
+        const rollback=await db.from('hive_movements').delete().eq('id',movement.id);
+        toast('Не удалось изменить улей: '+error.message+(rollback.error?' Историю также не удалось отменить — сообщите администратору.':' Запись истории отменена.'));
+        await loadAll();return;
+      }
+    }else{
+      const {error}=await db.from('hives').update(hivePayload).eq('id',d.id);
+      if(error){toast('Ошибка: '+error.message);return}
     }
-    if(error){toast('Ошибка: '+error.message);return}
     toast(moved?'Улей перемещён на другую пасеку':'Улей изменён');
   }else{
     const {error}=await db.from('hives').insert({apiary_id:d.apiary_id,hive_number:d.hive_number,hive_type:d.hive_type,queen_breed:d.queen_breed,queen_year:d.queen_year?Number(d.queen_year):null,hive_row:d.hive_row?Number(d.hive_row):null,hive_position:d.hive_position?Number(d.hive_position):null,location:d.location,status:d.status,notes:d.notes});
