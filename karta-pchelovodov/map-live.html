@@ -136,7 +136,7 @@ function renderOrganization(){
 }
 function filterProfiles(){const q=qEl.value.trim().toLowerCase(),r=rEl.value,d=dEl.value.trim().toLowerCase(),prod=pfEl.value,checked=[...document.querySelectorAll('#productChecks input:checked')].map(x=>x.value);return profiles.filter(p=>{const gs=goods(p),hay=[p.apiary_name,p.beekeeper_name,p.region,p.district,p.description,gs.join(' ')].join(' ').toLowerCase(),pt=gs.join(' ').toLowerCase();const matches=x=>pt.includes(x.toLowerCase())||(x==='Пчелопродукты'&&/перга|прополис|пыльц|забрус|маточн/.test(pt))||(x==='Услуги'&&/опылен|услуг/.test(pt))||(x==='Обучение'&&/обучен|курс/.test(pt))||(x==='Экскурсии'&&/экскурс|туризм/.test(pt));return(!q||hay.includes(q))&&(!r||p.region===r)&&(!d||String(p.district||'').toLowerCase().includes(d))&&(!prod||matches(prod))&&(!checked.length||checked.some(matches))})}
 function makePin(p,active=false){const gs=goods(p).join(' ').toLowerCase();let cls='pin-gold',icon='✿';if(/матк|пчелопакет|пчелосем/.test(gs)){cls='pin-brown';icon='♛'}else if(/воск|забрус|прополис|перга|пыльц/.test(gs)){cls='pin-green';icon='❋'}else if(/экскурс|обучен|курс|туризм/.test(gs)){cls='pin-blue';icon='▤'}return L.divIcon({className:'',html:'<div class="bee-pin '+cls+(active?' bee-pin-active':'')+'"><span>'+icon+'</span></div>',iconSize:active?[43,51]:[35,43],iconAnchor:active?[21,47]:[17,40],popupAnchor:[0,-36]})}
-function render(){const rows=filterProfiles();markers.forEach(m=>map.removeLayer(m));markers=[];rows.forEach(p=>{if(p.latitude!=null&&p.longitude!=null){const active=String(p.id)===String(selectedProfileId);const m=L.marker([Number(p.latitude),Number(p.longitude)],{icon:makePin(p,active),zIndexOffset:active?700:0}).addTo(map).bindPopup('<b>'+esc(p.apiary_name)+'</b><br>'+esc(p.region)+' область, '+esc(p.district));m.on('click',()=>{selectedProfileId=p.id;renderFeatured([p]);render()});markers.push(m)}});document.getElementById('statApiaries').textContent=profiles.filter(p=>p.latitude!=null&&p.longitude!=null&&Number.isFinite(Number(p.latitude))&&Number.isFinite(Number(p.longitude))).length;document.getElementById('statBeekeepers').textContent=new Set(profiles.map(p=>p.beekeeper_name).filter(Boolean)).size;document.getElementById('statProducts').textContent=new Set(profiles.flatMap(goods)).size;const query=(qEl.value||'').trim().toLocaleLowerCase('ru');const orgHay=[organization.name,organization.address,'медосбор','общественная организация'].join(' ').toLocaleLowerCase('ru');if(query&&orgHay.includes(query)){renderOrganization();return rows}renderFeatured(rows);renderResultsList(rows);return rows}
+function render(){const rows=filterProfiles();markers.forEach(m=>map.removeLayer(m));markers=[];rows.forEach(p=>{if(p.latitude!=null&&p.longitude!=null){const active=String(p.id)===String(selectedProfileId);const m=L.marker([Number(p.latitude),Number(p.longitude)],{icon:makePin(p,active),zIndexOffset:active?700:0}).addTo(map).bindPopup('<b>'+esc(p.apiary_name)+'</b><br>'+esc(p.region)+' область, '+esc(p.district));m.on('click',()=>{selectedProfileId=p.id;renderFeatured([p]);render()});markers.push(m)}});document.getElementById('statApiaries').textContent=profiles.filter(p=>p.latitude!=null&&p.longitude!=null&&Number.isFinite(Number(p.latitude))&&Number.isFinite(Number(p.longitude))).length;document.getElementById('statBeekeepers').textContent=new Set(profiles.map(p=>p.beekeeper_name).filter(Boolean)).size;document.getElementById('statProducts').textContent=new Set(profiles.flatMap(goods)).size;const query=(qEl.value||'').trim().toLocaleLowerCase('ru');const orgHay=[organization.name,organization.address,'медосбор','общественная организация'].join(' ').toLocaleLowerCase('ru');if(query&&orgHay.includes(query)){renderOrganization();const host=document.getElementById('resultsList');if(host)host.innerHTML='<button type="button" class="result-item selected" id="organizationResult"><span class="result-name">'+esc(organization.name)+'</span><span class="result-meta">'+esc(organization.address)+'</span><span class="result-goods">Общественная организация · 📍 Есть на карте</span></button>';const orgResult=document.getElementById('organizationResult');if(orgResult)orgResult.onclick=()=>{renderOrganization();map.setView([organization.lat,organization.lng],14);organizationMarker.openPopup();document.getElementById('map-section').scrollIntoView({behavior:'smooth'})};return rows}renderFeatured(rows);renderResultsList(rows);return rows}
 function renderResultsList(rows){const host=document.getElementById('resultsList');if(!host)return;if(!rows.length){host.innerHTML='<div class="results-empty">Ничего не найдено. Попробуйте изменить фильтры.</div>';return}const shown=rows.slice(0,60);host.innerHTML='<div class="results-count">Список пасек: '+rows.length+(rows.length>shown.length?' · показаны первые '+shown.length:'')+'</div>'+shown.map((p,i)=>{const gs=goods(p);const loc=[p.region,p.district].filter(Boolean).join(' область · ');const hasCoords=p.latitude!=null&&p.longitude!=null&&Number.isFinite(Number(p.latitude))&&Number.isFinite(Number(p.longitude));return '<button type="button" class="result-item'+(String(p.id)===String(selectedProfileId)?' selected':'')+'" data-profile-id="'+esc(p.id)+'"><span class="result-name">'+esc(p.apiary_name||'Пасека без названия')+'</span><span class="result-meta">'+esc(loc||'Местоположение не указано')+(p.beekeeper_name?' · '+esc(p.beekeeper_name):'')+'</span><span class="result-goods">'+esc(gs.length?gs.join(' · '):'Продукция не указана')+' · '+(hasCoords?'📍 Есть на карте':'Координаты не опубликованы')+'</span></button>'}).join('');host.querySelectorAll('.result-item').forEach(btn=>btn.addEventListener('click',()=>{const p=rows.find(x=>String(x.id)===btn.dataset.profileId);if(!p)return;selectedProfileId=p.id;renderFeatured([p]);render();const hasCoords=p.latitude!=null&&p.longitude!=null&&Number.isFinite(Number(p.latitude))&&Number.isFinite(Number(p.longitude));if(hasCoords){map.setView([Number(p.latitude),Number(p.longitude)],13);const m=markers.find(x=>Math.abs(x.getLatLng().lat-Number(p.latitude))<1e-7&&Math.abs(x.getLatLng().lng-Number(p.longitude))<1e-7);if(m)m.openPopup()}document.getElementById('featured').scrollIntoView({behavior:'smooth',block:'nearest'})}))}
 function renderFeatured(rows){document.querySelector('.feature-photo').setAttribute('style',originalFeaturePhoto);document.querySelector('.right-products').style.display='';document.querySelector('.right-contacts').style.display='';document.querySelector('.right-products').innerHTML=originalProducts;document.querySelector('.right-contacts').innerHTML=originalContacts;const box=document.getElementById('profileDetails'),p=rows.find(x=>String(x.id)===String(selectedProfileId))||rows[0];if(!p){selectedProfileId=null;box.innerHTML='<div class="feature-title">Дедушкина пасека</div><div class="feature-meta">📍 Минская область · Клецкий район</div><p class="feature-description">Выберите метку на карте или найдите пасеку с помощью фильтров слева. Одобренные анкеты появятся здесь.</p><div class="product-tags"><span class="tag">🍯 Мёд</span><span class="tag">🌼 Пчелопродукты</span><span class="tag">🎓 Экскурсии</span></div><a class="btn full" href="#add">Добавить свою пасеку　›</a>';return}selectedProfileId=p.id;const gs=goods(p);box.innerHTML='<div class="feature-title">'+esc(p.apiary_name||'Пасека')+'</div><div class="feature-meta">📍 '+esc(p.region||'')+' область · '+esc(p.district||'')+'</div>'+(p.beekeeper_name?'<p class="feature-description">Пчеловод: '+esc(p.beekeeper_name)+'</p>':'')+(p.description?'<p class="feature-description">'+esc(p.description)+'</p>':'')+'<div class="product-tags">'+(gs.length?gs.map(g=>'<span class="tag">🍯 '+esc(g)+'</span>').join(''):'<span class="tag">Продукция не указана</span>')+'</div>'+(p.latitude!=null&&p.longitude!=null?'<button class="btn full" id="showPoint">Показать расположение на карте　⌖</button>':'<p class="feature-description">Точные координаты для этой анкеты не опубликованы.</p>');const b=document.getElementById('showPoint');if(b)b.onclick=()=>{map.setView([Number(p.latitude),Number(p.longitude)],13);const target=markers.find(m=>m.getLatLng().lat===Number(p.latitude)&&m.getLatLng().lng===Number(p.longitude));if(target)target.openPopup();document.getElementById('map-section').scrollIntoView({behavior:'smooth'})}}
 const qEl=document.getElementById('q'),rEl=document.getElementById('r'),dEl=document.getElementById('districtFilter'),pfEl=document.getElementById('productFilter');
@@ -150,3 +150,63 @@ document.getElementById('form').addEventListener('submit',async e=>{e.preventDef
 const dElForForm=document.getElementById('district');load();
 </script>
 </body></html>
+
+/* Final responsive pass: compact filters and usable results on phones/tablets */
+@media(max-width:900px){
+ .workspace{grid-template-columns:minmax(220px,34%) minmax(0,1fr);gap:8px}
+ .filters-panel{min-width:0}
+ .results-list{max-height:260px}
+ .right-panel{grid-column:1/-1;display:grid;grid-template-columns:minmax(200px,.85fr) minmax(0,1.15fr);gap:12px}
+ .map-head{max-width:calc(100% - 20px)}
+}
+@media(max-width:680px){
+ main{padding:0 7px}
+ .hero{background-position:center}
+ .hero-inner{align-items:center}
+ .logo-mark{flex-basis:48px;width:48px;height:54px;font-size:26px}
+ .brand{min-width:0;max-width:calc(100% - 54px)}
+ h1{overflow-wrap:anywhere;font-size:clamp(1.32rem,6vw,2rem)}
+ .hero p{max-width:38ch;line-height:1.25}
+ nav{scrollbar-width:thin}
+ nav a{flex:0 0 auto}
+ .workspace{display:flex;flex-direction:column;gap:8px}
+ .filters-panel{order:0}
+ .map-panel{order:1;min-width:0}
+ .right-panel{order:2;display:flex;min-width:0}
+ .filters-panel .search-box{margin-bottom:8px}
+ .filters-panel .field{margin:7px 0}
+ .filters-panel .check-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 10px}
+ .filters-panel .check-item{font-size:.82rem;align-items:flex-start;line-height:1.25;min-width:0}
+ .filters-panel .check-emoji{font-size:18px;width:22px;flex:0 0 22px}
+ .filters-panel .btn{min-height:43px}
+ .results-list{max-height:235px;overflow:auto}
+ .result-item{padding:9px}
+ .result-name{font-size:.9rem}
+ .result-meta,.result-goods{font-size:.76rem;line-height:1.35}
+ .map-head{top:8px;right:8px;max-width:calc(100% - 16px)}
+ .map-mode button{padding:7px 9px;font-size:.8rem}
+ #map{height:58svh;height:58vh;min-height:330px;max-height:560px}
+ .map-panel>.map-note{font-size:.7rem;line-height:1.35}
+ .right-panel{padding:10px}
+ .feature-photo{height:165px;min-height:165px}
+ .right-panel .product-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+ .right-panel .product-tile img{height:62px}
+ .contact-lines{overflow-wrap:anywhere}
+ .section{margin-top:10px}
+ .form-grid{gap:0}
+}
+@media(max-width:390px){
+ .hero-inner{padding:8px;gap:7px}
+ .logo-mark{flex-basis:42px;width:42px;height:48px;font-size:23px}
+ .brand{max-width:calc(100% - 49px)}
+ h1{font-size:1.28rem}
+ .eyebrow{font-size:.53rem}
+ .hero p{font-size:.72rem}
+ .stat{gap:5px;padding:9px 5px}
+ .stat-icon{font-size:20px}
+ .stat span{font-size:.67rem}
+ .map-mode button{padding:6px 7px;font-size:.74rem}
+ #map{min-height:310px}
+ .filters-panel .check-list{gap:8px 6px}
+ .filters-panel .check-item{font-size:.78rem}
+}
