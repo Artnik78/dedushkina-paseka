@@ -27,7 +27,7 @@ th,td{padding:11px;border-bottom:1px solid #e7edf2;text-align:left;white-space:n
 <h1>Журнал сервисного обслуживания</h1><p class="muted">Оргтехника, ПЭВМ, картриджи и заказы</p>
 <input id="email" type="email" placeholder="Электронная почта"><br><br>
 <input id="password" type="password" placeholder="Пароль"><br><br>
-<div class="cf-turnstile" data-sitekey="0x4AAAAAAFVRRKyWkIBv6dtO" data-callback="onTurnstileSuccess" data-expired-callback="onTurnstileExpired" data-error-callback="onTurnstileError" data-theme="light" style="margin:12px 0;min-height:65px"></div>
+<div id="turnstile-container" style="margin:12px 0;min-height:65px"><div id="turnstile-widget"></div><div id="turnstile-status" class="muted">Загрузка проверки безопасности…</div></div>
 <div class="toolbar"><button class="primary" onclick="login()">Войти</button><button class="light" onclick="signup()">Регистрация</button></div>
 <div id="authmsg" class="muted"></div>
 </div>
@@ -116,7 +116,7 @@ th,td{padding:11px;border-bottom:1px solid #e7edf2;text-align:left;white-space:n
 <section id="orderCard"><div class="card"><div class="toolbar"><button class="light" onclick="show('orders')">← К заказам</button></div><h2 id="orderCardTitle">Заказ</h2><div id="orderCardBody"></div></div></section>
 </main></div>
 
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer onload="window.initServiceTurnstile&&window.initServiceTurnstile()" onerror="window.turnstileLoadFailed&&window.turnstileLoadFailed()"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (async()=>{
@@ -131,9 +131,9 @@ try{
 
 window.sb=sb;
 window.captchaToken='';
-window.onTurnstileSuccess=function(token){window.captchaToken=token;const m=document.getElementById('authmsg');if(m)m.textContent='';};
-window.onTurnstileExpired=function(){window.captchaToken='';};
-window.onTurnstileError=function(code){window.captchaToken='';const m=document.getElementById('authmsg');if(m)m.textContent='Cloudflare Turnstile не загрузился (код '+(code||'неизвестен')+'). Проверьте доступ к challenges.cloudflare.com.';};
+window.turnstileLoadFailed=function(){const s=document.getElementById('turnstile-status');if(s)s.textContent='Не удалось загрузить Cloudflare Turnstile. Проверьте блокировщик рекламы и доступ к challenges.cloudflare.com.';};
+window.initServiceTurnstile=function(){const host=document.getElementById('turnstile-widget');const status=document.getElementById('turnstile-status');if(!host||host.dataset.rendered==='1')return;if(!window.turnstile){if(status)status.textContent='Библиотека проверки не загрузилась.';return;}host.dataset.rendered='1';try{window.turnstile.render(host,{sitekey:'0x4AAAAAAFVRRKyWkIBv6dtO',theme:'light',callback:function(token){window.captchaToken=token;if(status)status.textContent='Проверка пройдена.';const m=document.getElementById('authmsg');if(m)m.textContent='';},'expired-callback':function(){window.captchaToken='';if(status)status.textContent='Проверка истекла. Пройдите её снова.';},'error-callback':function(code){window.captchaToken='';if(status)status.textContent='Ошибка Turnstile: '+(code||'неизвестный код')+'. Возможно, ключ или домен не настроен.';}});if(status)status.textContent='';}catch(e){host.dataset.rendered='';if(status)status.textContent='Ошибка запуска проверки: '+(e.message||e);}};
+if(window.turnstile)setTimeout(window.initServiceTurnstile,0);
 window.loadRefillJournal=async function(){const {data,error}=await sb.from('service_cartridge_jobs').select('id,received_at,status,completed_at,issued_at,notes,service_clients(name),service_cartridges(model,barcode)').order('created_at',{ascending:false});if(error){alert(error.message);return}const names={received:'Принят',in_work:'В работе',refilled:'Заправлен',issued:'Выдан'};$('refillJournalRows').innerHTML=(data||[]).map(x=>{let b='';if(x.status==='received')b='<button class="light" onclick="changeRefillStatus(\''+x.id+'\',\'in_work\')">В работу</button>';if(x.status==='in_work')b='<button class="light" onclick="changeRefillStatus(\''+x.id+'\',\'refilled\')">Заправлен</button>';if(x.status==='refilled')b='<button class="light" onclick="changeRefillStatus(\''+x.id+'\',\'issued\')">Выдан</button>';return '<tr><td>'+esc(x.received_at||'')+'</td><td>'+esc(x.service_clients?.name||'—')+'</td><td>'+esc(x.service_cartridges?.model||'')+'</td><td>'+esc(x.service_cartridges?.barcode||'')+'</td><td>'+esc(names[x.status]||x.status)+'</td><td>'+esc(x.completed_at||'—')+'</td><td>'+b+' <button class="danger" onclick="deleteRefillJob(\''+x.id+'\')">Удалить</button></td></tr>'}).join('')||'<tr><td colspan="7" class="muted">Записей нет.</td></tr>'};
 window.receiveRefillJob=async function(cartridgeId){
  const {data:cartridge,error:cartridgeError}=await sb.from('service_cartridges').select('id,client_id,model,barcode').eq('id',cartridgeId).single();
