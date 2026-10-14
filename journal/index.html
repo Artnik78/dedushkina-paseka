@@ -3627,6 +3627,7 @@ if($('hivesNextBtn')) $('hivesNextBtn').onclick=()=>{window.__hivePage=Number(wi
 
 $('hiveForm').onsubmit=async e=>{
   e.preventDefault();
+  if(guestMode){toast('Гостевой режим — только просмотр');return}
   const f=e.target,d=formData(f);
   const duplicate=state.hives.find(h=>String(h.id)!==String(d.id||'') && String(h.apiary_id||'')===String(d.apiary_id||'') && String(h.hive_number||'').trim().toLowerCase()===String(d.hive_number||'').trim().toLowerCase());
   if(duplicate){toast('На этой пасеке уже есть улей №'+d.hive_number+'. Выберите другой номер.');return}
@@ -3678,6 +3679,7 @@ if($('hiveCancelBtn')) $('hiveCancelBtn').onclick=resetHiveForm;
 
 $('medicineForm').onsubmit=async e=>{
   e.preventDefault();
+  if(guestMode){toast('Гостевой режим — только просмотр');return}
   const d=formData(e.target);
   const payload={name:d.name.trim(),volume:d.volume.trim(),quantity:Number(d.quantity||0),min_quantity:Number(d.min_quantity||0),expiry_date:d.expiry_date||null,expiry_warning_days:Number(d.expiry_warning_days||30),notes:d.notes.trim()};
   if(d.id){
@@ -3834,6 +3836,7 @@ async function deleteTreatment(id){
 }
 $('healthForm').onsubmit=async e=>{
   e.preventDefault();
+  if(guestMode){toast('Гостевой режим — только просмотр');return}
   const d=formData(e.target);
   const treatmentProduct=(d.treatment_product||'').trim();
   const selectedMedicine=state.medicines.find(m=>String(m.id)===String(d.medicine_id||''));
