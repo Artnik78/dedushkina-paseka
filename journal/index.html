@@ -4420,9 +4420,8 @@ async function communityRenderModeration(){
     if(activeButton){activeButton.setAttribute("aria-pressed","false");activeButton.textContent="🎙️ Диктовать";}
     activeButton=null;activeTarget=null;recognition=null;finalTranscript="";
   }
-  document.addEventListener("click",function(event){
-    const button=event.target.closest(".voice-dictation-btn");
-    if(!button)return;
+  document.querySelectorAll(".voice-dictation-btn").forEach(function(button){
+    button.addEventListener("click",function(){
     if(activeButton===button && recognition){
       try{recognition.stop();}catch(e){resetButton();}
       return;
@@ -4453,9 +4452,9 @@ async function communityRenderModeration(){
           if(e.results[i].isFinal)finalTranscript+=phrase+" ";
           else interim+=phrase;
         }
-        const current=target.value.trim();
-        const base=target.dataset.voiceBase||current;
-        target.value=(base+(base&&finalTranscript.trim()?" ":"")+finalTranscript.trim()+(interim?" "+interim:"")).trimStart();
+        const base=target.dataset.voiceBase||"";
+        const spoken=finalTranscript.trim();
+        target.value=(base+(base&&spoken?" ":"")+spoken+(interim?" "+interim:"")).trimStart();
         target.dispatchEvent(new Event("input",{bubbles:true}));
       };
       recognition.onerror=function(e){
@@ -4473,6 +4472,7 @@ async function communityRenderModeration(){
       if(message)message.textContent="Не удалось запустить диктовку. Проверьте разрешение на микрофон или используйте микрофон клавиатуры.";
       resetButton();
     }
+    });
   });
 })();
 </script>
