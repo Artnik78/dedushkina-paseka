@@ -248,9 +248,8 @@ function contactButtons(raw,methods=[]){const allowed=new Set(Array.isArray(meth
    if(digits.length>=8&&digits.length<=15){
     const international=digits.startsWith('00')?digits.slice(2):digits;
     const normalized=international.startsWith('375')?international:international.startsWith('0')?'375'+international.slice(1):international;
-    add('Позвонить пчеловоду','tel:+'+normalized);
-    
-    add('Написать в Viber','viber://chat?number=%2B'+normalized);
+    if(allowed.has('phone'))add('Позвонить пчеловоду','tel:+'+normalized);
+    if(allowed.has('viber'))add('Написать в Viber','viber://chat?number=%2B'+normalized);
    }
   }
   const url=t.match(/https?:\/\/[^\s]+/i);
