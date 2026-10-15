@@ -219,7 +219,7 @@ function contactButtons(raw){
   const tg=t.match(/(?:https?:\/\/)?(?:t\.me|telegram\.me)\/([a-z0-9_]{5,})/i);
   if(tg){add('Написать в Telegram','https://t.me/'+tg[1]);continue}
   const wa=t.match(/https?:\/\/(?:wa\.me\/\d+|(?:www\.)?whatsapp\.com\/[^\s]+)/i);
-  if(wa){add('Написать в Telegram',wa[0].replace(/https?:\/\/(?:wa\.me\/|(?:www\.)?whatsapp\.com\/)[^\s]*/i,'https://t.me/'));continue}
+  if(wa){continue}
   const vb=t.match(/viber:\/\/[^\s]+/i);
   if(vb){add('Написать в Viber',vb[0]);continue}
   const email=t.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
