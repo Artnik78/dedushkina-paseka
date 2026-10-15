@@ -208,33 +208,31 @@ function render(){const rows=filterProfiles();markers.forEach(m=>map.removeLayer
 function renderResultsList(rows){const host=document.getElementById('resultsList');if(!host)return;if(!rows.length){host.innerHTML='<div class="results-empty">Ничего не найдено. Попробуйте изменить фильтры.</div>';return}const shown=rows.slice(0,60);host.innerHTML='<div class="results-count">Список пасек: '+rows.length+(rows.length>shown.length?' · показаны первые '+shown.length:'')+'</div>'+shown.map((p,i)=>{const gs=goods(p);const loc=[p.region,p.district].filter(Boolean).join(' область · ');const hasCoords=p.latitude!=null&&p.longitude!=null&&Number.isFinite(Number(p.latitude))&&Number.isFinite(Number(p.longitude));return '<button type="button" class="result-item'+(String(p.id)===String(selectedProfileId)?' selected':'')+'" data-profile-id="'+esc(p.id)+'"><span class="result-name">'+esc(p.apiary_name||'Пасека без названия')+'</span><span class="result-meta">'+esc(loc||'Местоположение не указано')+(p.beekeeper_name?' · '+esc(p.beekeeper_name):'')+'</span><span class="result-goods">'+esc(gs.length?gs.join(' · '):'Продукция не указана')+' · '+(hasCoords?'📍 Есть на карте':'Координаты не опубликованы')+'</span></button>'}).join('');host.querySelectorAll('.result-item').forEach(btn=>btn.addEventListener('click',()=>{const p=rows.find(x=>String(x.id)===btn.dataset.profileId);if(!p)return;selectedProfileId=p.id;renderFeatured([p]);render();const hasCoords=p.latitude!=null&&p.longitude!=null&&Number.isFinite(Number(p.latitude))&&Number.isFinite(Number(p.longitude));if(hasCoords){map.setView([Number(p.latitude),Number(p.longitude)],13);const m=markers.find(x=>Math.abs(x.getLatLng().lat-Number(p.latitude))<1e-7&&Math.abs(x.getLatLng().lng-Number(p.longitude))<1e-7);if(m)m.openPopup()}document.getElementById('featured').scrollIntoView({behavior:'smooth',block:'nearest'})}))}
 function contactButtons(raw){
  if(!raw)return '<p class="feature-description">Пчеловод пока не указал публичные контакты.</p>';
- const val=String(raw).trim(),tokens=val.split(/[\\n;,]+/).map(x=>x.trim()).filter(Boolean),out=[],seen=new Set();
+ const val=String(raw).trim(),tokens=val.split(/[\n;,]+/).map(x=>x.trim()).filter(Boolean),out=[],seen=new Set();
  const add=(label,url)=>{if(!seen.has(url)){seen.add(url);out.push([label,url])}};
  for(const t of tokens){
-  const low=t.toLowerCase();
-  const tg=low.match(/(?:https?:\\/\\/)?(?:t\\.me|telegram\\.me)\\/([a-z0-9_]{5,})/i);
+  const tg=t.match(/(?:https?:\/\/)?(?:t\.me|telegram\.me)\/([a-z0-9_]{5,})/i);
   if(tg){add('Написать в Telegram','https://t.me/'+tg[1]);continue}
-  const wa=t.match(/https?:\\/\\/(?:wa\\.me\\/\\d+|(?:www\\.)?whatsapp\\.com\\/[^\\s]+)/i);
+  const wa=t.match(/https?:\/\/(?:wa\.me\/\d+|(?:www\.)?whatsapp\.com\/[^\s]+)/i);
   if(wa){add('Написать в WhatsApp',wa[0]);continue}
-  const vb=t.match(/viber:\\/\\/[^\\s]+/i);
+  const vb=t.match(/viber:\/\/[^\s]+/i);
   if(vb){add('Написать в Viber',vb[0]);continue}
-  const email=t.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}/i);
-  if(email){add('Написать по электронной почте','mailto:'+email[0]);}
+  const email=t.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
+  if(email)add('Написать по электронной почте','mailto:'+email[0]);
   if(t.startsWith('@')&&/^@[a-z0-9_]{5,}$/i.test(t)){add('Написать в Telegram','https://t.me/'+t.slice(1));continue}
-  // Find a phone number even when the field contains labels such as "Телефон:" or "Мой номер —".
-  const candidates=t.match(/(?:\\+?\\d[\\d() .\\-]{6,}\\d)/g)||[];
+  const candidates=t.match(/(?:\+?\d[\d() .\-]{6,}\d)/g)||[];
   for(const candidate of candidates){
-   const digits=candidate.replace(/\\D/g,'');
+   const digits=candidate.replace(/\D/g,'');
    if(digits.length>=8&&digits.length<=15){
     const international=digits.startsWith('00')?digits.slice(2):digits;
-    const e164=international.startsWith('375')?'+375'+international.slice(3):international.startsWith('7')?'+7'+international.slice(1):international.startsWith('0')?'+375'+international.slice(1):'+'+international;
-    add('Позвонить пчеловоду','tel:'+e164);
-    add('Написать в WhatsApp','https://wa.me/'+international);
-    add('Написать в Viber','viber://chat?number=%2B'+international);
+    const normalized=international.startsWith('375')?international:international.startsWith('0')?'375'+international.slice(1):international;
+    add('Позвонить пчеловоду','tel:+'+normalized);
+    add('Написать в WhatsApp','https://wa.me/'+normalized);
+    add('Написать в Viber','viber://chat?number=%2B'+normalized);
    }
   }
-  const url=t.match(/https?:\\/\\/[^\\s]+/i);
-  if(url&&!/wa\\.me|whatsapp\\.com|t\\.me|telegram\\.me/i.test(url[0]))add('Открыть контакт',url[0]);
+  const url=t.match(/https?:\/\/[^\s]+/i);
+  if(url&&!/wa\.me|whatsapp\.com|t\.me|telegram\.me/i.test(url[0]))add('Открыть контакт',url[0]);
  }
  if(!out.length)return '<p class="feature-description">Контакт сохранён, но формат не удалось определить. Укажите номер телефона с кодом страны (например, +375 29 123-45-67) или ссылку на Telegram.</p>';
  return '<div class="beekeeper-contact-actions">'+out.map(([label,url])=>'<a class="btn contact-action" href="'+esc(url)+'" '+(url.startsWith('http')?'target="_blank" rel="noopener"':'')+'>'+label+'</a>').join('')+'</div>';
