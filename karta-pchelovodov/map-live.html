@@ -233,6 +233,45 @@ main{max-width:1800px;margin:8px auto 24px;padding:0 8px}.workspace{grid-templat
  .stat{padding:8px}
 }
 
+
+/* Final mobile layout override — must stay last */
+@media(max-width:680px){
+ body{overflow-x:hidden!important;background:#f4f1e7!important}
+ .cross-project-banner{margin:8px 10px!important;width:auto!important;box-sizing:border-box!important;max-width:calc(100% - 20px)!important}
+ .hero.hero-image{height:auto!important;min-height:0!important;max-height:155px!important;margin:0!important;padding:0!important}
+ .hero-art{display:block!important;width:100%!important;height:auto!important;max-height:155px!important;object-fit:cover!important;object-position:center!important}
+ nav{position:sticky!important;top:0!important;z-index:1000!important;display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;justify-content:flex-start!important;gap:7px!important;padding:9px 10px!important;background:#fffdf7f7!important;border-bottom:1px solid #e4dece!important;scrollbar-width:none!important}
+ nav a{flex:0 0 auto!important;border-radius:999px!important}
+ main{width:100%!important;max-width:100%!important;box-sizing:border-box!important;margin:0!important;padding:10px!important}
+ .workspace{display:flex!important;flex-direction:column!important;gap:12px!important;width:100%!important;min-width:0!important}
+ .map-panel{order:0!important;width:100%!important;min-width:0!important;box-sizing:border-box!important;padding:11px!important;border-radius:19px!important}
+ .filters-panel{order:1!important;width:100%!important;min-width:0!important;box-sizing:border-box!important;padding:14px!important;border-radius:19px!important}
+ .right-panel{order:2!important;display:flex!important;flex-direction:column!important;grid-column:auto!important;width:100%!important;min-width:0!important;box-sizing:border-box!important;padding:14px!important;border-radius:19px!important}
+ .map-head{display:flex!important;align-items:center!important;justify-content:space-between!important;flex-wrap:wrap!important;gap:8px!important;max-width:none!important}
+ .map-head h2{font-size:18px!important}
+ .map-mode{margin-left:auto!important}
+ .map-mode button{min-height:38px!important;padding:7px 10px!important;font-size:13px!important}
+ #map{width:100%!important;height:clamp(330px,52vh,440px)!important;min-height:330px!important;border-radius:14px!important}
+ .map-bottom-stats .stats{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+ .stat{min-width:0!important}
+ .results-list{display:grid!important;grid-template-columns:1fr!important;gap:8px!important;max-height:none!important;overflow:visible!important}
+ .result-item{padding:12px!important;border-radius:13px!important;background:#fffdf8!important}
+ .result-name{font-size:15px!important}
+ .result-meta,.result-goods{font-size:13px!important;line-height:1.4!important}
+ .panel{box-shadow:0 4px 16px rgba(41,52,35,.07)!important;border:1px solid #e5dfd2!important}
+ .feature-photo{border-radius:14px!important;min-height:150px!important}
+ .map-note{font-size:12px!important;line-height:1.45!important}
+}
+@media(max-width:390px){
+ .cross-project-banner{padding:8px!important}
+ .hero.hero-image{max-height:125px!important}
+ .hero-art{max-height:125px!important}
+ main{padding:7px!important}
+ #map{height:320px!important;min-height:320px!important}
+ .map-panel,.filters-panel,.right-panel{padding:10px!important}
+ .map-mode button{padding:6px 8px!important;font-size:12px!important}
+}
+
 </style></head><body>
 <a class="cross-project-banner" href="../journal/" aria-label="Перейти в цифровой журнал пасечника"><span class="cross-icon" aria-hidden="true">🐝 🍯</span><span class="cross-copy"><span class="cross-title">Цифровой журнал пасечника</span><span class="cross-subtitle">Ульи · Осмотры · Обработки · Мёд · Отчёты</span></span><span class="cross-cta">Перейти в журнал <span aria-hidden="true">➜</span></span></a>
 <header class="hero hero-image"><img class="hero-art" src="header-pchelovody.png" alt="Карта белорусских пчеловодов: пчела на цветах, мёд и белорусский пейзаж"></header>
