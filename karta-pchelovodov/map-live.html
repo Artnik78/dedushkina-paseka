@@ -331,6 +331,33 @@ main{max-width:1800px;margin:8px auto 24px;padding:0 8px}.workspace{grid-templat
 #map .leaflet-popup-tip{background:#fffdf6!important;box-shadow:2px 2px 5px #20321d10!important}
 #map .leaflet-popup-close-button{width:28px!important;height:28px!important;padding:6px!important;color:#64715f!important;font-size:19px!important}
 @media(max-width:680px){#map .leaflet-popup{max-width:calc(100vw - 88px)!important}#map .leaflet-popup-content{max-width:calc(100vw - 145px)!important;font-size:12px!important;line-height:1.4!important;margin:10px 26px 10px 11px!important}#map .leaflet-popup-content b{font-size:13px!important}}
+
+/* Final mobile override: compact journal banner, preserving full available width */
+@media(max-width:650px){
+ body .cross-project-banner{
+  box-sizing:border-box!important;
+  width:auto!important;
+  max-width:calc(100% - 20px)!important;
+  margin:4px 10px!important;
+  padding:4px 8px!important;
+  gap:6px!important;
+  min-height:0!important;
+  border-width:1px!important;
+  border-radius:11px!important;
+  box-shadow:0 2px 8px rgba(75,52,16,.12)!important;
+ }
+ body .cross-project-banner .cross-icon{font-size:22px!important}
+ body .cross-project-banner .cross-title{font-size:13px!important;line-height:1.08!important;margin-bottom:1px!important}
+ body .cross-project-banner .cross-subtitle{font-size:9px!important;line-height:1.1!important}
+ body .cross-project-banner .cross-cta{max-width:94px!important;padding:6px 7px!important;font-size:10px!important;line-height:1.1!important;gap:3px!important}
+}
+@media(max-width:390px){
+ body .cross-project-banner{padding:3px 7px!important;margin:3px 10px!important}
+ body .cross-project-banner .cross-icon{font-size:20px!important}
+ body .cross-project-banner .cross-title{font-size:12px!important}
+ body .cross-project-banner .cross-subtitle{font-size:9px!important}
+ body .cross-project-banner .cross-cta{max-width:88px!important;padding:5px 6px!important;font-size:9px!important}
+}
 </style></head><body>
 <a class="cross-project-banner" href="../journal/" aria-label="Перейти в цифровой журнал пасечника"><span class="cross-icon" aria-hidden="true">🐝 🍯</span><span class="cross-copy"><span class="cross-title">Цифровой журнал пасечника</span><span class="cross-subtitle">Ульи · Осмотры · Обработки · Мёд · Отчёты</span></span><span class="cross-cta">Перейти в журнал <span aria-hidden="true">➜</span></span></a>
 <header class="hero hero-image"><img class="hero-art" src="header-pchelovody.png" alt="Карта белорусских пчеловодов: пчела на цветах, мёд и белорусский пейзаж"></header>
@@ -457,29 +484,3 @@ initApiaryMap();load();
 window.addEventListener('load',()=>setTimeout(()=>map.invalidateSize({pan:false}),180));window.addEventListener('resize',()=>map.invalidateSize({pan:false}));
 </script>
 </body></html>
-/* Final mobile override: compact journal banner, preserving full available width */
-@media(max-width:650px){
- body .cross-project-banner{
-  box-sizing:border-box!important;
-  width:auto!important;
-  max-width:calc(100% - 20px)!important;
-  margin:4px 10px!important;
-  padding:4px 8px!important;
-  gap:6px!important;
-  min-height:0!important;
-  border-width:1px!important;
-  border-radius:11px!important;
-  box-shadow:0 2px 8px rgba(75,52,16,.12)!important;
- }
- body .cross-project-banner .cross-icon{font-size:22px!important}
- body .cross-project-banner .cross-title{font-size:13px!important;line-height:1.08!important;margin-bottom:1px!important}
- body .cross-project-banner .cross-subtitle{font-size:9px!important;line-height:1.1!important}
- body .cross-project-banner .cross-cta{max-width:94px!important;padding:6px 7px!important;font-size:10px!important;line-height:1.1!important;gap:3px!important}
-}
-@media(max-width:390px){
- body .cross-project-banner{padding:3px 7px!important;margin:3px 10px!important}
- body .cross-project-banner .cross-icon{font-size:20px!important}
- body .cross-project-banner .cross-title{font-size:12px!important}
- body .cross-project-banner .cross-subtitle{font-size:9px!important}
- body .cross-project-banner .cross-cta{max-width:88px!important;padding:5px 6px!important;font-size:9px!important}
-}
