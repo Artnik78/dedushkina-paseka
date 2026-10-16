@@ -1930,22 +1930,21 @@ document.addEventListener('DOMContentLoaded',function(){
   });
   fab.onclick=openCart;closeBtn.onclick=closeCart;overlay.onclick=closeCart;
   clearBtn.onclick=function(){cart=[];save();render();};
-  checkout.onclick=function(){
+  checkout.onclick=async function(){
     if(!cart.length){openCart();return;}
-    let msg='Здравствуйте! Хочу оформить заказ на «Дедушкиной пасеке»:\n';
-    cart.forEach(function(x,i){
-      msg+=(i+1)+'. '+x.name+' — '+x.qty+' шт.';
-      if(x.options) msg+=' ('+x.options+')';
-      msg+='\n';
-    });
-    msg+='\nВсего: '+totalQty()+' шт.\nПожалуйста, подтвердите наличие и итоговую стоимость.';
-    const draftUrl='https://viber.me/375445748112?draft='+encodeURIComponent(msg);
-    const previousText=checkout.textContent;
-    checkout.textContent='Открываем Viber…';
-    checkout.disabled=true;
-    // Не очищаем корзину: если Viber не подставит черновик, заказ не потеряется.
-    window.location.href=draftUrl;
-    setTimeout(function(){checkout.textContent=previousText;checkout.disabled=false;},1800);
+    let msg='Здравствуйте! Хочу оформить заказ:\n';
+    cart.forEach(function(x,i){msg+=(i+1)+'. '+x.name+' — '+x.qty+' шт.'+(x.options?' ('+x.options+')':'')+'\n';});
+    msg+='\nВсего товаров: '+totalQty()+'.';
+    let copied=false;
+    try{if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(msg);copied=true;}}catch(e){}
+    if(!copied){
+      const area=document.createElement('textarea');area.value=msg;area.setAttribute('readonly','');
+      area.style.position='fixed';area.style.left='-9999px';document.body.appendChild(area);area.select();
+      try{copied=document.execCommand('copy');}catch(e){}area.remove();
+    }
+    if(copied){alert('Текст заказа скопирован. Сейчас откроется Viber. Вставьте заказ в поле сообщения сочетанием Ctrl+V и отправьте его.');}
+    else{window.prompt('Скопируйте заказ вручную и вставьте его в Viber:',msg);}
+    window.open('viber://chat?number='+VIBER_NUMBER,'_blank');
   };
   window.addCartItem=function(name,options){ let existing=cart.find(function(x){return x.name===name;}); if(existing) existing.qty++; else cart.push({name:name,qty:1,options:options}); save(); render(); };
   render();
