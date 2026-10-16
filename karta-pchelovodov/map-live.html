@@ -358,9 +358,20 @@ main{max-width:1800px;margin:8px auto 24px;padding:0 8px}.workspace{grid-templat
  body .cross-project-banner .cross-subtitle{font-size:9px!important}
  body .cross-project-banner .cross-cta{max-width:88px!important;padding:5px 6px!important;font-size:9px!important}
 }
+
+/* Safe fallback banner for test builds without the separate header artwork */
+.hero.hero-image.hero-fallback{height:auto;min-height:180px;padding:0;background:linear-gradient(110deg,#fff8e7 0%,#f1e2b4 35%,#8da66c 68%,#244b30 100%)!important;border-bottom:1px solid #d9d1b7;display:block;overflow:hidden}
+.hero-fallback-inner{max-width:1800px;min-height:180px;margin:auto;padding:16px 28px;display:flex;align-items:center;gap:22px;position:relative}
+.hero-fallback-bee{font-size:clamp(48px,7vw,88px);filter:drop-shadow(0 3px 2px #493c1b30)}
+.hero-fallback-eyebrow{font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;font-weight:800;color:#77520a}
+.hero-fallback-inner h1{font:clamp(2rem,4vw,3.5rem)/.98 Georgia,serif;color:#1d452b;margin:5px 0}
+.hero-fallback-inner h1 span{color:#70410e}
+.hero-fallback-inner p{margin:6px 0 0;color:#283b25;font-size:1rem}
+.hero-fallback-honey{margin-left:auto;font-size:clamp(32px,5vw,60px)}
+@media(max-width:680px){.hero-fallback-inner{min-height:130px;padding:12px;gap:10px}.hero-fallback-bee{font-size:36px}.hero-fallback-eyebrow{font-size:.58rem}.hero-fallback-inner h1{font-size:clamp(1.35rem,6vw,2rem)}.hero-fallback-inner p{font-size:.75rem}.hero-fallback-honey{font-size:25px}}
 </style></head><body>
 <a class="cross-project-banner" href="../journal/" aria-label="Перейти в цифровой журнал пасечника"><span class="cross-icon" aria-hidden="true">🐝 🍯</span><span class="cross-copy"><span class="cross-title">Цифровой журнал пасечника</span><span class="cross-subtitle">Ульи · Осмотры · Обработки · Мёд · Отчёты</span></span><span class="cross-cta">Перейти в журнал <span aria-hidden="true">➜</span></span></a>
-<header class="hero hero-image"><img class="hero-art" src="header-pchelovody.png" alt="Карта белорусских пчеловодов: пчела на цветах, мёд и белорусский пейзаж"></header>
+<header class="hero hero-image hero-fallback" role="img" aria-label="Карта белорусских пчеловодов"><div class="hero-fallback-inner"><div class="hero-fallback-bee">🐝</div><div><div class="hero-fallback-eyebrow">Карта местных производителей</div><h1>Карта белорусских <span>пчеловодов</span></h1><p>Найди свою пасеку. Познакомься с пчеловодом. Выбирай местный мёд.</p></div><div class="hero-fallback-honey">🍯　🌼</div></div></header>
 
 
 <nav aria-label="Навигация"><a class="active" href="#map-section">🗺️ Карта</a><a href="#about">ⓘ О проекте</a><a href="#directory">👥 Пчеловоды</a><a href="#articles">▤ Статьи</a><a href="#how">📖 Полезное</a><a href="#contacts">✉️ Контакты</a><a href="my-apiary.html">👤 Моя пасека</a><button type="button" class="add-link" id="openAddForm">＋ Добавить пасеку</button></nav>
