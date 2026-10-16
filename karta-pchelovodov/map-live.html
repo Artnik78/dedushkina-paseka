@@ -377,6 +377,32 @@ main{max-width:1800px;margin:8px auto 24px;padding:0 8px}.workspace{grid-templat
 <section class="panel section" id="about"><h2>О проекте</h2><p class="section-intro">Карта помогает покупателям находить белорусские пасеки, а пчеловодам — рассказывать о своей продукции. Мы поддерживаем местных производителей, бережное пчеловодство и обмен опытом.</p></section><section class="panel section" id="articles"><h2>▤ Статьи о пчеловодстве</h2><div class="how-grid"><article class="how-card"><b>Сезонные работы на пасеке</b><p>Планируйте осмотры, подготовку семей и уход за ульями по сезону.</p></article><article class="how-card"><b>Мёд и продукты пчеловодства</b><p>Знакомьтесь с разновидностями мёда и продукцией белорусских пасек.</p></article><article class="how-card"><b>Безопасность пчелиных семей</b><p>Следите за состоянием семей и своевременно отмечайте обработки.</p></article></div></section><section class="panel section" id="how"><h2>Как это работает</h2><div class="how-grid"><article class="how-card"><b>1. Найдите пасеку</b><p>Ищите по области, району и продукции.</p></article><article class="how-card"><b>2. Добавьте анкету</b><p>Укажите название пасеки и основные сведения.</p></article><article class="how-card"><b>3. Дождитесь проверки</b><p>Заявка не публикуется автоматически.</p></article></div></section><section class="panel section" id="contacts"><h2>Контакты и предложения</h2><p class="section-intro">Чтобы добавить пасеку, воспользуйтесь формой на этой странице.</p></section></main><footer>Карта белорусских пчеловодов · Беларусь · Анкеты публикуются после проверки</footer>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
+/* Независимое заполнение районов: работает даже если основной скрипт карты не запустился. */
+(function(){
+  const regionSelect=document.getElementById('r');
+  const districtSelect=document.getElementById('districtFilter');
+  if(!regionSelect||!districtSelect)return;
+  const districts={
+    'Брестская':'Барановичский,Берёзовский,Брестский,Ганцевичский,Дрогичинский,Жабинковский,Ивановский,Ивацевичский,Каменецкий,Кобринский,Лунинецкий,Ляховичский,Малоритский,Пинский,Пружанский,Столинский',
+    'Витебская':'Бешенковичский,Браславский,Верхнедвинский,Витебский,Глубокский,Городокский,Докшицкий,Дубровенский,Лепельский,Лиозненский,Миорский,Оршанский,Полоцкий,Поставский,Россонский,Сенненский,Толочинский,Ушачский,Чашникский,Шарковщинский,Шумилинский',
+    'Гомельская':'Брагинский,Буда-Кошелёвский,Ветковский,Гомельский,Добрушский,Ельский,Житковичский,Жлобинский,Калинковичский,Кормянский,Лельчицкий,Лоевский,Мозырский,Наровлянский,Октябрьский,Петриковский,Речицкий,Рогачёвский,Светлогорский,Хойникский,Чечерский',
+    'Гродненская':'Берестовицкий,Волковысский,Вороновский,Гродненский,Дятловский,Зельвенский,Ивьевский,Кореличский,Лидский,Мостовский,Новогрудский,Островецкий,Ошмянский,Свислочский,Слонимский,Сморгонский,Щучинский',
+    'Минская':'Березинский,Борисовский,Вилейский,Воложинский,Дзержинский,Клецкий,Копыльский,Крупский,Логойский,Любанский,Минский,Молодечненский,Мядельский,Несвижский,Пуховичский,Слуцкий,Смолевичский,Солигорский,Стародорожский,Столбцовский,Узденский,Червенский',
+    'Могилёвская':'Белыничский,Бобруйский,Быховский,Глусский,Горецкий,Дрибинский,Кировский,Климовичский,Кличевский,Костюковичский,Краснопольский,Кричевский,Круглянский,Могилёвский,Мстиславский,Осиповичский,Славгородский,Хотимский,Чаусский,Чериковский,Шкловский'
+  };
+  function fill(){
+    const previous=districtSelect.value;
+    const selected=regionSelect.value||regionSelect.options[regionSelect.selectedIndex]?.textContent||'';
+    const list=(districts[selected]||'').split(',').filter(Boolean).map(name=>name+' район');
+    districtSelect.replaceChildren(new Option('Все районы',''));
+    list.forEach(name=>districtSelect.add(new Option(name,name)));
+    if(list.includes(previous))districtSelect.value=previous;
+  }
+  regionSelect.addEventListener('change',fill);
+  fill();
+})();
+</script>
+<script>
 const URL='https://uycjzsttxhtwochgghrs.supabase.co',KEY='sb_publishable_ySg6j14PYR-uhz_Od9WeCQ_IP0WTY7t';
 const BELARUS_BOUNDS=[[51.2,23.1],[56.2,32.8]];const map=L.map('map',{attributionControl:true,maxBounds:BELARUS_BOUNDS,maxBoundsViscosity:1}).setView([53.7,27.95],7);map.setMaxBounds(BELARUS_BOUNDS);map.attributionControl.setPrefix(false);
 const street=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}),satellite=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:18,attribution:'Tiles © Esri'});street.addTo(map);
