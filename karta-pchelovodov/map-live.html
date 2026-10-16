@@ -241,7 +241,7 @@ main{max-width:1800px;margin:8px auto 24px;padding:0 8px}.workspace{grid-templat
 
 /* One-touch collapse for the whole «Найти пасеку» panel on phones */
 .directory-collapse-btn{display:none;align-items:center;justify-content:center;width:38px;height:38px;flex:0 0 38px;border:0;border-radius:50%;background:#e8efdf;color:#244c2e;font-size:27px;line-height:1;font-weight:500}
-@media(max-width:680px){.directory-collapse-btn{display:inline-flex}.filters-panel.directory-panel-collapsed .mobile-view-switch,.filters-panel.directory-panel-collapsed .filter-controls{display:none!important}.filters-panel.directory-panel-collapsed .filters-mobile-head{margin-bottom:0}}
+@media(max-width:680px){.directory-collapse-btn{display:none!important}.filters-panel.directory-panel-collapsed .filter-controls,.filters-panel.filters-collapsed:not(.mobile-list-mode) .filter-controls{display:none!important}.filters-panel.directory-panel-collapsed .mobile-view-switch{display:flex!important}.filters-panel.filters-collapsed .filters-mobile-head{margin-bottom:0}}
 /* Mobile filters: compact collapsible header and live match count */
 .filters-mobile-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .filters-mobile-head h2{min-width:0}
@@ -252,7 +252,7 @@ main{max-width:1800px;margin:8px auto 24px;padding:0 8px}.workspace{grid-templat
  .filters-mobile-head{align-items:center;flex-wrap:wrap}
  .filters-mobile-head h2{font-size:17px!important;line-height:1.25}
  .mobile-filter-toggle{display:inline-flex;min-height:40px}
- .filters-panel.filters-collapsed .filter-controls{display:none}
+ .filters-panel.filters-collapsed:not(.mobile-list-mode) .filter-controls{display:none!important}
  .filters-panel.filters-collapsed .mobile-filter-toggle span{transform:rotate(-90deg)}
  .filter-controls{padding-top:8px}
  .mobile-results-count{min-width:23px;height:23px}
@@ -597,7 +597,7 @@ if(mobileMapView&&mobileListView){mobileMapView.addEventListener('click',()=>set
 const directoryCollapseButton=document.getElementById('collapseDirectoryPanel');
 if(directoryCollapseButton){directoryCollapseButton.addEventListener('click',()=>{const panel=document.getElementById('directory');const collapsed=panel.classList.toggle('directory-panel-collapsed');directoryCollapseButton.setAttribute('aria-expanded',String(!collapsed));directoryCollapseButton.setAttribute('aria-label',collapsed?'Развернуть окно поиска':'Свернуть окно поиска');directoryCollapseButton.textContent=collapsed?'+':'−'})}
 const mobileFilterPanel=document.getElementById('directory'),mobileFilterToggle=document.getElementById('toggleMobileFilters');
-function syncMobileFilterMode(){if(!mobileFilterPanel||!mobileFilterToggle)return;const isMobile=window.matchMedia('(max-width:680px)').matches;mobileFilterPanel.classList.toggle('filters-collapsed',isMobile);mobileFilterToggle.setAttribute('aria-expanded',String(!isMobile));mobileFilterToggle.innerHTML='Фильтры <span aria-hidden="true">⌄</span>';placeFeatureDetails(mobileWorkspace?.classList.contains('mobile-list-mode')?'list':'map')}
+function syncMobileFilterMode(){if(!mobileFilterPanel||!mobileFilterToggle)return;const isMobile=window.matchMedia('(max-width:680px)').matches;mobileFilterPanel.classList.toggle('filters-collapsed',isMobile);const controls=document.getElementById('filterControls');if(controls){if(isMobile&&!mobileWorkspace?.classList.contains('mobile-list-mode'))controls.style.setProperty('display','none','important');else controls.style.removeProperty('display')}mobileFilterToggle.setAttribute('aria-expanded',String(!isMobile));mobileFilterToggle.innerHTML='Фильтры <span aria-hidden="true">⌄</span>';placeFeatureDetails(mobileWorkspace?.classList.contains('mobile-list-mode')?'list':'map')}
 if(mobileFilterToggle&&mobileFilterPanel){mobileFilterToggle.addEventListener('click',()=>{const collapsed=mobileFilterPanel.classList.toggle('filters-collapsed');const controls=document.getElementById('filterControls');if(controls){if(collapsed)controls.style.setProperty('display','none','important');else controls.style.removeProperty('display')}mobileFilterToggle.setAttribute('aria-expanded',String(!collapsed));mobileFilterToggle.innerHTML=collapsed?'Фильтры <span aria-hidden="true">⌄</span>':'Скрыть фильтры <span aria-hidden="true">⌃</span>'});syncMobileFilterMode();window.addEventListener('resize',syncMobileFilterMode)}
 initApiaryMap();load();
 window.addEventListener('load',()=>setTimeout(()=>map.invalidateSize({pan:false}),180));window.addEventListener('resize',()=>map.invalidateSize({pan:false}));
