@@ -179,7 +179,7 @@ async function refresh(){
   sb.from('service_cartridge_models').select('*').order('manufacturer',{ascending:true}).order('model',{ascending:true})
  ]);
  if(c.error||e.error||k.error||o.error||ct.error||cm.error){console.error(c.error,e.error,k.error,o.error,ct.error,cm.error);return}
- $('cntClients').textContent=c.data.length;loadRequests();$('cntEquipment').textContent=e.data.length;$('cntCartridges').textContent=k.data.length;$('cntOrders').textContent=o.data.length;
+ const countEl=(id,value)=>{const el=$(id);if(el)el.textContent=value};countEl('cntClients',c.data.length);loadRequests();countEl('cntEquipment',e.data.length);countEl('cntCartridges',k.data.length);countEl('cntOrders',o.data.length);
  $('clientsRows').innerHTML=c.data.map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.tax_id||'')}</td><td>${esc(x.bank_account||'')}</td><td>${esc(x.bik||'')}</td><td>${esc(x.bank||'')}</td><td>${esc(x.phone||'')}</td><td>${esc(x.email||'')}</td><td>${esc(x.responsible_person||'')}</td><td><button class="light" onclick="editClient('${x.id}')">Изменить</button> <button class="light" onclick="selectContracts('${x.id}')">Договоры</button> <button class="danger" onclick="deleteClient('${x.id}')">Удалить</button></td></tr>`).join('');
 fillSelect('requestClient',c.data,'name');
 window._allRequestCartridges=k.data||[]; window._allRequestEquipment=e.data||[];
@@ -340,7 +340,7 @@ $('contractForm').onsubmit=async ev=>{
 }
 $('equipmentForm').onsubmit=async ev=>{ev.preventDefault();const d=formData(ev.target);const id=d.id;delete d.id;const q=id?sb.from('service_equipment').update(d).eq('id',id):sb.from('service_equipment').insert(d);const {error}=await q;if(error)alert(error.message);else{ev.target.reset();$('equipmentSaveBtn').textContent='Сохранить технику';$('equipmentCancelBtn').classList.add('hidden');refresh()}}
 $('cartridgeForm').onsubmit=async ev=>{ev.preventDefault();const d=formData(ev.target);delete d.id;d.fill_count=0;const {error}=await sb.from('service_cartridges').insert(d);if(error)alert(error.message);else{ev.target.reset();refresh()}}
-$('modelForm').onsubmit=async ev=>{ev.preventDefault();const d=formData(ev.target);d.manufacturer=d.manufacturer.trim();d.model=d.model.trim();const {error}=await sb.from('service_cartridge_models').insert(d);if(error)alert(error.message);else{ev.target.reset();refresh()}}
+if($('modelForm'))$('modelForm').onsubmit=async ev=>{ev.preventDefault();const d=formData(ev.target);d.manufacturer=d.manufacturer.trim();d.model=d.model.trim();const {error}=await sb.from('service_cartridge_models').insert(d);if(error)alert(error.message);else{ev.target.reset();refresh()}}
 window.changeOrderStatus=async function(id,status){
  const {data:o,error}=await sb.from('service_orders').select('id,client_id,cartridge_id,equipment_id').eq('id',id).single();
  if(error){alert(error.message);return}
