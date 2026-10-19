@@ -450,6 +450,42 @@ main{max-width:1800px;margin:8px auto 24px;padding:0 8px}.workspace{grid-templat
 /* Keep selected beekeeper profile directly below the map selection hint. */
 #map-section #featured.right-panel{display:flex!important;flex-direction:column;width:100%;margin:0 0 12px;padding:14px;gap:10px;grid-column:auto;order:0}
 #map-section #featured .feature-photo{max-height:180px}
+
+/* Mobile stability pass 2026-10-19: layout-only overrides; map and handlers unchanged. */
+@media(max-width:680px){
+  html,body{width:100%;max-width:100%;overflow-x:hidden}
+  main,.workspace,.workspace>.filters-panel,.workspace>.map-panel,
+  #map-section,#map,#mobileProfileSlot,#featured.right-panel{
+    min-width:0!important;max-width:100%!important;box-sizing:border-box!important
+  }
+  .workspace{display:flex!important;flex-direction:column!important;align-items:stretch!important}
+  .workspace>.map-panel{order:0!important;width:100%!important}
+  .workspace>.filters-panel{order:1!important;width:100%!important}
+  #map-section{overflow:hidden}
+  #map{display:block;width:100%!important;touch-action:pan-x pan-y;overscroll-behavior:contain}
+  .map-head{left:auto!important;right:8px!important;max-width:calc(100% - 16px)!important}
+  .map-mode{display:flex;flex-wrap:wrap;max-width:100%}
+  .map-mode button{min-height:40px!important}
+  .filters-mobile-head{width:100%;min-width:0}
+  .filters-mobile-head h2{overflow-wrap:anywhere}
+  .directory-collapse-btn,.mobile-filter-toggle,.mobile-view-switch button,
+  .directory-actions .btn,.map-mode button{touch-action:manipulation}
+  .filters-panel .field,.filters-panel .check-list,.filters-panel .directory-actions,
+  .filters-panel .map-note,.filters-panel #resultsList{min-width:0;max-width:100%;box-sizing:border-box}
+  .filters-panel input,.filters-panel select,.filters-panel textarea{width:100%;max-width:100%;min-width:0}
+  #mobileProfileSlot{overflow-wrap:anywhere}
+  #mobileProfileSlot .feature-title{overflow-wrap:anywhere}
+  #mobileProfileSlot .contact-lines a{overflow-wrap:anywhere;word-break:break-word}
+  #mobileProfileSlot .beekeeper-contact-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #mobileProfileSlot .contact-action{min-width:0;overflow-wrap:anywhere}
+}
+@media(max-width:390px){
+  .cross-project-banner{gap:6px}
+  .cross-subtitle{display:none}
+  .map-mode{gap:2px}
+  .map-mode button{padding:7px 8px!important}
+  #mobileProfileSlot .beekeeper-contact-actions{grid-template-columns:minmax(0,1fr)}
+}
 </style></head><body>
 <a class="cross-project-banner" href="../journal/" aria-label="Перейти в цифровой журнал пасечника"><span class="cross-icon" aria-hidden="true">🐝 🍯</span><span class="cross-copy"><span class="cross-title">Цифровой журнал пасечника</span><span class="cross-subtitle">Ульи · Осмотры · Обработки · Мёд · Отчёты</span></span><span class="cross-cta">Перейти в журнал <span aria-hidden="true">➜</span></span></a>
 <header class="hero hero-image"><img class="hero-art" src="https://raw.githubusercontent.com/Artnik78/dedushkina-paseka/fix/beekeeper-map-districts/karta-pchelovodov/header-pchelovody.png" alt="Карта белорусских пчеловодов: пчела на цветах, мёд и белорусский пейзаж"></header>
