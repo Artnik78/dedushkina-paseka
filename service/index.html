@@ -94,7 +94,7 @@ th,td{padding:11px;border-bottom:1px solid #e7edf2;text-align:left;white-space:n
 <input name="contract_date" type="date" placeholder="Дата договора"><input name="valid_until" type="date" placeholder="Действует до">
 <div class="toolbar"><button id="contractSaveBtn" class="primary">Сохранить договор</button><button type="button" class="light hidden" id="contractCancelBtn" onclick="cancelContractEdit()">Отмена</button></div>
 </form>
-<div class="tablewrap" style="margin-top:14px"><table><thead><tr><th>Год</th><th>№ договора</th><th>Дата</th><th>Действует до</th><th>Действия</th></tr></thead><tbody id="contractsRows"></tbody></table></div>
+<div class="tablewrap" style="margin-top:14px"><table><thead><tr><th>Год</th><th>№ договора</th><th>Организация</th><th>Дата</th><th>Действует до</th><th>Действия</th></tr></thead><tbody id="contractsRows"></tbody></table></div>
 </div></section>
 
 <section id="equipment"><div class="card"><h2>Оргтехника и ПЭВМ</h2><p class="muted">Каждая единица техники привязывается к конкретному клиенту.</p>
@@ -206,7 +206,7 @@ const contractSel=$('contractClient');contractSel.innerHTML='<option value="">В
  return '<tr><td>'+esc(String(x.order_number))+'</td><td>'+esc(x.order_date||'')+'</td><td>'+esc(client?.name||'—')+'</td><td>'+esc(typeNames[item?.item_type]||'Предзаказ')+'</td><td>'+esc(item?.name||x.work_description||'—')+'</td><td>'+Number(item?.quantity||1)+'</td><td>'+Number(x.total_amount||0).toFixed(2)+'</td><td>'+esc({received:'Новый',in_work:'В обработке',ready:'Готов к выдаче',issued:'Выдан',paid:'Оплачен'}[x.status]||x.status)+'</td><td><button type="button" class="light" onclick="openOrder('\\''+x.id+'\\')">Открыть</button></td></tr>'
 }).join('')||'<tr><td colspan="9" class="muted">Предзаказов пока нет.</td></tr>';
 
-renderContracts(ct.data);
+renderContracts(ct.data,c.data);
 
  fillSelect('equipmentClient',c.data,'name'); if(selectedEquipmentClient && c.data.some(x=>x.id===selectedEquipmentClient)) $('equipmentClient').value=selectedEquipmentClient;
  fillSelect('orderClient',c.data,'name'); if(selectedOrderClient && c.data.some(x=>x.id===selectedOrderClient)) $('orderClient').value=selectedOrderClient;
@@ -218,10 +218,10 @@ function updateOrderLinkedLists(e,k,clientId){
  fillSelect('orderEquipment',eq,x=>((x.manufacturer||'')+' '+(x.model||'')+' '+(x.barcode||'')).trim(),'Оргтехника не выбрана');
  fillSelect('orderCartridge',ca,x=>((x.model||'')+' '+(x.barcode||'')).trim(),'Картридж не выбран');
 }
-function renderContracts(data){
+function renderContracts(data,clients=[]){
  const selected=$('contractClient').value;
  const rows=data.filter(x=>!selected||x.client_id===selected);
- $('contractsRows').innerHTML=rows.map(x=>`<tr><td>${x.contract_year}</td><td>${esc(x.contract_number)}</td><td>${esc(x.contract_date||'')}</td><td>${esc(x.valid_until||'')}</td><td><button class="light" onclick="editContract('${x.id}')">Изменить</button> <button class="danger" onclick="deleteContract('${x.id}')">Удалить</button></td></tr>`).join('');
+ $('contractsRows').innerHTML=rows.map(x=>{const client=clients.find(c=>c.id===x.client_id);return `<tr><td>${esc(String(x.contract_year||''))}</td><td>${esc(x.contract_number||'')}</td><td>${esc(client?.name||'Организация не найдена')}</td><td>${esc(x.contract_date||'')}</td><td>${esc(x.valid_until||'')}</td><td><button class="light" onclick="editContract('${x.id}')">Изменить</button> <button class="danger" onclick="deleteContract('${x.id}')">Удалить</button></td></tr>`}).join('')||'<tr><td colspan="6" class="muted">Договоров пока нет.</td></tr>';
 }
 window.selectContracts=id=>{$('contractClient').value=id;refresh()};
 window.openClient=async id=>{
