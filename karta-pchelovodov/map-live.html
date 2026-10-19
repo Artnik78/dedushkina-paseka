@@ -455,7 +455,7 @@ main{max-width:1800px;margin:8px auto 24px;padding:0 8px}.workspace{grid-templat
 <header class="hero hero-image"><img class="hero-art" src="https://raw.githubusercontent.com/Artnik78/dedushkina-paseka/fix/beekeeper-map-districts/karta-pchelovodov/header-pchelovody.png" alt="Карта белорусских пчеловодов: пчела на цветах, мёд и белорусский пейзаж"></header>
 
 
-<nav aria-label="Навигация"><a class="active" href="#map-section">🗺️ Карта</a><a href="#directory">👥 Пчеловоды</a><a href="my-apiary.html">👤 Моя пасека</a><a href="community.html">💬 Сообщество</a><button type="button" class="add-link" id="openAddForm" onclick="(function(){var m=document.getElementById('addModal');if(!m)return;m.hidden=false;document.body.classList.add('modal-open');m.setAttribute('aria-hidden','false');var f=document.getElementById('name');if(f)f.focus();setTimeout(function(){var mapEl=document.getElementById('apiaryMap');if(mapEl&&window.L&&mapEl._leaflet_id&&window.apiaryMap&&typeof window.apiaryMap.invalidateSize==='function')window.apiaryMap.invalidateSize()},250)})()">＋ Добавить пасеку</button></nav>
+<nav aria-label="Навигация"><a class="active" href="#map-section">🗺️ Карта</a><a href="#directory">👥 Пчеловоды</a><a href="my-apiary.html">👤 Моя пасека</a><a href="community.html">💬 Сообщество</a><button type="button" class="add-link" id="openAddForm" onclick="(function(){var m=document.getElementById('addModal');if(!m)return;m.hidden=false;document.body.classList.add('modal-open');m.setAttribute('aria-hidden','false');var f=document.getElementById('name');if(f)f.focus();setTimeout(function(){if(typeof window.initApiaryMapForForm==='function')window.initApiaryMapForForm()},250)})()">＋ Добавить пасеку</button></nav>
 <main>
 <div class="workspace">
 <aside class="panel filters-panel directory-panel-collapsed filters-collapsed" id="directory"><div class="filters-mobile-head"><h2>🔎 Найти пасеку <span id="mobileResultsCount" class="mobile-results-count" aria-live="polite"></span></h2><button type="button" id="collapseDirectoryPanel" class="directory-collapse-btn" aria-expanded="false" aria-label="Развернуть окно поиска" onclick="var p=document.getElementById('directory'),c=document.getElementById('filterControls'),v=p.querySelector('.mobile-view-switch'),expand=this.getAttribute('aria-expanded')!=='true';p.classList.toggle('directory-panel-collapsed',!expand);p.classList.toggle('filters-collapsed',!expand);if(c)c.style.setProperty('display',expand?'block':'none','important');if(v)v.style.setProperty('display',expand?'flex':'none','important');this.setAttribute('aria-expanded',String(expand));this.setAttribute('aria-label',expand?'Свернуть окно поиска':'Развернуть окно поиска');this.textContent=expand?'−':'+';">+</button><div class="mobile-view-switch" role="group" aria-label="Вид каталога"><button type="button" id="mobileMapView" class="active" aria-pressed="true">Карта</button><button type="button" id="mobileListView" aria-pressed="false">Список</button></div><button type="button" id="toggleMobileFilters" class="mobile-filter-toggle" aria-expanded="true" aria-controls="filterControls">Фильтры <span aria-hidden="true">⌄</span></button></div><div id="filterControls" class="filter-controls">
@@ -594,6 +594,8 @@ function setApiaryPoint(lat,lng,zoomMap=true){
   document.getElementById('coordinateStatus').textContent='Метка выбрана: '+lat.toFixed(6)+', '+lng.toFixed(6)+' · координаты будут переданы на проверку и опубликованы только после одобрения заявки.';
 }
 function initApiaryMap(){
+  if(apiaryMap){apiaryMap.invalidateSize(true);return}
+  if(!window.L){throw new Error('Leaflet library is unavailable')}
   apiaryMap=L.map('apiaryMap',{scrollWheelZoom:false}).setView([53.7,27.95],7);
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(apiaryMap);
   let manualPointMode=false;apiaryMap.on('click',e=>{setApiaryPoint(e.latlng.lat,e.latlng.lng);manualPointMode=false;document.getElementById('manualApiaryPoint').classList.remove('manual-point-active')});document.getElementById('manualApiaryPoint').addEventListener('click',()=>{manualPointMode=true;document.getElementById('manualApiaryPoint').classList.add('manual-point-active');document.getElementById('coordinateStatus').textContent='Режим ручной установки включён: нажмите на карте в месте расположения пасеки.';apiaryMap.getContainer().style.cursor='crosshair'});apiaryMap.on('click',()=>{apiaryMap.getContainer().style.cursor=''});
@@ -610,6 +612,11 @@ function initApiaryMap(){
     document.getElementById('coordinateStatus').textContent='Метка убрана. Заявку можно отправить без координат.';
   });
 }
+window.initApiaryMapForForm=function(){
+  const status=document.getElementById('coordinateStatus');
+  try{initApiaryMap();setTimeout(()=>{if(apiaryMap)apiaryMap.invalidateSize(true)},200);if(status)status.textContent='Карта готова. Нажмите на неё, чтобы указать место пасеки.'}
+  catch(err){console.error('Ошибка карты пасеки:',err);if(status)status.textContent='Не удалось загрузить карту. Обновите страницу; если ошибка повторится, сообщите нам.'}
+};
 
 
 
