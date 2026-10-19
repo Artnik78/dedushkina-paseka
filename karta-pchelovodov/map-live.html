@@ -503,7 +503,7 @@ main{max-width:1800px;margin:8px auto 24px;padding:0 8px}.workspace{grid-templat
 <script>
 const URL='https://uycjzsttxhtwochgghrs.supabase.co',KEY='sb_publishable_ySg6j14PYR-uhz_Od9WeCQ_IP0WTY7t';
 const BELARUS_BOUNDS=[[51.2,23.1],[56.2,32.8]];const map=L.map('map',{attributionControl:true,maxBounds:BELARUS_BOUNDS,maxBoundsViscosity:1}).setView([53.7,27.95],7);map.setMaxBounds(BELARUS_BOUNDS);map.attributionControl.setPrefix(false);
-const street=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}),satellite=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:18,attribution:'Tiles © Esri'});street.addTo(map);
+const street=L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{subdomains:'abcd',maxZoom:19,attribution:'© OpenStreetMap © CARTO'}),satellite=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:18,attribution:'Tiles © Esri'});street.addTo(map);
 const regionLabels=[['Гродненская область',53.55,24.05],['Брестская область',52.1,25.7],['Минская область',53.55,27.25],['Витебская область',55.0,29.2],['Могилёвская область',53.75,30.0],['Гомельская область',52.55,30.2],['Минск',53.9023,27.5618],['Брест',52.0976,23.7341],['Гродно',53.6884,23.8258],['Витебск',55.1904,30.2049],['Могилёв',53.9007,30.3314],['Гомель',52.4345,30.9754]];
 const labelIcon=(txt,city=false)=>L.divIcon({className:city?'map-city-label':'map-region-label',html:txt,iconSize:null});
 regionLabels.forEach((v,i)=>L.marker([v[1],v[2]],{interactive:false,keyboard:false,icon:labelIcon(v[0],i>=6)}).addTo(map));
