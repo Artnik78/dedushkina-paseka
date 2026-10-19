@@ -36,25 +36,25 @@ th,td{padding:11px;border-bottom:1px solid #e7edf2;text-align:left;white-space:n
 <header><h1>🖥 Журнал сервисного обслуживания</h1><button class="light" onclick="logout()">Выйти</button></header>
 <main>
 <nav>
-<button onclick="show('home')">🏠 Главная</button>
-<button onclick="show('requests')">📥 Заявки</button>
-<button onclick="show('cartridgeJobs')">🖨 Заправка</button>
-<button onclick="show('repairJobs')">🔧 Ремонт</button>
-<button onclick="show('orders')">📋 Заказы</button>
-<button onclick="show('directory')">📚 Справочник</button>
+<button onclick="window.show('home')">🏠 Главная</button>
+<button onclick="window.show('requests')">📥 Заявки</button>
+<button onclick="window.show('cartridgeJobs')">🖨 Заправка</button>
+<button onclick="window.show('repairJobs')">🔧 Ремонт</button>
+<button onclick="window.show('orders')">📋 Заказы</button>
+<button onclick="window.show('directory')">📚 Справочник</button>
 </nav>
 
 <section id="directory"><div class="card"><h2>📚 Справочник</h2><p class="muted">Все основные данные сервисного обслуживания хранятся здесь отдельно. Заявка использует эти справочники для выбора клиента, картриджа и техники.</p>
 <div class="grid" style="grid-template-columns:repeat(2,1fr);margin-top:14px">
-<div class="card"><h3>👤 Клиенты</h3><p class="muted">Организации и частные лица, договоры и контактные данные.</p><button class="primary" onclick="show('clients')">Открыть клиентов</button></div>
-<div class="card"><h3>🖨 Картриджи</h3><p class="muted">Добавление нового картриджа в справочник.</p><button class="primary" onclick="show('cartridges')">➕ Добавить картридж</button></div>
-<div class="card"><h3>🖥 Оргтехника</h3><p class="muted">Принтеры, МФУ, копиры, сканеры и другая оргтехника.</p><button class="primary" onclick="show('equipment')">Открыть оргтехнику</button></div>
-<div class="card"><h3>💻 ПЭВМ</h3><p class="muted">Компьютеры, ноутбуки и мониторы клиентов.</p><button class="primary" onclick="show('equipment')">Открыть ПЭВМ</button></div>
+<div class="card"><h3>👤 Клиенты</h3><p class="muted">Организации и частные лица, договоры и контактные данные.</p><button class="primary" onclick="window.show('clients')">Открыть клиентов</button></div>
+<div class="card"><h3>🖨 Картриджи</h3><p class="muted">Добавление нового картриджа в справочник.</p><button class="primary" onclick="window.show('cartridges')">➕ Добавить картридж</button></div>
+<div class="card"><h3>🖥 Оргтехника</h3><p class="muted">Принтеры, МФУ, копиры, сканеры и другая оргтехника.</p><button class="primary" onclick="window.show('equipment')">Открыть оргтехнику</button></div>
+<div class="card"><h3>💻 ПЭВМ</h3><p class="muted">Компьютеры, ноутбуки и мониторы клиентов.</p><button class="primary" onclick="window.show('equipment')">Открыть ПЭВМ</button></div>
 </div></div></section>
 
 <section id="home" class="active">
 <div class="card" style="margin-bottom:14px"><h2>Сервисный центр</h2><p class="muted">Все обращения клиента проходят единый путь: заявка → работа → готовность → выдача.</p>
-<div class="toolbar"><button class="primary" onclick="show('requests')">📥 Новая заявка</button><button class="light" onclick="show('cartridgeJobs')">🖨 Заправки</button><button class="light" onclick="show('repairJobs')">🔧 Ремонты</button></div></div>
+<div class="toolbar"><button class="primary" onclick="window.show('requests')">📥 Новая заявка</button><button class="light" onclick="window.show('cartridgeJobs')">🖨 Заправки</button><button class="light" onclick="window.show('repairJobs')">🔧 Ремонты</button></div></div>
 <div class="grid">
 <div class="card">Новые заявки<b id="cntRequests">0</b><span class="muted">требуют обработки</span></div>
 <div class="card">Заправка<b id="cntCartridgeJobs">0</b><span class="muted">в работе</span></div>
@@ -62,8 +62,8 @@ th,td{padding:11px;border-bottom:1px solid #e7edf2;text-align:left;white-space:n
 <div class="card">Готово<b id="cntReady">0</b><span class="muted">можно выдавать</span></div>
 </div>
 <div class="card" style="margin-top:14px"><h2>Быстрый доступ</h2><div class="grid" style="grid-template-columns:repeat(2,1fr)">
-<button class="light" onclick="show('directory')">📚 Справочник</button><button class="light" onclick="show('equipment')">🖥 Техника</button>
-<button class="light" onclick="show('cartridges')">🖨 Картриджи</button><button class="light" onclick="show('orders')">📋 Заказы</button>
+<button class="light" onclick="window.show('directory')">📚 Справочник</button><button class="light" onclick="window.show('equipment')">🖥 Техника</button>
+<button class="light" onclick="window.show('cartridges')">🖨 Картриджи</button><button class="light" onclick="window.show('orders')">📋 Заказы</button>
 </div></div>
 </section>
 
@@ -101,9 +101,9 @@ th,td{padding:11px;border-bottom:1px solid #e7edf2;text-align:left;white-space:n
 <form id="equipmentForm" class="formgrid"><input type="hidden" name="id"><select name="client_id" id="equipmentClient" required><option value="">Выберите клиента</option></select><div class="barcodeRow"><input name="barcode" id="equipmentBarcode" placeholder="Штрихкод"><button type="button" class="light scanBtn" onclick="openScanner('equipmentBarcode')">📷 Сканировать</button></div><input name="inventory_number" placeholder="Инвентарный номер"><select name="equipment_type"><option value="printer">Принтер</option><option value="mfu">МФУ</option><option value="copier">Копировальный аппарат</option><option value="scanner">Сканер</option><option value="computer">Компьютер</option><option value="laptop">Ноутбук</option><option value="monitor">Монитор</option><option value="other_office">Другая оргтехника</option><option value="other">Другое</option></select><input name="manufacturer" placeholder="Производитель"><input name="model" placeholder="Модель"><input name="serial_number" placeholder="Серийный номер"><input name="location" placeholder="Место установки"><input name="responsible_person" placeholder="Ответственный"><div class="toolbar"><button id="equipmentSaveBtn" class="primary">Сохранить технику</button><button type="button" class="light hidden" id="equipmentCancelBtn" onclick="cancelEquipmentEdit()">Отмена</button></div></form></div>
 <div class="card" style="margin-top:14px"><div class="tablewrap"><table><thead><tr><th>Клиент</th><th>Штрихкод</th><th>Инвентарный номер</th><th>Тип</th><th>Производитель</th><th>Модель</th><th>Серийный номер</th><th>Действия</th></tr></thead><tbody id="equipmentRows"></tbody></table></div></div></section>
 
-<section id="equipmentCard"><div class="card"><div class="toolbar"><button class="light" onclick="show('equipment')">← К технике</button></div><h2 id="equipmentCardTitle">Карточка техники</h2><div id="equipmentCardBody"></div></div></section>
+<section id="equipmentCard"><div class="card"><div class="toolbar"><button class="light" onclick="window.show('equipment')">← К технике</button></div><h2 id="equipmentCardTitle">Карточка техники</h2><div id="equipmentCardBody"></div></div></section>
 
-<section id="cartridgeCard" class="hidden"><div class="card"><div class="toolbar" style="justify-content:space-between"><h2 id="cartridgeCardTitle">Карточка картриджа</h2><button type="button" onclick="show('cartridges')">← Назад</button></div><div id="cartridgeCardBody"></div></div></section><section id="cartridges"><div class="card"><h2>Новый картридж</h2><form id="cartridgeForm" class="formgrid"><input name="model" id="cartridgeModelSelect" placeholder="Наименование картриджа" required><div class="toolbar"><button id="cartridgeSaveBtn" class="primary">Добавить картридж</button></div></form></div><div class="card" style="margin-top:14px"><h2>Список картриджей</h2><div class="tablewrap"><table><thead><tr><th>Наименование картриджа</th><th>Действия</th></tr></thead><tbody id="cartridgeRows"></tbody></table></div></div></section>
+<section id="cartridgeCard" class="hidden"><div class="card"><div class="toolbar" style="justify-content:space-between"><h2 id="cartridgeCardTitle">Карточка картриджа</h2><button type="button" onclick="window.show('cartridges')">← Назад</button></div><div id="cartridgeCardBody"></div></div></section><section id="cartridges"><div class="card"><h2>Новый картридж</h2><form id="cartridgeForm" class="formgrid"><input name="model" id="cartridgeModelSelect" placeholder="Наименование картриджа" required><div class="toolbar"><button id="cartridgeSaveBtn" class="primary">Добавить картридж</button></div></form></div><div class="card" style="margin-top:14px"><h2>Список картриджей</h2><div class="tablewrap"><table><thead><tr><th>Наименование картриджа</th><th>Действия</th></tr></thead><tbody id="cartridgeRows"></tbody></table></div></div></section>
 
 <section id="cartridgeJobs"><div class="card"><h2>Журнал заправки картриджей</h2><p class="muted">Принятые картриджи и ход заправки.</p><div class="toolbar"><button class="light" onclick="loadRefillJournal()">Обновить</button></div><div class="tablewrap"><table><thead><tr><th>Дата приёма</th><th>Клиент</th><th>Модель</th><th>Штрихкод</th><th>Статус</th><th>Дата выполнения</th><th>Действия</th></tr></thead><tbody id="refillJournalRows"></tbody></table></div></div></section>
 <section id="repairJobs"><div class="card"><h2>Журнал ремонта техники</h2><p class="muted">Отдельный журнал ремонта техники организаций и частных лиц.</p>
