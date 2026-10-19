@@ -193,7 +193,7 @@ async function loadRepairJournal(){
  $('repairRows').innerHTML=(data||[]).map(x=>'<tr><td>'+esc(formatDate(x.received_at))+'</td><td>'+esc(x.service_clients?.name||'—')+'<br><span class="muted">'+esc(x.service_clients?.client_type==='individual'?'Частное лицо':'Организация')+'</span></td><td>'+esc(((x.service_equipment?.manufacturer||'')+' '+(x.service_equipment?.model||'')).trim()||'—')+'</td><td>'+esc(names[x.status]||x.status)+'</td><td>'+Number(x.labor_amount||0).toFixed(2)+'</td><td>'+Number(x.parts_amount||0).toFixed(2)+'</td><td>'+Number(x.total_amount||0).toFixed(2)+'</td><td><button class="light" onclick="changeRepairStatus(\''+x.id+'\',\'diagnostics\')">Диагностика</button> <button class="light" onclick="changeRepairStatus(\''+x.id+'\',\'in_repair\')">В ремонт</button> <button class="light" onclick="changeRepairStatus(\''+x.id+'\',\'ready\')">Готов</button> <button class="light" onclick="changeRepairStatus(\''+x.id+'\',\'issued\')">Выдан</button></td></tr>').join('')||'<tr><td colspan="8" class="muted">Записей нет.</td></tr>';
 }
 window.changeRepairStatus=async function(id,status){const p={status};if(status==='issued')p.issued_at=new Date().toISOString().slice(0,10);const {error}=await sb.from('service_repair_jobs').update(p).eq('id',id);if(error)alert(error.message);else loadRepairJournal()};
-async function loadRequestAssets(){
+window.loadRequestAssets=async function(){
  const clientId=$('requestClient')?.value||'';
  const cartridges=(window._allRequestCartridges||[]).filter(x=>!clientId||x.client_id===clientId);
  const equipment=(window._allRequestEquipment||[]).filter(x=>!clientId||x.client_id===clientId);
@@ -204,8 +204,8 @@ async function loadRequestAssets(){
  if(cart)cart.disabled=type!=='refill';
  if(eq)eq.disabled=type!=='repair';
 }
-$('requestClient')?.addEventListener('change',loadRequestAssets);
-$('requestType')?.addEventListener('change',loadRequestAssets);
+$('requestClient')?.addEventListener('change',window.loadRequestAssets);
+$('requestType')?.addEventListener('change',window.loadRequestAssets);
 async function loadRequests(){
  const {data,error}=await sb.from('service_requests').select('id,client_id,cartridge_id,equipment_id,created_at,request_type,status,cartridge_name,equipment_name,barcode,service_clients(name,client_type)').order('created_at',{ascending:false});
  if(error){console.error(error);return}
@@ -215,7 +215,7 @@ window.editRequest=async id=>{
  const {data:x,error}=await sb.from('service_requests').select('*').eq('id',id).single();
  if(error){alert('Не удалось открыть заявку: '+error.message);return}
  const form=$('requestForm');form.elements.id.value=x.id;form.elements.client_id.value=x.client_id||'';
- await loadRequestAssets();
+ await window.loadRequestAssets();
  form.elements.request_type.value=x.request_type||'repair';
  if(x.cartridge_id)form.elements.cartridge_id.value=x.cartridge_id;
  if(x.equipment_id)form.elements.equipment_id.value=x.equipment_id;
@@ -271,7 +271,7 @@ async function refresh(){
  const clientTypeFilter=$('clientTypeFilter')?.value||'all';$('clientsRows').innerHTML=c.data.filter(x=>clientTypeFilter==='all'||(x.client_type||'organization')===clientTypeFilter).map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.tax_id||'')}</td><td>${esc(x.bank_account||'')}</td><td>${esc(x.bik||'')}</td><td>${esc(x.bank||'')}</td><td>${esc(x.phone||'')}</td><td>${esc(x.email||'')}</td><td>${esc(x.responsible_person||'')}</td><td><button type="button" class="light" onclick="editClient('${x.id}')">✏️ Изменить</button> <button type="button" class="light" onclick="selectContracts('${x.id}')">📄 Договоры</button> <button type="button" class="danger" onclick="deleteClient('${x.id}')">🗑 Удалить</button></td></tr>`).join('');
 fillSelect('requestClient',c.data,'name');
 window._allRequestCartridges=k.data||[]; window._allRequestEquipment=e.data||[];
-await loadRequestAssets();
+await window.loadRequestAssets();
 const contractSel=$('contractClient');contractSel.innerHTML='<option value="">Выберите клиента</option>'+c.data.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name||'Без имени')+'</option>').join('');if(selectedContractClient&&c.data.some(x=>x.id===selectedContractClient))contractSel.value=selectedContractClient;
  $('equipmentRows').innerHTML=e.data.map(x=>`<tr><td>${esc(c.data.find(cl=>cl.id===x.client_id)?.name||'—')}</td><td>${esc(x.barcode||'')}</td><td>${esc(x.inventory_number||'')}</td><td>${esc(({printer:'Принтер',mfu:'МФУ',copier:'Копировальный аппарат',scanner:'Сканер',computer:'Компьютер',laptop:'Ноутбук',monitor:'Монитор',other_office:'Другая оргтехника',other:'Другое'}[x.equipment_type]||x.equipment_type||''))}</td><td>${esc(x.manufacturer||'')}</td><td>${esc(x.model||'')}</td><td>${esc(x.serial_number||'')}</td><td><button class="light" onclick="openEquipment('${x.id}')">Карточка</button> <button class="light" onclick="editEquipment('${x.id}')">Изменить</button> <button class="danger" onclick="deleteEquipment('${x.id}')">Удалить</button></td></tr>`).join('');
  $('cartridgeRows').innerHTML=k.data.map(x=>'<tr><td>'+esc(x.model||'')+'</td><td><button type="button" class="light" onclick="openCartridge(\''+x.id+'\')">Карточка</button> <button type="button" class="danger" onclick="deleteCartridge(\''+x.id+'\')">Удалить картридж</button></td></tr>').join('')||'<tr><td colspan="2" class="muted">Картриджей пока нет.</td></tr>';
