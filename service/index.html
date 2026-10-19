@@ -41,7 +41,6 @@ th,td{padding:11px;border-bottom:1px solid #e7edf2;text-align:left;white-space:n
 <button onclick="show('cartridgeJobs')">🖨 Заправка</button>
 <button onclick="show('repairJobs')">🔧 Ремонт</button>
 <button onclick="show('orders')">📋 Заказы</button>
-<button onclick="show('clients')">👥 Клиенты</button>
 <button onclick="show('directory')">📚 Справочник</button>
 </nav>
 
@@ -63,7 +62,7 @@ th,td{padding:11px;border-bottom:1px solid #e7edf2;text-align:left;white-space:n
 <div class="card">Готово<b id="cntReady">0</b><span class="muted">можно выдавать</span></div>
 </div>
 <div class="card" style="margin-top:14px"><h2>Быстрый доступ</h2><div class="grid" style="grid-template-columns:repeat(2,1fr)">
-<button class="light" onclick="show('clients')">👥 Клиенты</button><button class="light" onclick="show('equipment')">🖥 Техника</button>
+<button class="light" onclick="show('directory')">📚 Справочник</button><button class="light" onclick="show('equipment')">🖥 Техника</button>
 <button class="light" onclick="show('cartridges')">🖨 Картриджи</button><button class="light" onclick="show('orders')">📋 Заказы</button>
 </div></div>
 </section>
@@ -110,10 +109,20 @@ th,td{padding:11px;border-bottom:1px solid #e7edf2;text-align:left;white-space:n
 <section id="repairJobs"><div class="card"><h2>Журнал ремонта техники</h2><p class="muted">Отдельный журнал ремонта техники организаций и частных лиц.</p>
 <form id="repairForm" class="formgrid"><select name="client_id" id="repairClient" required><option value="">Выберите клиента</option></select><select name="equipment_id" id="repairEquipment"><option value="">Техника не выбрана</option></select><select name="status"><option value="received">Принят</option><option value="diagnostics">Диагностика</option><option value="in_repair">В ремонте</option><option value="ready">Готов</option><option value="issued">Выдан</option></select><input name="labor_amount" type="number" step="0.01" value="0" placeholder="Работа"><input name="parts_amount" type="number" step="0.01" value="0" placeholder="Запчасти"><textarea class="full" name="problem" placeholder="Неисправность со слов клиента"></textarea><textarea class="full" name="diagnosis" placeholder="Диагностика"></textarea><textarea class="full" name="work_done" placeholder="Выполненные работы"></textarea><textarea class="full" name="parts" placeholder="Использованные запчасти"></textarea><input name="warranty_until" type="date" placeholder="Гарантия до"><textarea class="full" name="notes" placeholder="Примечание"></textarea><div class="toolbar"><button class="primary">Принять в ремонт</button></div></form></div>
 <div class="card" style="margin-top:14px"><div class="tablewrap"><table><thead><tr><th>Дата</th><th>Клиент</th><th>Техника</th><th>Статус</th><th>Работа</th><th>Запчасти</th><th>Итого</th><th>Действия</th></tr></thead><tbody id="repairRows"></tbody></table></div></div></section>
-<section id="orders"><div class="card"><h2>Новый заказ</h2>
-<form id="orderForm" class="formgrid"><select name="client_id" id="orderClient" required><option value="">Выберите клиента</option></select><select name="status"><option value="received">Принят</option><option value="in_work">В работе</option><option value="ready">Готов</option><option value="issued">Выдан</option><option value="paid">Оплачен</option></select><select name="equipment_id" id="orderEquipment"><option value="">Оргтехника не выбрана</option></select><select name="cartridge_id" id="orderCartridge"><option value="">Картридж не выбран</option></select><input name="total_amount" type="number" step="0.01" value="0" placeholder="Сумма"><textarea class="full" name="work_description" placeholder="Выполненные работы / заявка"></textarea><textarea class="full" name="diagnosis" placeholder="Диагностика"></textarea><button class="primary">Создать заказ</button></form></div>
-<div class="card" style="margin-top:14px"><h2>История заказов</h2><div class="tablewrap"><table><thead><tr><th>№</th><th>Дата</th><th>Клиент</th><th>Направление</th><th>Объект</th><th>Статус</th><th>Сумма</th><th></th></tr></thead><tbody id="orderRows"></tbody></table></div></div></section>
-<section id="orderCard"><div class="card"><div class="toolbar"><button class="light" onclick="show('orders')">← К заказам</button><button class="primary" onclick="window.print()">🖨 Печать / сохранить PDF</button></div><h2 id="orderCardTitle">Заказ</h2><div id="orderCardBody"></div></div></section>
+<section id="orders"><div class="card"><h2>🛒 Предзаказ клиента</h2><p class="muted">Здесь фиксируются пожелания клиента заказать услугу, картридж, запчасть или другой товар. Предзаказ можно принять, подготовить и отметить как выданный.</p>
+<form id="orderForm" class="formgrid">
+<select name="client_id" id="orderClient" required><option value="">Выберите клиента</option></select>
+<select name="item_type" id="orderItemType" required><option value="service">Услуга</option><option value="cartridge">Картридж</option><option value="spare_part">Запчасть</option><option value="other">Другой товар</option></select>
+<input name="item_name" id="orderItemName" required placeholder="Что хочет заказать клиент">
+<input name="quantity" id="orderQuantity" type="number" min="0.01" step="0.01" value="1" required placeholder="Количество">
+<input name="unit_price" id="orderUnitPrice" type="number" min="0" step="0.01" value="0" required placeholder="Цена за единицу">
+<div><label for="orderStatus">Статус предзаказа</label><select name="status" id="orderStatus"><option value="received">Новый предзаказ</option><option value="in_work">В обработке</option><option value="ready">Готов к выдаче</option><option value="issued">Выдан клиенту</option><option value="paid">Оплачен</option></select></div>
+<div><label for="orderTotalPreview">Сумма предзаказа</label><input id="orderTotalPreview" type="text" value="0.00" readonly></div>
+<textarea class="full" name="work_description" id="orderDescription" placeholder="Описание услуги, модель картриджа или запчасти, совместимость и другие детали"></textarea>
+<textarea class="full" name="notes" placeholder="Комментарий клиента, желаемый срок, дополнительные пожелания"></textarea>
+<div class="toolbar full"><button class="primary" id="orderSubmitBtn">➕ Сохранить предзаказ</button></div></form></div>
+<div class="card" style="margin-top:14px"><h2>Предзаказы клиентов</h2><div class="tablewrap"><table><thead><tr><th>№</th><th>Дата</th><th>Клиент</th><th>Тип</th><th>Товар / услуга</th><th>Кол-во</th><th>Сумма</th><th>Статус</th><th></th></tr></thead><tbody id="orderRows"></tbody></table></div></div></section>
+
 </main></div>
 
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer onload="window.initServiceTurnstile&&window.initServiceTurnstile()" onerror="window.turnstileLoadFailed&&window.turnstileLoadFailed()"></script>
@@ -172,15 +181,16 @@ async function refresh(){
  const selectedContractClient=$('contractClient')?.value||'';
  const selectedEquipmentClient=$('equipmentClient')?.value||'';
  const selectedOrderClient=$('orderClient')?.value||'';
- const [c,e,k,o,ct,cm]=await Promise.all([
+ const [c,e,k,o,ct,cm,oi]=await Promise.all([
   sb.from('service_clients').select('*').order('created_at',{ascending:false}),
   sb.from('service_equipment').select('*').order('created_at',{ascending:false}),
   sb.from('service_cartridges').select('*').order('created_at',{ascending:false}),
   sb.from('service_orders').select('*').order('created_at',{ascending:false}),
   sb.from('service_client_contracts').select('*').order('contract_year',{ascending:false}).order('created_at',{ascending:false}),
-  sb.from('service_cartridge_models').select('*').order('manufacturer',{ascending:true}).order('model',{ascending:true})
+  sb.from('service_cartridge_models').select('*').order('manufacturer',{ascending:true}).order('model',{ascending:true}),
+  sb.from('service_order_items').select('*').order('created_at',{ascending:true})
  ]);
- if(c.error||e.error||k.error||o.error||ct.error||cm.error){console.error(c.error,e.error,k.error,o.error,ct.error,cm.error);return}
+ if(c.error||e.error||k.error||o.error||ct.error||cm.error||oi.error){console.error(c.error,e.error,k.error,o.error,ct.error,cm.error,oi.error);return}
  const countEl=(id,value)=>{const el=$(id);if(el)el.textContent=value};countEl('cntClients',c.data.length);loadRequests();countEl('cntEquipment',e.data.length);countEl('cntCartridges',k.data.length);countEl('cntOrders',o.data.length);
  $('clientsRows').innerHTML=c.data.map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.tax_id||'')}</td><td>${esc(x.bank_account||'')}</td><td>${esc(x.bik||'')}</td><td>${esc(x.bank||'')}</td><td>${esc(x.phone||'')}</td><td>${esc(x.email||'')}</td><td>${esc(x.responsible_person||'')}</td><td><button type="button" class="light" onclick="editClient('${x.id}')">✏️ Изменить</button> <button type="button" class="light" onclick="selectContracts('${x.id}')">📄 Договоры</button> <button type="button" class="danger" onclick="deleteClient('${x.id}')">🗑 Удалить</button></td></tr>`).join('');
 fillSelect('requestClient',c.data,'name');
@@ -191,12 +201,11 @@ const contractSel=$('contractClient');contractSel.innerHTML='<option value="">В
  $('cartridgeRows').innerHTML=k.data.map(x=>'<tr><td>'+esc(x.model||'')+'</td><td><button type="button" class="light" onclick="openCartridge(\''+x.id+'\')">Карточка</button> <button type="button" class="danger" onclick="deleteCartridge(\''+x.id+'\')">Удалить картридж</button></td></tr>').join('')||'<tr><td colspan="2" class="muted">Картриджей пока нет.</td></tr>';
  $('orderRows').innerHTML=o.data.map(x=>{
  const client=c.data.find(cl=>cl.id===x.client_id);
- const eq=e.data.find(q=>q.id===x.equipment_id);
- const cart=k.data.find(q=>q.id===x.cartridge_id);
- const type=cart?'Заправка':(eq?'Ремонт':'Сервис');
- const obj=cart?(cart.model||'—'):eq?((eq.manufacturer||'')+' '+(eq.model||'')).trim():'—';
- return '<tr><td>'+x.order_number+'</td><td>'+esc(x.order_date||'')+'</td><td>'+esc(client?.name||'—')+'</td><td>'+type+'</td><td>'+esc(obj)+'</td><td>'+esc({received:'Принят',in_work:'В работе',ready:'Готов',issued:'Выдан',paid:'Оплачен'}[x.status]||x.status)+'</td><td>'+Number(x.total_amount||0).toFixed(2)+'</td><td><button class="light" onclick="openOrder(\''+x.id+'\')">Открыть</button></td></tr>'
-}).join('')||'<tr><td colspan="8" class="muted">Заказов пока нет.</td></tr>';
+ const item=(oi.data||[]).find(it=>it.order_id===x.id);
+ const typeNames={service:'Услуга',cartridge:'Картридж',spare_part:'Запчасть',other:'Другой товар'};
+ return '<tr><td>'+esc(String(x.order_number))+'</td><td>'+esc(x.order_date||'')+'</td><td>'+esc(client?.name||'—')+'</td><td>'+esc(typeNames[item?.item_type]||'Предзаказ')+'</td><td>'+esc(item?.name||x.work_description||'—')+'</td><td>'+Number(item?.quantity||1)+'</td><td>'+Number(x.total_amount||0).toFixed(2)+'</td><td>'+esc({received:'Новый',in_work:'В обработке',ready:'Готов к выдаче',issued:'Выдан',paid:'Оплачен'}[x.status]||x.status)+'</td><td><button type="button" class="light" onclick="openOrder('\\''+x.id+'\\')">Открыть</button></td></tr>'
+}).join('')||'<tr><td colspan="9" class="muted">Предзаказов пока нет.</td></tr>';
+
 renderContracts(ct.data);
 
  fillSelect('equipmentClient',c.data,'name'); if(selectedEquipmentClient && c.data.some(x=>x.id===selectedEquipmentClient)) $('equipmentClient').value=selectedEquipmentClient;
@@ -367,11 +376,29 @@ window.openOrder=async id=>{
   const cart=x.cartridge_id?(await sb.from('service_cartridges').select('model,barcode').eq('id',x.cartridge_id).single()).data:null;
   const type=cart?'Заправка картриджа':eq?'Ремонт техники':'Сервис';
   const obj=cart?(cart.model||'—'):eq?((eq.manufacturer||'')+' '+(eq.model||'')).trim():'—';
-  $('orderCardTitle').textContent='Заказ № '+x.order_number;
+  $('orderCardTitle').textContent='Предзаказ № '+x.order_number;
   $('orderCardBody').innerHTML=`<div class="print-only"><h3>ЗАКАЗ НА СЕРВИСНОЕ ОБСЛУЖИВАНИЕ</h3><p>Документ № ${esc(x.order_number||'—')} от ${esc(x.order_date||'—')}</p></div><div class="grid" style="grid-template-columns:repeat(2,1fr)"><div><b>Клиент</b><p>${esc(client?.name||'—')}</p><p class="muted">${esc(client?.client_type==='individual'?'Частное лицо':'Организация')}</p><p>Телефон: ${esc(client?.phone||'—')}</p><p>Email: ${esc(client?.email||'—')}</p></div><div><b>Направление</b><p>${type}</p><p class="muted">Дата: ${esc(x.order_date||'—')}</p></div><div><b>Объект</b><p>${esc(obj)}</p><p class="muted">${esc(cart?.barcode||eq?.serial_number||eq?.inventory_number||'')}</p></div><div><b>Статус</b><select onchange="changeOrderStatus('${x.id}',this.value)"><option value="received" ${x.status==='received'?'selected':''}>Принят</option><option value="in_work" ${x.status==='in_work'?'selected':''}>В работе</option><option value="ready" ${x.status==='ready'?'selected':''}>Готов</option><option value="issued" ${x.status==='issued'?'selected':''}>Выдан</option><option value="paid" ${x.status==='paid'?'selected':''}>Оплачен</option></select><p class="print-only">Статус: ${esc(({received:'Принят',in_work:'В работе',ready:'Готов',issued:'Выдан',paid:'Оплачен'})[x.status]||x.status)}</p><p class="muted">Сумма: ${Number(x.total_amount||0).toFixed(2)}</p><h3>Итого к оплате: ${Number(x.total_amount||0).toFixed(2)}</h3></div></div><hr><h3>Работа</h3><p>${esc(x.work_description||'—')}</p><h3>Диагностика</h3><p>${esc(x.diagnosis||'—')}</p><h3>Примечание</h3><p>${esc(x.notes||'—')}</p><div class="signature-row print-only"><div>Заказчик: ____________________</div><div>Исполнитель: ____________________</div></div>`;
   show('orderCard');
 };
-$('orderForm').onsubmit=async ev=>{ev.preventDefault();const d=formData(ev.target);d.total_amount=Number(d.total_amount||0);for(const k of ['equipment_id','cartridge_id'])if(!d[k])d[k]=null;const {error}=await sb.from('service_orders').insert(d);if(error)alert(error.message);else{ev.target.reset();refresh()}}
+$('orderQuantity').addEventListener('input',updateOrderTotal);$('orderUnitPrice').addEventListener('input',updateOrderTotal);
+function updateOrderTotal(){const q=Number($('orderQuantity').value||0),p=Number($('orderUnitPrice').value||0);$('orderTotalPreview').value=(q*p).toFixed(2)}
+$('orderForm').onsubmit=async ev=>{
+ ev.preventDefault();
+ const d=formData(ev.target);
+ const qty=Number(d.quantity||0),price=Number(d.unit_price||0);
+ if(!d.client_id){alert('Выберите клиента.');return}
+ if(!d.item_name?.trim()){alert('Укажите товар или услугу.');return}
+ if(!(qty>0)||price<0){alert('Проверьте количество и цену.');return}
+ const total=Number((qty*price).toFixed(2));
+ const orderNumber=Date.now();
+ const orderPayload={client_id:d.client_id,order_number:orderNumber,order_date:new Date().toISOString().slice(0,10),status:d.status||'received',work_description:d.item_name.trim(),total_amount:total,notes:d.notes||null};
+ const {data:order,error}=await sb.from('service_orders').insert(orderPayload).select('id').single();
+ if(error){alert('Не удалось сохранить предзаказ: '+error.message);return}
+ const itemPayload={order_id:order.id,item_type:d.item_type,name:d.item_name.trim(),quantity:qty,unit_price:price,notes:d.work_description||null};
+ const {error:itemError}=await sb.from('service_order_items').insert(itemPayload);
+ if(itemError){await sb.from('service_orders').delete().eq('id',order.id);alert('Не удалось сохранить позицию предзаказа: '+itemError.message+' Запись заказа отменена, чтобы не потерять данные.');return}
+ ev.target.reset();$('orderQuantity').value='1';$('orderUnitPrice').value='0';$('orderStatus').value='received';updateOrderTotal();await refresh();alert('Предзаказ № '+orderNumber+' сохранён.')
+};
 sb.auth.onAuthStateChange((event,session)=>{if(session){$('auth').classList.add('hidden');$('app').classList.remove('hidden');refresh()}else{$('auth').classList.remove('hidden');$('app').classList.add('hidden')}});
 const {data:{session}}=await sb.auth.getSession();if(session){$('auth').classList.add('hidden');$('app').classList.remove('hidden');refresh()}
 })();
