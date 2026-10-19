@@ -153,6 +153,7 @@ window.changeRefillStatus=async function(id,status){const p={status};if(status==
 window.deleteRefillJob=async function(id){if(!confirm('Удалить запись?'))return;const {error}=await sb.from('service_cartridge_jobs').delete().eq('id',id);if(error)alert(error.message);else loadRefillJournal()};
 
 const $=id=>document.getElementById(id);
+function esc(value){return String(value??'').replace(/[&<>"']/g,function(ch){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])})}
 window.show=window.show||function(id){document.querySelectorAll('section').forEach(s=>s.classList.add('hidden'));const el=$(id);if(el)el.classList.remove('hidden');if(id==='cartridgeJobs')loadRefillJournal()};
 async function loadRepairJournal(){
  const {data,error}=await sb.from('service_repair_jobs').select('id,received_at,status,labor_amount,parts_amount,total_amount,issued_at,service_clients(name,client_type),service_equipment(manufacturer,model,serial_number)').order('created_at',{ascending:false});
