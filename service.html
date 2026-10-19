@@ -390,10 +390,10 @@ $('orderForm').onsubmit=async ev=>{
  if(!d.item_name?.trim()){alert('Укажите товар или услугу.');return}
  if(!(qty>0)||price<0){alert('Проверьте количество и цену.');return}
  const total=Number((qty*price).toFixed(2));
- const orderNumber=Date.now();
- const orderPayload={client_id:d.client_id,order_number:orderNumber,order_date:new Date().toISOString().slice(0,10),status:d.status||'received',work_description:d.item_name.trim(),total_amount:total,notes:d.notes||null};
- const {data:order,error}=await sb.from('service_orders').insert(orderPayload).select('id').single();
+ const orderPayload={client_id:d.client_id,order_date:new Date().toISOString().slice(0,10),status:d.status||'received',work_description:d.item_name.trim(),total_amount:total,notes:d.notes||null};
+ const {data:order,error}=await sb.from('service_orders').insert(orderPayload).select('id,order_number').single();
  if(error){alert('Не удалось сохранить предзаказ: '+error.message);return}
+ const orderNumber=order.order_number;
  const itemPayload={order_id:order.id,item_type:d.item_type,name:d.item_name.trim(),quantity:qty,unit_price:price,notes:d.work_description||null};
  const {error:itemError}=await sb.from('service_order_items').insert(itemPayload);
  if(itemError){await sb.from('service_orders').delete().eq('id',order.id);alert('Не удалось сохранить позицию предзаказа: '+itemError.message+' Запись заказа отменена, чтобы не потерять данные.');return}
