@@ -412,4 +412,30 @@ sb.auth.onAuthStateChange((event,session)=>{if(session){$('auth').classList.add(
 const {data:{session}}=await sb.auth.getSession();if(session){$('auth').classList.add('hidden');$('app').classList.remove('hidden');show('home');refresh()}
 })();
 </script>
+<script>
+/* Надёжная навигация: резервный обработчик, независимый от основного скрипта журнала. */
+document.addEventListener('click', function(event) {
+  const button = event.target.closest('#app button[onclick]');
+  if (!button) return;
+  const match = (button.getAttribute('onclick') || '').match(/show\(['"]([^'"]+)['"]\)/);
+  if (!match) return;
+  const targetId = match[1];
+  const sections = document.querySelectorAll('#app main section');
+  let found = false;
+  sections.forEach(function(section) {
+    const active = section.id === targetId;
+    if (active) found = true;
+    section.classList.toggle('active', active);
+    section.classList.toggle('hidden', !active);
+    section.style.display = active ? 'block' : 'none';
+  });
+  if (found) {
+    const target = document.getElementById(targetId);
+    target.classList.remove('hidden');
+    target.style.display = 'block';
+  } else {
+    console.warn('Раздел журнала не найден:', targetId);
+  }
+});
+</script>
 </body></html>
