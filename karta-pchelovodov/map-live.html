@@ -453,6 +453,40 @@ main{max-width:1800px;margin:8px auto 24px;padding:0 8px}.workspace{grid-templat
 
 
 
+
+/* Mobile pass 4: clearer directory cards and profile readability. */
+@media(max-width:680px){
+  .workspace.mobile-list-mode .filters-panel{padding:12px!important}
+  .workspace.mobile-list-mode .filters-mobile-head{position:sticky;top:58px;z-index:20;background:#fffdf8;padding:7px 0;border-bottom:1px solid #e5dfd2}
+  .workspace.mobile-list-mode .filters-panel #resultsList{display:grid!important;gap:9px!important;padding-top:10px}
+  .workspace.mobile-list-mode .filters-panel .result-item{
+    display:block!important;width:100%!important;box-sizing:border-box!important;
+    padding:14px!important;border:1px solid #e2ddce!important;border-radius:14px!important;
+    background:#fffef9!important;box-shadow:0 2px 7px rgba(40,50,32,.05)
+  }
+  .workspace.mobile-list-mode .filters-panel .result-item.selected{
+    border-color:#2e7047!important;background:#edf4e6!important;box-shadow:inset 4px 0 #2e7047!important
+  }
+  .workspace.mobile-list-mode .filters-panel .result-name{font-size:16px!important;line-height:1.35!important}
+  .workspace.mobile-list-mode .filters-panel .result-meta,
+  .workspace.mobile-list-mode .filters-panel .result-goods{font-size:13px!important;line-height:1.5!important;overflow-wrap:anywhere}
+  #mobileProfileSlot .right-profile{padding:14px!important}
+  #mobileProfileSlot .feature-title{font-size:clamp(20px,5.5vw,26px)!important;line-height:1.2!important}
+  #mobileProfileSlot .feature-meta{font-size:14px!important;line-height:1.5!important}
+  #mobileProfileSlot .product-tags{gap:6px!important}
+  #mobileProfileSlot .tag{font-size:13px!important;padding:6px 9px!important}
+  #mobileProfileSlot .subheading{font-size:15px!important;margin-top:13px!important}
+  #mobileProfileSlot .right-products .product-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+  #mobileProfileSlot .right-products .product-tile{padding:9px 6px!important;font-size:12px!important;overflow-wrap:anywhere}
+  #mobileProfileSlot .right-products .product-tile img{height:88px!important;object-fit:cover}
+  #mobileProfileSlot .contact-lines{font-size:14px!important;line-height:1.5!important;gap:8px!important}
+  #mobileProfileSlot .beekeeper-contact{padding:11px!important}
+}
+@media(max-width:390px){
+  .workspace.mobile-list-mode .filters-panel .result-item{padding:12px!important}
+  #mobileProfileSlot .right-products .product-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  #mobileProfileSlot .right-products .product-tile img{height:74px!important}
+}
 /* Mobile pass 3: landscape phones and compact-height screens. */
 @media(max-width:680px) and (orientation:landscape){
   .cross-project-banner{margin-top:4px!important;margin-bottom:4px!important;padding-top:5px!important;padding-bottom:5px!important}
