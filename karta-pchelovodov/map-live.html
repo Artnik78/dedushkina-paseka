@@ -452,6 +452,23 @@ main{max-width:1800px;margin:8px auto 24px;padding:0 8px}.workspace{grid-templat
 #map-section #featured .feature-photo{max-height:180px}
 
 
+
+/* Mobile pass 3: landscape phones and compact-height screens. */
+@media(max-width:680px) and (orientation:landscape){
+  .cross-project-banner{margin-top:4px!important;margin-bottom:4px!important;padding-top:5px!important;padding-bottom:5px!important}
+  .hero.hero-image,.hero-art{max-height:86px!important}
+  nav{padding-top:5px!important;padding-bottom:5px!important}
+  #map{height:60vh!important;min-height:220px!important;max-height:360px!important}
+  .map-head{gap:5px!important;padding-bottom:6px!important}
+  .atlas-heading h2{font-size:18px!important}
+  .atlas-subtitle{font-size:10px!important}
+  .map-panel>.map-note{margin-top:6px!important}
+  #mobileProfileSlot .feature-photo{min-height:100px!important}
+}
+@media(max-height:520px) and (max-width:680px){
+  #addModal:not([hidden]){padding-top:4px!important;padding-bottom:6px!important}
+  #addModal #apiaryMap{height:180px!important}
+}
 /* Mobile pass 2: touch targets, readable form controls, and safe-area spacing. */
 @media(max-width:680px){
   nav a,nav button{min-height:40px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important}
