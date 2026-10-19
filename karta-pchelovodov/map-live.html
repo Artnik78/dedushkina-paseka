@@ -563,6 +563,24 @@ main{max-width:1800px;margin:8px auto 24px;padding:0 8px}.workspace{grid-templat
   .map-mode button{padding:7px 8px!important}
   #mobileProfileSlot .beekeeper-contact-actions{grid-template-columns:minmax(0,1fr)}
 }
+
+/* Mobile pass 5: safer sticky navigation, readable map controls, and contact actions. */
+@media(max-width:680px){
+ nav{padding-top:max(7px,env(safe-area-inset-top));scroll-padding-inline:10px;-webkit-overflow-scrolling:touch}
+ nav a,nav button{min-height:40px}
+ .leaflet-control-zoom a{width:38px!important;height:38px!important;line-height:38px!important;font-size:22px!important}
+ .leaflet-control-attribution{max-width:calc(100% - 64px);white-space:normal;line-height:1.25}
+ .beekeeper-contact-actions{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .contact-action{min-height:42px;overflow-wrap:anywhere;word-break:break-word}
+ #mobileProfileSlot .feature-title{font-size:1.2rem;overflow-wrap:anywhere}
+ #mobileProfileSlot .feature-meta,#mobileProfileSlot .feature-description{overflow-wrap:anywhere}
+}
+@media(max-width:360px){
+ .beekeeper-contact-actions{grid-template-columns:minmax(0,1fr)}
+ .map-mode{max-width:100%}
+ .map-mode button{padding:7px 8px}
+}
+
 </style></head><body>
 <a class="cross-project-banner" href="../journal/" aria-label="Перейти в цифровой журнал пасечника"><span class="cross-icon" aria-hidden="true">🐝 🍯</span><span class="cross-copy"><span class="cross-title">Цифровой журнал пасечника</span><span class="cross-subtitle">Ульи · Осмотры · Обработки · Мёд · Отчёты</span></span><span class="cross-cta">Перейти в журнал <span aria-hidden="true">➜</span></span></a>
 <header class="hero hero-image"><img class="hero-art" src="https://raw.githubusercontent.com/Artnik78/dedushkina-paseka/fix/beekeeper-map-districts/karta-pchelovodov/header-pchelovody.png" alt="Карта белорусских пчеловодов: пчела на цветах, мёд и белорусский пейзаж"></header>
