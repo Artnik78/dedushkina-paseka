@@ -451,6 +451,32 @@ main{max-width:1800px;margin:8px auto 24px;padding:0 8px}.workspace{grid-templat
 #map-section #featured.right-panel{display:flex!important;flex-direction:column;width:100%;margin:0 0 12px;padding:14px;gap:10px;grid-column:auto;order:0}
 #map-section #featured .feature-photo{max-height:180px}
 
+
+/* Mobile pass 2: touch targets, readable form controls, and safe-area spacing. */
+@media(max-width:680px){
+  nav a,nav button{min-height:40px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important}
+  .map-mode button,.directory-actions button,.mobile-view-switch button,
+  .mobile-filter-toggle,.directory-collapse-btn{min-height:42px!important}
+  input,select,textarea{font-size:16px!important}
+  button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{
+    outline:3px solid #b17a14!important;outline-offset:2px!important
+  }
+  #addModal:not([hidden]){
+    padding-top:max(8px,env(safe-area-inset-top))!important;
+    padding-right:max(8px,env(safe-area-inset-right))!important;
+    padding-bottom:max(12px,env(safe-area-inset-bottom))!important;
+    padding-left:max(8px,env(safe-area-inset-left))!important
+  }
+  #addModal #add{margin-bottom:12px!important}
+  #addModal #apiaryMap{width:100%!important;max-width:100%!important;touch-action:pan-x pan-y}
+  .contact-lines div,.contact-lines a{min-width:0;overflow-wrap:anywhere;word-break:break-word}
+}
+@media(max-width:390px){
+  nav{gap:5px!important;padding-left:7px!important;padding-right:7px!important}
+  nav a{padding:8px 9px!important;font-size:.76rem!important}
+  .map-mode button{font-size:12px!important}
+  #addModal #add{padding:14px 10px!important}
+}
 /* Mobile stability pass 2026-10-19: layout-only overrides; map and handlers unchanged. */
 @media(max-width:680px){
   html,body{width:100%;max-width:100%;overflow-x:hidden}
