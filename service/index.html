@@ -52,7 +52,7 @@ th,td{padding:11px;border-bottom:1px solid #e7edf2;text-align:left;white-space:n
 <div class="card"><h3>💻 ПЭВМ</h3><p class="muted">Компьютеры, ноутбуки и мониторы клиентов.</p><button class="primary" onclick="show('equipment')">Открыть ПЭВМ</button></div>
 </div></div></section>
 
-<section id="home" class="active" style="display:block!important">
+<section id="home" class="active">
 <div class="card" style="margin-bottom:14px"><h2>Сервисный центр</h2><p class="muted">Все обращения клиента проходят единый путь: заявка → работа → готовность → выдача.</p>
 <div class="toolbar"><button class="primary" onclick="show('requests')">📥 Новая заявка</button><button class="light" onclick="show('cartridgeJobs')">🖨 Заправки</button><button class="light" onclick="show('repairJobs')">🔧 Ремонты</button></div></div>
 <div class="grid">
@@ -185,7 +185,7 @@ const $=id=>document.getElementById(id);
 function esc(value){return String(value??'').replace(/[&<>"']/g,function(ch){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])})}
 function formatDate(value){if(!value)return '';const s=String(value);const m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);if(!m){const d=new Date(s);if(Number.isNaN(d.getTime()))return s;return String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+d.getFullYear()}return m[3]+'.'+m[2]+'.'+m[1]}
 function fillSelect(id,rows,label,placeholder='Выберите'){const el=document.getElementById(id);if(!el)return;const previous=el.value;const textFor=typeof label==='function'?label:(item=>item?.[label]??'');el.innerHTML='<option value="">'+esc(placeholder)+'</option>'+(rows||[]).map(item=>'<option value="'+esc(item.id)+'">'+esc(textFor(item)||'Без названия')+'</option>').join('');if(previous&&(rows||[]).some(item=>String(item.id)===String(previous)))el.value=previous;}
-window.show=function(id){const sections=document.querySelectorAll('#app main section');let found=false;sections.forEach(s=>{const active=s.id===id;found=found||active;s.classList.toggle('active',active);s.classList.toggle('hidden',!active);s.style.display=active?'block':'none'});const el=document.getElementById(id);if(el&&found){el.classList.remove('hidden');el.style.display='block'}if(id==='cartridgeJobs'&&typeof loadRefillJournal==='function')loadRefillJournal();if(!found)console.warn('Раздел не найден:',id)};window.showSection=window.show;function show(id){window.show(id)};
+window.show=function(id){const sections=document.querySelectorAll('#app main section');let found=false;sections.forEach(s=>{const active=s.id===id;found=found||active;s.classList.toggle('active',active);s.classList.remove('hidden');s.style.setProperty('display',active?'block':'none','important');});if(found){const el=document.getElementById(id);el.classList.add('active');el.classList.remove('hidden');el.style.setProperty('display','block','important');}if(id==='cartridgeJobs'&&typeof loadRefillJournal==='function')loadRefillJournal();if(!found)console.warn('Раздел не найден:',id)};window.showSection=window.show;function show(id){window.show(id)};
 document.addEventListener('DOMContentLoaded',function(){
  const app=document.getElementById('app');
  if(app&&app.classList.contains('hidden')===false){window.show('home');}
