@@ -630,4 +630,17 @@ if(mobileFilterToggle&&mobileFilterPanel){mobileFilterToggle.addEventListener('c
 initApiaryMap();load();
 window.addEventListener('load',()=>setTimeout(()=>map.invalidateSize({pan:false}),180));window.addEventListener('resize',()=>map.invalidateSize({pan:false}));
 </script>
+<script>
+/* Anonymous page-view counter for the protected admin analytics panel. */
+(function(){
+  try {
+    var path=location.pathname;
+    var page=path.endsWith('/community.html')?'community':path.endsWith('/my-apiary.html')?'my-apiary':path.endsWith('/journal/')||path.endsWith('/journal/index.html')?'journal':'map';
+    fetch('https://uycjzsttxhtwochgghrs.supabase.co/rest/v1/beekeeper_map_visits',{
+      method:'POST',headers:{'apikey':'sb_publishable_ySg6j14PYR-uhz_Od9WeCQ_IP0WTY7t','Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify({page:page}),keepalive:true
+    }).catch(function(){});
+  } catch(_){}
+})();
+</script>
 </body></html>
