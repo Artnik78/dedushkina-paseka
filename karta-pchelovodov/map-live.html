@@ -581,6 +581,20 @@ main{max-width:1800px;margin:8px auto 24px;padding:0 8px}.workspace{grid-templat
  .map-mode button{padding:7px 8px}
 }
 
+
+/* Mobile pass 6: keyboard focus visibility, reduced motion, and safe-area spacing. */
+:where(a,button,input,select,textarea,[tabindex]):focus-visible{outline:3px solid #397b4d;outline-offset:3px}
+@media(max-width:680px){
+ #addModal:not([hidden]){padding-bottom:max(12px,env(safe-area-inset-bottom))!important}
+ #addModal #add{padding-bottom:max(16px,env(safe-area-inset-bottom))!important}
+ #map .leaflet-control-container button:focus-visible{outline:3px solid #397b4d!important;outline-offset:2px}
+ .results-list .result-card,.results-list .apiary-card{scroll-margin-top:76px}
+}
+@media(prefers-reduced-motion:reduce){
+ html{scroll-behavior:auto!important}
+ *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+
 </style></head><body>
 <a class="cross-project-banner" href="../journal/" aria-label="Перейти в цифровой журнал пасечника"><span class="cross-icon" aria-hidden="true">🐝 🍯</span><span class="cross-copy"><span class="cross-title">Цифровой журнал пасечника</span><span class="cross-subtitle">Ульи · Осмотры · Обработки · Мёд · Отчёты</span></span><span class="cross-cta">Перейти в журнал <span aria-hidden="true">➜</span></span></a>
 <header class="hero hero-image"><img class="hero-art" src="https://raw.githubusercontent.com/Artnik78/dedushkina-paseka/fix/beekeeper-map-districts/karta-pchelovodov/header-pchelovody.png" alt="Карта белорусских пчеловодов: пчела на цветах, мёд и белорусский пейзаж"></header>
