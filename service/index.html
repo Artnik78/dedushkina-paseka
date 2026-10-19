@@ -413,12 +413,15 @@ const {data:{session}}=await sb.auth.getSession();if(session){$('auth').classLis
 })();
 </script>
 <script>
-/* Надёжная навигация: резервный обработчик, независимый от основного скрипта журнала. */
+/* Обработчик навигации в capture-фазе, чтобы не зависеть от inline onclick. */
 document.addEventListener('click', function(event) {
-  const button = event.target.closest('#app button[onclick]');
+  const button = event.target.closest('#app nav button, #app main button');
   if (!button) return;
-  const match = (button.getAttribute('onclick') || '').match(/show\(['"]([^'"]+)['"]\)/);
+  const source = (button.getAttribute('onclick') || '') + ' ' + (button.getAttribute('data-section') || '');
+  const match = source.match(/show\(['"]([^'"]+)['"]\)/);
   if (!match) return;
+  event.preventDefault();
+  event.stopImmediatePropagation();
   const targetId = match[1];
   const sections = document.querySelectorAll('#app main section');
   let found = false;
@@ -426,16 +429,18 @@ document.addEventListener('click', function(event) {
     const active = section.id === targetId;
     if (active) found = true;
     section.classList.toggle('active', active);
-    section.classList.toggle('hidden', !active);
-    section.style.display = active ? 'block' : 'none';
+    section.classList.remove('hidden');
+    section.style.setProperty('display', active ? 'block' : 'none', 'important');
   });
   if (found) {
     const target = document.getElementById(targetId);
+    target.classList.add('active');
     target.classList.remove('hidden');
-    target.style.display = 'block';
+    target.style.setProperty('display', 'block', 'important');
+    if (targetId === 'cartridgeJobs' && typeof window.loadRefillJournal === 'function') window.loadRefillJournal();
   } else {
-    console.warn('Раздел журнала не найден:', targetId);
+    console.error('Раздел журнала не найден:', targetId);
   }
-});
+}, true);
 </script>
 </body></html>
