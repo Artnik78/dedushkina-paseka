@@ -193,6 +193,19 @@ async function loadRepairJournal(){
  $('repairRows').innerHTML=(data||[]).map(x=>'<tr><td>'+esc(formatDate(x.received_at))+'</td><td>'+esc(x.service_clients?.name||'—')+'<br><span class="muted">'+esc(x.service_clients?.client_type==='individual'?'Частное лицо':'Организация')+'</span></td><td>'+esc(((x.service_equipment?.manufacturer||'')+' '+(x.service_equipment?.model||'')).trim()||'—')+'</td><td>'+esc(names[x.status]||x.status)+'</td><td>'+Number(x.labor_amount||0).toFixed(2)+'</td><td>'+Number(x.parts_amount||0).toFixed(2)+'</td><td>'+Number(x.total_amount||0).toFixed(2)+'</td><td><button class="light" onclick="changeRepairStatus(\''+x.id+'\',\'diagnostics\')">Диагностика</button> <button class="light" onclick="changeRepairStatus(\''+x.id+'\',\'in_repair\')">В ремонт</button> <button class="light" onclick="changeRepairStatus(\''+x.id+'\',\'ready\')">Готов</button> <button class="light" onclick="changeRepairStatus(\''+x.id+'\',\'issued\')">Выдан</button></td></tr>').join('')||'<tr><td colspan="8" class="muted">Записей нет.</td></tr>';
 }
 window.changeRepairStatus=async function(id,status){const p={status};if(status==='issued')p.issued_at=new Date().toISOString().slice(0,10);const {error}=await sb.from('service_repair_jobs').update(p).eq('id',id);if(error)alert(error.message);else loadRepairJournal()};
+async function loadRequestAssets(){
+ const clientId=$('requestClient')?.value||'';
+ const cartridges=(window._allRequestCartridges||[]).filter(x=>!clientId||x.client_id===clientId);
+ const equipment=(window._allRequestEquipment||[]).filter(x=>!clientId||x.client_id===clientId);
+ fillSelect('requestCartridge',cartridges,x=>((x.model||'Картридж')+(x.barcode?' ('+x.barcode+')':'')),'Выберите картридж');
+ fillSelect('requestEquipment',equipment,x=>(((x.manufacturer||'')+' '+(x.model||'')).trim()+(x.barcode?' ('+x.barcode+')':'')),'Выберите технику');
+ const type=$('requestType')?.value||'refill';
+ const cart=$('requestCartridge'),eq=$('requestEquipment');
+ if(cart)cart.disabled=type!=='refill';
+ if(eq)eq.disabled=type!=='repair';
+}
+$('requestClient')?.addEventListener('change',loadRequestAssets);
+$('requestType')?.addEventListener('change',loadRequestAssets);
 async function loadRequests(){
  const {data,error}=await sb.from('service_requests').select('id,client_id,cartridge_id,equipment_id,created_at,request_type,status,cartridge_name,equipment_name,barcode,service_clients(name,client_type)').order('created_at',{ascending:false});
  if(error){console.error(error);return}
