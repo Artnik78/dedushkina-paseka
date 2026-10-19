@@ -203,9 +203,8 @@ const contractSel=$('contractClient');contractSel.innerHTML='<option value="">В
  const client=c.data.find(cl=>cl.id===x.client_id);
  const item=(oi.data||[]).find(it=>it.order_id===x.id);
  const typeNames={service:'Услуга',cartridge:'Картридж',spare_part:'Запчасть',other:'Другой товар'};
- return '<tr><td>'+esc(String(x.order_number))+'</td><td>'+esc(x.order_date||'')+'</td><td>'+esc(client?.name||'—')+'</td><td>'+esc(typeNames[item?.item_type]||'Предзаказ')+'</td><td>'+esc(item?.name||x.work_description||'—')+'</td><td>'+Number(item?.quantity||1)+'</td><td>'+Number(x.total_amount||0).toFixed(2)+'</td><td>'+esc({received:'Новый',in_work:'В обработке',ready:'Готов к выдаче',issued:'Выдан',paid:'Оплачен'}[x.status]||x.status)+'</td><td><button type="button" class="light" onclick="openOrder('\\''+x.id+'\\')">Открыть</button></td></tr>'
-}).join('')||'<tr><td colspan="9" class="muted">Предзаказов пока нет.</td></tr>';
-
+ return `<tr><td>${esc(String(x.order_number))}</td><td>${esc(x.order_date||'')}</td><td>${esc(client?.name||'—')}</td><td>${esc(typeNames[item?.item_type]||'Предзаказ')}</td><td>${esc(item?.name||x.work_description||'—')}</td><td>${Number(item?.quantity||1)}</td><td>${Number(x.total_amount||0).toFixed(2)}</td><td>${esc(({received:'Новый',in_work:'В обработке',ready:'Готов к выдаче',issued:'Выдан',paid:'Оплачен'})[x.status]||x.status)}</td><td><button type="button" class="light" onclick="openOrder('${x.id}')">Открыть</button></td></tr>`;
+ }).join('')||'<tr><td colspan="9" class="muted">Предзаказов пока нет.</td></tr>';
 renderContracts(ct.data,c.data);
 
  fillSelect('equipmentClient',c.data,'name'); if(selectedEquipmentClient && c.data.some(x=>x.id===selectedEquipmentClient)) $('equipmentClient').value=selectedEquipmentClient;
