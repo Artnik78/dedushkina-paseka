@@ -414,6 +414,17 @@ $('requestForm').onsubmit=async ev=>{
 };
 
 
+window.deleteCartridge=async function(id){
+ if(!confirm('Удалить этот картридж из справочника? Если он уже используется в заявках, заправках или заказах, база может запретить удаление.'))return;
+ const {error}=await sb.from('service_cartridges').delete().eq('id',id);
+ if(error){
+  const msg=error.message||'Неизвестная ошибка';
+  alert('Не удалось удалить картридж: '+msg+(msg.toLowerCase().includes('foreign key')||msg.toLowerCase().includes('violates')?'\\n\\nКартридж уже связан с заявкой, заправкой или заказом. Сначала нужно обработать связанные записи.':''));
+  return;
+ }
+ await refresh();
+ alert('Картридж удалён из справочника.');
+};
 $('cartridgeForm').addEventListener('submit',async function(ev){
  ev.preventDefault();const d=formData(ev.target);
  if(!d.client_id){alert('Выберите клиента для картриджа.');return}
