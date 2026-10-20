@@ -290,13 +290,22 @@ $('masterForm').addEventListener('submit',async function(e){e.preventDefault();c
 function esc(value){return String(value??'').replace(/[&<>"']/g,function(ch){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])})}
 function formatDate(value){if(!value)return '';const s=String(value);const m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);if(!m){const d=new Date(s);if(Number.isNaN(d.getTime()))return s;return String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+d.getFullYear()}return m[3]+'.'+m[2]+'.'+m[1]}
 function fillSelect(id,rows,label,placeholder='Выберите'){const el=document.getElementById(id);if(!el)return;const previous=el.value;const textFor=typeof label==='function'?label:(item=>item?.[label]??'');el.innerHTML='<option value="">'+esc(placeholder)+'</option>'+(rows||[]).map(item=>'<option value="'+esc(item.id)+'">'+esc(textFor(item)||'Без названия')+'</option>').join('');if(previous&&(rows||[]).some(item=>String(item.id)===String(previous)))el.value=previous;}
-window._sectionHistory=[];window._currentSection=null;window.goBack=function(){const previous=window._sectionHistory.pop()||'home';window.show(previous,true)};window.show=function(id,fromBack=false){const el=$(id);if(!el){console.warn('Раздел не найден:',id);return}if(!fromBack&&window._currentSection&&window._currentSection!==id)window._sectionHistory.push(window._currentSection);window._currentSection=id;document.querySelectorAll('#app main section').forEach(s=>{const active=s.id===id;s.classList.toggle('active',active);s.classList.toggle('hidden',!active)});if(id!=='home'&&!el.querySelector(':scope > .section-backbar')){const bar=document.createElement('div');bar.className='section-backbar';bar.style.cssText='margin:0 0 12px;';bar.innerHTML='<button type="button" class="light" onclick="goBack()">← Назад</button>';el.prepend(bar)}if(el&&id==='cartridgeJobs'&&typeof loadRefillJournal==='function')loadRefillJournal()};function show(id){return window.show(id)};
+window._sectionHistory=[];window._currentSection=null;window.goBack=function(){const previous=window._sectionHistory.pop()||'home';window.show(previous,true)};window.show=function(id,fromBack=false){const el=$(id);if(!el){console.warn('Раздел не найден:',id);return}if(!fromBack&&window._currentSection&&window._currentSection!==id)window._sectionHistory.push(window._currentSection);window._currentSection=id;document.querySelectorAll('#app main section').forEach(s=>{const active=s.id===id;s.classList.toggle('active',active);s.classList.toggle('hidden',!active)});if(id!=='home'&&!el.querySelector(':scope > .section-backbar')){const bar=document.createElement('div');bar.className='section-backbar';bar.style.cssText='margin:0 0 12px;';bar.innerHTML='<button type="button" class="light" onclick="goBack()">← Назад</button>';el.prepend(bar)}if(el&&id==='cartridgeJobs'&&typeof loadRefillJournal==='function')loadRefillJournal();if(el&&id==='repairJobs'&&typeof loadRepairJournal==='function')loadRepairJournal()};function show(id){return window.show(id)};
 async function loadRepairJournal(){
  const {data,error}=await sb.from('service_repair_jobs').select('id,received_at,status,labor_amount,parts_amount,total_amount,issued_at,service_clients(name,client_type),service_equipment(manufacturer,model,serial_number)').order('created_at',{ascending:false});
  if(error){alert(error.message);return}
  const names={received:'Принят',diagnostics:'Диагностика',in_repair:'В ремонте',ready:'Готов',issued:'Выдан'};
  $('repairRows').innerHTML=(data||[]).map(x=>'<tr><td>'+esc(formatDate(x.received_at))+'</td><td>'+esc(x.service_clients?.name||'—')+'<br><span class="muted">'+esc(x.service_clients?.client_type==='individual'?'Частное лицо':'Организация')+'</span></td><td>'+esc(((x.service_equipment?.manufacturer||'')+' '+(x.service_equipment?.model||'')).trim()||'—')+'</td><td>'+esc(names[x.status]||x.status)+'</td><td>'+Number(x.labor_amount||0).toFixed(2)+'</td><td>'+Number(x.parts_amount||0).toFixed(2)+'</td><td>'+Number(x.total_amount||0).toFixed(2)+'</td><td><button class="light" onclick="changeRepairStatus(\''+x.id+'\',\'diagnostics\')">Диагностика</button> <button class="light" onclick="changeRepairStatus(\''+x.id+'\',\'in_repair\')">В ремонт</button> <button class="light" onclick="changeRepairStatus(\''+x.id+'\',\'ready\')">Готов</button> <button class="light" onclick="changeRepairStatus(\''+x.id+'\',\'issued\')">Выдан</button></td></tr>').join('')||'<tr><td colspan="8" class="muted">Записей нет.</td></tr>';
 }
+$('repairClient').addEventListener('change',async()=>{const {data,error}=await sb.from('service_equipment').select('*').order('created_at',{ascending:false});if(error){alert(error.message);return}const clientId=$('repairClient').value;fillSelect('repairEquipment',(data||[]).filter(x=>!clientId||x.client_id===clientId),x=>[((x.manufacturer||'')+' '+(x.model||'')).trim(),x.barcode?'ШК: '+x.barcode:''].filter(Boolean).join(' — '),'Техника не выбрана')});
+$('repairForm').addEventListener('submit',async function(ev){
+ ev.preventDefault();const d=formData(ev.target);if(!d.client_id){alert('Выберите клиента.');return}
+ const labor=Number(d.labor_amount||0),parts=Number(d.parts_amount||0);if(!Number.isFinite(labor)||!Number.isFinite(parts)||labor<0||parts<0){alert('Суммы работы и запчастей должны быть неотрицательными.');return}
+ const equipmentId=d.equipment_id||null;
+ if(equipmentId){const {data:asset,error}=await sb.from('service_equipment').select('id,client_id').eq('id',equipmentId).single();if(error||!asset){alert('Не удалось проверить технику: '+(error?.message||'не найдена'));return}if(asset.client_id&&asset.client_id!==d.client_id){alert('Выбранная техника принадлежит другому клиенту.');return}}
+ const {error}=await sb.from('service_repair_jobs').insert({client_id:d.client_id,equipment_id:equipmentId,status:d.status||'received',labor_amount:labor,parts_amount:parts,problem:d.problem||null,diagnosis:d.diagnosis||null,work_done:d.work_done||null,parts:d.parts||null,warranty_until:d.warranty_until||null,notes:d.notes||null});
+ if(error){alert('Не удалось сохранить ремонт: '+error.message);return}ev.target.reset();await refresh();await loadRepairJournal();alert('Ремонт сохранён в журнале.');
+});
 window.changeRepairStatus=async function(id,status){const p={status};if(status==='issued')p.issued_at=new Date().toISOString().slice(0,10);const {error}=await sb.from('service_repair_jobs').update(p).eq('id',id);if(error)alert(error.message);else loadRepairJournal()};
 window.loadRequestAssets=async function(){
  const cartridges=window._allRequestCartridges||[],equipment=window._allRequestEquipment||[];
@@ -395,41 +404,44 @@ window.resetRequestForm=function(){
  window.loadRequestAssets();
 };
 $('requestForm').onsubmit=async ev=>{
- ev.preventDefault();
- const form=ev.target,d=formData(form),id=d.id;
- let clientId=d.client_id;
+ ev.preventDefault();const form=ev.target,d=formData(form),editingId=d.id||null;let clientId=d.client_id;
  if(!clientId){alert('Выберите клиента.');return}
- const cartridgeId=d.request_type==='refill'?(d.cartridge_id||null):null;
- const equipmentId=d.request_type==='repair'?(d.equipment_id||null):null;
- if(d.request_type==='refill'&&!cartridgeId){alert('Выберите картридж из справочника или найдите его по штрихкоду.');return}
- if(d.request_type==='repair'&&!equipmentId){alert('Выберите технику из справочника или найдите её по штрихкоду.');return}
- const {data:asset,error:assetError}=cartridgeId
-  ?await sb.from('service_cartridges').select('id,client_id,model,manufacturer,barcode').eq('id',cartridgeId).single()
-  :await sb.from('service_equipment').select('id,client_id,model,manufacturer,barcode').eq('id',equipmentId).single();
- if(assetError||!asset){alert('Не удалось проверить выбранный объект: '+(assetError?.message||'объект не найден'));return}
+ const requestType=d.request_type||'repair',cartridgeId=requestType==='refill'?(d.cartridge_id||null):null,equipmentId=requestType==='repair'?(d.equipment_id||null):null;
+ if(requestType==='refill'&&!cartridgeId){alert('Выберите картридж из справочника или найдите его по штрихкоду.');return}
+ if(requestType==='repair'&&!equipmentId){alert('Выберите технику из справочника или найдите её по штрихкоду.');return}
+ const ar=cartridgeId?await sb.from('service_cartridges').select('id,client_id,model,manufacturer,barcode').eq('id',cartridgeId).single():await sb.from('service_equipment').select('id,client_id,model,manufacturer,barcode').eq('id',equipmentId).single(),asset=ar.data;
+ if(ar.error||!asset){alert('Не удалось проверить выбранный объект: '+(ar.error?.message||'объект не найден'));return}
  if(!asset.client_id){alert('У выбранного объекта не указан клиент. Исправьте карточку в справочнике.');return}
- if(asset.client_id!==clientId){
-  const {data:client,error}=await sb.from('service_clients').select('name').eq('id',asset.client_id).single();
-  if(error){alert('Не удалось проверить клиента объекта.');return}
-  if(!confirm('Этот объект привязан к клиенту «'+(client?.name||'неизвестно')+'». Использовать этого клиента в заявке?'))return;
-  clientId=asset.client_id;$('requestClient').value=clientId;await window.loadRequestAssets();
-  if(cartridgeId)$('requestCartridge').value=cartridgeId;if(equipmentId)$('requestEquipment').value=equipmentId;
- }
- if(d.barcode&&asset.barcode&&d.barcode.trim()!==asset.barcode){alert('Введённый штрихкод не совпадает с выбранным объектом. Нажмите «Найти по штрихкоду» или выберите правильный объект.');return}
- const cartridge=$('requestCartridge').selectedOptions[0],equipment=$('requestEquipment').selectedOptions[0];
- const payload={client_id:clientId,request_type:d.request_type||'repair',cartridge_id:cartridgeId,equipment_id:equipmentId,cartridge_name:cartridgeId?(cartridge?.textContent.split(' (')[0]||asset.model||'Картридж'):null,equipment_name:equipmentId?(equipment?.textContent.split(' (')[0]||[asset.manufacturer,asset.model].filter(Boolean).join(' ')):null,barcode:asset.barcode||d.barcode||null};
- if(id){
-  const {error}=await sb.from('service_requests').update(payload).eq('id',id);
-  if(error){alert('Не удалось изменить заявку: '+error.message);return}
-  alert('Заявка изменена.');
+ if(asset.client_id!==clientId){const {data:cl,error}=await sb.from('service_clients').select('name').eq('id',asset.client_id).single();if(error){alert('Не удалось проверить клиента объекта.');return}if(!confirm('Этот объект привязан к клиенту «'+(cl?.name||'неизвестно')+'». Использовать этого клиента в заявке?'))return;clientId=asset.client_id;$('requestClient').value=clientId;await window.loadRequestAssets();if(cartridgeId)$('requestCartridge').value=cartridgeId;if(equipmentId)$('requestEquipment').value=equipmentId}
+ if(d.barcode&&asset.barcode&&d.barcode.trim()!==asset.barcode){alert('Штрихкод не совпадает с выбранным объектом. Выполните поиск повторно.');return}
+ const cartOpt=$('requestCartridge').selectedOptions[0],eqOpt=$('requestEquipment').selectedOptions[0];
+ const payload={client_id:clientId,request_type:requestType,cartridge_id:cartridgeId,equipment_id:equipmentId,cartridge_name:cartridgeId?(cartOpt?.textContent.split(' (')[0]||asset.model||'Картридж'):null,equipment_name:equipmentId?(eqOpt?.textContent.split(' (')[0]||[asset.manufacturer,asset.model].filter(Boolean).join(' ')):null,barcode:asset.barcode||d.barcode||null};
+ let requestId=editingId,linkedRefill=null,linkedRepair=null;
+ if(editingId){
+  const [lr,lp]=await Promise.all([sb.from('service_cartridge_jobs').select('id').eq('request_id',editingId).maybeSingle(),sb.from('service_repair_jobs').select('id').eq('request_id',editingId).maybeSingle()]);
+  if(lr.error||lp.error){alert('Не удалось проверить связь с журналом работ. Ничего не сохранено.');return}
+  linkedRefill=lr.data;linkedRepair=lp.data;
+  if((linkedRefill&&requestType!=='refill')||(linkedRepair&&requestType!=='repair')){alert('Заявка уже передана в работу. Нельзя менять её тип; измените объект в соответствующем журнале.');return}
+  const {error}=await sb.from('service_requests').update(payload).eq('id',editingId);if(error){alert('Не удалось изменить заявку: '+error.message);return}
  }else{
-  const {error}=await sb.from('service_requests').insert(payload);
-  if(error){alert('Не удалось сохранить заявку: '+error.message);return}
-  alert('Заявка сохранена.');
+  const {data,error}=await sb.from('service_requests').insert({...payload,status:'new'}).select('id').single();
+  if(error||!data){alert('Не удалось сохранить заявку: '+(error?.message||'номер заявки не получен'));return}requestId=data.id;
  }
- form.reset();form.elements.id.value='';$('requestBarcodeResult').textContent='Выберите клиента и картридж/технику либо отсканируйте штрихкод.';$('requestBarcodeResult').style.background='';$('requestBarcodeResult').style.color='';
+ let workError=null;
+ if(requestType==='refill'){
+  const {data:job,error:lookupError}=await sb.from('service_cartridge_jobs').select('id').eq('request_id',requestId).maybeSingle();
+  if(lookupError)workError=lookupError;else if(job){const r=await sb.from('service_cartridge_jobs').update({cartridge_id:cartridgeId,client_id:clientId}).eq('id',job.id);workError=r.error}
+  else {const r=await sb.from('service_cartridge_jobs').insert({request_id:requestId,cartridge_id:cartridgeId,client_id:clientId,status:'received',work_type:'refill',work_types:['refill']});workError=r.error}
+ }else{
+  const {data:job,error:lookupError}=await sb.from('service_repair_jobs').select('id').eq('request_id',requestId).maybeSingle();
+  if(lookupError)workError=lookupError;else if(job){const r=await sb.from('service_repair_jobs').update({equipment_id:equipmentId,client_id:clientId}).eq('id',job.id);workError=r.error}
+  else {const r=await sb.from('service_repair_jobs').insert({request_id:requestId,client_id:clientId,equipment_id:equipmentId,status:'received'});workError=r.error}
+ }
+ if(workError){if(!editingId)await sb.from('service_requests').delete().eq('id',requestId);alert('Не удалось передать заявку в журнал работ: '+workError.message+(editingId?' Проверьте связь с работой.':' Заявка отменена, чтобы не оставлять несвязанную запись.'));return}
+ const {error:statusError}=await sb.from('service_requests').update({status:'in_work'}).eq('id',requestId);if(statusError)alert('Работа создана, но статус заявки не обновился: '+statusError.message);
+ form.reset();form.elements.id.value='';$('requestType').value='refill';$('requestBarcodeResult').textContent='Заявка передана в соответствующий журнал работ.';$('requestBarcodeResult').style.background='#e8f7ec';$('requestBarcodeResult').style.color='#14532d';
  const btn=form.querySelector('button[type="submit"],button:not([type])');if(btn)btn.textContent='Принять заявку в работу';
- await refresh();show('requests');
+ await refresh();show(requestType==='refill'?'cartridgeJobs':'repairJobs');alert(editingId?'Заявка и связанная работа обновлены.':'Заявка сохранена и передана в журнал '+(requestType==='refill'?'заправки.':'ремонта.'));
 };
 
 
@@ -528,6 +540,9 @@ async function refresh(){
  const countEl=(id,value)=>{const el=$(id);if(el)el.textContent=value};countEl('cntClients',c.data.length);loadRequests();countEl('cntEquipment',e.data.length);countEl('cntCartridges',k.data.length);countEl('cntOrders',o.data.length);
  const clientTypeFilter=$('clientTypeFilter')?.value||'all';$('clientsRows').innerHTML=c.data.filter(x=>clientTypeFilter==='all'||(x.client_type||'organization')===clientTypeFilter).map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.tax_id||'')}</td><td>${esc(x.bank_account||'')}</td><td>${esc(x.bik||'')}</td><td>${esc(x.bank||'')}</td><td>${esc(x.phone||'')}</td><td>${esc(x.email||'')}</td><td>${esc(x.responsible_person||'')}</td><td><button type="button" class="light" onclick="editClient('${x.id}')">✏️ Изменить</button> <button type="button" class="light" onclick="selectContracts('${x.id}')">📄 Договоры</button> <button type="button" class="danger" onclick="deleteClient('${x.id}')">🗑 Удалить</button></td></tr>`).join('');
 fillSelect('requestClient',c.data,'name');
+ fillSelect('repairClient',c.data,'name');
+ const selectedRepairClient=$('repairClient')?.value||'';
+ fillSelect('repairEquipment',e.data.filter(x=>!selectedRepairClient||x.client_id===selectedRepairClient),x=>[((x.manufacturer||'')+' '+(x.model||'')).trim(),x.barcode?'ШК: '+x.barcode:''].filter(Boolean).join(' — '),'Техника не выбрана');
  fillSelect('cartridgeClient',c.data,'name','Выберите клиента для картриджа');
   const activeMasters=(masters.data||[]).filter(x=>x.active);
   fillSelect('refillMaster',activeMasters,'name','Выберите мастера');
