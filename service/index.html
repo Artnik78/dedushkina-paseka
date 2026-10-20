@@ -68,7 +68,7 @@ th,td{padding:11px;border-bottom:1px solid #e7edf2;text-align:left;white-space:n
 </section>
 
 <section id="requests"><div class="card"><h2>📥 Новая заявка</h2><p class="muted">Сначала выберите клиента и тип обращения. После приёма заявка автоматически передаётся в нужный журнал.</p>
-<form id="requestForm" class="formgrid"><input type="hidden" name="id"><select name="client_id" id="requestClient" required><option value="">Выберите клиента</option></select><select name="request_type" id="requestType" required><option value="refill">Заправка картриджа</option><option value="repair">Ремонт техники</option></select><select name="cartridge_id" id="requestCartridge"><option value="">Выберите картридж</option></select><select name="equipment_id" id="requestEquipment"><option value="">Выберите технику</option></select><input type="hidden" name="cartridge_name" id="requestCartridgeName"><input type="hidden" name="equipment_name" id="requestEquipmentName"><div class="barcodeRow"><input name="barcode" id="requestBarcode" placeholder="Штрихкод"><button type="button" class="light scanBtn" onclick="openScanner('requestBarcode')">📷 Сканировать</button></div><div class="toolbar"><button class="primary">Принять заявку в работу</button></div></form></div>
+<form id="requestForm" class="formgrid"><input type="hidden" name="id"><select name="client_id" id="requestClient" required><option value="">Выберите клиента</option></select><select name="request_type" id="requestType" required><option value="refill">Заправка картриджа</option><option value="repair">Ремонт техники</option></select><select name="cartridge_id" id="requestCartridge"><option value="">Выберите картридж</option></select><select name="equipment_id" id="requestEquipment"><option value="">Выберите технику</option></select><input type="hidden" name="cartridge_name" id="requestCartridgeName"><input type="hidden" name="equipment_name" id="requestEquipmentName"><div class="barcodeRow full"><input name="barcode" id="requestBarcode" placeholder="Штрихкод картриджа или техники" autocomplete="off"><button type="button" class="primary" onclick="lookupRequestBarcode()">Найти по штрихкоду</button><button type="button" class="light scanBtn" onclick="openScanner('requestBarcode')">📷 Сканировать</button></div><div id="requestBarcodeResult" class="barcodeInfo full">Выберите клиента и картридж/технику либо отсканируйте штрихкод — клиент и объект заявки будут связаны автоматически.</div><div class="toolbar full"><button class="primary">Принять заявку в работу</button></div></form></div>
 <div class="card" style="margin-top:14px"><h2>Последние заявки</h2><div class="tablewrap"><table><thead><tr><th>Дата</th><th>Клиент</th><th>Направление</th><th>Картридж</th><th>Техника</th><th>Штрихкод</th><th>Статус</th><th>Действия</th></tr></thead><tbody id="requestRows"></tbody></table></div></div></section>
 
 <section id="clients"><div class="card"><h2>Клиенты</h2><p class="muted">Название, УНП, расчётный счёт, банк, телефон, электронная почта и ответственное лицо.</p>
@@ -282,15 +282,53 @@ window.loadRequestAssets=async function(){
  const clientId=$('requestClient')?.value||'';
  const cartridges=(window._allRequestCartridges||[]).filter(x=>!clientId||x.client_id===clientId);
  const equipment=(window._allRequestEquipment||[]).filter(x=>!clientId||x.client_id===clientId);
+ const oldCartridge=$('requestCartridge')?.value||'',oldEquipment=$('requestEquipment')?.value||'';
  fillSelect('requestCartridge',cartridges,x=>((x.model||'Картридж')+(x.barcode?' ('+x.barcode+')':'')),'Выберите картридж');
  fillSelect('requestEquipment',equipment,x=>(((x.manufacturer||'')+' '+(x.model||'')).trim()+(x.barcode?' ('+x.barcode+')':'')),'Выберите технику');
- const type=$('requestType')?.value||'refill';
- const cart=$('requestCartridge'),eq=$('requestEquipment');
- if(cart)cart.disabled=type!=='refill';
- if(eq)eq.disabled=type!=='repair';
-}
-$('requestClient')?.addEventListener('change',window.loadRequestAssets);
+ const type=$('requestType')?.value||'refill',cart=$('requestCartridge'),eq=$('requestEquipment');
+ if(cart)cart.disabled=type!=='refill';if(eq)eq.disabled=type!=='repair';
+ if(cart&&oldCartridge&&cartridges.some(x=>x.id===oldCartridge))cart.value=oldCartridge;
+ if(eq&&oldEquipment&&equipment.some(x=>x.id===oldEquipment))eq.value=oldEquipment;
+};
+window.lookupRequestBarcode=async function(){
+ const barcode=$('requestBarcode').value.trim(),result=$('requestBarcodeResult');
+ if(!barcode){result.textContent='Введите или отсканируйте штрихкод.';return}
+ result.textContent='Ищем картридж или технику…';result.style.background='';result.style.color='';
+ const [cr,er]=await Promise.all([
+  sb.from('service_cartridges').select('id,client_id,model,manufacturer,barcode').eq('barcode',barcode).limit(2),
+  sb.from('service_equipment').select('id,client_id,model,manufacturer,equipment_type,barcode').eq('barcode',barcode).limit(2)
+ ]);
+ if(cr.error||er.error){result.textContent='Ошибка поиска: '+(cr.error?.message||er.error?.message);return}
+ const carts=cr.data||[],equip=er.data||[];
+ if(carts.length+equip.length===0){result.textContent='Штрихкод не найден. Сначала добавьте картридж или технику в справочник, укажите клиента и сохраните штрихкод.';return}
+ if(carts.length+equip.length!==1){result.textContent='Штрихкод найден у нескольких объектов. Проверьте справочник: у каждого картриджа и каждой единицы техники должен быть уникальный штрихкод.';return}
+ const isCart=carts.length===1,asset=isCart?carts[0]:equip[0];
+ if(!asset.client_id){result.textContent='Объект найден, но к нему не привязан клиент. Исправьте карточку объекта в справочнике.';return}
+ const {data:client,error}=await sb.from('service_clients').select('id,name').eq('id',asset.client_id).single();
+ if(error||!client){result.textContent='Объект найден, но клиент не загрузился.';return}
+ $('requestClient').value=client.id;$('requestType').value=isCart?'refill':'repair';
+ await window.loadRequestAssets();
+ if(isCart)$('requestCartridge').value=asset.id;else $('requestEquipment').value=asset.id;
+ $('requestBarcode').value=asset.barcode||barcode;
+ result.textContent='Найден '+(isCart?'картридж':'техника')+': '+[asset.manufacturer,asset.model].filter(Boolean).join(' ')+'; клиент: '+client.name+'. Привязка установлена.';
+ result.style.background='#e8f7ec';result.style.color='#14532d';
+};
+$('requestBarcode')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();lookupRequestBarcode()}});
+$('requestClient')?.addEventListener('change',async function(){
+ await window.loadRequestAssets();
+ const result=$('requestBarcodeResult');if(result){result.textContent='Клиент выбран. Выберите его картридж/технику или найдите объект по штрихкоду.';result.style.background='';result.style.color=''}
+});
 $('requestType')?.addEventListener('change',window.loadRequestAssets);
+$('requestCartridge')?.addEventListener('change',function(){
+ const x=(window._allRequestCartridges||[]).find(a=>a.id===this.value);if(!x)return;
+ $('requestBarcode').value=x.barcode||'';
+ if(x.client_id&&$('requestClient').value!==x.client_id){$('requestClient').value=x.client_id;window.loadRequestAssets().then(()=>$('requestCartridge').value=x.id)}
+});
+$('requestEquipment')?.addEventListener('change',function(){
+ const x=(window._allRequestEquipment||[]).find(a=>a.id===this.value);if(!x)return;
+ $('requestBarcode').value=x.barcode||'';
+ if(x.client_id&&$('requestClient').value!==x.client_id){$('requestClient').value=x.client_id;window.loadRequestAssets().then(()=>$('requestEquipment').value=x.id)}
+});
 async function loadRequests(){
  const {data,error}=await sb.from('service_requests').select('id,client_id,cartridge_id,equipment_id,created_at,request_type,status,cartridge_name,equipment_name,barcode,service_clients(name,client_type)').order('created_at',{ascending:false});
  if(error){console.error(error);return}
@@ -320,10 +358,27 @@ window.deleteRequest=async id=>{
 $('requestForm').onsubmit=async ev=>{
  ev.preventDefault();
  const form=ev.target,d=formData(form),id=d.id;
- const clientId=d.client_id;
+ let clientId=d.client_id;
  if(!clientId){alert('Выберите клиента.');return}
+ const cartridgeId=d.request_type==='refill'?(d.cartridge_id||null):null;
+ const equipmentId=d.request_type==='repair'?(d.equipment_id||null):null;
+ if(d.request_type==='refill'&&!cartridgeId){alert('Выберите картридж из справочника или найдите его по штрихкоду.');return}
+ if(d.request_type==='repair'&&!equipmentId){alert('Выберите технику из справочника или найдите её по штрихкоду.');return}
+ const {data:asset,error:assetError}=cartridgeId
+  ?await sb.from('service_cartridges').select('id,client_id,model,manufacturer,barcode').eq('id',cartridgeId).single()
+  :await sb.from('service_equipment').select('id,client_id,model,manufacturer,barcode').eq('id',equipmentId).single();
+ if(assetError||!asset){alert('Не удалось проверить выбранный объект: '+(assetError?.message||'объект не найден'));return}
+ if(!asset.client_id){alert('У выбранного объекта не указан клиент. Исправьте карточку в справочнике.');return}
+ if(asset.client_id!==clientId){
+  const {data:client,error}=await sb.from('service_clients').select('name').eq('id',asset.client_id).single();
+  if(error){alert('Не удалось проверить клиента объекта.');return}
+  if(!confirm('Этот объект привязан к клиенту «'+(client?.name||'неизвестно')+'». Использовать этого клиента в заявке?'))return;
+  clientId=asset.client_id;$('requestClient').value=clientId;await window.loadRequestAssets();
+  if(cartridgeId)$('requestCartridge').value=cartridgeId;if(equipmentId)$('requestEquipment').value=equipmentId;
+ }
+ if(d.barcode&&asset.barcode&&d.barcode.trim()!==asset.barcode){alert('Введённый штрихкод не совпадает с выбранным объектом. Нажмите «Найти по штрихкоду» или выберите правильный объект.');return}
  const cartridge=$('requestCartridge').selectedOptions[0],equipment=$('requestEquipment').selectedOptions[0];
- const payload={client_id:clientId,request_type:d.request_type||'repair',cartridge_id:d.cartridge_id||null,equipment_id:d.equipment_id||null,cartridge_name:cartridge&&d.cartridge_id?cartridge.textContent.split(' (')[0]:d.cartridge_name||null,equipment_name:equipment&&d.equipment_id?equipment.textContent.split(' (')[0]:d.equipment_name||null,barcode:d.barcode||null};
+ const payload={client_id:clientId,request_type:d.request_type||'repair',cartridge_id:cartridgeId,equipment_id:equipmentId,cartridge_name:cartridgeId?(cartridge?.textContent.split(' (')[0]||asset.model||'Картридж'):null,equipment_name:equipmentId?(equipment?.textContent.split(' (')[0]||[asset.manufacturer,asset.model].filter(Boolean).join(' ')):null,barcode:asset.barcode||d.barcode||null};
  if(id){
   const {error}=await sb.from('service_requests').update(payload).eq('id',id);
   if(error){alert('Не удалось изменить заявку: '+error.message);return}
@@ -333,7 +388,8 @@ $('requestForm').onsubmit=async ev=>{
   if(error){alert('Не удалось сохранить заявку: '+error.message);return}
   alert('Заявка сохранена.');
  }
- form.reset();form.elements.id.value='';const btn=form.querySelector('button[type="submit"],button:not([type])');if(btn)btn.textContent='Принять заявку в работу';
+ form.reset();form.elements.id.value='';$('requestBarcodeResult').textContent='Выберите клиента и картридж/технику либо отсканируйте штрихкод.';$('requestBarcodeResult').style.background='';$('requestBarcodeResult').style.color='';
+ const btn=form.querySelector('button[type="submit"],button:not([type])');if(btn)btn.textContent='Принять заявку в работу';
  await refresh();show('requests');
 };
 
