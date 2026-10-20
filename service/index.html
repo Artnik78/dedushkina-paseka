@@ -103,7 +103,7 @@ th,td{padding:11px;border-bottom:1px solid #e7edf2;text-align:left;white-space:n
 
 <section id="equipmentCard"><div class="card"><div class="toolbar"><button class="light" onclick="show('equipment')">← К технике</button></div><h2 id="equipmentCardTitle">Карточка техники</h2><div id="equipmentCardBody"></div></div></section>
 
-<section id="cartridgeCard" class="hidden"><div class="card"><div class="toolbar" style="justify-content:space-between"><h2 id="cartridgeCardTitle">Карточка картриджа</h2><button type="button" onclick="show('cartridges')">← Назад</button></div><div id="cartridgeCardBody"></div></div></section><section id="cartridges"><div class="card"><h2>Новый картридж</h2><form id="cartridgeForm" class="formgrid"><select name="client_id" id="cartridgeClient" required><option value="">Выберите клиента</option></select><div class="barcodeRow"><input name="barcode" id="cartridgeBarcode" placeholder="Штрихкод картриджа" autocomplete="off" required><button type="button" class="light scanBtn" onclick="openScanner('cartridgeBarcode')">📷 Сканировать</button></div><input name="manufacturer" placeholder="Производитель"><input name="model" id="cartridgeModelSelect" placeholder="Модель картриджа" required><input name="serial_number" placeholder="Серийный номер (если есть)"><div class="toolbar"><button id="cartridgeSaveBtn" class="primary">Добавить картридж</button></div></form></div><div class="card" style="margin-top:14px"><h2>Список картриджей</h2><div class="tablewrap"><table><thead><tr><th>Наименование картриджа</th><th>Действия</th></tr></thead><tbody id="cartridgeRows"></tbody></table></div></div></section>
+<section id="cartridgeCard" class="hidden"><div class="card"><div class="toolbar" style="justify-content:space-between"><h2 id="cartridgeCardTitle">Карточка картриджа</h2><button type="button" onclick="show('cartridges')">← Назад</button></div><div id="cartridgeCardBody"></div></div></section><section id="cartridges"><div class="card"><h2>Новый картридж</h2><form id="cartridgeForm" class="formgrid"><select name="client_id" id="cartridgeClient" required><option value="">Выберите клиента</option></select><div class="barcodeRow"><input name="barcode" id="cartridgeBarcode" placeholder="Штрихкод картриджа" autocomplete="off" required><button type="button" class="light scanBtn" onclick="openScanner('cartridgeBarcode')">📷 Сканировать</button></div><select id="cartridgeModelSelect" required><option value="">Выберите модель картриджа</option></select><input name="manufacturer" id="cartridgeManufacturer" placeholder="Производитель" readonly><input type="hidden" name="model" id="cartridgeModelValue"><input name="serial_number" placeholder="Серийный номер (если есть)"><div class="toolbar"><button id="cartridgeSaveBtn" class="primary">Добавить картридж</button></div></form></div><div class="card" style="margin-top:14px"><h2>📚 Справочник моделей картриджей</h2><p class="muted">Сначала добавьте производителя и модель в справочник. После этого модель появится в списке при регистрации картриджа.</p><form id="cartridgeModelForm" class="formgrid"><input name="manufacturer" placeholder="Производитель (например, HP, Canon, Brother)" required><input name="model" placeholder="Модель картриджа (например, 85A, TN-2420)" required><div class="toolbar"><button type="submit" class="primary">Добавить модель</button></div></form><div class="tablewrap"><table><thead><tr><th>Производитель</th><th>Модель</th><th>Действия</th></tr></thead><tbody id="cartridgeModelRows"></tbody></table></div></div><div class="card" style="margin-top:14px"><h2>Список картриджей</h2><div class="tablewrap"><table><thead><tr><th>Наименование картриджа</th><th>Действия</th></tr></thead><tbody id="cartridgeRows"></tbody></table></div></div></section>
 
 <section id="cartridgeJobs">
 <div class="card"><h2>🖨 Заправка и обслуживание картриджей</h2><p class="muted">Введите штрихкод — журнал найдёт картридж и покажет клиента и модель. Если картриджа нет в справочнике, сначала добавьте его в раздел «Картриджи» и привяжите к клиенту.</p>
@@ -425,6 +425,30 @@ window.deleteCartridge=async function(id){
  await refresh();
  alert('Картридж удалён из справочника.');
 };
+function renderCartridgeModels(models){
+ const body=$('cartridgeModelRows');if(!body)return;
+ body.innerHTML=(models||[]).map(x=>'<tr><td>'+esc(x.manufacturer||'Другие')+'</td><td>'+esc(x.model||'')+'</td><td><button type="button" class="danger" onclick="deleteCartridgeModel(\''+x.id+'\')">Удалить</button></td></tr>').join('')||'<tr><td colspan="3" class="muted">Моделей пока нет — добавьте первую выше.</td></tr>';
+}
+$('cartridgeModelSelect')?.addEventListener('change',function(){
+ const model=(window._allCartridgeModels||[]).find(x=>x.id===this.value);
+ $('cartridgeManufacturer').value=model?.manufacturer||'';
+ $('cartridgeModelValue').value=model?.model||'';
+});
+$('cartridgeModelForm')?.addEventListener('submit',async function(ev){
+ ev.preventDefault();const d=formData(ev.target),manufacturer=d.manufacturer.trim(),model=d.model.trim();
+ if(!manufacturer||!model){alert('Укажите производителя и модель.');return}
+ const existing=(window._allCartridgeModels||[]).some(x=>x.manufacturer.toLowerCase()===manufacturer.toLowerCase()&&x.model.toLowerCase()===model.toLowerCase());
+ if(existing){alert('Такая модель уже есть в справочнике.');return}
+ const {error}=await sb.from('service_cartridge_models').insert({manufacturer,model});
+ if(error){alert('Не удалось добавить модель: '+error.message);return}
+ ev.target.reset();await refresh();alert('Модель добавлена в справочник.');
+});
+window.deleteCartridgeModel=async function(id){
+ if(!confirm('Удалить модель из справочника? Уже зарегистрированные картриджи не удалятся.'))return;
+ const {error}=await sb.from('service_cartridge_models').delete().eq('id',id);
+ if(error){alert('Не удалось удалить модель: '+error.message);return}
+ await refresh();
+};
 $('cartridgeForm').addEventListener('submit',async function(ev){
  ev.preventDefault();const d=formData(ev.target);
  if(!d.client_id){alert('Выберите клиента для картриджа.');return}
@@ -435,7 +459,9 @@ $('cartridgeForm').addEventListener('submit',async function(ev){
  ]);
  if(sameCart.error||sameEq.error){alert('Не удалось проверить уникальность штрихкода.');return}
  if((sameCart.data||[]).length||(sameEq.data||[]).length){alert('Этот штрихкод уже зарегистрирован у другого объекта.');return}
- const payload={client_id:d.client_id,barcode:d.barcode.trim(),manufacturer:d.manufacturer||null,model:d.model.trim(),serial_number:d.serial_number||null,status:'active'};
+ const selectedModel=(window._allCartridgeModels||[]).find(x=>x.id===$('cartridgeModelSelect').value);
+ if(!selectedModel){alert('Выберите модель из справочника. Если её нет, добавьте её ниже в справочнике моделей.');return}
+ const payload={client_id:d.client_id,barcode:d.barcode.trim(),manufacturer:selectedModel.manufacturer,model:selectedModel.model,serial_number:d.serial_number||null,status:'active'};
  const {error}=await sb.from('service_cartridges').insert(payload);
  if(error){alert('Не удалось сохранить картридж: '+error.message);return}
  ev.target.reset();await refresh();alert('Картридж сохранён и привязан к клиенту и штрихкоду.');
@@ -487,7 +513,10 @@ fillSelect('requestClient',c.data,'name');
   const activeMasters=(masters.data||[]).filter(x=>x.active);
   fillSelect('refillMaster',activeMasters,'name','Выберите мастера');
   $('masterRows').innerHTML=(masters.data||[]).map(m=>'<tr><td>'+esc(m.name)+'</td><td>'+ (m.active?'Работает':'Неактивен') +'</td><td><button type="button" class="light" onclick="toggleMaster(\''+m.id+'\', '+(!m.active)+')">'+(m.active?'Отключить':'Включить')+'</button> <button type="button" class="danger" onclick="deleteMaster(\''+m.id+'\')">Удалить</button></td></tr>').join('')||'<tr><td colspan="3" class="muted">Добавьте первого мастера.</td></tr>';
-window._allRequestCartridges=k.data||[]; window._allRequestEquipment=e.data||[]; window._allRequestClients=c.data||[];
+renderCartridgeModels(cm.data||[]);
+ window._allCartridgeModels=cm.data||[];
+ fillSelect('cartridgeModelSelect',cm.data||[],x=>x.manufacturer+' — '+x.model,'Выберите модель картриджа');
+ window._allRequestCartridges=k.data||[]; window._allRequestEquipment=e.data||[]; window._allRequestClients=c.data||[];
 await window.loadRequestAssets();
 const contractSel=$('contractClient');contractSel.innerHTML='<option value="">Выберите клиента</option>'+c.data.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name||'Без имени')+'</option>').join('');if(selectedContractClient&&c.data.some(x=>x.id===selectedContractClient))contractSel.value=selectedContractClient;
  $('equipmentRows').innerHTML=e.data.map(x=>`<tr><td>${esc(c.data.find(cl=>cl.id===x.client_id)?.name||'—')}</td><td>${esc(x.barcode||'')}</td><td>${esc(x.inventory_number||'')}</td><td>${esc(({printer:'Принтер',mfu:'МФУ',copier:'Копировальный аппарат',scanner:'Сканер',computer:'Компьютер',laptop:'Ноутбук',monitor:'Монитор',other_office:'Другая оргтехника',other:'Другое'}[x.equipment_type]||x.equipment_type||''))}</td><td>${esc(x.manufacturer||'')}</td><td>${esc(x.model||'')}</td><td>${esc(x.serial_number||'')}</td><td><button class="light" onclick="openEquipment('${x.id}')">Карточка</button> <button class="light" onclick="editEquipment('${x.id}')">Изменить</button> <button class="danger" onclick="deleteEquipment('${x.id}')">Удалить</button></td></tr>`).join('');
