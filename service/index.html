@@ -280,12 +280,17 @@ async function loadRepairJournal(){
 }
 window.changeRepairStatus=async function(id,status){const p={status};if(status==='issued')p.issued_at=new Date().toISOString().slice(0,10);const {error}=await sb.from('service_repair_jobs').update(p).eq('id',id);if(error)alert(error.message);else loadRepairJournal()};
 window.loadRequestAssets=async function(){
- const clientId=$('requestClient')?.value||'';
- const cartridges=(window._allRequestCartridges||[]).filter(x=>!clientId||x.client_id===clientId);
- const equipment=(window._allRequestEquipment||[]).filter(x=>!clientId||x.client_id===clientId);
+ const cartridges=window._allRequestCartridges||[],equipment=window._allRequestEquipment||[];
+ const clients=window._allRequestClients||[];
  const oldCartridge=$('requestCartridge')?.value||'',oldEquipment=$('requestEquipment')?.value||'';
- fillSelect('requestCartridge',cartridges,x=>((x.model||'Картридж')+(x.barcode?' ('+x.barcode+')':'')),'Выберите картридж');
- fillSelect('requestEquipment',equipment,x=>(((x.manufacturer||'')+' '+(x.model||'')).trim()+(x.barcode?' ('+x.barcode+')':'')),'Выберите технику');
+ fillSelect('requestCartridge',cartridges,x=>{
+  const client=clients.find(c=>c.id===x.client_id);
+  return [x.model||'Картридж',x.barcode?'ШК: '+x.barcode:'',client?'Клиент: '+client.name:(x.client_id?'':'Клиент не указан')].filter(Boolean).join(' — ');
+ },'Выберите картридж из справочника');
+ fillSelect('requestEquipment',equipment,x=>{
+  const client=clients.find(c=>c.id===x.client_id);
+  return [((x.manufacturer||'')+' '+(x.model||'')).trim()||'Техника',x.barcode?'ШК: '+x.barcode:'',client?'Клиент: '+client.name:(x.client_id?'':'Клиент не указан')].filter(Boolean).join(' — ');
+ },'Выберите технику из справочника');
  const type=$('requestType')?.value||'refill',cart=$('requestCartridge'),eq=$('requestEquipment');
  if(cart)cart.disabled=type!=='refill';if(eq)eq.disabled=type!=='repair';
  if(cart&&oldCartridge&&cartridges.some(x=>x.id===oldCartridge))cart.value=oldCartridge;
@@ -457,7 +462,7 @@ fillSelect('requestClient',c.data,'name');
   const activeMasters=(masters.data||[]).filter(x=>x.active);
   fillSelect('refillMaster',activeMasters,'name','Выберите мастера');
   $('masterRows').innerHTML=(masters.data||[]).map(m=>'<tr><td>'+esc(m.name)+'</td><td>'+ (m.active?'Работает':'Неактивен') +'</td><td><button type="button" class="light" onclick="toggleMaster(\''+m.id+'\', '+(!m.active)+')">'+(m.active?'Отключить':'Включить')+'</button> <button type="button" class="danger" onclick="deleteMaster(\''+m.id+'\')">Удалить</button></td></tr>').join('')||'<tr><td colspan="3" class="muted">Добавьте первого мастера.</td></tr>';
-window._allRequestCartridges=k.data||[]; window._allRequestEquipment=e.data||[];
+window._allRequestCartridges=k.data||[]; window._allRequestEquipment=e.data||[]; window._allRequestClients=c.data||[];
 await window.loadRequestAssets();
 const contractSel=$('contractClient');contractSel.innerHTML='<option value="">Выберите клиента</option>'+c.data.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name||'Без имени')+'</option>').join('');if(selectedContractClient&&c.data.some(x=>x.id===selectedContractClient))contractSel.value=selectedContractClient;
  $('equipmentRows').innerHTML=e.data.map(x=>`<tr><td>${esc(c.data.find(cl=>cl.id===x.client_id)?.name||'—')}</td><td>${esc(x.barcode||'')}</td><td>${esc(x.inventory_number||'')}</td><td>${esc(({printer:'Принтер',mfu:'МФУ',copier:'Копировальный аппарат',scanner:'Сканер',computer:'Компьютер',laptop:'Ноутбук',monitor:'Монитор',other_office:'Другая оргтехника',other:'Другое'}[x.equipment_type]||x.equipment_type||''))}</td><td>${esc(x.manufacturer||'')}</td><td>${esc(x.model||'')}</td><td>${esc(x.serial_number||'')}</td><td><button class="light" onclick="openEquipment('${x.id}')">Карточка</button> <button class="light" onclick="editEquipment('${x.id}')">Изменить</button> <button class="danger" onclick="deleteEquipment('${x.id}')">Удалить</button></td></tr>`).join('');
