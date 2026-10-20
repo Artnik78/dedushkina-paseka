@@ -202,18 +202,7 @@ window.lookupRefillBarcode=async function(){
  result.textContent='Картридж найден. Выберите работы, мастера и сумму.';result.style.background='#e8f7ec';result.style.color='#14532d';
 };
 window.resetRefillForm=function(){const form=$('refillJobForm');form.reset();$('refillCartridgeId').value='';$('refillLookupResult').textContent='Введите или отсканируйте штрихкод и нажмите «Найти».';$('refillLookupResult').style.background='';$('refillLookupResult').style.color='';$('refillClientDisplay').textContent='Клиент: —';$('refillModelDisplay').textContent='Картридж: —';$('refillAmount').value='0';};
-$('refillJobForm').addEventListener('submit',async function(e){
- e.preventDefault();const cartridgeId=$('refillCartridgeId').value;if(!cartridgeId){alert('Сначала найдите картридж по штрихкоду.');return}
- const workTypes=Array.from(document.querySelectorAll('input[name="work_types"]:checked')).map(el=>el.value);
- if(!workTypes.length){alert('Выберите хотя бы один вид работ.');return}
- const amount=Number($('refillAmount').value||0);if(!Number.isFinite(amount)||amount<0){alert('Проверьте сумму.');return}
- const {data:cart,error:cartError}=await sb.from('service_cartridges').select('id,client_id').eq('id',cartridgeId).single();
- if(cartError||!cart?.client_id){alert('Не удалось подтвердить картридж и его клиента. Выполните поиск штрихкода повторно.');return}
- const payload={cartridge_id:cart.id,client_id:cart.client_id,work_type:workTypes.join(', '),work_types:workTypes,master_id:$('refillMaster').value||null,amount,shipped:$('refillShipped').checked,invoiced:$('refillInvoiced').checked,status:'received'};
- const {error}=await sb.from('service_cartridge_jobs').insert(payload);
- if(error){alert('Не удалось сохранить работу: '+error.message);return}
- alert('Работа по картриджу сохранена.');resetRefillForm();await loadRefillJournal();await refresh();
-});
+
 window.loadRefillJournal=async function(){
  const {data,error}=await sb.from('service_cartridge_jobs').select('id,received_at,status,completed_at,issued_at,notes,work_type,work_types,shipped,invoiced,amount,master_id,service_clients(name),service_cartridges(model,manufacturer,barcode),service_masters(name)').order('created_at',{ascending:false});
  if(error){alert('Не удалось загрузить журнал заправки: '+error.message);return}
@@ -264,6 +253,18 @@ window.changeRefillStatus=async function(id,status){const p={status};if(status==
 window.deleteRefillJob=async function(id){if(!confirm('Удалить запись?'))return;const {error}=await sb.from('service_cartridge_jobs').delete().eq('id',id);if(error)alert(error.message);else loadRefillJournal()};
 
 const $=id=>document.getElementById(id);
+$('refillJobForm').addEventListener('submit',async function(e){
+ e.preventDefault();const cartridgeId=$('refillCartridgeId').value;if(!cartridgeId){alert('Сначала найдите картридж по штрихкоду.');return}
+ const workTypes=Array.from(document.querySelectorAll('input[name="work_types"]:checked')).map(el=>el.value);
+ if(!workTypes.length){alert('Выберите хотя бы один вид работ.');return}
+ const amount=Number($('refillAmount').value||0);if(!Number.isFinite(amount)||amount<0){alert('Проверьте сумму.');return}
+ const {data:cart,error:cartError}=await sb.from('service_cartridges').select('id,client_id').eq('id',cartridgeId).single();
+ if(cartError||!cart?.client_id){alert('Не удалось подтвердить картридж и его клиента. Выполните поиск штрихкода повторно.');return}
+ const payload={cartridge_id:cart.id,client_id:cart.client_id,work_type:workTypes.join(', '),work_types:workTypes,master_id:$('refillMaster').value||null,amount,shipped:$('refillShipped').checked,invoiced:$('refillInvoiced').checked,status:'received'};
+ const {error}=await sb.from('service_cartridge_jobs').insert(payload);
+ if(error){alert('Не удалось сохранить работу: '+error.message);return}
+ alert('Работа по картриджу сохранена.');resetRefillForm();await loadRefillJournal();await refresh();
+});
 $('refillBarcode').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();lookupRefillBarcode()}});
 $('masterForm').addEventListener('submit',async function(e){e.preventDefault();const input=$('masterName');await addMaster(input.value);input.value='';});
 function esc(value){return String(value??'').replace(/[&<>"']/g,function(ch){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])})}
