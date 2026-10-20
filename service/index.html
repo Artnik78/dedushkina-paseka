@@ -446,7 +446,7 @@ window.deleteCartridge=async function(id){
 };
 function renderCartridgeModels(models){
  const body=$('cartridgeModelRows');if(!body)return;
- body.innerHTML=(models||[]).map(x=>'<tr><td>'+esc(x.manufacturer||'Другие')+'</td><td>'+esc(x.model||'')+'</td><td><button type="button" class="danger" onclick="deleteCartridgeModel(\''+x.id+'\')">Удалить</button></td></tr>').join('')||'<tr><td colspan="3" class="muted">Моделей пока нет — добавьте первую выше.</td></tr>';
+ body.innerHTML=(models||[]).map(x=>'<tr><td>'+esc(x.model||'')+'</td><td><button type="button" class="danger" onclick="deleteCartridgeModel(\''+x.id+'\')">Удалить</button></td></tr>').join('')||'<tr><td colspan="2" class="muted">Моделей пока нет — добавьте первую выше.</td></tr>';
 }
 $('cartridgeModelSelect')?.addEventListener('change',function(){
  const model=(window._allCartridgeModels||[]).find(x=>x.id===this.value);
