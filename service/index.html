@@ -68,7 +68,7 @@ th,td{padding:11px;border-bottom:1px solid #e7edf2;text-align:left;white-space:n
 </section>
 
 <section id="requests"><div class="card"><h2>📥 Новая заявка</h2><p class="muted">Сначала выберите клиента и тип обращения. После приёма заявка автоматически передаётся в нужный журнал.</p>
-<form id="requestForm" class="formgrid"><input type="hidden" name="id"><select name="client_id" id="requestClient" required><option value="">Выберите клиента</option></select><select name="request_type" id="requestType" required><option value="refill">Заправка картриджа</option><option value="repair">Ремонт техники</option></select><select name="cartridge_id" id="requestCartridge"><option value="">Выберите картридж</option></select><select name="equipment_id" id="requestEquipment"><option value="">Выберите технику</option></select><input type="hidden" name="cartridge_name" id="requestCartridgeName"><input type="hidden" name="equipment_name" id="requestEquipmentName"><div class="barcodeRow full"><input name="barcode" id="requestBarcode" placeholder="Штрихкод картриджа или техники" autocomplete="off"><button type="button" class="primary" onclick="lookupRequestBarcode()">Найти по штрихкоду</button><button type="button" class="light scanBtn" onclick="openScanner('requestBarcode')">📷 Сканировать</button></div><div id="requestBarcodeResult" class="barcodeInfo full">Выберите клиента и картридж/технику либо отсканируйте штрихкод — клиент и объект заявки будут связаны автоматически.</div><div class="toolbar full"><button class="primary">Принять заявку в работу</button></div></form></div>
+<form id="requestForm" class="formgrid"><input type="hidden" name="id"><select name="client_id" id="requestClient" required><option value="">Выберите клиента</option></select><select name="request_type" id="requestType" required><option value="refill">Заправка картриджа</option><option value="repair">Ремонт техники</option></select><select name="cartridge_id" id="requestCartridge"><option value="">Выберите картридж</option></select><select name="equipment_id" id="requestEquipment"><option value="">Выберите технику</option></select><input type="hidden" name="cartridge_name" id="requestCartridgeName"><input type="hidden" name="equipment_name" id="requestEquipmentName"><div class="barcodeRow full"><input name="barcode" id="requestBarcode" placeholder="Штрихкод картриджа или техники" autocomplete="off"><button type="button" class="primary" onclick="lookupRequestBarcode()">Найти по штрихкоду</button><button type="button" class="light scanBtn" onclick="openScanner('requestBarcode')">📷 Сканировать</button></div><div id="requestBarcodeResult" class="barcodeInfo full">Выберите клиента и картридж/технику либо отсканируйте штрихкод — клиент и объект заявки будут связаны автоматически.</div><div class="toolbar full"><button type="submit" class="primary">Принять заявку в работу</button><button type="button" class="light" onclick="resetRequestForm()">Очистить форму</button></div></form></div>
 <div class="card" style="margin-top:14px"><h2>Последние заявки</h2><div class="tablewrap"><table><thead><tr><th>Дата</th><th>Клиент</th><th>Направление</th><th>Картридж</th><th>Техника</th><th>Штрихкод</th><th>Статус</th><th>Действия</th></tr></thead><tbody id="requestRows"></tbody></table></div></div></section>
 
 <section id="clients"><div class="card"><h2>Клиенты</h2><p class="muted">Название, УНП, расчётный счёт, банк, телефон, электронная почта и ответственное лицо.</p>
@@ -360,6 +360,20 @@ window.deleteRequest=async id=>{
  const {error}=await sb.from('service_requests').delete().eq('id',id);
  if(error){alert('Не удалось удалить заявку: '+error.message);return}
  await loadRequests();await refresh();
+};
+window.resetRequestForm=function(){
+ const form=$('requestForm');
+ if(!form)return;
+ form.reset();
+ form.elements.id.value='';
+ $('requestType').value='refill';
+ $('requestCartridgeName').value='';
+ $('requestEquipmentName').value='';
+ $('requestBarcode').value='';
+ const result=$('requestBarcodeResult');
+ if(result){result.textContent='Выберите клиента и картридж/технику либо отсканируйте штрихкод — клиент и объект заявки будут связаны автоматически.';result.style.background='';result.style.color=''}
+ if(form.querySelector('button[type="submit"]'))form.querySelector('button[type="submit"]').textContent='Принять заявку в работу';
+ window.loadRequestAssets();
 };
 $('requestForm').onsubmit=async ev=>{
  ev.preventDefault();
