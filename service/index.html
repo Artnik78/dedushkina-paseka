@@ -253,6 +253,7 @@ window.changeRefillStatus=async function(id,status){const p={status};if(status==
 window.deleteRefillJob=async function(id){if(!confirm('Удалить запись?'))return;const {error}=await sb.from('service_cartridge_jobs').delete().eq('id',id);if(error)alert(error.message);else loadRefillJournal()};
 
 const $=id=>document.getElementById(id);
+function formData(form){return Object.fromEntries(new FormData(form).entries())}
 $('refillJobForm').addEventListener('submit',async function(e){
  e.preventDefault();const cartridgeId=$('refillCartridgeId').value;if(!cartridgeId){alert('Сначала найдите картридж по штрихкоду.');return}
  const workTypes=Array.from(document.querySelectorAll('input[name="work_types"]:checked')).map(el=>el.value);
