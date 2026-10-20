@@ -201,7 +201,7 @@ window.lookupRefillBarcode=async function(){
  $('refillCartridgeId').value=cart.id;$('refillClientDisplay').textContent='Клиент: '+(client?.name||'—');$('refillModelDisplay').textContent='Картридж: '+[cart.manufacturer,cart.model].filter(Boolean).join(' ')+' · Штрихкод: '+cart.barcode;
  result.textContent='Картридж найден. Выберите работы, мастера и сумму.';result.style.background='#e8f7ec';result.style.color='#14532d';
 };
-window.resetRefillForm=function(){const form=$('refillJobForm');form.reset();$('refillCartridgeId').value='';$('refillLookupResult').textContent='Введите или отсканируйте штрихкод и нажмите «Найти».';$('refillLookupResult').style.background='';$('refillLookupResult').style.color='';$('refillClientDisplay').textContent='Клиент: —';$('refillModelDisplay').textContent='Картридж: —';$('refillAmount').value='0';};
+window.resetRefillForm=function(){const form=$('refillJobForm');form.reset();delete form.dataset.editId;const btn=form.querySelector('button[type="submit"]');if(btn)btn.textContent='Сохранить работу';$('refillCartridgeId').value='';$('refillBarcode').value='';$('refillLookupResult').textContent='Введите или отсканируйте штрихкод и нажмите «Найти».';$('refillLookupResult').style.background='';$('refillLookupResult').style.color='';$('refillClientDisplay').textContent='Клиент: —';$('refillModelDisplay').textContent='Картридж: —';$('refillAmount').value='0';};
 
 window.loadRefillJournal=async function(){
  const {data,error}=await sb.from('service_cartridge_jobs').select('id,received_at,status,completed_at,issued_at,notes,work_type,work_types,shipped,invoiced,amount,master_id,service_clients(name),service_cartridges(model,manufacturer,barcode),service_masters(name)').order('created_at',{ascending:false});
@@ -211,7 +211,7 @@ window.loadRefillJournal=async function(){
   const types=(Array.isArray(x.work_types)&&x.work_types.length?x.work_types:(x.work_type?[x.work_type]:['refill'])).map(t=>refillWorkNames[t]||t).join(', ');
   const rowClass=x.invoiced?'refill-row-invoiced':(x.shipped?'refill-row-shipped':'');
   const stage=x.status==='received'?'<button type="button" class="light" onclick="changeRefillStatus(\''+x.id+'\',\'in_work\')">В работу</button>':x.status==='in_work'?'<button type="button" class="light" onclick="changeRefillStatus(\''+x.id+'\',\'refilled\')">Выполнено</button>':x.status==='refilled'?'<button type="button" class="light" onclick="changeRefillStatus(\''+x.id+'\',\'issued\')">Выдан</button>':esc(names[x.status]||x.status);
-  return '<tr class="'+rowClass+'"><td>'+esc(formatDate(x.received_at))+'</td><td>'+esc(x.service_cartridges?.barcode||'')+'</td><td>'+esc(x.service_clients?.name||'—')+'</td><td>'+esc([x.service_cartridges?.manufacturer,x.service_cartridges?.model].filter(Boolean).join(' ')||'—')+'</td><td>'+esc(types)+'</td><td>'+esc(x.service_masters?.name||'—')+'</td><td>'+Number(x.amount||0).toFixed(2)+'</td><td><button type="button" class="flagButton '+(x.shipped?'flagShipped':'light')+'" onclick="toggleRefillFlag(\''+x.id+'\',\'shipped\')">'+(x.shipped?'Отгружен ✓':'Не отгружен')+'</button></td><td><button type="button" class="flagButton '+(x.invoiced?'flagInvoiced':'light')+'" onclick="toggleRefillFlag(\''+x.id+'\',\'invoiced\')">'+(x.invoiced?'Выписан ✓':'Выписать')+'</button></td><td>'+stage+'</td><td><button type="button" class="danger" onclick="deleteRefillJob(\''+x.id+'\')">Удалить</button></td></tr>';
+  return '<tr class="'+rowClass+'"><td>'+esc(formatDate(x.received_at))+'</td><td>'+esc(x.service_cartridges?.barcode||'')+'</td><td>'+esc(x.service_clients?.name||'—')+'</td><td>'+esc([x.service_cartridges?.manufacturer,x.service_cartridges?.model].filter(Boolean).join(' ')||'—')+'</td><td>'+esc(types)+'</td><td>'+esc(x.service_masters?.name||'—')+'</td><td>'+Number(x.amount||0).toFixed(2)+'</td><td><button type="button" class="flagButton '+(x.shipped?'flagShipped':'light')+'" onclick="toggleRefillFlag(\''+x.id+'\',\'shipped\')">'+(x.shipped?'Отгружен ✓':'Не отгружен')+'</button></td><td><button type="button" class="flagButton '+(x.invoiced?'flagInvoiced':'light')+'" onclick="toggleRefillFlag(\''+x.id+'\',\'invoiced\')">'+(x.invoiced?'Выписан ✓':'Выписать')+'</button></td><td>'+stage+'</td><td><button type="button" class="light" onclick="editRefillJob(\''+x.id+'\')">Изменить</button> <button type="button" class="danger" onclick="deleteRefillJob(\''+x.id+'\')">Удалить</button></td></tr>';
  }).join('')||'<tr><td colspan="11" class="muted">Записей пока нет. Найдите картридж по штрихкоду выше, чтобы добавить работу.</td></tr>';
 };
 window.toggleRefillFlag=async function(id,field){
@@ -250,6 +250,24 @@ window.receiveRefillJob=async function(cartridgeId){
  loadRefillJournal();
 };
 window.changeRefillStatus=async function(id,status){const p={status};if(status==='refilled')p.completed_at=new Date().toISOString().slice(0,10);if(status==='issued'){p.completed_at=p.completed_at||new Date().toISOString().slice(0,10);p.issued_at=new Date().toISOString().slice(0,10)}const {error}=await sb.from('service_cartridge_jobs').update(p).eq('id',id);if(error)alert(error.message);else loadRefillJournal()};
+
+window.editRefillJob=async function(id){
+ const {data:job,error}=await sb.from('service_cartridge_jobs').select('id,cartridge_id,client_id,status,received_at,notes,work_type,work_types,shipped,invoiced,amount,master_id').eq('id',id).single();
+ if(error||!job){alert('Не удалось открыть запись для изменения: '+(error?.message||'запись не найдена'));return}
+ const {data:cart,error:cartError}=await sb.from('service_cartridges').select('id,barcode,model,manufacturer').eq('id',job.cartridge_id).single();
+ if(cartError||!cart){alert('Не удалось загрузить картридж: '+(cartError?.message||'не найден'));return}
+ $('refillCartridgeId').value=cart.id;$('refillBarcode').value=cart.barcode||'';
+ const clientResult=await sb.from('service_clients').select('name').eq('id',job.client_id).maybeSingle();
+ $('refillClientDisplay').textContent='Клиент: '+(clientResult.data?.name||'—');
+ $('refillModelDisplay').textContent='Картридж: '+[cart.manufacturer,cart.model].filter(Boolean).join(' ');
+ const selectedTypes=Array.isArray(job.work_types)&&job.work_types.length?job.work_types:(job.work_type?[job.work_type]:['refill']);
+ document.querySelectorAll('input[name="work_types"]').forEach(el=>el.checked=selectedTypes.includes(el.value));
+ $('refillMaster').value=job.master_id||'';$('refillAmount').value=Number(job.amount||0);
+ $('refillShipped').checked=!!job.shipped;$('refillInvoiced').checked=!!job.invoiced;
+ $('refillJobForm').dataset.editId=job.id;
+ const btn=$('refillJobForm').querySelector('button[type="submit"]');if(btn)btn.textContent='Сохранить изменения';
+ show('cartridgeJobs');$('refillJobForm').scrollIntoView({behavior:'smooth',block:'start'});
+};
 window.deleteRefillJob=async function(id){if(!confirm('Удалить запись?'))return;const {error}=await sb.from('service_cartridge_jobs').delete().eq('id',id);if(error)alert(error.message);else loadRefillJournal()};
 
 const $=id=>document.getElementById(id);
@@ -261,10 +279,11 @@ $('refillJobForm').addEventListener('submit',async function(e){
  const amount=Number($('refillAmount').value||0);if(!Number.isFinite(amount)||amount<0){alert('Проверьте сумму.');return}
  const {data:cart,error:cartError}=await sb.from('service_cartridges').select('id,client_id').eq('id',cartridgeId).single();
  if(cartError||!cart?.client_id){alert('Не удалось подтвердить картридж и его клиента. Выполните поиск штрихкода повторно.');return}
- const payload={cartridge_id:cart.id,client_id:cart.client_id,work_type:workTypes.join(', '),work_types:workTypes,master_id:$('refillMaster').value||null,amount,shipped:$('refillShipped').checked,invoiced:$('refillInvoiced').checked,status:'received'};
- const {error}=await sb.from('service_cartridge_jobs').insert(payload);
- if(error){alert('Не удалось сохранить работу: '+error.message);return}
- alert('Работа по картриджу сохранена.');resetRefillForm();await loadRefillJournal();await refresh();
+ const payload={cartridge_id:cart.id,client_id:cart.client_id,work_type:workTypes.join(', '),work_types:workTypes,master_id:$('refillMaster').value||null,amount,shipped:$('refillShipped').checked,invoiced:$('refillInvoiced').checked};
+ const editId=$('refillJobForm').dataset.editId;
+ const result=editId?await sb.from('service_cartridge_jobs').update(payload).eq('id',editId):await sb.from('service_cartridge_jobs').insert({...payload,status:'received'});
+ if(result.error){alert('Не удалось '+(editId?'изменить':'сохранить')+' работу: '+result.error.message);return}
+ alert(editId?'Изменения сохранены.':'Работа по картриджу сохранена.');resetRefillForm();await loadRefillJournal();await refresh();
 });
 $('refillBarcode').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();lookupRefillBarcode()}});
 $('masterForm').addEventListener('submit',async function(e){e.preventDefault();const input=$('masterName');await addMaster(input.value);input.value='';});
