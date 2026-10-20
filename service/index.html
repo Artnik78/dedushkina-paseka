@@ -338,8 +338,8 @@ window.editRequest=async id=>{
  const {data:x,error}=await sb.from('service_requests').select('*').eq('id',id).single();
  if(error){alert('Не удалось открыть заявку: '+error.message);return}
  const form=$('requestForm');form.elements.id.value=x.id;form.elements.client_id.value=x.client_id||'';
- await window.loadRequestAssets();
  form.elements.request_type.value=x.request_type||'repair';
+ await window.loadRequestAssets();
  if(x.cartridge_id)form.elements.cartridge_id.value=x.cartridge_id;
  if(x.equipment_id)form.elements.equipment_id.value=x.equipment_id;
  form.elements.cartridge_name.value=x.cartridge_name||'';
