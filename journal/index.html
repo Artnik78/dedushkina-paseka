@@ -3868,9 +3868,20 @@ $('disinfectionForm').elements.medicine_id.addEventListener('change',e=>{const m
     const transcript=textBox.value.trim();if(!transcript){setStatus('Сначала запишите или впишите заметку.');return;}
     const task=$('taskForm');if(!task){setStatus('Форма напоминания не найдена.');return;}
     const hiveId=voiceHiveId(),hive=state.hives.find(x=>String(x.id)===hiveId);
-    if(task.elements.title)task.elements.title.value='Проверить результат осмотра'+(hive?' — улей №'+hive.hive_number:'');
-    if(task.elements.due_date&&!task.elements.due_date.value)task.elements.due_date.value=today();
-    if(task.elements.priority)task.elements.priority.value='Обычный';
+    let taskTitle='Проверить результат осмотра';
+    if(/\b(подкорм|корм)\w*/i.test(transcript))taskTitle='Проверить кормление';
+    else if(/\b(матк|яйц|расплод)\w*/i.test(transcript))taskTitle='Повторно проверить матку и расплод';
+    else if(/\b(варроа|клещ|обработ|бипин|варомор)\w*/i.test(transcript))taskTitle='Проверить результат обработки';
+    else if(/\b(вощин|рамк)\w*/i.test(transcript))taskTitle='Проверить установленные рамки и вощину';
+    if(task.elements.title)task.elements.title.value=taskTitle+(hive?' — улей №'+hive.hive_number:'');
+    if(task.elements.due_date&&!task.elements.due_date.value){
+      const due=new Date();const inDays=transcript.match(/через\s+(\d+)\s+д(?:ень|ня|ней)/i);
+      if(/\bпослезавтра\b/i.test(transcript))due.setDate(due.getDate()+2);
+      else if(/\bзавтра\b/i.test(transcript))due.setDate(due.getDate()+1);
+      else if(inDays)due.setDate(due.getDate()+Math.max(0,Number(inDays[1])));
+      task.elements.due_date.value=due.getFullYear()+'-'+String(due.getMonth()+1).padStart(2,'0')+'-'+String(due.getDate()).padStart(2,'0');
+    }
+    if(task.elements.priority)task.elements.priority.value=/\b(срочно|срочная|срочный|обязательно)\b/i.test(transcript)?'Высокий':'Обычный';
     if(task.elements.status)task.elements.status.value='Открыта';
     if(task.elements.description)task.elements.description.value='Создано из голосовой заметки осмотра. Улей: '+(hive?'№'+hive.hive_number:'уточнить')+'.\n'+transcript;
     showPage('tasks');task.scrollIntoView({behavior:'smooth',block:'start'});
