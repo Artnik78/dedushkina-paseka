@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#244a2e">
+<title>Матководы Беларуси — справочник</title>
+<style>
+:root{--green:#244a2e;--green2:#356c45;--gold:#f6b916;--cream:#fffaf0;--ink:#25291f;--muted:#697264;--line:#e4ddca}
+*{box-sizing:border-box}body{margin:0;background:#f3f0e5;color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+a{color:#245b38;overflow-wrap:anywhere}.top{background:var(--green);color:#fff;padding:18px max(16px,calc((100% - 1050px)/2))}.top a{color:#fff;text-decoration:none}.wrap{max-width:1050px;margin:auto;padding:20px 16px 44px}.hero{background:linear-gradient(130deg,#fff8d9,#e5eddb);border:1px solid var(--line);border-radius:20px;padding:24px;margin-bottom:18px}.hero h1{margin:0 0 8px;font-size:clamp(25px,4vw,36px);line-height:1.15}.hero p{margin:0;color:#53604f}.filters{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;background:#fffdf7;border:1px solid var(--line);padding:14px;border-radius:16px;margin-bottom:14px}.filters label{display:block;font-size:13px;color:var(--muted);margin-bottom:5px}.filters input,.filters select{width:100%;min-width:0;min-height:44px;padding:10px 12px;border:1px solid #d8d4c7;border-radius:10px;background:#fff;font:inherit;font-size:16px}.count{color:var(--muted);font-size:14px;margin:10px 2px}.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.card{background:#fffdf7;border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 4px 16px #3b45230a;min-width:0}.card h2{font-size:20px;line-height:1.25;margin:0 0 8px}.tags{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}.tag{font-size:12px;background:#eaf0e3;color:#315238;border-radius:999px;padding:4px 9px}.meta{color:#5e675b;font-size:14px;margin:6px 0}.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:42px;border-radius:10px;padding:9px 13px;text-decoration:none;font-weight:650;background:#e7efe1;color:#244a2e}.btn.primary{background:var(--gold);color:#30280e}.notice{margin-top:18px;background:#fffdf7;border:1px solid var(--line);border-radius:14px;padding:14px;color:#60685c;font-size:14px}.empty{display:none;padding:26px;text-align:center;background:#fffdf7;border-radius:14px;color:var(--muted)}footer{text-align:center;color:#7b8175;padding:25px 12px;font-size:13px}
+@media(max-width:700px){.wrap{padding:14px 12px 30px}.hero{padding:18px}.filters{grid-template-columns:1fr;gap:8px;padding:12px}.cards{grid-template-columns:1fr}.card{padding:16px}.top{padding:14px 16px}}
+</style>
+</head>
+<body>
+<div class="top"><a href="map-live.html?v=20261019q">← Назад к карте пчеловодов</a></div>
+<main class="wrap">
+<section class="hero"><h1>👑 Матководы Беларуси</h1><p>Справочник хозяйств и специалистов, предлагающих пчелиных маток и племенной материал. Ищите по области, породе или названию.</p></section>
+<section class="filters" aria-label="Поиск матководов">
+<div><label for="search">Поиск по названию, породе, населённому пункту</label><input id="search" type="search" placeholder="Например, Карника или Бакфаст"></div>
+<div><label for="region">Область</label><select id="region"><option value="">Все области</option><option>Брестская</option><option>Витебская</option><option>Гомельская</option><option>Гродненская</option><option>Минская</option><option>Могилёвская</option></select></div>
+<div><label for="breed">Порода</label><select id="breed"><option value="">Все породы</option><option>Карника</option><option>Бакфаст</option><option>Кавказская</option></select></div>
+</section>
+<div class="count" id="count" aria-live="polite"></div>
+<section class="cards" id="cards">
+<article class="card" data-region="Минская" data-breed="Карника Бакфаст" data-search="BeeSale семейное хозяйство Смолевичский район Глинище племенные матки пчеломатки карника бакфаст">
+<h2>BeeSale — племенные пчеломатки</h2><div class="meta">📍 Минская область, Смолевичский район, д. Глинище</div><div class="tags"><span class="tag">Карника</span><span class="tag">Бакфаст</span><span class="tag">Племенной материал</span></div><p>Семейное хозяйство; на сайте представлены матки разных линий, информация о происхождении и доставке.</p><div class="meta">☎ +375 33 354-52-51</div><div class="actions"><a class="btn primary" href="https://beesale.by/pchelomatki/" target="_blank" rel="noopener noreferrer">Сайт и предложения ↗</a><a class="btn" href="tel:+375333545251">Позвонить</a></div>
+</article>
+<article class="card" data-region="Гомельская" data-breed="Бакфаст" data-search="Андрей Сидоренко Новоселки Рогачевский район Гомельская область бакфаст матковод">
+<h2>Андрей Сидоренко</h2><div class="meta">📍 Гомельская область, Рогачёвский район, д. Новосёлки</div><div class="tags"><span class="tag">Бакфаст</span><span class="tag">Матководство</span><span class="tag">Доставка</span></div><p>На сайте хозяйства указаны разведение пчелиных маток, нуклеусный парк и доставка по Беларуси.</p><div class="meta">☎ +375 29 177-30-18 (A1)<br>☎ +375 29 237-30-18 (МТС)</div><div class="actions"><a class="btn primary" href="https://buckfast.tb.ru/" target="_blank" rel="noopener noreferrer">Сайт хозяйства ↗</a><a class="btn" href="tel:+375291773018">Позвонить</a></div>
+</article>
+<article class="card" data-region="Гродненская" data-breed="Бакфаст" data-search="Виталий Малико ФХ Дятлово Гродненская область бакфаст пчеломатки">
+<h2>Виталий Малико — ФХ «Дятлово»</h2><div class="meta">📍 Гродненская область</div><div class="tags"><span class="tag">Бакфаст</span><span class="tag">Плодные и неплодные матки</span></div><p>На сайте пасеки и в открытом объявлении представлены пчеломатки Бакфаст. Перед заказом уточняйте наличие и сезон.</p><div class="meta">☎ +375 29 314-61-64 (A1)<br>☎ +375 29 777-56-53 (МТС)</div><div class="actions"><a class="btn primary" href="https://pchelka.by/" target="_blank" rel="noopener noreferrer">Сайт пасеки ↗</a><a class="btn" href="tel:+375293146164">Позвонить</a></div>
+</article>
+<article class="card" data-region="Минская" data-breed="Карника" data-search="РУП Институт плодоводства лаборатория пчеловодства Рахматулин Минская область карника">
+<h2>РУП «Институт плодоводства» — лаборатория пчеловодства</h2><div class="meta">📍 Минская область</div><div class="tags"><span class="tag">Научная организация</span><span class="tag">Карника — уточнить</span></div><p>Публичный отраслевой источник указывает лабораторию пчеловодства и руководителя Дмитрия Рахматулина. Наличие маток и условия приобретения необходимо уточнять напрямую.</p><div class="meta">☎ +375 17 506-61-31</div><div class="actions"><a class="btn primary" href="https://ylejbees.com/porody-pchel/gde-kupit-karnika" target="_blank" rel="noopener noreferrer">Источник с контактами ↗</a></div>
+</article>
+<article class="card" data-region="Гомельская" data-breed="Бакфаст" data-search="Калинковичи Андрей бакфаст пчеломатки F1 2026">
+<h2>Андрей — Калинковичи</h2><div class="meta">📍 Гомельская область, Калинковичи</div><div class="tags"><span class="tag">Бакфаст F1</span><span class="tag">Объявление</span></div><p>В открытом объявлении предлагались матки F1 и доставка почтой. Это объявление, а не подтверждение действующего матководческого хозяйства — наличие и контакты проверьте на площадке.</p><div class="actions"><a class="btn primary" href="https://www.kufar.by/item/1016665502" target="_blank" rel="noopener noreferrer">Открыть объявление ↗</a></div>
+</article>
+</section>
+<div class="empty" id="empty">По вашему запросу ничего не найдено. Попробуйте изменить фильтры.</div>
+<div class="notice"><strong>Важно.</strong> Это начальная подборка из открытых интернет-источников, а не официальный реестр и не гарантия наличия маток в текущем сезоне. Перед заказом уточняйте породу, происхождение, документы, стоимость, сроки и доставку у самого хозяйства. Если контакт устарел или вы хотите добавить матковода, данные нужно проверить и подтвердить перед публикацией.</div>
+</main>
+<footer>Карта белорусских пчеловодов · Справочник матководов</footer>
+<script>
+(function(){const cards=[...document.querySelectorAll('.card')],search=document.getElementById('search'),region=document.getElementById('region'),breed=document.getElementById('breed'),count=document.getElementById('count'),empty=document.getElementById('empty');function filter(){const q=search.value.trim().toLocaleLowerCase('ru'),r=region.value,b=breed.value;let shown=0;cards.forEach(card=>{const ok=(!q||(card.dataset.search+' '+card.innerText).toLocaleLowerCase('ru').includes(q))&&(!r||card.dataset.region===r)&&(!b||card.dataset.breed.split(' ').includes(b));card.hidden=!ok;if(ok)shown++});count.textContent='В справочнике: '+shown+' из '+cards.length;empty.style.display=shown?'none':'block'}[search,region,breed].forEach(el=>el.addEventListener('input',filter));filter()})();
+</script>
+</body></html>
