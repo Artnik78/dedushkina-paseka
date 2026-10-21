@@ -3824,6 +3824,39 @@ $('disinfectionForm').elements.medicine_id.addEventListener('change',e=>{const m
     stop.onclick=()=>{if(recording&&recognition)recognition.stop();};
   }
   clear.onclick=()=>{if(recording&&recognition)recognition.stop();finalText='';textBox.value='';setStatus('Текст голосовой заметки очищен.');};
+  const toHealth=$('inspectionVoiceToHealth'),toTask=$('inspectionVoiceToTask');
+  function voiceHiveId(){
+    const transcript=textBox.value||'';
+    const match=transcript.match(/(?:^|[\\s,.;])(?:улей|улья)\\s*(?:номер|№)?\\s*(\\d+)/i);
+    if(match){const h=state.hives.find(x=>String(x.hive_number||'').trim()===String(match[1]));if(h)return String(h.id);}
+    return String(form.elements.hive_id?.value||'');
+  }
+  if(toHealth)toHealth.onclick=()=>{
+    const transcript=textBox.value.trim();if(!transcript){setStatus('Сначала запишите или впишите заметку.');return;}
+    const health=$('healthForm');if(!health){setStatus('Форма «Здоровье семьи» не найдена.');return;}
+    const hiveId=voiceHiveId();if(hiveId&&health.elements.hive_id)health.elements.hive_id.value=hiveId;
+    if(health.elements.check_date&&!health.elements.check_date.value)health.elements.check_date.value=today();
+    const action=health.elements.action_taken,product=health.elements.treatment_product,notes=health.elements.notes;
+    if(/\\b(обработал|обработала|обработали|поставил полоски|поставили полоски|опрыскал|орошал|закапал|применил)\\b/i.test(transcript)&&action)action.value=transcript;
+    if(/\\b(бипин(?:-т)?|варомор|муравьин(?:ая|ой) кислота|щавелев(?:ая|ой) кислота|оксал(?:овая|овой) кислота)\\b/i.test(transcript)&&product){
+      const m=transcript.match(/бипин(?:-т)?|варомор|муравьин(?:ая|ой) кислота|щавелев(?:ая|ой) кислота|оксал(?:овая|овой) кислота/i);if(m)product.value=m[0];
+    }
+    if(notes)notes.value=(notes.value.trim()?notes.value.trim()+'\\n':'')+'Голосовая заметка с осмотра: '+transcript;
+    showPage('health');health.scrollIntoView({behavior:'smooth',block:'start'});
+    setStatus('Текст перенесён в «Здоровье семьи». Проверьте улей, поля и препарат; запись ещё не сохранена.');
+  };
+  if(toTask)toTask.onclick=()=>{
+    const transcript=textBox.value.trim();if(!transcript){setStatus('Сначала запишите или впишите заметку.');return;}
+    const task=$('taskForm');if(!task){setStatus('Форма напоминания не найдена.');return;}
+    const hiveId=voiceHiveId(),hive=state.hives.find(x=>String(x.id)===hiveId);
+    if(task.elements.title)task.elements.title.value='Проверить результат осмотра'+(hive?' — улей №'+hive.hive_number:'');
+    if(task.elements.due_date&&!task.elements.due_date.value)task.elements.due_date.value=today();
+    if(task.elements.priority)task.elements.priority.value='Обычный';
+    if(task.elements.status)task.elements.status.value='Открыта';
+    if(task.elements.description)task.elements.description.value='Создано из голосовой заметки осмотра. Улей: '+(hive?'№'+hive.hive_number:'уточнить')+'.\\n'+transcript;
+    showPage('tasks');task.scrollIntoView({behavior:'smooth',block:'start'});
+    setStatus('Подготовлено напоминание. Проверьте название и дату, затем сохраните его вручную.');
+  };
   apply.onclick=()=>{
     let remaining=textBox.value.trim();
     if(!remaining){setStatus('Сначала запишите или впишите заметку.');return;}
