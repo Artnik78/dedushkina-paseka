@@ -21,6 +21,18 @@ th,td{padding:11px;border-bottom:1px solid #e7edf2;text-align:left;white-space:n
 .auth{max-width:420px;margin:70px auto}.muted{color:#64748b;font-size:13px}.hidden{display:none!important}.print-only{display:none}
 @media(max-width:700px){.grid{grid-template-columns:repeat(2,1fr)}.formgrid{grid-template-columns:1fr}.formgrid .full{grid-column:auto}header{align-items:flex-start}.grid b{font-size:23px}}
 .barcodeRow{display:flex;gap:8px;align-items:stretch}.barcodeRow input{flex:1}.scanBtn{white-space:nowrap}.barcodeInfo{grid-column:1/-1;padding:10px 12px;border-radius:9px;background:#eef6ff;color:#17324d;font-size:13px;min-height:0}.barcodeInfo:empty{display:none}.scannerModal{position:fixed;inset:0;background:#000b;display:flex;align-items:center;justify-content:center;z-index:9999;padding:18px}.scannerBox{background:#fff;border-radius:16px;padding:16px;max-width:520px;width:100%}.scannerBox video{width:100%;border-radius:12px;background:#111;max-height:55vh;object-fit:cover}.scannerActions{display:flex;gap:8px;margin-top:10px}.scannerMsg{font-size:13px;color:#64748b;margin-top:8px}@media print{body{background:#fff!important;color:#000!important;padding:0!important}body:has(#orderCard.active) header,body:has(#orderCard.active) nav,body:has(#orderCard.active) #auth,body:has(#orderCard.active) #app>main>section:not(#orderCard),body:has(#orderCard.active) #orderCard .toolbar{display:none!important}body:has(#orderCard.active) #app,body:has(#orderCard.active) #orderCard,body:has(#orderCard.active) #orderCard .card{display:block!important;position:static!important;width:100%!important;max-width:none!important;margin:0!important;padding:0!important;box-shadow:none!important;border:0!important}body:has(#orderCard.active) #orderCard h2{font-size:22pt;margin:0 0 14pt}body:has(#orderCard.active) #orderCard h3{margin:12pt 0 4pt}body:has(#orderCard.active) #orderCard p{margin:4pt 0;font-size:10pt}body:has(#orderCard.active) #orderCard .grid{display:grid!important;grid-template-columns:1fr 1fr!important;gap:10pt!important}body:has(#orderCard.active) #orderCard select{display:none!important}body:has(#orderCard.active) #orderCard .print-only{display:block!important}body:has(#orderCard.active) #orderCard .signature-row{display:grid!important;grid-template-columns:1fr 1fr!important;gap:24pt!important;margin-top:32pt!important;padding-top:12pt!important;border-top:1px solid #aaa}body:has(#orderCard.active) #orderCard .signature-row div{min-height:34pt;font-size:9pt}body:has(#orderCard.active) #orderCard hr{border:0;border-top:1px solid #aaa;margin:12pt 0}}
+/* Левое боковое меню, как в журнале пасечника */
+@media(min-width:701px){
+  main{display:grid;grid-template-columns:205px minmax(0,1fr);column-gap:18px;align-items:start}
+  main>nav{grid-column:1;grid-row:1;display:flex;flex-direction:column;align-self:start;position:sticky;top:14px;margin:0;padding:9px;background:#eaf3fb;border:1px solid #d4e4f2;border-radius:14px}
+  main>nav button{width:100%;text-align:left;justify-content:flex-start;padding:12px 13px;white-space:normal}
+  main>section{grid-column:2;grid-row:1;min-width:0}
+}
+@media(max-width:700px){
+  main{display:block}
+  main>nav{display:flex;flex-direction:row;overflow-x:auto;flex-wrap:nowrap}
+  main>nav button{flex:0 0 auto}
+}
 /* Бело-синяя тема сервиса */
 :root{--blue:#245b91;--blue2:#397fba;--pale:#edf5fc;--paper:#fff;--ink:#263746;--muted:#647789;--line:#d9e4ee;--danger:#b23a2b}
 html{background:#f4f8fc}body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:#f4f8fc;color:var(--ink)}
