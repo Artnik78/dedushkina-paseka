@@ -3810,9 +3810,33 @@ $('disinfectionForm').elements.medicine_id.addEventListener('change',e=>{const m
         if(result.isFinal)finalParts.push(phrase);
         else interimParts.push(phrase);
       }
-      // Keep a stable snapshot; do not append the same final result a second time.
-      finalText=finalParts.join(' ').replace(/\\s+/g,' ').trim();
-      textBox.value=(finalText+(interimParts.length?' '+interimParts.join(' '):'')).replace(/\\s+/g,' ').trim();
+      // Some mobile speech engines return overlapping final fragments. Collapse only
+      // immediately repeated word sequences (1–6 words), preserving the original text otherwise.
+      const cleanRepeats=(value)=>{
+        const words=String(value||'').replace(/\\s+/g,' ').trim().split(' ').filter(Boolean);
+        const out=[];
+        for(const word of words){
+          const w=word.toLocaleLowerCase('ru-RU').replace(/[.,!?;:]+$/,'');
+          if(out.length && out[out.length-1].toLocaleLowerCase('ru-RU').replace(/[.,!?;:]+$/,'')===w)continue;
+          out.push(word);
+        }
+        let changed=true, passes=0;
+        while(changed&&passes++<3){
+          changed=false;
+          for(let size=Math.min(6,Math.floor(out.length/2));size>=1;size--){
+            let found=false;
+            for(let at=0;at+size*2<=out.length;at++){
+              const a=out.slice(at,at+size).map(x=>x.toLocaleLowerCase('ru-RU').replace(/[.,!?;:]+$/,'')).join(' ');
+              const b=out.slice(at+size,at+size*2).map(x=>x.toLocaleLowerCase('ru-RU').replace(/[.,!?;:]+$/,'')).join(' ');
+              if(a===b){out.splice(at+size,size);changed=true;found=true;break;}
+            }
+            if(found)break;
+          }
+        }
+        return out.join(' ');
+      };
+      finalText=cleanRepeats(finalParts.join(' '));
+      textBox.value=cleanRepeats(finalText+(interimParts.length?' '+interimParts.join(' '):''));
     };
     recognition.onerror=(event)=>{
       const messages={ 'not-allowed':'Нет доступа к микрофону. Разрешите его для сайта в настройках браузера.',
