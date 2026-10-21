@@ -1268,9 +1268,9 @@ async function refreshHomeWeather(){
 }
 function updateHomeApiarySubtitle(){
   const el=$('homeApiarySubtitle');if(!el)return;
-  const apiary=(state.apiaries||[]).find(a=>String(a.name||'').trim());
-  const displayName=$('journalDisplayName')?.value?.trim();
-  el.textContent=apiary?String(apiary.name).trim():(displayName||'Название пасеки не указано');
+  const apiaries=Array.isArray(state.apiaries)?state.apiaries:[];
+  const apiary=apiaries.find(a=>String(a?.name||'').trim());
+  el.textContent=apiary?String(apiary.name).trim():'Название пасеки не указано';
 }
 function syncHomeUser(email,displayName){
   const el=$('homeUserEmail');if(el)el.textContent=email||'Гостевой просмотр';
