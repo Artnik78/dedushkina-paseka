@@ -330,7 +330,7 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
     <section id="page-home" class="section active">
       <div class="home-masthead">
         <div class="mast-brand">🐝 <span id="homeJournalName">Дедушкина<br>пасека</span></div>
-        <div class="mast-title"><strong>Журнал пасечника</strong><span>Дедушкина пасека · Натуральный мёд с родных полей</span></div>
+        <div class="mast-title"><strong>Журнал пасечника</strong><span><span id="homeApiarySubtitle">Дедушкина пасека</span> · Натуральный мёд с родных полей</span></div>
         <div class="mast-info">
           <span>📅 <b id="homeDateLabel">Сегодня</b></span>
           <span id="homeWeatherLabel">🌤️ Погода не настроена</span>
@@ -1202,6 +1202,12 @@ async function refreshHomeWeather(){
     if(requestId===homeWeatherRequestId)weatherEl.textContent='📍 '+location+' · погода недоступна';
   }
 }
+function updateHomeApiarySubtitle(){
+  const el=$('homeApiarySubtitle');if(!el)return;
+  const apiary=(state.apiaries||[]).find(a=>String(a.name||'').trim());
+  const displayName=$('journalDisplayName')?.value?.trim();
+  el.textContent=apiary?String(apiary.name).trim():(displayName||'Название пасеки не указано');
+}
 function syncHomeUser(email,displayName){
   const el=$('homeUserEmail');if(el)el.textContent=email||'Гостевой просмотр';
   const se=$('settingsUserEmail');if(se)se.textContent=email||'Гостевой просмотр';
@@ -1211,6 +1217,7 @@ function syncHomeUser(email,displayName){
   const dn=$('journalDisplayName');if(dn)dn.value=displayName||'';
   const ac=$('settingsApiaryCount');if(ac)ac.textContent=state.apiaries?.length||0;
   const hc=$('settingsHiveCount');if(hc)hc.textContent=state.hives?.length||0;
+  updateHomeApiarySubtitle();
 }
 formatHomeDate();
 
@@ -2689,6 +2696,7 @@ function renderQueenCalendarReminders(){
   $('openQueenCalendarBtn')?.addEventListener('click',()=>{showPage('queens');});
 }
 function renderAll(){
+  updateHomeApiarySubtitle();
   refreshHomeWeather();
   renderContacts();
   renderQueenRearingBatches();
