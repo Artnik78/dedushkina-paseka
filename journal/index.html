@@ -518,7 +518,20 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
           <div class="field"><label>Порода матки</label><select name="queen_breed"><option value="">Не указана</option><option>Карника</option><option>Бакфаст</option><option>Мешанка</option><option>Итальянка</option><option>Среднерусская</option><option>Кавказская</option><option>Другая</option></select></div>
           <div class="field"><label>Расплод</label><select name="brood"><option value="">Не указано</option><option>Хороший</option><option>Нормальный</option><option>Слабый</option><option>Нет</option></select></div>
           <div class="field"><label>Корм</label><select name="feed"><option value="">Не указано</option><option>Много</option><option>Достаточно</option><option>Мало</option><option>Нет</option><option>Мёд и перга</option><option>Сироп</option></select></div>
-          <div class="field full"><label>Заметки</label><textarea name="notes"></textarea></div>
+          <div class="field full"><label>Заметки</label><textarea name="notes" id="inspectionNotes"></textarea></div>
+          <div class="field full" id="inspectionVoicePanel" style="border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--panel,#fff)">
+            <h4 style="margin:0 0 6px">🎙️ Голосовые заметки осмотра</h4>
+            <p class="muted" style="margin:0 0 10px">Нажмите «Начать запись» и расскажите, что сделали у улья. Речь преобразуется в текст на устройстве; затем можно распределить распознанное по полям осмотра.</p>
+            <div class="actions" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+              <button type="button" class="btn" id="inspectionVoiceStart">🎙️ Начать запись</button>
+              <button type="button" class="btn secondary" id="inspectionVoiceStop" disabled>⏹ Остановить</button>
+              <button type="button" class="btn gold" id="inspectionVoiceApply">Разнести по полям</button>
+              <button type="button" class="btn secondary" id="inspectionVoiceClear">Очистить текст</button>
+            </div>
+            <div class="muted" id="inspectionVoiceStatus" role="status" aria-live="polite">Готово к записи. Для работы разрешите доступ к микрофону.</div>
+            <div class="field" style="margin-top:8px"><label for="inspectionVoiceText">Распознанный текст (можно исправить вручную)</label><textarea id="inspectionVoiceText" rows="4" placeholder="Например: семья сильная, матка есть, расплод хороший, корма достаточно. Поставил две рамки вощины."></textarea></div>
+            <small class="muted">Автоматически распознаются подсказки о силе семьи, матке, расплоде и корме. Остальной текст добавляется в заметки — перед сохранением проверьте поля.</small>
+          </div>
           <div class="field full"><label>📷 Фото прямо из осмотра (необязательно)</label><input name="inspection_photo" type="file" accept="image/*" capture="environment"><small class="muted">Можно сделать снимок камерой телефона или выбрать файл. Максимум 10 МБ.</small></div>
           <div class="field full"><label>Подпись к фото (необязательно)</label><input name="inspection_photo_caption" placeholder="Например, расплод, матка, признаки болезни"></div>
           <div><button class="btn">Сохранить осмотр</button></div>
