@@ -1248,7 +1248,7 @@ $('pageBackBtn')?.addEventListener('click',()=>{
   const back=$('pageBackBtn');
   if(back)back.hidden=journalPageHistory.length===0;
 });
-document.querySelectorAll('[data-page]').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
+document.querySelectorAll('[data-page]').forEach(b=>b.addEventListener('click',()=>{showPage(b.dataset.page);if(typeof sendJournalActivity==='function')sendJournalActivity();}));
 
 // Гостевой режим строго только для просмотра: блокируем отправку любых форм
 // и обработчики удаления до того, как они смогут обратиться к Supabase.
@@ -1726,6 +1726,8 @@ function startJournalActivityTracking(){
   if(journalActivityTimer)clearInterval(journalActivityTimer);
   journalActivityLastSent=0;
   sendJournalActivity();
+  // Retry after auth/session restoration, then keep the normal heartbeat.
+  setTimeout(()=>sendJournalActivity(),5000);
   journalActivityTimer=setInterval(sendJournalActivity,60000);
 }
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')sendJournalActivity()});
