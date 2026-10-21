@@ -3799,14 +3799,20 @@ $('disinfectionForm').elements.medicine_id.addEventListener('change',e=>{const m
     recognition=new SpeechRecognition();
     recognition.lang='ru-RU';recognition.continuous=true;recognition.interimResults=true;
     recognition.onstart=()=>{recording=true;start.disabled=true;stop.disabled=false;setStatus('Слушаю… Говорите обычным голосом.');};
+    // Rebuild the transcript from the current result list on every event.
+    // Android Chrome may resend/update result entries; appending each event caused duplicated words.
     recognition.onresult=(event)=>{
-      let interim='';
-      for(let i=event.resultIndex;i<event.results.length;i++){
-        const phrase=event.results[i][0]?.transcript||'';
-        if(event.results[i].isFinal)finalText+=(finalText?' ':'')+phrase.trim();
-        else interim+=phrase;
+      const finalParts=[], interimParts=[];
+      for(let i=0;i<event.results.length;i++){
+        const result=event.results[i];
+        const phrase=(result&&result[0]&&result[0].transcript||'').trim();
+        if(!phrase)continue;
+        if(result.isFinal)finalParts.push(phrase);
+        else interimParts.push(phrase);
       }
-      textBox.value=(finalText+(interim?' '+interim:'')).trim();
+      // Keep a stable snapshot; do not append the same final result a second time.
+      finalText=finalParts.join(' ').replace(/\\s+/g,' ').trim();
+      textBox.value=(finalText+(interimParts.length?' '+interimParts.join(' '):'')).replace(/\\s+/g,' ').trim();
     };
     recognition.onerror=(event)=>{
       const messages={ 'not-allowed':'Нет доступа к микрофону. Разрешите его для сайта в настройках браузера.',
