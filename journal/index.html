@@ -1236,6 +1236,11 @@ function showPage(name,fromBack=false){
   const back=$('pageBackBtn');
   if(back)back.hidden=journalPageHistory.length===0;
   window.scrollTo({top:0,behavior:'smooth'});
+  // Refresh the owner-only user list when opening Settings; do not block page navigation.
+  if(name==='settings' && typeof loadJournalUsers==='function'){
+    const ownerEmail=String($('userEmail')?.textContent||'').trim().toLowerCase();
+    if(ownerEmail==='78artnik@gmail.com') loadJournalUsers();
+  }
 }
 $('pageBackBtn')?.addEventListener('click',()=>{
   const previous=journalPageHistory.pop();
