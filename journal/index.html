@@ -3781,6 +3781,74 @@ async function deleteDisinfection(id){ if(guestMode){toast('Гостевой р�
 if($('disinfectionCancelBtn')) $('disinfectionCancelBtn').onclick=resetDisinfectionForm;
 $('disinfectionForm').elements.medicine_id.addEventListener('change',e=>{const m=state.medicines.find(x=>String(x.id)===String(e.target.value));if(m)$('disinfectionForm').elements.agent.value=m.name;});
 
+
+// Voice dictation for hive inspections (Web Speech API; no audio is uploaded or stored).
+(function setupInspectionVoice(){
+  const form=$('inspectionForm'), start=$('inspectionVoiceStart'), stop=$('inspectionVoiceStop'),
+    textBox=$('inspectionVoiceText'), status=$('inspectionVoiceStatus'), apply=$('inspectionVoiceApply'), clear=$('inspectionVoiceClear');
+  if(!form||!start||!stop||!textBox||!status||!apply||!clear)return;
+  const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+  let recognition=null, finalText='', recording=false;
+  const setStatus=(message)=>{status.textContent=message};
+  if(!SpeechRecognition){
+    start.disabled=true;
+    setStatus('Голосовой ввод не поддерживается этим браузером. Откройте журнал в актуальном Chrome или Edge либо впишите заметку вручную.');
+  }else{
+    recognition=new SpeechRecognition();
+    recognition.lang='ru-RU';recognition.continuous=true;recognition.interimResults=true;
+    recognition.onstart=()=>{recording=true;start.disabled=true;stop.disabled=false;setStatus('Слушаю… Говорите обычным голосом.');};
+    recognition.onresult=(event)=>{
+      let interim='';
+      for(let i=event.resultIndex;i<event.results.length;i++){
+        const phrase=event.results[i][0]?.transcript||'';
+        if(event.results[i].isFinal)finalText+=(finalText?' ':'')+phrase.trim();
+        else interim+=phrase;
+      }
+      textBox.value=(finalText+(interim?' '+interim:'')).trim();
+    };
+    recognition.onerror=(event)=>{
+      const messages={ 'not-allowed':'Нет доступа к микрофону. Разрешите его для сайта в настройках браузера.',
+        'audio-capture':'Микрофон не найден или занят другим приложением.',
+        'no-speech':'Речь не распознана. Попробуйте говорить ближе к микрофону.',
+        'network':'Служба распознавания речи недоступна. Проверьте интернет.' };
+      setStatus(messages[event.error]||('Ошибка распознавания речи: '+event.error));
+    };
+    recognition.onend=()=>{recording=false;start.disabled=false;stop.disabled=true;if(textBox.value.trim())finalText=textBox.value.trim();if(status.textContent==='Слушаю… Говорите обычным голосом.')setStatus('Запись остановлена. Проверьте текст и нажмите «Разнести по полям».');};
+    start.onclick=()=>{
+      if(recording)return;
+      finalText=textBox.value.trim();
+      try{recognition.start()}catch(err){setStatus('Не удалось начать запись. Подождите секунду и попробуйте ещё раз.');}
+    };
+    stop.onclick=()=>{if(recording&&recognition)recognition.stop();};
+  }
+  clear.onclick=()=>{if(recording&&recognition)recognition.stop();finalText='';textBox.value='';setStatus('Текст голосовой заметки очищен.');};
+  apply.onclick=()=>{
+    let remaining=textBox.value.trim();
+    if(!remaining){setStatus('Сначала запишите или впишите заметку.');return;}
+    const rules=[
+      {re:/(?:сила\s+семьи|семья)\s*[:,-]?\s*(сильная|сильную|сильная семья|средняя|среднюю|слабая|слабую)(?:\s+семья)?/i,field:'colony_strength',map:{'сильная':'Сильная','сильную':'Сильная','сильная семья':'Сильная','средняя':'Средняя','среднюю':'Средняя','слабая':'Слабая','слабую':'Слабая'}},
+      {re:/матк(?:а|у|и)\s*[:,-]?\s*(трутневая|молодая|есть|найдена|не найдена|нет)/i,field:'queen_status',map:{'трутневая':'Трутневая','молодая':'Молодая','есть':'Есть','найдена':'Есть','не найдена':'Нет','нет':'Нет'}},
+      {re:/расплод\s*[:,-]?\s*(хороший|нормальный|слабый|нет)/i,field:'brood',map:{'хороший':'Хороший','нормальный':'Нормальный','слабый':'Слабый','нет':'Нет'}},
+      {re:/(?:корм(?:а|ов)?|запас кормов)\s*[:,-]?\s*(достаточно|много|мало|нет|мёд и перга|мед и перга|сироп)/i,field:'feed',map:{'достаточно':'Достаточно','много':'Много','мало':'Мало','нет':'Нет','мёд и перга':'Мёд и перга','мед и перга':'Мёд и перга','сироп':'Сироп'}},
+      {re:/пород(?:а|ы)\s+матки\s*[:,-]?\s*(карника|бакфаст|мешанка|итальянка|среднерусская|кавказская|другая)/i,field:'queen_breed',map:{'карника':'Карника','бакфаст':'Бакфаст','мешанка':'Мешанка','итальянка':'Итальянка','среднерусская':'Среднерусская','кавказская':'Кавказская','другая':'Другая'}}
+    ];
+    let mapped=0;
+    rules.forEach(rule=>{
+      const match=remaining.match(rule.re);
+      if(!match)return;
+      const value=rule.map[match[1].toLowerCase()];
+      if(value&&form.elements[rule.field]){form.elements[rule.field].value=value;mapped++;}
+      remaining=remaining.replace(match[0],' ');
+    });
+    remaining=remaining.replace(/[,:;.!?\s]+/g,' ').trim();
+    if(remaining){
+      const notes=form.elements.notes;
+      notes.value=(notes.value.trim()?(notes.value.trim()+'\n'):'')+'Голосовая заметка: '+remaining;
+    }
+    setStatus('Готово: заполнено полей — '+mapped+'. Остальной текст добавлен в заметки. Проверьте всё перед сохранением.');
+  };
+})();
+
 $('inspectionForm').onsubmit=async e=>{
   e.preventDefault();
   if(guestMode){toast('Гостевой режим — только просмотр');return}
