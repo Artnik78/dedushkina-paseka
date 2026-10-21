@@ -661,6 +661,31 @@ main{max-width:1800px;margin:8px auto 24px;padding:0 8px}.workspace{grid-templat
   #addModal .panel,#addModal .add-modal,#addModal [role="dialog"]{padding:12px}
   #addModal .section-intro{font-size:.88rem}
 }
+
+/* Mobile repair: align directory filters and remove stretched checkbox rows. */
+@media(max-width:680px){
+  #directory.filters-panel{padding:14px!important;overflow:hidden}
+  #directory .filter-controls{width:100%;min-width:0}
+  #directory .filter-controls>.field{margin:10px 0!important}
+  #directory .filter-controls>.field label{display:block;margin-bottom:5px;font-size:15px;line-height:1.35}
+  #directory .filter-controls>.field select,
+  #directory .filter-controls>.field input{display:block;width:100%!important;min-width:0;min-height:46px!important;padding:10px 13px!important;font-size:16px!important}
+  #directory #productChecks.check-list{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;align-items:stretch!important;justify-content:stretch!important;gap:9px 12px!important;width:100%;margin:14px 0 16px!important}
+  #directory #productChecks .check-item{display:grid!important;grid-template-columns:22px 26px minmax(0,1fr)!important;align-items:start!important;justify-content:initial!important;column-gap:7px!important;row-gap:0!important;min-width:0!important;width:100%;margin:0!important;padding:5px 2px!important;font-size:13px!important;line-height:1.35!important;overflow-wrap:anywhere}
+  #directory #productChecks .check-item input[type="checkbox"]{display:block!important;appearance:auto!important;-webkit-appearance:checkbox!important;width:20px!important;height:20px!important;min-width:20px!important;min-height:20px!important;margin:0!important;padding:0!important;flex:none!important;align-self:start!important;accent-color:#245735}
+  #directory #productChecks .check-emoji{display:block!important;width:26px!important;min-width:26px!important;height:auto!important;margin:0!important;font-size:21px!important;line-height:1.15!important;text-align:center!important}
+  #directory .directory-actions{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:9px!important;width:100%;margin:12px 0!important}
+  #directory .directory-actions .btn,#directory #resetBtn{display:flex!important;width:100%!important;min-width:0!important;min-height:48px!important;box-sizing:border-box!important;align-items:center!important;justify-content:center!important;margin:0!important;padding:12px!important;font-size:15px!important;line-height:1.3!important}
+  #directory #filterStatus{margin:9px 0!important;padding:10px 12px!important;font-size:13px!important;line-height:1.45!important;overflow-wrap:anywhere}
+  #directory .filters-panel .map-note{margin-top:8px!important}
+}
+@media(max-width:390px){
+  #directory.filters-panel{padding:12px!important}
+  #directory #productChecks.check-list{gap:8px 7px!important}
+  #directory #productChecks .check-item{grid-template-columns:20px 23px minmax(0,1fr)!important;column-gap:5px!important;font-size:12px!important;padding:5px 0!important}
+  #directory #productChecks .check-item input[type="checkbox"]{width:19px!important;height:19px!important;min-width:19px!important;min-height:19px!important}
+  #directory #productChecks .check-emoji{width:23px!important;min-width:23px!important;font-size:19px!important}
+}
 </style></head><body>
 <a class="cross-project-banner" href="../journal/" aria-label="Перейти в цифровой журнал пасечника"><span class="cross-icon" aria-hidden="true">🐝 🍯</span><span class="cross-copy"><span class="cross-title">Цифровой журнал пасечника</span><span class="cross-subtitle">Ульи · Осмотры · Обработки · Мёд · Отчёты</span></span><span class="cross-cta">Перейти в журнал <span aria-hidden="true">➜</span></span></a>
 <header class="hero hero-image"><img class="hero-art" src="https://raw.githubusercontent.com/Artnik78/dedushkina-paseka/fix/beekeeper-map-districts/karta-pchelovodov/header-pchelovody.png" alt="Карта белорусских пчеловодов: пчела на цветах, мёд и белорусский пейзаж"></header>
