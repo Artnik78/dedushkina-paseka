@@ -1199,7 +1199,7 @@ function exportJson(){
 }
 function $(id){return document.getElementById(id)}
 function showJournalError(msg){const el=$('journalError');if(el){el.textContent=String(msg);el.style.display='block'}}
-window.addEventListener('error',e=>showJournalError('Ошибка JavaScript: '+(e.message||e.error||'неизвестная ошибка')));
+window.addEventListener('error',e=>{const detail=e.filename?(' Файл: '+e.filename+(e.lineno?':'+e.lineno+(e.colno?':'+e.colno:''):'')):'';showJournalError('Ошибка JavaScript: '+(e.message||e.error||'неизвестная ошибка')+detail)});
 window.addEventListener('unhandledrejection',e=>showJournalError('Ошибка Promise: '+(e.reason?.message||e.reason||'неизвестная ошибка')));
 function toast(msg){const t=$('toast');t.textContent=msg;t.style.display='block';clearTimeout(window.__toastTimer);window.__toastTimer=setTimeout(()=>t.style.display='none',12000)}
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
