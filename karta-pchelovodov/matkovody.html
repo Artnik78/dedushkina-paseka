@@ -22,6 +22,14 @@ a{color:#245b38;overflow-wrap:anywhere}.top{background:var(--green);color:#fff;p
 .filter-tools button:focus-visible{outline:3px solid #d9e7cf;outline-offset:2px}
 .count{padding:8px 2px}
 
+/* Form and contact details: mobile-first polish */
+#breederForm input:not([type="checkbox"]),#breederForm select,#breederForm textarea{max-width:100%;min-height:44px}
+#breederForm input:focus-visible,#breederForm select:focus-visible,#breederForm textarea:focus-visible{outline:3px solid #d9e7cf;outline-offset:1px;border-color:var(--green2)}
+#bfStatus{margin:12px 0 0;padding:0;color:var(--green);font-weight:650;overflow-wrap:anywhere}
+#bfSubmit:disabled{opacity:.65;cursor:wait}
+.breeder-location{line-height:1.45}
+.card .actions a{max-width:100%;overflow-wrap:anywhere}
+@media(max-width:420px){#toggleBreederForm{padding:14px!important;font-size:16px!important}.card h2{font-size:19px}.card .actions{display:grid;grid-template-columns:1fr}.card .actions .btn{width:100%}}
 /* Readable breeder profile cards */
 .breeder-person{font-weight:700;margin:7px 0 3px;overflow-wrap:anywhere}.breeder-location{display:block;margin:4px 0 10px;padding:9px 11px;border-radius:10px;background:#edf3e7;color:#244a2e;font-weight:700;overflow-wrap:anywhere}.breeder-detail{overflow-wrap:anywhere}.card .actions .btn{min-height:44px}.card .actions a[href^="tel:"],.card .actions a[href^="mailto:"]{background:#e7efe1;color:#244a2e}.card .actions a[href^="https:"]{overflow-wrap:anywhere}
 </style>
