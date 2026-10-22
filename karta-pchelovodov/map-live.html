@@ -686,7 +686,41 @@ main{max-width:1800px;margin:8px auto 24px;padding:0 8px}.workspace{grid-templat
   #directory #productChecks .check-item input[type="checkbox"]{width:19px!important;height:19px!important;min-width:19px!important;min-height:19px!important}
   #directory #productChecks .check-emoji{width:23px!important;min-width:23px!important;font-size:19px!important}
 }
-</style></head><body>
+</style>
+<style id="map-safe-cleanup-20261022">
+/* Осторожная визуальная уборка карты: без изменений данных, фильтров и обработчиков. */
+nav[aria-label="Навигация"]{position:relative;z-index:20;display:flex;align-items:center;flex-wrap:wrap;gap:6px;padding:9px clamp(10px,2vw,28px);background:#fffdf6;border-bottom:1px solid #e4ddca;box-shadow:0 3px 12px #203c2208}
+nav[aria-label="Навигация"] a,nav[aria-label="Навигация"] .add-link{min-height:40px;display:inline-flex;align-items:center;justify-content:center;border-radius:10px;padding:9px 12px;text-decoration:none;font-weight:700;white-space:nowrap}
+nav[aria-label="Навигация"] a:hover{background:#edf2e3}
+nav[aria-label="Навигация"] a.active{background:#e6eedc;color:#1d452b;min-width:0}
+nav[aria-label="Навигация"] .add-link{border:0;background:#1d452b;color:#fffaf0;cursor:pointer;font:inherit;font-weight:750}
+.workspace{gap:14px;align-items:start}
+.workspace>.panel{box-shadow:0 4px 16px #263d240b}
+.filters-panel{position:relative}
+.map-panel{min-width:0}
+.atlas-heading{min-width:0}
+.atlas-heading h2{font-size:clamp(1.15rem,1.6vw,1.55rem);line-height:1.2}
+.atlas-subtitle{display:block;margin-top:4px;color:#66705f;font-size:.88rem}
+.map-note{line-height:1.5}
+#map{border:1px solid #dce2d3}
+.leaflet-popup-content-wrapper{border-radius:12px}
+.leaflet-popup-content{line-height:1.5}
+button:focus-visible,a:focus-visible{outline:3px solid #d8a919;outline-offset:2px}
+@media(max-width:1050px){.workspace{grid-template-columns:minmax(220px,260px) minmax(0,1fr);gap:10px}.workspace>.right-panel{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr)}}
+@media(max-width:680px){
+ nav[aria-label="Навигация"]{gap:5px;padding:8px;overflow:visible}
+ nav[aria-label="Навигация"] a,nav[aria-label="Навигация"] .add-link{min-height:38px;padding:8px 10px;font-size:.82rem}
+ nav[aria-label="Навигация"] a.active{min-width:0}
+ .workspace{grid-template-columns:minmax(0,1fr);gap:10px}
+ .filters-panel,.map-panel,.workspace>.right-panel{width:100%;min-width:0}
+ .map-head{gap:8px}
+ .atlas-heading{flex:1 1 100%}
+ .map-mode{max-width:100%;flex-wrap:wrap}
+ #map{height:58vh;min-height:330px;max-height:600px}
+ .workspace>.right-panel{display:flex}
+}
+</style>
+</head><body>
 <a class="cross-project-banner" href="../journal/" aria-label="Перейти в цифровой журнал пасечника"><span class="cross-icon" aria-hidden="true">🐝 🍯</span><span class="cross-copy"><span class="cross-title">Цифровой журнал пасечника</span><span class="cross-subtitle">Ульи · Осмотры · Обработки · Мёд · Отчёты</span></span><span class="cross-cta">Перейти в журнал <span aria-hidden="true">➜</span></span></a>
 <header class="hero hero-image"><img class="hero-art" src="https://raw.githubusercontent.com/Artnik78/dedushkina-paseka/fix/beekeeper-map-districts/karta-pchelovodov/header-pchelovody.png" alt="Карта белорусских пчеловодов: пчела на цветах, мёд и белорусский пейзаж"></header>
 
