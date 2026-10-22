@@ -13,6 +13,14 @@ a{color:#245b38;overflow-wrap:anywhere}.top{background:var(--green);color:#fff;p
 
 /* Mobile form usability: keep each breeder field full-width on narrow screens. */
 @media(max-width:700px){#breederForm .filters{grid-template-columns:minmax(0,1fr)!important;gap:10px!important}#breederForm input,#breederForm select,#breederForm textarea{width:100%;min-width:0;font-size:16px}#breederForm label{display:block;margin-bottom:5px}#breederFormPanel{padding-left:14px!important;padding-right:14px!important}}
+
+/* Directory search usability */
+.filters[aria-label="Поиск матководов"]{align-items:end;position:relative}
+.filters[aria-label="Поиск матководов"] input:focus,.filters[aria-label="Поиск матководов"] select:focus{outline:3px solid #d9e7cf;outline-offset:1px;border-color:var(--green2)}
+.filter-tools{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
+.filter-tools button{min-height:42px;border:1px solid var(--line);border-radius:10px;padding:9px 14px;background:#fffdf7;color:var(--green);font:inherit;font-weight:650;cursor:pointer}
+.filter-tools button:focus-visible{outline:3px solid #d9e7cf;outline-offset:2px}
+.count{padding:8px 2px}
 </style>
 </head>
 <body>
@@ -41,6 +49,7 @@ a{color:#245b38;overflow-wrap:anywhere}.top{background:var(--green);color:#fff;p
 <div><label for="breed">Порода</label><select id="breed"><option value="">Все породы</option><option>Карника</option><option>Бакфаст</option><option>Кавказская</option></select></div>
 </section>
 <div class="count" id="count" aria-live="polite"></div>
+<div class="filter-tools"><button type="button" id="clearBreederFilters">Сбросить поиск и фильтры</button></div>
 <section class="cards" id="cards">
 
 
@@ -54,7 +63,7 @@ a{color:#245b38;overflow-wrap:anywhere}.top{background:var(--green);color:#fff;p
 <footer>Карта белорусских пчеловодов · Справочник матководов</footer>
 <script>
 
-(function(){let cards=[...document.querySelectorAll('.card')];const search=document.getElementById('search'),region=document.getElementById('region'),breed=document.getElementById('breed'),count=document.getElementById('count'),empty=document.getElementById('empty');function filter(){const q=search.value.trim().toLocaleLowerCase('ru'),r=region.value,b=breed.value;let shown=0;cards.forEach(card=>{const ok=(!q||(card.dataset.search+' '+card.innerText).toLocaleLowerCase('ru').includes(q))&&(!r||card.dataset.region===r)&&(!b||card.dataset.breed.split(' ').includes(b));card.hidden=!ok;if(ok)shown++});count.textContent='В справочнике: '+shown+' из '+cards.length;empty.style.display=shown?'none':'block'}[search,region,breed].forEach(el=>el.addEventListener('input',filter));filter();
+(function(){let cards=[...document.querySelectorAll('.card')];const search=document.getElementById('search'),region=document.getElementById('region'),breed=document.getElementById('breed'),count=document.getElementById('count'),empty=document.getElementById('empty');function filter(){const q=search.value.trim().toLocaleLowerCase('ru'),r=region.value,b=breed.value;let shown=0;cards.forEach(card=>{const ok=(!q||(card.dataset.search+' '+card.innerText).toLocaleLowerCase('ru').includes(q))&&(!r||card.dataset.region===r)&&(!b||card.dataset.breed.split(' ').includes(b));card.hidden=!ok;if(ok)shown++});count.textContent='В справочнике: '+shown+' из '+cards.length;empty.style.display=shown?'none':'block'}[search,region,breed].forEach(el=>{el.addEventListener('input',filter);el.addEventListener('change',filter)});document.getElementById('clearBreederFilters').addEventListener('click',()=>{search.value='';region.value='';breed.value='';filter();search.focus()});filter();
 const toggle=document.getElementById('toggleBreederForm'),panel=document.getElementById('breederFormPanel'),toggleIcon=document.getElementById('breederToggleIcon');toggle.addEventListener('click',()=>{const open=toggle.getAttribute('aria-expanded')!=='true';toggle.setAttribute('aria-expanded',String(open));panel.hidden=!open;toggleIcon.textContent=open?'−':'+';});
 const districtLists={
 'Брестская':'Барановичский,Берёзовский,Брестский,Ганцевичский,Дрогичинский,Жабинковский,Ивановский,Ивацевичский,Каменецкий,Кобринский,Лунинецкий,Ляховичский,Малоритский,Пинский,Пружанский,Столинский',
