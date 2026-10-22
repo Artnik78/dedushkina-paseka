@@ -720,6 +720,28 @@ button:focus-visible,a:focus-visible{outline:3px solid #d8a919;outline-offset:2p
  .workspace>.right-panel{display:flex}
 }
 </style>
+
+<style id="map-profile-usability-20261022">
+/* Читаемая карточка выбранной пасеки, особенно на небольшом экране. */
+#map-section #featured .profile-details{overflow-wrap:anywhere;min-width:0}
+#map-section #featured .feature-title{font-size:clamp(1.2rem,2vw,1.55rem);line-height:1.25;margin:4px 0 8px}
+#map-section #featured .feature-meta{line-height:1.55}
+#map-section #featured .feature-description{line-height:1.6}
+#map-section #featured .product-tags{gap:7px}
+#map-section #featured .tag{max-width:100%;white-space:normal;overflow-wrap:anywhere}
+#map-section #featured .beekeeper-contact{margin-top:14px;padding:13px;background:#f5f7ef;border-color:#dce5d3}
+#map-section #featured .beekeeper-contact-actions{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+#map-section #featured .contact-action{min-height:42px;border-radius:9px;font-weight:700;line-height:1.35;overflow-wrap:anywhere}
+#map-section #featured #showPoint{min-height:44px;margin-top:10px;white-space:normal;line-height:1.4}
+#map-section #featured .feature-photo img{max-width:100%}
+@media(max-width:680px){
+ #map-section #featured.right-panel{padding:13px!important;border-radius:14px}
+ #map-section #featured .feature-photo{min-height:110px!important;max-height:155px!important}
+ #map-section #featured .beekeeper-contact-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #map-section #featured .contact-action{padding:10px 7px;font-size:.82rem}
+ #map-section #featured .subheading{margin-top:13px}
+}
+</style>
 </head><body>
 <a class="cross-project-banner" href="../journal/" aria-label="Перейти в цифровой журнал пасечника"><span class="cross-icon" aria-hidden="true">🐝 🍯</span><span class="cross-copy"><span class="cross-title">Цифровой журнал пасечника</span><span class="cross-subtitle">Ульи · Осмотры · Обработки · Мёд · Отчёты</span></span><span class="cross-cta">Перейти в журнал <span aria-hidden="true">➜</span></span></a>
 <header class="hero hero-image"><img class="hero-art" src="https://raw.githubusercontent.com/Artnik78/dedushkina-paseka/fix/beekeeper-map-districts/karta-pchelovodov/header-pchelovody.png" alt="Карта белорусских пчеловодов: пчела на цветах, мёд и белорусский пейзаж"></header>
