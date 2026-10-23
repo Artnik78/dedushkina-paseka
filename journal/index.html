@@ -2192,14 +2192,18 @@ async function loadJournalUsers(){
       const owner=(String(u.email||'').toLowerCase()==='78artnik@gmail.com');
       const active=!!u.allowed;
       const seen=u.last_seen_at?new Date(u.last_seen_at):null;
-      const minutes=seen&&!Number.isNaN(seen.getTime())?Math.max(0,Math.floor((Date.now()-seen.getTime())/60000)):null;
-      const activityLabel=minutes!==null&&minutes<5
-        ? '🟢 Активен недавно · '+(minutes===0?'только что':minutes+' мин. назад')
-        : seen&&!Number.isNaN(seen.getTime())
-          ? 'Последняя активность: '+seen.toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})
-          : 'Активность ещё не записана';
+      const validSeen=seen&&!Number.isNaN(seen.getTime());
+      const days=validSeen?Math.max(0,Math.floor((Date.now()-seen.getTime())/86400000)):null;
+      const activityStatus=days===null
+        ? '<span style="color:#777;font-weight:700">⚪ Ни разу не входил</span>'
+        : days<7
+          ? '<span style="color:#16803d;font-weight:700">🟢 Активен</span>'
+          : '<span style="color:#c62828;font-weight:700">🔴 Неактивен</span>';
+      const activityLabel=validSeen
+        ? 'Последний вход: '+seen.toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})
+        : 'Дата активности отсутствует';
       return '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 0;border-bottom:1px solid var(--line)">'+
-        '<div><b>'+esc(u.display_name||u.email||u.phone||'—')+'</b><div class="muted">'+(u.phone&&!u.email?'Вход по телефону · ':'')+(owner?'Владелец':'Пользователь')+' · '+(active?'🟢 Доступ разрешён':'🔴 Доступ заблокирован')+'</div><div class="muted" style="margin-top:4px">'+esc(activityLabel)+'</div></div>'+
+        '<div><b>'+esc(u.display_name||u.email||u.phone||'—')+'</b><div class="muted">'+(u.phone&&!u.email?'Вход по телефону · ':'')+(owner?'Владелец':'Пользователь')+' · '+(active?'Доступ разрешён':'Доступ заблокирован')+'</div><div style="margin-top:4px">'+activityStatus+'</div><div class="muted" style="margin-top:4px">'+esc(activityLabel)+'</div></div>'+
         (owner?'':'<div style="display:flex;gap:8px;flex-wrap:wrap">'+
           '<button type="button" class="btn '+(active?'danger':'gold')+'" data-user-access="'+esc(u.user_id)+'" data-user-allowed="'+(active?'1':'0')+'">'+(active?'Заблокировать':'Разрешить доступ')+'</button>'+
           '<button type="button" class="btn danger" data-user-delete="'+esc(u.user_id)+'" data-user-email="'+esc(u.email||u.phone||'')+'">Удалить пользователя</button></div>')+
