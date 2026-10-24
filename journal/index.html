@@ -151,7 +151,7 @@ h1{margin:0 0 6px;font-size:28px}.sub{color:var(--muted);margin:0 0 22px}
 .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
 .panel{background:rgba(255,255,255,.93);border:1px solid var(--line);border-radius:14px;padding:18px;margin-top:18px}
 .panel h3{margin:0 0 14px}
-.table-wrap{overflow:auto}.table{width:100%;border-collapse:collapse}.table th,.table td{padding:11px 9px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+.table-wrap{overflow:auto}.table{width:100%;border-collapse:collapse}.table th,.table td{padding:11px 9px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}.queen-history-table{min-width:760px;table-layout:auto}.queen-history-table th,.queen-history-table td{white-space:nowrap;word-break:normal;overflow-wrap:normal}
 .btn{border:0;border-radius:9px;padding:10px 14px;background:var(--green2);color:#fff}.btn.secondary{background:#eee9dc;color:var(--ink)}.btn.gold{background:var(--gold);color:#2e250c}.btn.danger{background:var(--danger)}
 .actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
 .form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field{display:flex;flex-direction:column;gap:5px}.field.full{grid-column:1/-1}.field label{font-size:13px;color:var(--muted)}.field input,.field select,.field textarea{border:1px solid var(--line);border-radius:9px;padding:10px;background:#fff}.field textarea{min-height:90px;resize:vertical}
@@ -3559,7 +3559,7 @@ function queenPanelHtml(id){
     '<div class="actions"><button class="btn gold">Сохранить матку</button></div></form></div>';
   return '<div class="panel" style="margin-top:14px"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><b>👑 Карточка и история матки</b><span class="muted">'+esc(current?.status||'Нет записи')+'</span></div>'+
     (current?'<div class="status-grid" style="margin-top:10px"><div class="status-box"><div class="muted">Порода</div><b>'+esc(current.breed||'Не указана')+'</b></div><div class="status-box"><div class="muted">Год вывода</div><b>'+esc(current.birth_year||'—')+'</b></div><div class="status-box"><div class="muted">Происхождение</div><b>'+esc(current.origin||'—')+'</b></div><div class="status-box"><div class="muted">Метка</div><b>'+esc(current.marking_color||'—')+'</b></div></div>':'<div class="empty" style="margin-top:10px">История маток по этому улью пока не заведена.</div>')+
-    (rows.length?'<div class="table-wrap" style="margin-top:10px"><table class="table"><thead><tr><th>Подсадка</th><th>№</th><th>Порода</th><th>Год</th><th>Происхождение</th><th>Метка</th><th>Статус</th><th></th></tr></thead><tbody>'+history+'</tbody></table></div>':'')+form+'</div>';
+    (rows.length?'<div class="table-wrap" style="margin-top:10px"><table class="table queen-history-table"><thead><tr><th>Подсадка</th><th>№</th><th>Порода</th><th>Год</th><th>Происхождение</th><th>Метка</th><th>Статус</th><th></th></tr></thead><tbody>'+history+'</tbody></table></div>':'')+form+'</div>';
 }
 function showHiveFamily(id){
   const h=state.hives.find(x=>String(x.id)===String(id)); if(!h)return;
