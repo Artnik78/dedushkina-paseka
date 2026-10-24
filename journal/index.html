@@ -3783,9 +3783,26 @@ $('inspectionForm').onsubmit=async e=>{
       offlineSaved=true;
     }catch(err){if(btn)btn.disabled=false;toast('Не удалось сохранить осмотр на устройстве: '+(err.message||err));return;}
   }else{
-    const result=await db.from('inspections').insert(inspectionPayload).select('id').single();
-    if(result.error){if(btn)btn.disabled=false;toast('Ошибка сохранения осмотра: '+result.error.message);return;}
-    inspection=result.data;
+    let result=null,saveError=null;
+    try{result=await db.from('inspections').insert(inspectionPayload).select('id').single();saveError=result.error||null;}
+    catch(err){saveError=err;}
+    if(saveError){
+      const message=String(saveError.message||saveError);
+      const networkFailure=!navigator.onLine||/failed to fetch|networkerror|network request failed|fetch failed|load failed|internet disconnected/i.test(message);
+      if(networkFailure&&!file){
+        try{
+          const user=await dpCurrentUser();
+          if(!user)throw new Error('Не удалось определить пользователя. Подключитесь к интернету и войдите снова.');
+          inspection={id:crypto.randomUUID()};
+          await dpOfflinePut({...inspectionPayload,id:inspection.id,user_id:user.id,offline_pending:true,created_at:new Date().toISOString()});
+          offlineSaved=true;
+        }catch(err){if(btn)btn.disabled=false;toast('Связь пропала, а локальное сохранение не удалось: '+(err.message||err));return;}
+      }else{
+        if(btn)btn.disabled=false;
+        toast('Ошибка сохранения осмотра: '+message);
+        return;
+      }
+    }else inspection=result.data;
   }
   if(file){
     let photoSaved=false,photoError='';
