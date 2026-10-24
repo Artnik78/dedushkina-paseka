@@ -485,7 +485,14 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
           <div class="field"><label>Порода матки</label><select name="queen_breed"><option value="">Не указана</option><option>Карника</option><option>Бакфаст</option><option>Мешанка</option><option>Итальянка</option><option>Среднерусская</option><option>Кавказская</option><option>Другая</option></select></div>
           <div class="field"><label>Расплод</label><select name="brood"><option value="">Не указано</option><option>Хороший</option><option>Нормальный</option><option>Слабый</option><option>Нет</option></select></div>
           <div class="field"><label>Корм</label><select name="feed"><option value="">Не указано</option><option>Много</option><option>Достаточно</option><option>Мало</option><option>Нет</option><option>Мёд и перга</option><option>Сироп</option></select></div>
-          <div class="field full"><label>Заметки</label><textarea name="notes"></textarea></div>
+          <div class="field full">
+             <label for="inspectionNotes">Заметки</label>
+             <textarea id="inspectionNotes" name="notes" placeholder="Можно написать или надиктовать наблюдения по семье"></textarea>
+             <div class="actions" style="margin-top:7px;align-items:center">
+               <button type="button" class="btn secondary" id="inspectionDictationBtn" aria-pressed="false">🎙️ Диктовать заметки</button>
+               <span id="inspectionDictationStatus" class="muted" role="status" aria-live="polite">Голосовой ввод запускается по нажатию</span>
+             </div>
+           </div>
           <div class="field full"><label>📷 Фото прямо из осмотра (необязательно)</label><input name="inspection_photo" type="file" accept="image/*" capture="environment"><small class="muted">Можно сделать снимок камерой телефона или выбрать файл. Максимум 10 МБ.</small></div>
           <div class="field full"><label>Подпись к фото (необязательно)</label><input name="inspection_photo_caption" placeholder="Например, расплод, матка, признаки болезни"></div>
           <div><button class="btn">Сохранить осмотр</button></div>
@@ -1135,7 +1142,16 @@ function exportJson(){
 }
 function $(id){return document.getElementById(id)}
 function showJournalError(msg){const el=$('journalError');if(el){el.textContent=String(msg);el.style.display='block'}}
-window.addEventListener('error',e=>showJournalError('Ошибка JavaScript: '+(e.message||e.error||'неизвестная ошибка')));
+window.addEventListener('error',e=>{
+  const target=e.target;
+  if(target&&target!==window){
+    const resource=target.src||target.href||target.currentSrc||'';
+    showJournalError('Ошибка загрузки ресурса'+(resource?' ('+resource+')':'')+'. Проверьте подключение и повторите загрузку.');
+    return;
+  }
+  const location=e.filename?('\\nФайл: '+e.filename+'\\nСтрока: '+(e.lineno||'?')+', столбец: '+(e.colno||'?')):'';
+  showJournalError('Ошибка JavaScript: '+(e.message||'неизвестная ошибка')+location);
+},true);
 window.addEventListener('unhandledrejection',e=>showJournalError('Ошибка Promise: '+(e.reason?.message||e.reason||'неизвестная ошибка')));
 function toast(msg){const t=$('toast');t.textContent=msg;t.style.display='block';clearTimeout(window.__toastTimer);window.__toastTimer=setTimeout(()=>t.style.display='none',12000)}
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
@@ -3802,6 +3818,70 @@ async function deleteDisinfection(id){
 if($('disinfectionCancelBtn')) $('disinfectionCancelBtn').onclick=resetDisinfectionForm;
 $('disinfectionForm').elements.medicine_id.addEventListener('change',e=>{const m=state.medicines.find(x=>String(x.id)===String(e.target.value));if(m)$('disinfectionForm').elements.agent.value=m.name;});
 
+// Голосовой ввод заметок осмотра: поддерживается браузерами с Web Speech API.
+let inspectionRecognition=null;
+let inspectionDictationActive=false;
+const inspectionDictationBtn=$('inspectionDictationBtn');
+const inspectionDictationStatus=$('inspectionDictationStatus');
+const inspectionNotesField=$('inspectionForm')?.elements?.notes;
+if(inspectionDictationBtn){
+  const SpeechRecognitionApi=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SpeechRecognitionApi){
+    inspectionDictationBtn.addEventListener('click',()=>{
+      if(inspectionDictationStatus)inspectionDictationStatus.textContent='Голосовой ввод не поддерживается этим браузером. Откройте журнал в Chrome на Android или введите заметки вручную.';
+    });
+  }else{
+    inspectionDictationBtn.addEventListener('click',()=>{
+      if(inspectionDictationActive){
+        try{inspectionRecognition?.stop()}catch(_){}
+        return;
+      }
+      try{
+        inspectionRecognition=new SpeechRecognitionApi();
+        inspectionRecognition.lang='ru-RU';
+        inspectionRecognition.continuous=false;
+        inspectionRecognition.interimResults=false;
+        inspectionRecognition.maxAlternatives=1;
+        inspectionRecognition.onstart=()=>{
+          inspectionDictationActive=true;
+          inspectionDictationBtn.textContent='⏹️ Остановить диктовку';
+          inspectionDictationBtn.setAttribute('aria-pressed','true');
+          if(inspectionDictationStatus)inspectionDictationStatus.textContent='Слушаю… Говорите после звукового/визуального разрешения микрофона.';
+        };
+        inspectionRecognition.onresult=event=>{
+          const transcript=Array.from(event.results||[]).map(item=>item[0]?.transcript||'').join(' ').trim();
+          if(transcript&&inspectionNotesField){
+            const existing=inspectionNotesField.value.trim();
+            inspectionNotesField.value=existing?existing+' '+transcript:transcript;
+            inspectionNotesField.dispatchEvent(new Event('input',{bubbles:true}));
+          }
+          if(inspectionDictationStatus)inspectionDictationStatus.textContent=transcript?'Текст добавлен в заметки. Проверьте его перед сохранением.':'Речь не распознана — попробуйте ещё раз.';
+        };
+        inspectionRecognition.onerror=event=>{
+          const messages={
+            'not-allowed':'Разрешите браузеру доступ к микрофону и повторите попытку.',
+            'service-not-allowed':'Голосовой сервис недоступен. Проверьте разрешения браузера.',
+            'no-speech':'Речь не обнаружена. Нажмите кнопку и попробуйте ещё раз.',
+            'network':'Для голосового распознавания требуется интернет-соединение.',
+            'audio-capture':'Микрофон не найден или занят другим приложением.'
+          };
+          if(inspectionDictationStatus)inspectionDictationStatus.textContent=messages[event.error]||('Не удалось распознать речь ('+event.error+'). Попробуйте ещё раз.');
+        };
+        inspectionRecognition.onend=()=>{
+          inspectionDictationActive=false;
+          inspectionDictationBtn.textContent='🎙️ Диктовать заметки';
+          inspectionDictationBtn.setAttribute('aria-pressed','false');
+        };
+        inspectionRecognition.start();
+      }catch(error){
+        inspectionDictationActive=false;
+        inspectionDictationBtn.textContent='🎙️ Диктовать заметки';
+        inspectionDictationBtn.setAttribute('aria-pressed','false');
+        if(inspectionDictationStatus)inspectionDictationStatus.textContent='Не удалось запустить микрофон: '+(error.message||error);
+      }
+    });
+  }
+}
 $('inspectionForm').onsubmit=async e=>{
   e.preventDefault();
   if(guestMode){toast('Гостевой режим — только просмотр');return}
