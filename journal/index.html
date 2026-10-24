@@ -3603,8 +3603,9 @@ function showHiveFamily(id){
         if(updateError){toast('Не удалось закрыть предыдущую матку: '+updateError.message);return}
       }
     }
-    const {error}=await db.from('hive_queens').insert(payload);
-    if(error){toast('Ошибка: '+error.message);await loadAll();return}
+    const {data:savedQueen,error}=await db.from('hive_queens').insert(payload).select().single();
+    if(error){toast('Ошибка сохранения матки: '+error.message);return}
+    if(savedQueen){state.queens=[...(state.queens||[]),savedQueen];}
     if(payload.breed||payload.birth_year){
       const updateData={};
       if(payload.breed)updateData.queen_breed=payload.breed;
