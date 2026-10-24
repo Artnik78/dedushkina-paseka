@@ -3590,6 +3590,9 @@ function showHiveFamily(id){
   const qf=$('queenForm');
   if(qf) qf.onsubmit=async e=>{
     e.preventDefault();
+    const saveBtn=qf.querySelector('button[type="submit"],button:not([type])');
+    if(saveBtn){saveBtn.disabled=true;saveBtn.textContent='Сохраняем…';}
+    try{
     if(guestMode){toast('Гостевой режим — только просмотр');return}
     const d=formData(qf);
     const payload={hive_id:id,queen_identifier:d.queen_identifier.trim()||null,breed:d.breed.trim()||null,birth_year:d.birth_year?Number(d.birth_year):null,origin:d.origin.trim()||null,marking_color:d.marking_color.trim()||null,introduction_date:d.introduction_date||null,status:d.status||'Текущая',replacement_date:d.replacement_date||null,replacement_reason:d.replacement_reason.trim()||null,notes:d.notes.trim()||null};
@@ -3610,6 +3613,8 @@ function showHiveFamily(id){
       if(hiveError){toast('Матка сохранена, но данные улья не обновились: '+hiveError.message);await loadAll();return}
     }
     toast('Карточка матки сохранена');await loadAll();showHiveFamily(id);
+    }catch(err){console.error('Ошибка сохранения матки:',err);toast('Не удалось сохранить матку: '+(err?.message||String(err)));}
+    finally{if(saveBtn){saveBtn.disabled=false;saveBtn.textContent='Сохранить матку';}}
   };
   document.querySelectorAll('.queen-delete').forEach(b=>b.onclick=async()=>{
     if(guestMode)return;
