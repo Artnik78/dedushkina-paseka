@@ -485,7 +485,22 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
           <div class="field"><label>Порода матки</label><select name="queen_breed"><option value="">Не указана</option><option>Карника</option><option>Бакфаст</option><option>Мешанка</option><option>Итальянка</option><option>Среднерусская</option><option>Кавказская</option><option>Другая</option></select></div>
           <div class="field"><label>Расплод</label><select name="brood"><option value="">Не указано</option><option>Хороший</option><option>Нормальный</option><option>Слабый</option><option>Нет</option></select></div>
           <div class="field"><label>Корм</label><select name="feed"><option value="">Не указано</option><option>Много</option><option>Достаточно</option><option>Мало</option><option>Нет</option><option>Мёд и перга</option><option>Сироп</option></select></div>
-          <div class="field full"><label>Заметки</label><textarea name="notes"></textarea></div>
+          <div class="field full"><label>Заметки</label><textarea name="notes" id="inspectionNotes"></textarea></div>
+          <div class="field full" id="inspectionVoicePanel" style="border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--panel,#fff)">
+            <h4 style="margin:0 0 6px">🎙️ Голосовые заметки осмотра</h4>
+            <p class="muted" style="margin:0 0 10px">Нажмите «Начать запись» и расскажите, что сделали у улья. Речь преобразуется в текст на устройстве; затем можно распределить распознанное по полям осмотра.</p>
+            <div class="actions" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+              <button type="button" class="btn" id="inspectionVoiceStart">🎙️ Начать запись</button>
+              <button type="button" class="btn secondary" id="inspectionVoiceStop" disabled>⏹ Остановить</button>
+              <button type="button" class="btn gold" id="inspectionVoiceApply">Разнести по полям</button>
+              <button type="button" class="btn secondary" id="inspectionVoiceClear">Очистить текст</button>
+              <button type="button" class="btn secondary" id="inspectionVoiceToHealth">🩺 Передать в «Здоровье семьи»</button>
+              <button type="button" class="btn secondary" id="inspectionVoiceToTask">🔔 Создать напоминание</button>
+            </div>
+            <div class="muted" id="inspectionVoiceStatus" role="status" aria-live="polite">Готово к записи. Для работы разрешите доступ к микрофону.</div>
+            <div class="field" style="margin-top:8px"><label for="inspectionVoiceText">Распознанный текст (можно исправить вручную)</label><textarea id="inspectionVoiceText" rows="4" placeholder="Например: семья сильная, матка есть, расплод хороший, корма достаточно. Поставил две рамки вощины."></textarea></div>
+            <small class="muted">Автоматически распознаются подсказки о силе семьи, матке, расплоде и корме. Остальной текст добавляется в заметки — перед сохранением проверьте поля.</small>
+          </div>
           <div class="field full"><label>📷 Фото прямо из осмотра (необязательно)</label><input name="inspection_photo" type="file" accept="image/*" capture="environment"><small class="muted">Можно сделать снимок камерой телефона или выбрать файл. Максимум 10 МБ.</small></div>
           <div class="field full"><label>Подпись к фото (необязательно)</label><input name="inspection_photo_caption" placeholder="Например, расплод, матка, признаки болезни"></div>
           <div><button class="btn">Сохранить осмотр</button></div>
@@ -3685,6 +3700,172 @@ async function deleteDisinfection(id){
 }
 if($('disinfectionCancelBtn')) $('disinfectionCancelBtn').onclick=resetDisinfectionForm;
 $('disinfectionForm').elements.medicine_id.addEventListener('change',e=>{const m=state.medicines.find(x=>String(x.id)===String(e.target.value));if(m)$('disinfectionForm').elements.agent.value=m.name;});
+
+// Voice dictation for hive inspections (Web Speech API; no audio is uploaded or stored).
+(function setupInspectionVoice(){
+  const form=$('inspectionForm'), start=$('inspectionVoiceStart'), stop=$('inspectionVoiceStop'),
+    textBox=$('inspectionVoiceText'), status=$('inspectionVoiceStatus'), apply=$('inspectionVoiceApply'), clear=$('inspectionVoiceClear');
+  if(!form||!start||!stop||!textBox||!status||!apply||!clear)return;
+  const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+  let recognition=null, finalText='', recording=false;
+  const setStatus=(message)=>{status.textContent=message};
+  if(!SpeechRecognition){
+    start.disabled=true;
+    setStatus('Голосовой ввод не поддерживается этим браузером. Откройте журнал в актуальном Chrome или Edge либо впишите заметку вручную.');
+  }else{
+    recognition=new SpeechRecognition();
+    recognition.lang='ru-RU';recognition.continuous=true;recognition.interimResults=true;
+    recognition.onstart=()=>{recording=true;start.disabled=true;stop.disabled=false;setStatus('Слушаю… Говорите обычным голосом.');};
+    // Rebuild the transcript from the current result list on every event.
+    // Android Chrome may resend/update result entries; appending each event caused duplicated words.
+    recognition.onresult=(event)=>{
+      const finalParts=[], interimParts=[];
+      for(let i=0;i<event.results.length;i++){
+        const result=event.results[i];
+        const phrase=(result&&result[0]&&result[0].transcript||'').trim();
+        if(!phrase)continue;
+        if(result.isFinal)finalParts.push(phrase);
+        else interimParts.push(phrase);
+      }
+      // Some mobile speech engines return overlapping final fragments. Collapse only
+      // immediately repeated word sequences (1–6 words), preserving the original text otherwise.
+      const cleanRepeats=(value)=>{
+        const words=String(value||'').replace(/\\s+/g,' ').trim().split(' ').filter(Boolean);
+        const out=[];
+        for(const word of words){
+          const w=word.toLocaleLowerCase('ru-RU').replace(/[.,!?;:]+$/,'');
+          if(out.length && out[out.length-1].toLocaleLowerCase('ru-RU').replace(/[.,!?;:]+$/,'')===w)continue;
+          out.push(word);
+        }
+        let changed=true, passes=0;
+        while(changed&&passes++<3){
+          changed=false;
+          for(let size=Math.min(6,Math.floor(out.length/2));size>=1;size--){
+            let found=false;
+            for(let at=0;at+size*2<=out.length;at++){
+              const a=out.slice(at,at+size).map(x=>x.toLocaleLowerCase('ru-RU').replace(/[.,!?;:]+$/,'')).join(' ');
+              const b=out.slice(at+size,at+size*2).map(x=>x.toLocaleLowerCase('ru-RU').replace(/[.,!?;:]+$/,'')).join(' ');
+              if(a===b){out.splice(at+size,size);changed=true;found=true;break;}
+            }
+            if(found)break;
+          }
+        }
+        return out.join(' ');
+      };
+      finalText=cleanRepeats(finalParts.join(' '));
+      textBox.value=cleanRepeats(finalText+(interimParts.length?' '+interimParts.join(' '):''));
+    };
+    recognition.onerror=(event)=>{
+      const messages={ 'not-allowed':'Нет доступа к микрофону. Разрешите его для сайта в настройках браузера.',
+        'audio-capture':'Микрофон не найден или занят другим приложением.',
+        'no-speech':'Речь не распознана. Попробуйте говорить ближе к микрофону.',
+        'network':'Служба распознавания речи недоступна. Проверьте интернет.' };
+      setStatus(messages[event.error]||('Ошибка распознавания речи: '+event.error));
+    };
+    recognition.onend=()=>{recording=false;start.disabled=false;stop.disabled=true;if(textBox.value.trim())finalText=textBox.value.trim();if(status.textContent==='Слушаю… Говорите обычным голосом.')setStatus('Запись остановлена. Проверьте текст и нажмите «Разнести по полям».');};
+    start.onclick=()=>{
+      if(recording)return;
+      finalText=textBox.value.trim();
+      try{recognition.start()}catch(err){setStatus('Не удалось начать запись. Подождите секунду и попробуйте ещё раз.');}
+    };
+    stop.onclick=()=>{if(recording&&recognition)recognition.stop();};
+  }
+  clear.onclick=()=>{if(recording&&recognition)recognition.stop();finalText='';textBox.value='';setStatus('Текст голосовой заметки очищен.');};
+  const toHealth=$('inspectionVoiceToHealth'),toTask=$('inspectionVoiceToTask');
+  function voiceHiveId(){
+    const transcript=textBox.value||'';
+    const match=transcript.match(/(?:^|[\s,.;])(?:улей|улья)\s*(?:номер|№)?\s*(\d+)/i);
+    if(match){const h=state.hives.find(x=>String(x.hive_number||'').trim()===String(match[1]));if(h)return String(h.id);}
+    return String(form.elements.hive_id?.value||'');
+  }
+  if(toHealth)toHealth.onclick=()=>{
+    const transcript=textBox.value.trim();if(!transcript){setStatus('Сначала запишите или впишите заметку.');return;}
+    const health=$('healthForm');if(!health){setStatus('Форма «Здоровье семьи» не найдена.');return;}
+    const hiveId=voiceHiveId();if(hiveId&&health.elements.hive_id)health.elements.hive_id.value=hiveId;
+    if(health.elements.check_date&&!health.elements.check_date.value)health.elements.check_date.value=today();
+    const action=health.elements.action_taken,product=health.elements.treatment_product,notes=health.elements.notes;
+    const disease=health.elements.disease,severity=health.elements.severity,symptoms=health.elements.symptoms;
+    const treatmentMethod=health.elements.treatment_method,dose=health.elements.treatment_dose;
+    const varroaResult=health.elements.varroa_result,varroaUnit=health.elements.varroa_unit;
+    if(/\b(обработал|обработала|обработали|поставил полоски|поставили полоски|опрыскал|орошал|закапал|применил|дал подкормку|подкормил|подкормила|поставил вощину|добавил рамки)\b/i.test(transcript)&&action)action.value=transcript;
+    const medicineMatch=transcript.match(/бипин(?:-т)?|варомор|муравьин(?:ая|ой) кислота|щавелев(?:ая|ой) кислота|оксал(?:овая|овой) кислота|апиварол|апистан/i);
+    if(medicineMatch&&product)product.value=medicineMatch[0];
+    if(/\b(полоск|полоски)\b/i.test(transcript)&&treatmentMethod)treatmentMethod.value='Полоски';
+    else if(/\b(капал|капельн)\b/i.test(transcript)&&treatmentMethod)treatmentMethod.value='Капельный метод';
+    else if(/\b(орошал|опрыскал|опрыскивал)\b/i.test(transcript)&&treatmentMethod)treatmentMethod.value='Орошение';
+    const doseMatch=transcript.match(/(?:доза|дозировка)\s*(?:была\s*)?(\d+(?:[.,]\d+)?\s*(?:мл|мг|г|гр|капель|полоски|таблетки))/i);
+    if(doseMatch&&dose)dose.value=doseMatch[1];
+    const varroaMatch=transcript.match(/(\d+)\s*(?:клещ(?:а|ей)?|варроа)\s*(?:на|из)\s*(\d+)\s*(?:пчел(?:ы|а)?)/i);
+    if(varroaMatch&&varroaResult&&varroaUnit){
+      const mites=Number(varroaMatch[1]),bees=Number(varroaMatch[2]);
+      if(bees>0){varroaResult.value=(mites/bees*100).toFixed(2);varroaUnit.value='клещей / 100 пчёл';}
+    }
+    const diseaseMatch=transcript.match(/варроатоз|нозематоз|гнилец|аскосфероз|вирусное заболевание/i);
+    if(diseaseMatch&&disease){
+      const d=diseaseMatch[0].toLowerCase();
+      disease.value=d==='варроатоз'?'Варроатоз':d==='нозематоз'?'Нозематоз':d==='гнилец'?'Гнилец':d==='аскосфероз'?'Аскосфероз':'Вирусное заболевание';
+    }
+    const symptomMatch=transcript.match(/(?:признаки|симптомы|обнаружил|обнаружила|заметил|заметила)\s+(.{3,180})/i);
+    if(symptomMatch&&symptoms)symptoms.value=symptomMatch[1].trim();
+    if(notes)notes.value=(notes.value.trim()?notes.value.trim()+'\n':'')+'Голосовая заметка с осмотра: '+transcript;
+    showPage('health');health.scrollIntoView({behavior:'smooth',block:'start'});
+    setStatus('Текст перенесён в «Здоровье семьи». Проверьте улей, поля и препарат; запись ещё не сохранена.');
+  };
+  if(toTask)toTask.onclick=()=>{
+    const transcript=textBox.value.trim();if(!transcript){setStatus('Сначала запишите или впишите заметку.');return;}
+    const task=$('taskForm');if(!task){setStatus('Форма напоминания не найдена.');return;}
+    const hiveId=voiceHiveId(),hive=state.hives.find(x=>String(x.id)===hiveId);
+    let taskTitle='Проверить результат осмотра';
+    if(/\b(подкорм|корм)\w*/i.test(transcript))taskTitle='Проверить кормление';
+    else if(/\b(матк|яйц|расплод)\w*/i.test(transcript))taskTitle='Повторно проверить матку и расплод';
+    else if(/\b(варроа|клещ|обработ|бипин|варомор)\w*/i.test(transcript))taskTitle='Проверить результат обработки';
+    else if(/\b(вощин|рамк)\w*/i.test(transcript))taskTitle='Проверить установленные рамки и вощину';
+    if(task.elements.title)task.elements.title.value=taskTitle+(hive?' — улей №'+hive.hive_number:'');
+    if(task.elements.due_date&&!task.elements.due_date.value){
+      const due=new Date();const inDays=transcript.match(/через\s+(\d+)\s+д(?:ень|ня|ней)/i);
+      if(/\bпослезавтра\b/i.test(transcript))due.setDate(due.getDate()+2);
+      else if(/\bзавтра\b/i.test(transcript))due.setDate(due.getDate()+1);
+      else if(inDays)due.setDate(due.getDate()+Math.max(0,Number(inDays[1])));
+      task.elements.due_date.value=due.getFullYear()+'-'+String(due.getMonth()+1).padStart(2,'0')+'-'+String(due.getDate()).padStart(2,'0');
+    }
+    if(task.elements.priority)task.elements.priority.value=/\b(срочно|срочная|срочный|обязательно)\b/i.test(transcript)?'Высокий':'Обычный';
+    if(task.elements.status)task.elements.status.value='Открыта';
+    if(task.elements.description)task.elements.description.value='Создано из голосовой заметки осмотра. Улей: '+(hive?'№'+hive.hive_number:'уточнить')+'.\n'+transcript;
+    showPage('tasks');task.scrollIntoView({behavior:'smooth',block:'start'});
+    setStatus('Подготовлено напоминание. Проверьте название и дату, затем сохраните его вручную.');
+  };
+  apply.onclick=()=>{
+    let remaining=textBox.value.trim();
+    if(!remaining){setStatus('Сначала запишите или впишите заметку.');return;}
+    let mapped=0;
+    const spokenHive=remaining.match(/(?:^|[\s,.;])((?:улей|улья)\s*(?:номер|№)?\s*(\d+))/i);
+    if(spokenHive){
+      const hive=state.hives.find(h=>String(h.hive_number||'').trim()===String(spokenHive[2]));
+      if(hive&&form.elements.hive_id){form.elements.hive_id.value=String(hive.id);mapped++;remaining=remaining.replace(spokenHive[1],' ');}
+      else if(!hive)setStatus('В тексте указан улей №'+spokenHive[2]+', но такой улей не найден. Выберите улей вручную.');
+    }
+    const rules=[
+      {re:/(?:сила\s+семьи|семья)\s*[:,-]?\s*(сильная|сильную|сильная семья|средняя|среднюю|слабая|слабую)(?:\s+семья)?/i,field:'colony_strength',map:{'сильная':'Сильная','сильную':'Сильная','сильная семья':'Сильная','средняя':'Средняя','среднюю':'Средняя','слабая':'Слабая','слабую':'Слабая'}},
+      {re:/матк(?:а|у|и)\s*[:,-]?\s*(трутневая|молодая|есть|найдена|не найдена|нет)/i,field:'queen_status',map:{'трутневая':'Трутневая','молодая':'Молодая','есть':'Есть','найдена':'Есть','не найдена':'Нет','нет':'Нет'}},
+      {re:/расплод\s*[:,-]?\s*(хороший|нормальный|слабый|нет)/i,field:'brood',map:{'хороший':'Хороший','нормальный':'Нормальный','слабый':'Слабый','нет':'Нет'}},
+      {re:/(?:корм(?:а|ов)?|запас кормов)\s*[:,-]?\s*(достаточно|много|мало|нет|мёд и перга|мед и перга|сироп)/i,field:'feed',map:{'достаточно':'Достаточно','много':'Много','мало':'Мало','нет':'Нет','мёд и перга':'Мёд и перга','мед и перга':'Мёд и перга','сироп':'Сироп'}},
+      {re:/(?:пород(?:а|ы)\s+матки|матка)\s*[:,-]?\s*(карника|бакфаст|мешанка|итальянка|среднерусская|кавказская|другая)/i,field:'queen_breed',map:{'карника':'Карника','бакфаст':'Бакфаст','мешанка':'Мешанка','итальянка':'Итальянка','среднерусская':'Среднерусская','кавказская':'Кавказская','другая':'Другая'}}
+    ];
+    rules.forEach(rule=>{
+      const match=remaining.match(rule.re);
+      if(!match)return;
+      const value=rule.map[match[1].toLowerCase()];
+      if(value&&form.elements[rule.field]){form.elements[rule.field].value=value;mapped++;}
+      remaining=remaining.replace(match[0],' ');
+    });
+    remaining=remaining.replace(/[,:;.!?\s]+/g,' ').trim();
+    if(remaining){
+      const notes=form.elements.notes;
+      notes.value=(notes.value.trim()?(notes.value.trim()+'\n'):'')+'Голосовая заметка: '+remaining;
+    }
+    setStatus('Готово: заполнено полей — '+mapped+'. Остальной текст добавлен в заметки. Проверьте всё перед сохранением.');
+  };
+})();
 
 $('inspectionForm').onsubmit=async e=>{
   e.preventDefault();
