@@ -2333,7 +2333,7 @@ async function dpSyncOfflineInspections(){
         colony_strength:item.colony_strength,queen_status:item.queen_status,queen_breed:item.queen_breed,
         brood:item.brood,feed:item.feed,notes:item.notes};
       let result;
-      try{result=await db.from('inspections').upsert(payload,{onConflict:'id'});}
+      try{result=await db.from('inspections').upsert(payload,{onConflict:'id',ignoreDuplicates:true});}
       catch(e){console.warn('Offline inspection sync paused:',e);break;}
       if(result.error){console.warn('Offline inspection sync paused:',result.error.message);break;}
       try{await dpOfflineDelete(item.id);synced++;}catch(e){console.warn(e);break;}
@@ -3813,29 +3813,30 @@ $('inspectionForm').onsubmit=async e=>{
   if(btn)btn.disabled=true;
   const inspectionPayload={hive_id:d.hive_id,inspection_date:d.inspection_date,colony_strength:d.colony_strength,
     queen_status:d.queen_status,queen_breed:d.queen_breed,brood:d.brood,feed:d.feed,notes:d.notes};
-  let inspection=null,offlineSaved=false;
+  let inspection=null,offlineSaved=false,user=null;
+  // Create the ID before the first network attempt and reuse it if the response is lost.
+  try{user=await dpCurrentUser();}catch(err){}
+  if(!user){if(btn)btn.disabled=false;toast('Не удалось определить пользователя. Проверьте вход в журнал.');return;}
+  const inspectionId=crypto.randomUUID();
+  const stablePayload={...inspectionPayload,id:inspectionId,user_id:user.id};
   if(!navigator.onLine){
     if(file){if(btn)btn.disabled=false;toast('Фото пока нельзя сохранить офлайн. Уберите фото или сохраните осмотр после восстановления интернета.');return;}
     try{
-      const user=await dpCurrentUser();
-      if(!user)throw new Error('Не удалось определить текущего пользователя. Подключитесь к интернету и войдите снова.');
-      inspection={id:crypto.randomUUID()};
-      await dpOfflinePut({...inspectionPayload,id:inspection.id,user_id:user.id,offline_pending:true,created_at:new Date().toISOString()});
+      inspection={id:inspectionId};
+      await dpOfflinePut({...stablePayload,offline_pending:true,created_at:new Date().toISOString()});
       offlineSaved=true;
     }catch(err){if(btn)btn.disabled=false;toast('Не удалось сохранить осмотр на устройстве: '+(err.message||err));return;}
   }else{
     let result=null,saveError=null;
-    try{result=await db.from('inspections').insert(inspectionPayload).select('id').single();saveError=result.error||null;}
+    try{result=await db.from('inspections').upsert(stablePayload,{onConflict:'id',ignoreDuplicates:true}).select('id').single();saveError=result.error||null;}
     catch(err){saveError=err;}
     if(saveError){
       const message=String(saveError.message||saveError);
       const networkFailure=!navigator.onLine||/failed to fetch|networkerror|network request failed|fetch failed|load failed|internet disconnected/i.test(message);
       if(networkFailure&&!file){
         try{
-          const user=await dpCurrentUser();
-          if(!user)throw new Error('Не удалось определить пользователя. Подключитесь к интернету и войдите снова.');
-          inspection={id:crypto.randomUUID()};
-          await dpOfflinePut({...inspectionPayload,id:inspection.id,user_id:user.id,offline_pending:true,created_at:new Date().toISOString()});
+          inspection={id:inspectionId};
+          await dpOfflinePut({...stablePayload,offline_pending:true,created_at:new Date().toISOString()});
           offlineSaved=true;
         }catch(err){if(btn)btn.disabled=false;toast('Связь пропала, а локальное сохранение не удалось: '+(err.message||err));return;}
       }else{
@@ -3843,7 +3844,7 @@ $('inspectionForm').onsubmit=async e=>{
         toast('Ошибка сохранения осмотра: '+message);
         return;
       }
-    }else inspection=result.data;
+    }else inspection=result.data||{id:inspectionId};
   }
   if(file){
     let photoSaved=false,photoError='';
