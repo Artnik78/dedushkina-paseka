@@ -2361,7 +2361,9 @@ async function loadAll(){
   const results=await Promise.all(names.map(async([key,table])=>{
     try{
       const data=await getTable(table);
-      if(offlineUser&&cacheable.has(key))dpCachePut(offlineUser.id,key,data).catch(e=>console.warn('Local cache update failed:',e));
+      if(offlineUser&&cacheable.has(key)){
+        try{await dpCachePut(offlineUser.id,key,data);}catch(cacheError){console.warn('Local cache update failed:',cacheError);}
+      }
       return {key,data,error:null};
     }catch(e){
       console.error(table,e);
