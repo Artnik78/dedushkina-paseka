@@ -18,7 +18,7 @@
 <title>Цифровой журнал пасечника</title>
 <script id="hive-qr-lib" src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.105.0"></script>
 <script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{scope:"./"}).catch(()=>{}));}</script>
 <style id="pwa-install-style">
 #pwaInstallBtn{position:fixed;right:16px;bottom:16px;z-index:29;border:0;border-radius:14px;padding:13px 16px;background:#d8a32b;color:#2f220f;font:700 15px system-ui,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.22);display:none}
@@ -241,6 +241,7 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
     <div class="auth-message" id="authMessage"></div>
     <div class="actions">
       <button class="btn" id="loginBtn">Войти</button>
+      <button class="btn secondary" type="button" id="passkeyLoginBtn">🔐 Войти по отпечатку пальца</button>
       <button class="btn secondary" id="signupBtn">Регистрация</button>
       <button class="btn gold" id="guestBtn">👁️ Гостевой просмотр</button>
     </div>
@@ -978,6 +979,8 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
         <p><b>Email:</b> <span id="settingsUserEmail">—</span></p>
         <div class="field" style="max-width:520px;margin:12px 0"><label>Название пасечника</label><input id="journalDisplayName" maxlength="80" placeholder="Например, Дедушкина пасека"><small class="muted">Это название будет показываться слева вверху журнала.</small></div>
         <div class="actions"><button class="btn" type="button" id="saveJournalDisplayNameBtn">Сохранить название</button></div>
+        <div class="actions" style="margin-top:10px"><button class="btn secondary" type="button" id="registerPasskeyBtn">🔐 Настроить вход по отпечатку</button><button class="btn secondary" type="button" id="managePasskeysBtn">Управление ключами входа</button></div>
+        <p id="passkeyStatus" class="muted" role="status" aria-live="polite">Для настройки сначала войдите обычным способом. Требуется поддерживаемый браузер и интернет.</p>
         <p><b>Мои пасеки:</b> <span id="settingsApiaryCount">0</span></p>
         <p><b>Мои ульи:</b> <span id="settingsHiveCount">0</span></p>
         <div class="actions"><button class="btn secondary" id="refreshBtn">Обновить данные</button></div>
@@ -1110,7 +1113,7 @@ const { createClient } = window.supabase;
 const recoverySearchParams = new URLSearchParams(window.location.search);
 const recoveryHashParams = new URLSearchParams((window.location.hash || '').replace(/^#/, ''));
 const recoveryLinkDetected = recoveryHashParams.get('type') === 'recovery' || recoverySearchParams.get('type') === 'recovery' || recoverySearchParams.has('code');
-const db = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { storageKey: IS_PRODUCTION_JOURNAL ? 'dedushkina-paseka-journal-auth' : 'dedushkina-paseka-journal-test-auth', persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
+const db = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { storageKey: IS_PRODUCTION_JOURNAL ? 'dedushkina-paseka-journal-auth' : 'dedushkina-paseka-journal-test-auth', persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, experimental: { passkey: true } } });
 
 const state = {contacts:[], hives:[], inspections:[], workLogs:[], hiveMovements:[], health:[], treatments:[], queens:[], queenBatches:[], colonyOperations:[], waxOperations:[], apiaryProductsOperations:[], photos:[], honey:[], honeyPackagingRuns:[], honeyJarLabels:[], honeySales:[], tasks:[], finance:[], apiaries:[], medicines:[], medicineStockMovements:[], disinfection:[], beeFamilies:[]};
 let guestMode=false;
@@ -2124,6 +2127,61 @@ if($('saveRecoveryPasswordBtn')) $('saveRecoveryPasswordBtn').onclick=async()=>{
 if($('authMethodEmail')) $('authMethodEmail').onclick=()=>setAuthMethod('email');
 if($('authMethodPhone')) $('authMethodPhone').onclick=()=>setAuthMethod('phone');
 if($('guestBtn')) $('guestBtn').onclick=showGuest;
+
+// Passkeys (WebAuthn): experimental Supabase Auth support; password login remains available.
+function dpPasskeySupported(){
+  return !!(window.isSecureContext && window.PublicKeyCredential && navigator.credentials && typeof db.auth.signInWithPasskey==='function' && typeof db.auth.registerPasskey==='function');
+}
+function dpPasskeyMessage(message,isError=false){
+  const el=$('passkeyStatus');
+  if(el){el.textContent=message;el.style.color=isError?'#b42318':'';}
+  if(isError) console.warn('Passkey:',message);
+}
+if($('passkeyLoginBtn')) $('passkeyLoginBtn').onclick=async()=>{
+  const btn=$('passkeyLoginBtn'),old=btn.textContent;
+  if(!dpPasskeySupported()){
+    $('authMessage').textContent='Вход по ключу пока не поддерживается этим браузером или сервисом. Используйте обычный вход по паролю.';
+    return;
+  }
+  if(!navigator.onLine){$('authMessage').textContent='Для входа по отпечатку требуется интернет.';return;}
+  btn.disabled=true;btn.textContent='Подтвердите вход на устройстве…';$('authMessage').textContent='';
+  try{
+    const {data,error}=await db.auth.signInWithPasskey();
+    if(error)throw error;
+    if(!data?.session||!data?.user)throw new Error('Сервис не вернул сессию. Попробуйте обычный вход.');
+    // onAuthStateChange validates account access through showApp.
+  }catch(e){
+    $('authMessage').textContent='Не удалось войти по ключу: '+(e?.message||String(e))+' Если ключ ещё не настроен, войдите по паролю.';
+  }finally{btn.disabled=false;btn.textContent=old;}
+};
+if($('registerPasskeyBtn')) $('registerPasskeyBtn').onclick=async()=>{
+  const btn=$('registerPasskeyBtn'),old=btn.textContent;
+  if(!dpPasskeySupported()){dpPasskeyMessage('Ключи входа не поддерживаются этим браузером или библиотекой. Обновите браузер или продолжайте входить по паролю.',true);return;}
+  if(!navigator.onLine){dpPasskeyMessage('Для регистрации ключа требуется интернет.',true);return;}
+  const {data:{user},error:sessionError}=await db.auth.getUser();
+  if(sessionError||!user){dpPasskeyMessage('Сначала войдите в журнал обычным способом.',true);return;}
+  btn.disabled=true;btn.textContent='Подтвердите на устройстве…';
+  try{
+    const {data:profile,error:profileError}=await db.from('journal_users').select('allowed').eq('user_id',user.id).maybeSingle();
+    if(profileError)throw profileError;
+    if(!profile?.allowed)throw new Error('Доступ к журналу ещё не разрешён.');
+    const {data,error}=await db.auth.registerPasskey();
+    if(error)throw error;
+    dpPasskeyMessage('Ключ входа добавлен. Теперь можно попробовать вход по отпечатку пальца. Не удаляйте обычный способ входа.');
+    console.info('Passkey registered',data?.id||'');
+  }catch(e){dpPasskeyMessage('Не удалось настроить ключ: '+(e?.message||String(e)),true);}
+  finally{btn.disabled=false;btn.textContent=old;}
+};
+if($('managePasskeysBtn')) $('managePasskeysBtn').onclick=async()=>{
+  if(!dpPasskeySupported()){dpPasskeyMessage('Управление ключами недоступно в этом браузере.',true);return;}
+  try{
+    const {data,error}=await db.auth.passkey.list();
+    if(error)throw error;
+    const keys=Array.isArray(data)?data:[];
+    dpPasskeyMessage(keys.length?'Зарегистрированные ключи: '+keys.map((k,i)=>(i+1)+'. '+(k.friendly_name||'Ключ входа')+' — '+new Date(k.created_at).toLocaleDateString()).join(' · '):'Для аккаунта ещё не зарегистрированы ключи входа.');
+  }catch(e){dpPasskeyMessage('Не удалось получить список ключей: '+(e?.message||String(e)),true);}
+};
+
 async function callPhoneAuth(action, phone, password, displayName){
   const response=await fetch(SUPABASE_URL+'/functions/v1/journal-phone-auth',{
     method:'POST',
