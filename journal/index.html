@@ -1757,8 +1757,9 @@ async function showApp(user){
     initialHomeShownForSession=true;
   }
   const email=(user.email||'').toLowerCase();
-  let profile=null;
+  let profile=null,offlineProfile=false;
   try{
+    if(!navigator.onLine)throw new Error('offline');
     const {data,error}=await db.from('journal_users').select('allowed,display_name').eq('user_id',user.id).maybeSingle();
     if(error) throw error;
     profile=data;
@@ -1769,16 +1770,24 @@ async function showApp(user){
       $('authMessage').textContent='Доступ к журналу пока не разрешён владельцем. После одобрения войдите снова.';
       return;
     }
+    try{await dpCachePut(user.id,'profile',profile);}catch(cacheError){console.warn('Profile cache update failed:',cacheError);}
   }catch(e){
-    console.error(e);
-    $('auth').style.display='flex';
-    $('app').style.display='none';
-    $('authMessage').textContent='Не удалось проверить доступ: '+e.message;
-    return;
+    console.warn('Online access check unavailable:',e?.message||e);
+    if(!navigator.onLine){
+      try{profile=await dpCacheGet(user.id,'profile');}catch(cacheError){console.warn('Profile cache read failed:',cacheError);}
+      if(profile?.allowed){offlineProfile=true;}
+    }
+    if(!offlineProfile){
+      $('auth').style.display='flex';
+      $('app').style.display='none';
+      $('authMessage').textContent=!navigator.onLine?'Для первого входа и проверки доступа нужен интернет. Войдите онлайн один раз, затем откройте журнал без сети.':'Не удалось проверить доступ: '+(e.message||e);
+      return;
+    }
   }
   $('auth').style.display='none';
   $('app').style.display='';
   $('userEmail').textContent=user.email||user.phone||'Пользователь';
+  if(offlineProfile)toast('Офлайн-режим: показаны ранее сохранённые данные. Изменения кроме осмотров будут доступны после подключения к интернету.');
   syncHomeUser(user.email||user.phone,profile.display_name);
   const owner=email==='78artnik@gmail.com';
   const p=$('userAccessPanel'); if(p)p.style.display=owner?'block':'none';
