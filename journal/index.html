@@ -2414,7 +2414,7 @@ async function renderPhotos(){
   const items=await Promise.all(rows.map(async p=>{
     let url='';
     if(!guestMode){
-      const r=await db.storage.from('journal-photos').createSignedUrl(p.file_path,3600);
+      const r=await db.storage.from('journal-photos').createSignedUrl(p.file_path,86400);
       url=r.data?.signedUrl||'';
     }
     return {p,url};
@@ -3658,7 +3658,7 @@ async function showInspectionDetails(id){
   if(!photos.length){photoBox.innerHTML='<div class="empty">К этому осмотру фотографии не прикреплены.</div>';return}
   if(guestMode){photoBox.innerHTML='<div class="muted">Фотографии доступны после входа владельца журнала.</div>';return}
   const items=await Promise.all(photos.map(async p=>{
-    const result=await db.storage.from('journal-photos').createSignedUrl(p.file_path,3600);
+    const result=await db.storage.from('journal-photos').createSignedUrl(p.file_path,86400);
     return {p,url:result.data?.signedUrl||''};
   }));
   if(!document.getElementById('inspectionDetailPhotos')||photoBox.dataset.inspectionId!==String(i.id))return;
