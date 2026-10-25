@@ -1110,7 +1110,7 @@ const { createClient } = window.supabase;
 const recoverySearchParams = new URLSearchParams(window.location.search);
 const recoveryHashParams = new URLSearchParams((window.location.hash || '').replace(/^#/, ''));
 const recoveryLinkDetected = recoveryHashParams.get('type') === 'recovery' || recoverySearchParams.get('type') === 'recovery' || recoverySearchParams.has('code');
-const db = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { storageKey: IS_PRODUCTION_JOURNAL ? 'dedushkina-paseka-journal-auth' : 'dedushkina-paseka-journal-test-auth' } });
+const db = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { storageKey: IS_PRODUCTION_JOURNAL ? 'dedushkina-paseka-journal-auth' : 'dedushkina-paseka-journal-test-auth', persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
 
 const state = {contacts:[], hives:[], inspections:[], workLogs:[], hiveMovements:[], health:[], treatments:[], queens:[], queenBatches:[], colonyOperations:[], waxOperations:[], apiaryProductsOperations:[], photos:[], honey:[], honeyPackagingRuns:[], honeyJarLabels:[], honeySales:[], tasks:[], finance:[], apiaries:[], medicines:[], medicineStockMovements:[], disinfection:[], beeFamilies:[]};
 let guestMode=false;
