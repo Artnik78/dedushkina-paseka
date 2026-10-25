@@ -2411,7 +2411,8 @@ async function loadAll(){
     }catch(e){console.warn('Offline inspection queue read failed',e);}
   }
   try{ renderAll(); renderPhotos(); }catch(e){console.error(e);showJournalError('Ошибка отображения журнала: '+(e.message||e))}
-  if(errors.length)showJournalError('Ошибка загрузки данных:\n'+errors.join('\n'));
+  if(errors.length&&navigator.onLine)showJournalError('Ошибка загрузки данных:\n'+errors.join('\n'));
+  else if(!navigator.onLine)toast('Нет интернета: показаны локально сохранённые пасеки, ульи и осмотры. Остальные разделы требуют подключения.');
 }
 async function renderPhotos(){
   const box=$('photosList'); if(!box)return;
@@ -3996,6 +3997,7 @@ function openTreatmentEditor(id){
   };
 }
 async function deleteTreatment(id){
+  if(!navigator.onLine){toast('Удаление обработки доступно только при подключении к интернету. Запись не изменена.');return}
   if(guestMode){toast('Гостевой режим — только просмотр');return}
   const t=state.treatments.find(x=>String(x.id)===String(id));if(!t)return;
   const m=state.medicines.find(x=>String(x.id)===String(t.medicine_id));
@@ -4007,6 +4009,7 @@ async function deleteTreatment(id){
 }
 $('healthForm').onsubmit=async e=>{
   e.preventDefault();
+  if(!navigator.onLine){toast('Запись о здоровье и списание препаратов требуют интернета. Данные не отправлены.');return}
   const d=formData(e.target);
   const treatmentProduct=(d.treatment_product||'').trim();
   const selectedMedicine=state.medicines.find(m=>String(m.id)===String(d.medicine_id||''));
@@ -4055,6 +4058,7 @@ $('healthForm').onsubmit=async e=>{
   if(productName)showHiveFamily(d.hive_id);
 };
 async function deleteHealthRecord(id){
+  if(!navigator.onLine){toast('Удаление записи о здоровье доступно только при подключении к интернету. Запись не изменена.');return}
   if(guestMode){toast('Гостевой режим — только просмотр');return}
   if(state.treatments.some(t=>String(t.health_record_id||'')===String(id))){
     toast('К этой записи привязана обработка. Сначала удалите или исправьте её в разделе «История лечения». Запись о здоровье останется целой.');
