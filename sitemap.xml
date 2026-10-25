@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://artnik78.github.io/dedushkina-paseka/</loc></url>
-  <url><loc>https://artnik78.github.io/dedushkina-paseka/karta-pchelovodov/</loc></url>
-  <url><loc>https://artnik78.github.io/dedushkina-paseka/karta-pchelovodov/map-live.html</loc></url>
-  <url><loc>https://artnik78.github.io/dedushkina-paseka/karta-pchelovodov/matkovody.html</loc></url>
-  <url><loc>https://artnik78.github.io/dedushkina-paseka/karta-pchelovodov/medonosy.html</loc></url>
+  <url>
+    <loc>https://artnik78.github.io/dedushkina-paseka/</loc>
+  </url>
+  <url>
+    <loc>https://artnik78.github.io/dedushkina-paseka/karta-pchelovodov/map-live.html</loc>
+  </url>
+  <url>
+    <loc>https://artnik78.github.io/dedushkina-paseka/karta-pchelovodov/matkovody.html</loc>
+  </url>
+  <url>
+    <loc>https://artnik78.github.io/dedushkina-paseka/karta-pchelovodov/medonosy.html</loc>
+  </url>
 </urlset>
