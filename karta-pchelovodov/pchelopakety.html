@@ -62,7 +62,7 @@ label{display:block;font-weight:650;font-size:14px;margin-bottom:5px}
 <div class="field"><label for="sellerName">Имя и фамилия *</label><input id="sellerName" required minlength="2" maxlength="160" autocomplete="name"></div>
 <div class="field"><label for="apiaryName">Название пасеки или хозяйства *</label><input id="apiaryName" required minlength="2" maxlength="180"></div>
 <div class="field"><label for="region">Область *</label><select id="region" required><option value="">Выберите область</option><option>Брестская</option><option>Витебская</option><option>Гомельская</option><option>Гродненская</option><option>Минская</option><option>Могилёвская</option></select></div>
-<div class="field"><label for="district">Район</label><input id="district" maxlength="120" placeholder="Например, Клецкий"></div>
+<div class="field"><label for="district">Район</label><select id="district" disabled><option value="">Сначала выберите область</option></select></div>
 <div class="field"><label for="locality">Населённый пункт</label><input id="locality" maxlength="120"></div>
 <div class="field"><label for="breed">Порода пчёл *</label><input id="breed" required maxlength="300" placeholder="Карника, Бакфаст, Карпатка…"></div>
 <div class="field"><label for="packageType">Тип пчелопакета *</label><select id="packageType" required><option value="">Выберите тип</option><option value="4-рамочный">4-рамочный</option><option value="6-рамочный">6-рамочный</option><option value="Другой">Другой</option></select></div>
@@ -103,6 +103,23 @@ const KEY='sb_publishable_ySg6j14PYR-uhz_Od9WeCQ_IP0WTY7t';
 const $=id=>document.getElementById(id);
 const form=$('sellerForm'),status=$('formStatus'),submit=$('submitBtn'),cardsEl=$('cards'),empty=$('empty'),count=$('count');
 let sellers=[];
+ const districtsByRegion={
+  'Брестская':['Барановичский','Берёзовский','Брестский','Ганцевичский','Дрогичинский','Жабинковский','Ивановский','Ивацевичский','Каменецкий','Кобринский','Лунинецкий','Ляховичский','Малоритский','Пинский','Пружанский','Столинский'],
+  'Витебская':['Бешенковичский','Браславский','Верхнедвинский','Витебский','Глубокский','Городокский','Докшицкий','Дубровенский','Лепельский','Лиозненский','Миорский','Оршанский','Полоцкий','Поставский','Россонский','Сенненский','Толочинский','Ушачский','Чашникский','Шарковщинский','Шумилинский'],
+  'Гомельская':['Брагинский','Буда-Кошелёвский','Ветковский','Гомельский','Добрушский','Ельский','Житковичский','Жлобинский','Калинковичский','Кормянский','Лельчицкий','Лоевский','Мозырский','Наровлянский','Октябрьский','Петриковский','Речицкий','Рогачёвский','Светлогорский','Хойникский','Чечерский'],
+  'Гродненская':['Берестовицкий','Волковысский','Вороновский','Гродненский','Дятловский','Зельвенский','Ивьевский','Кореличский','Лидский','Мостовский','Новогрудский','Островецкий','Ошмянский','Свислочский','Слонимский','Сморгонский','Щучинский'],
+  'Минская':['Березинский','Борисовский','Вилейский','Воложинский','Дзержинский','Клецкий','Копыльский','Крупский','Логойский','Любанский','Минский','Молодечненский','Мядельский','Несвижский','Пуховичский','Слуцкий','Смолевичский','Солигорский','Стародорожский','Столбцовский','Узденский','Червенский'],
+  'Могилёвская':['Белыничский','Бобруйский','Быховский','Глусский','Горецкий','Дрибинский','Кировский','Климовичский','Кличевский','Костюковичский','Краснопольский','Кричевский','Круглянский','Могилёвский','Мстиславский','Осиповичский','Славгородский','Хотимский','Чаусский','Чериковский','Шкловский']
+ };
+ function fillDistricts(){
+  const region=$('region').value,select=$('district'),previous=select.value;
+  select.replaceChildren();
+  const first=document.createElement('option');first.value='';first.textContent=region?'Выберите район':'Сначала выберите область';select.appendChild(first);
+  (districtsByRegion[region]||[]).forEach(name=>{const option=document.createElement('option');option.value=name;option.textContent=name;select.appendChild(option)});
+  select.disabled=!region;
+  if(previous&&(districtsByRegion[region]||[]).includes(previous))select.value=previous;
+ }
+ $('region').addEventListener('change',fillDistricts);
 $('toggleForm').addEventListener('click',function(){const open=$('formBody').hidden;$('formBody').hidden=!open;this.setAttribute('aria-expanded',String(open));$('toggleIcon').textContent=open?'−':'＋';if(open)setTimeout(()=>$('sellerName').focus({preventScroll:true}),0)});
 function safeUrl(value){try{const u=new URL(value);return ['https:','http:'].includes(u.protocol)?u.href:''}catch{return ''}}
 function addText(parent,tag,className,text){const el=document.createElement(tag);if(className)el.className=className;el.textContent=text;parent.appendChild(el);return el}
@@ -136,7 +153,7 @@ form.addEventListener('submit',async e=>{
  const website=safeUrl($('website').value.trim());
  if($('website').value.trim()&&!website){status.textContent='Укажите корректный адрес сайта, начинающийся с http:// или https://.';return}
  const quantity=$('quantity').value.trim();
- const payload={seller_name:$('sellerName').value.trim(),apiary_name:$('apiaryName').value.trim(),region:$('region').value,district:$('district').value.trim()||null,locality:$('locality').value.trim()||null,bee_breed:$('breed').value.trim(),package_type:$('packageType').value,package_details:$('packageDetails').value.trim()||null,quantity_available:quantity===''?null:Number(quantity),price_info:$('priceInfo').value.trim()||null,sales_period:$('salesPeriod').value.trim()||null,delivery_info:$('deliveryInfo').value.trim()||null,contact_phone:$('phone').value.trim(),contact_email:$('email').value.trim()||null,website_url:website||null,description:$('description').value.trim()||null,consent_to_publish:true,status:'pending'};
+ const payload={seller_name:$('sellerName').value.trim(),apiary_name:$('apiaryName').value.trim(),region:$('region').value,district:$('district').value||null,locality:$('locality').value.trim()||null,bee_breed:$('breed').value.trim(),package_type:$('packageType').value,package_details:$('packageDetails').value.trim()||null,quantity_available:quantity===''?null:Number(quantity),price_info:$('priceInfo').value.trim()||null,sales_period:$('salesPeriod').value.trim()||null,delivery_info:$('deliveryInfo').value.trim()||null,contact_phone:$('phone').value.trim(),contact_email:$('email').value.trim()||null,website_url:website||null,description:$('description').value.trim()||null,consent_to_publish:true,status:'pending'};
  submit.disabled=true;status.textContent='Отправляем объявление на проверку…';
  try{const res=await fetch(API,{method:'POST',headers:{apikey:KEY,Authorization:'Bearer '+KEY,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(payload)});if(!res.ok){const body=await res.text();throw new Error('HTTP '+res.status+' '+body)}form.reset();status.textContent='Объявление отправлено на проверку. Оно появится в каталоге после одобрения.'}
  catch(err){console.error('Bee package application failed',err);status.textContent='Не удалось отправить объявление. Проверьте подключение и попробуйте позже.'}
