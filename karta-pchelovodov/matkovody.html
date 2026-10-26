@@ -106,4 +106,35 @@ async function loadApproved(){const list=document.getElementById('cards');if(lis
 
 
 </script>
+<script>
+(function(){
+  function initDistrictFallback(){
+    var region=document.getElementById('bfRegion'), district=document.getElementById('bfDistrict'), locality=document.getElementById('bfLocality');
+    if(!region||!district)return;
+    var lists={
+      'Брестская':'Барановичский,Берёзовский,Брестский,Ганцевичский,Дрогичинский,Жабинковский,Ивановский,Ивацевичский,Каменецкий,Кобринский,Лунинецкий,Ляховичский,Малоритский,Пинский,Пружанский,Столинский',
+      'Витебская':'Бешенковичский,Браславский,Верхнедвинский,Витебский,Глубокский,Городокский,Докшицкий,Дубровенский,Лепельский,Лиозненский,Миорский,Оршанский,Полоцкий,Поставский,Россонский,Сенненский,Толочинский,Ушачский,Чашникский,Шарковщинский,Шумилинский',
+      'Гомельская':'Брагинский,Буда-Кошелёвский,Ветковский,Гомельский,Добрушский,Ельский,Житковичский,Жлобинский,Калинковичский,Кормянский,Лельчицкий,Лоевский,Мозырский,Наровлянский,Октябрьский,Петриковский,Речицкий,Рогачёвский,Светлогорский,Хойникский,Чечерский',
+      'Гродненская':'Берестовицкий,Волковысский,Вороновский,Гродненский,Дятловский,Зельвенский,Ивьевский,Кореличский,Лидский,Мостовский,Новогрудский,Островецкий,Ошмянский,Свислочский,Слонимский,Сморгонский,Щучинский',
+      'Минская':'Березинский,Борисовский,Вилейский,Воложинский,Дзержинский,Клецкий,Копыльский,Крупский,Логойский,Любанский,Минский,Молодечненский,Мядельский,Несвижский,Пуховичский,Слуцкий,Смолевичский,Солигорский,Стародорожский,Столбцовский,Узденский,Червенский',
+      'Могилёвская':'Белыничский,Бобруйский,Быховский,Глусский,Горецкий,Дрибинский,Кировский,Климовичский,Кличевский,Краснопольский,Кричевский,Круглянский,Могилёвский,Мстиславский,Осиповичский,Славгородский,Хотимский,Чаусский,Чериковский,Шкловский'
+    };
+    function norm(s){return String(s||'').toLowerCase().replace(/ё/g,'е').trim();}
+    function fill(){
+      var name=region.value, key=Object.keys(lists).find(function(k){return norm(k)===norm(name)}), prev=district.value;
+      var values=key?lists[key].split(','):[];
+      district.innerHTML='';
+      var opt=document.createElement('option');opt.value='';opt.textContent=values.length?'Выберите район':name?'Список районов не найден':'Сначала выберите область';district.appendChild(opt);
+      values.forEach(function(v){var o=document.createElement('option');o.value=v;o.textContent=v+' район';district.appendChild(o)});
+      district.disabled=!values.length;
+      if(prev&&values.indexOf(prev)!==-1)district.value=prev;
+      if(locality){locality.innerHTML='';var lo=document.createElement('option');lo.value='';lo.textContent=district.value?'Выберите населённый пункт':'Сначала выберите район';locality.appendChild(lo);locality.disabled=!district.value;}
+    }
+    region.addEventListener('change',fill);
+    fill();
+    setTimeout(fill,300);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initDistrictFallback);else initDistrictFallback();
+})();
+</script>
 </body></html>
