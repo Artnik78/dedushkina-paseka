@@ -130,9 +130,12 @@ async function loadApproved(){const list=document.getElementById('cards');if(lis
       if(prev&&values.indexOf(prev)!==-1)district.value=prev;
       if(locality){locality.innerHTML='';var lo=document.createElement('option');lo.value='';lo.textContent=district.value?'Выберите населённый пункт':'Сначала выберите район';locality.appendChild(lo);var other=document.createElement('option');other.value='__other__';other.textContent='Другой населённый пункт…';if(district.value)locality.appendChild(other);locality.disabled=!district.value;locality.onchange=function(){var extra=document.getElementById('bfLocalityOther');if(extra){extra.style.display=this.value==='__other__'?'block':'none';extra.required=this.value==='__other__';}};}
     }
-    region.addEventListener('change',fill);
+    function fillLocality(){if(!locality||!district)return;var selected=String(district.value||'').trim();locality.innerHTML='';var first=document.createElement('option');first.value='';first.textContent=selected?'Выберите населённый пункт':'Сначала выберите район';locality.appendChild(first);if(selected){var other=document.createElement('option');other.value='__other__';other.textContent='Другой населённый пункт…';locality.appendChild(other);}locality.disabled=!selected;var extra=document.getElementById('bfLocalityOther');if(extra){locality.onchange=function(){extra.style.display=this.value==='__other__'?'block':'none';extra.required=this.value==='__other__';};}}
+    region.addEventListener('change',function(){fill();fillLocality();});
+    district.addEventListener('change',fillLocality);
     fill();
-    setTimeout(fill,300);
+    fillLocality();
+    setTimeout(function(){fill();fillLocality();},300);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initDistrictFallback);else initDistrictFallback();
 })();
