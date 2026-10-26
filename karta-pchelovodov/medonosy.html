@@ -7,7 +7,7 @@
 <main class="wrap">
 <section class="hero"><h1>🌼 Медоносные растения Беларуси</h1><p>Ищите семена, саженцы и другие медоносы. Продавцы могут самостоятельно добавить ассортимент и контакты. Новые анкеты публикуются после проверки администратором.</p></section>
 <section class="hero" style="padding:0;overflow:hidden">
-<button class="toggle" id="toggleForm" aria-expanded="false"><span>＋ Добавить продавца медоносов</span><span id="toggleIcon">+</span></button>
+<button class="toggle" id="toggleForm" aria-expanded="false" onclick="var p=document.getElementById('formPanel');var o=p.classList.contains('hidden');p.classList.toggle('hidden',!o);p.style.display=o?'block':'none';this.setAttribute('aria-expanded',String(o));var s=document.getElementById('toggleIcon');if(s)s.textContent=o?'−':'+';"><span>＋ Добавить продавца медоносов</span><span id="toggleIcon">+</span></button>
 <div id="formPanel" class="hidden" style="padding:0 16px 18px">
 <form id="sellerForm"><div class="formgrid" style="margin:0;padding:0;border:0;background:transparent">
 <div class="field"><label for="sellerType">Кто продаёт? *</label><select id="sellerType" required><option>Частный продавец</option><option>Питомник растений</option><option>Фермерское хозяйство</option><option>Семена и посадочный материал</option></select></div>
