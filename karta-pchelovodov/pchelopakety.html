@@ -54,7 +54,7 @@ label{display:block;font-weight:650;font-size:14px;margin-bottom:5px}
 <p>Найдите пасеки, которые продают пчелопакеты. Сравните породы пчёл, состав пакета, цены, сроки продажи и условия доставки.</p>
 </section>
 <section class="panel">
-<button class="form-toggle" type="button" id="toggleForm" aria-expanded="false" aria-controls="formBody"><span>➕ Добавить объявление о продаже пчелопакетов</span><span id="toggleIcon">＋</span></button>
+<button class="form-toggle" type="button" id="toggleForm" aria-expanded="false" aria-controls="formBody" onclick="var p=document.getElementById('formBody');var o=p.hidden;p.hidden=!o;this.setAttribute('aria-expanded',String(o));var s=document.getElementById('toggleIcon');if(s)s.textContent=o?'−':'＋';"><span>➕ Добавить объявление о продаже пчелопакетов</span><span id="toggleIcon">＋</span></button>
 <div class="form-body" id="formBody" hidden>
 <p class="note">Заполните анкету. Контактные данные и объявление станут видны посетителям только после проверки модератором.</p>
 <form id="sellerForm">
