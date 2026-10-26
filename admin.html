@@ -160,7 +160,7 @@ $('saveEdit').addEventListener('click',async()=>{
  finally{$('saveEdit').disabled=false}
 });
 $('cancelEdit').addEventListener('click',()=>{$('editorPanel').classList.add('hidden');editing=null});
-$('tabs').addEventListener('click',e=>{const b=e.target.closest('button[data-table]');if(!b)return;activeTable=b.dataset.table;$('#tabs button').forEach(x=>x.classList.toggle('active',x===b));$('editorPanel').classList.add('hidden');if(activeTable==='all_pending'||['beekeeper_map_requests','beekeeper_map_edit_requests','beekeeper_map_claim_requests'].includes(activeTable))$('statusFilter').value='pending';else if(activeTable==='beekeeper_map_profiles')$('statusFilter').value='approved';else $('statusFilter').value='all';loadRows()});
+$('tabs').addEventListener('click',e=>{const b=e.target.closest('button[data-table]');if(!b)return;activeTable=b.dataset.table;document.querySelectorAll('#tabs button').forEach(x=>x.classList.toggle('active',x===b));$('editorPanel').classList.add('hidden');if(activeTable==='all_pending'||['beekeeper_map_requests','beekeeper_map_edit_requests','beekeeper_map_claim_requests'].includes(activeTable))$('statusFilter').value='pending';else if(activeTable==='beekeeper_map_profiles')$('statusFilter').value='approved';else $('statusFilter').value='all';loadRows()});
 function $$(selector){return document.querySelectorAll(selector)}
 $('statusFilter').addEventListener('change',loadRows);$('reloadBtn').addEventListener('click',loadRows);
 client.auth.getSession().then(({data})=>{if(data.session?.user)start(data.session.user);else showLogin()});
