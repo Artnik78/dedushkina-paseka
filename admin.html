@@ -23,11 +23,11 @@
 <div class="panel topline"><div><strong id="who"></strong><div class="hint">Доступ только для назначенного администратора.</div></div><button class="btn gray" id="logoutBtn">Выйти</button></div>
 <div class="panel">
 <div class="tabs" id="tabs">
-<button class="active" data-table="queen_breeder_submissions">Матководы</button>
+<button data-table="queen_breeder_submissions">Матководы</button>
 <button data-table="bee_package_sellers">Пчелопакеты</button>
 <button data-table="honey_plant_sellers">Медоносы и растения</button>
 <button data-table="beekeeper_map_profiles">Пчеловоды на карте</button>
-<button data-table="beekeeper_map_requests">Заявки пчеловодов</button>
+<button class="active" data-table="beekeeper_map_requests">Заявки пчеловодов</button>
 <button data-table="beekeeper_map_edit_requests">Изменения карточек</button>
 <button data-table="beekeeper_map_claim_requests">Закрепление карточек</button>
 </div>
@@ -59,7 +59,7 @@ const labels={
  beekeeper_map_edit_requests:{title:'Запрос изменения карточки',name:['apiary_name','beekeeper_name'],fields:['beekeeper_name','apiary_name','region','district','products','description','contact_public','latitude','longitude','hive_count','contact_methods','logo_url','website_url','profile_id','user_id']},
  beekeeper_map_claim_requests:{title:'Запрос закрепления карточки',name:['profile_id','user_id'],fields:['profile_id','user_id','message']}
 };
-let activeTable='queen_breeder_submissions',currentRows=[],editing=null;
+let activeTable='beekeeper_map_requests',currentRows=[],editing=null;
 function say(id,msg){$(id).textContent=msg||''}
 function showLogin(){ $('loginPanel').classList.remove('hidden');$('appPanel').classList.add('hidden');$('editorPanel').classList.add('hidden')}
 function showApp(user){$('loginPanel').classList.add('hidden');$('appPanel').classList.remove('hidden');$('who').textContent=user.email||'Администратор';}
@@ -70,7 +70,7 @@ async function ensureAdmin(user){
  return true;
 }
 async function start(user){
- try{await ensureAdmin(user);showApp(user);await loadRows()}
+ try{await ensureAdmin(user);showApp(user);$('statusFilter').value='pending';await loadRows()}
  catch(e){say('loginStatus',e.message);await client.auth.signOut();showLogin()}
 }
 $('loginForm').addEventListener('submit',async e=>{e.preventDefault();$('loginBtn').disabled=true;say('loginStatus','Проверяем вход…');
