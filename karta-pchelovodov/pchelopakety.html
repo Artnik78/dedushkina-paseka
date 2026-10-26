@@ -122,7 +122,7 @@ let sellers=[];
   if(previous&&(districtsByRegion[region]||[]).includes(previous))select.value=previous;
  }
  $('region').addEventListener('change',fillDistricts);
-$('toggleForm').addEventListener('click',function(){const open=$('formBody').hidden;$('formBody').hidden=!open;this.setAttribute('aria-expanded',String(open));$('toggleIcon').textContent=open?'−':'＋';if(open)setTimeout(()=>$('sellerName').focus({preventScroll:true}),0)});
+(function(){const t=$('toggleForm'),p=$('formBody'),i=$('toggleIcon');if(t&&p)t.onclick=function(){const open=p.hidden;p.hidden=!open;t.setAttribute('aria-expanded',String(open));if(i)i.textContent=open?'−':'＋';if(open)setTimeout(()=>{p.scrollIntoView({behavior:'smooth',block:'nearest'});},50);};})();
 function safeUrl(value){try{const u=new URL(value);return ['https:','http:'].includes(u.protocol)?u.href:''}catch{return ''}}
 function addText(parent,tag,className,text){const el=document.createElement(tag);if(className)el.className=className;el.textContent=text;parent.appendChild(el);return el}
 function render(){
