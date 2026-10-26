@@ -23,6 +23,7 @@
 <div class="panel topline"><div><strong id="who"></strong><div class="hint">Доступ только для назначенного администратора.</div></div><button class="btn gray" id="logoutBtn">Выйти</button></div>
 <div class="panel">
 <div class="tabs" id="tabs">
+<button data-table="all_pending">Новые заявки всех каталогов</button>
 <button data-table="queen_breeder_submissions">Матководы</button>
 <button data-table="bee_package_sellers">Пчелопакеты</button>
 <button data-table="honey_plant_sellers">Медоносы и растения</button>
@@ -59,7 +60,9 @@ const labels={
  beekeeper_map_edit_requests:{title:'Запрос изменения карточки',name:['apiary_name','beekeeper_name'],fields:['beekeeper_name','apiary_name','region','district','products','description','contact_public','latitude','longitude','hive_count','contact_methods','logo_url','website_url','profile_id','user_id']},
  beekeeper_map_claim_requests:{title:'Запрос закрепления карточки',name:['profile_id','user_id'],fields:['profile_id','user_id','message']}
 };
-let activeTable='beekeeper_map_requests',currentRows=[],editing=null;
+let activeTable='all_pending',currentRows=[],editing=null;
+const queueTables=['queen_breeder_submissions','bee_package_sellers','honey_plant_sellers','beekeeper_map_requests'];
+const queueNames={queen_breeder_submissions:'Матководы',bee_package_sellers:'Пчелопакеты',honey_plant_sellers:'Цветники и медоносы',beekeeper_map_requests:'Пчеловоды'};
 function say(id,msg){$(id).textContent=msg||''}
 function showLogin(){ $('loginPanel').classList.remove('hidden');$('appPanel').classList.add('hidden');$('editorPanel').classList.add('hidden')}
 function showApp(user){$('loginPanel').classList.add('hidden');$('appPanel').classList.remove('hidden');$('who').textContent=user.email||'Администратор';}
@@ -84,9 +87,11 @@ async function loadRows(){
  say('appStatus','Загружаем записи…');$('records').replaceChildren();
  const status=$('statusFilter').value;
  try{
-  let q=client.from(activeTable).select('*').order('created_at',{ascending:false}).limit(250);
-  if(status!=='all')q=q.eq('status',status);
-  const {data,error}=await q;if(error)throw error;currentRows=data||[];renderRows();say('appStatus','')
+  if(activeTable==='all_pending'){
+   const results=await Promise.all(queueTables.map(async table=>{let q=client.from(table).select('*').order('created_at',{ascending:false}).limit(250);if(status!=='all')q=q.eq('status',status);const {data,error}=await q;if(error)throw new Error(queueNames[table]+': '+error.message);return (data||[]).map(row=>({...row,__sourceTable:table}))}));
+   currentRows=results.flat().sort((a,b)=>new Date(b.created_at||0)-new Date(a.created_at||0));
+  }else{let q=client.from(activeTable).select('*').order('created_at',{ascending:false}).limit(250);if(status!=='all')q=q.eq('status',status);const {data,error}=await q;if(error)throw error;currentRows=data||[]}
+  renderRows();say('appStatus','')
  }catch(err){say('appStatus','Ошибка загрузки: '+err.message+' (проверьте права доступа и интернет)')}
 }
 function displayValue(v){if(v===null||v===undefined||v==='')return '—';if(Array.isArray(v))return v.join(', ');if(typeof v==='object')return JSON.stringify(v);return String(v)}
@@ -95,38 +100,38 @@ function renderRows(){
  if(!currentRows.length){const p=document.createElement('div');p.className='empty';p.textContent='Записей с таким статусом нет.';root.appendChild(p);return}
  currentRows.forEach(row=>{
   const card=document.createElement('article');card.className='record';
-  const nameKeys=labels[activeTable].name;const title=nameKeys.map(k=>row[k]).find(Boolean)||'Запись без названия';
+  const tableName=row.__sourceTable||activeTable;const nameKeys=labels[tableName].name;const title=(row.__sourceTable?queueNames[tableName]+' · ':'')+(nameKeys.map(k=>row[k]).find(Boolean)||'Запись без названия');
   const h=document.createElement('h3');h.textContent=title;card.appendChild(h);
   const b=document.createElement('span');b.className='badge '+(row.status||'');b.textContent=({pending:'На проверке',approved:'Опубликовано',rejected:'Отклонено'})[row.status]||row.status||'без статуса';card.appendChild(b);
   const meta=document.createElement('div');meta.className='meta';
-  labels[activeTable].fields.forEach(k=>{if(row[k]!==null&&row[k]!==undefined&&row[k]!==''){const line=document.createElement('div');line.textContent=k+': '+displayValue(row[k]);meta.appendChild(line)}});
+  labels[tableName].fields.forEach(k=>{if(row[k]!==null&&row[k]!==undefined&&row[k]!==''){const line=document.createElement('div');line.textContent=k+': '+displayValue(row[k]);meta.appendChild(line)}});
   if(row.created_at){const line=document.createElement('div');line.textContent='Создано: '+new Date(row.created_at).toLocaleString('ru-RU');meta.appendChild(line)}
   card.appendChild(meta);
   const actions=document.createElement('div');actions.className='actions';
-  const edit=document.createElement('button');edit.className='btn gray small';edit.textContent='Изменить';edit.addEventListener('click',()=>openEditor(row));actions.appendChild(edit);
-  if(row.status!=='approved'){const approve=document.createElement('button');approve.className='btn green small';approve.textContent='Одобрить';approve.addEventListener('click',()=>setStatus(row,'approved'));actions.appendChild(approve)}
-  if(row.status!=='rejected'){const reject=document.createElement('button');reject.className='btn gray small';reject.textContent='Отклонить';reject.addEventListener('click',()=>setStatus(row,'rejected'));actions.appendChild(reject)}
-  if(row.status!=='pending'&&row.status!==undefined){const pending=document.createElement('button');pending.className='btn gray small';pending.textContent='Вернуть на проверку';pending.addEventListener('click',()=>setStatus(row,'pending'));actions.appendChild(pending)}
-  const del=document.createElement('button');del.className='btn red small';del.textContent='Удалить';del.addEventListener('click',()=>removeRow(row));actions.appendChild(del);
+  const edit=document.createElement('button');edit.className='btn gray small';edit.textContent='Изменить';edit.addEventListener('click',()=>{if(row.__sourceTable)activeTable=row.__sourceTable;openEditor(row)});actions.appendChild(edit);
+  if(row.status!=='approved'){const approve=document.createElement('button');approve.className='btn green small';approve.textContent='Одобрить';approve.addEventListener('click',()=>setStatus(row,'approved',tableName));actions.appendChild(approve)}
+  if(row.status!=='rejected'){const reject=document.createElement('button');reject.className='btn gray small';reject.textContent='Отклонить';reject.addEventListener('click',()=>setStatus(row,'rejected',tableName));actions.appendChild(reject)}
+  if(row.status!=='pending'&&row.status!==undefined){const pending=document.createElement('button');pending.className='btn gray small';pending.textContent='Вернуть на проверку';pending.addEventListener('click',()=>setStatus(row,'pending',tableName));actions.appendChild(pending)}
+  const del=document.createElement('button');del.className='btn red small';del.textContent='Удалить';del.addEventListener('click',()=>removeRow(row,tableName));actions.appendChild(del);
   card.appendChild(actions);root.appendChild(card);
  });
 }
-async function setStatus(row,status){
+async function setStatus(row,status,tableName=activeTable){
  if(!confirm('Изменить статус записи на «'+({pending:'На проверке',approved:'Опубликовано',rejected:'Отклонено'})[status]+'»?'))return;
  const patch={status};
- if(activeTable==='queen_breeder_submissions'||activeTable==='bee_package_sellers'||activeTable==='honey_plant_sellers')patch.reviewed_at=status==='pending'?null:new Date().toISOString();
- if(activeTable==='beekeeper_map_profiles')patch.approved_at=status==='approved'?new Date().toISOString():null;
- await updateRow(row.id,patch,'Статус обновлён.');
+ if(['queen_breeder_submissions','bee_package_sellers','honey_plant_sellers'].includes(tableName))patch.reviewed_at=status==='pending'?null:new Date().toISOString();
+ if(tableName==='beekeeper_map_profiles')patch.approved_at=status==='approved'?new Date().toISOString():null;
+ await updateRow(row.id,patch,'Статус обновлён.',tableName);
 }
-async function updateRow(id,patch,success){
+async function updateRow(id,patch,success,tableName=activeTable){
  say('appStatus','Сохраняем…');
- const {error}=await client.from(activeTable).update(patch).eq('id',id);
+ const {error}=await client.from(tableName).update(patch).eq('id',id);
  if(error){say('appStatus','Не удалось сохранить: '+error.message);return}
  say('appStatus',success);await loadRows();
 }
-async function removeRow(row){
+async function removeRow(row,tableName=activeTable){
  if(!confirm('Удалить запись без возможности восстановления?'))return;
- const {error}=await client.from(activeTable).delete().eq('id',row.id);
+ const {error}=await client.from(tableName).delete().eq('id',row.id);
  if(error){say('appStatus','Не удалось удалить: '+error.message);return}
  say('appStatus','Запись удалена.');await loadRows();
 }
@@ -155,7 +160,7 @@ $('saveEdit').addEventListener('click',async()=>{
  finally{$('saveEdit').disabled=false}
 });
 $('cancelEdit').addEventListener('click',()=>{$('editorPanel').classList.add('hidden');editing=null});
-$('tabs').addEventListener('click',e=>{const b=e.target.closest('button[data-table]');if(!b)return;activeTable=b.dataset.table;$('tabs button').forEach(x=>x.classList.toggle('active',x===b));$('editorPanel').classList.add('hidden');if(['beekeeper_map_requests','beekeeper_map_edit_requests','beekeeper_map_claim_requests'].includes(activeTable))$('statusFilter').value='pending';else if(activeTable==='beekeeper_map_profiles')$('statusFilter').value='approved';else $('statusFilter').value='all';loadRows()});
+$('tabs').addEventListener('click',e=>{const b=e.target.closest('button[data-table]');if(!b)return;activeTable=b.dataset.table;$('tabs button').forEach(x=>x.classList.toggle('active',x===b));$('editorPanel').classList.add('hidden');if(activeTable==='all_pending'||['beekeeper_map_requests','beekeeper_map_edit_requests','beekeeper_map_claim_requests'].includes(activeTable))$('statusFilter').value='pending';else if(activeTable==='beekeeper_map_profiles')$('statusFilter').value='approved';else $('statusFilter').value='all';loadRows()});
 function $$(selector){return document.querySelectorAll(selector)}
 $('statusFilter').addEventListener('change',loadRows);$('reloadBtn').addEventListener('click',loadRows);
 client.auth.getSession().then(({data})=>{if(data.session?.user)start(data.session.user);else showLogin()});
