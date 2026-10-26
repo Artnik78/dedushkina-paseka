@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Администрирование — Дедушкина пасека</title>
+<style>
+:root{--ink:#243247;--blue:#245b8f;--pale:#edf4fb;--line:#d4e0ed;--green:#247548;--red:#a33b32}*{box-sizing:border-box}body{margin:0;background:#f4f7fb;color:var(--ink);font:15px Arial,sans-serif}header{background:#fff;border-bottom:1px solid var(--line);padding:18px 16px}header .wrap,main{max-width:1100px;margin:auto}h1{font-size:25px;margin:0 0 5px}header p{margin:0;color:#5e6d7f}.wrap{max-width:1100px;margin:auto}main{padding:18px 14px 45px}.panel{background:white;border:1px solid var(--line);border-radius:14px;padding:18px;margin:0 0 15px;box-shadow:0 2px 8px #2432470a}.login{max-width:460px;margin:25px auto}.field{margin:0 0 12px}.field label{display:block;font-weight:700;margin:0 0 6px}.field input,.field select{width:100%;padding:12px;border:1px solid #b9c9d9;border-radius:8px;font-size:16px;background:white}.btn{border:0;border-radius:8px;padding:10px 13px;background:var(--blue);color:white;font-weight:700;cursor:pointer}.btn:disabled{opacity:.55}.btn.gray{background:#e8eef5;color:#25364a}.btn.green{background:var(--green)}.btn.red{background:var(--red)}.btn.small{padding:8px 10px;font-size:13px}.status{margin:10px 0 0;line-height:1.4}.hidden{display:none!important}.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:12px 0}.tabs{display:flex;gap:8px;flex-wrap:wrap}.tabs button{border:1px solid var(--line);background:#f4f7fb;color:#263b52;border-radius:9px;padding:10px 12px;cursor:pointer}.tabs button.active{background:var(--blue);color:white;border-color:var(--blue)}.record{border:1px solid var(--line);border-radius:12px;padding:14px;margin:10px 0}.record h3{font-size:17px;margin:0 0 8px;overflow-wrap:anywhere}.meta{font-size:13px;color:#536579;line-height:1.55;overflow-wrap:anywhere}.badge{display:inline-block;border-radius:20px;padding:4px 9px;background:#edf1f5;font-size:12px;margin:0 5px 6px 0}.badge.pending{background:#fff0c9;color:#795600}.badge.approved{background:#dff4e7;color:#17613a}.badge.rejected{background:#fce6e4;color:#8b2f29}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.hint{font-size:13px;color:#5d6c7e;line-height:1.5}.topline{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.editor{width:100%;min-height:260px;font:13px ui-monospace,monospace;padding:12px;border:1px solid var(--line);border-radius:8px}.empty{padding:22px;text-align:center;color:#68788a}@media(max-width:600px){h1{font-size:21px}.panel{padding:13px}.actions .btn{flex:1}.tabs button{flex:1}.record{padding:12px}}
+</style>
+</head>
+<body>
+<header><div class="wrap"><h1>🐝 Администрирование сайта</h1><p>Каталоги пчеловодов и продавцов · рабочая версия сайта</p></div></header>
+<main>
+<section id="loginPanel" class="panel login">
+<h2 style="margin-top:0">Вход администратора</h2>
+<p class="hint">Войдите с учётной записью, которой назначены права администратора. Пароль вводится только в защищённую форму Supabase Auth.</p>
+<form id="loginForm">
+<div class="field"><label for="email">Электронная почта</label><input id="email" type="email" autocomplete="username" required value="78artnik@gmail.com"></div>
+<div class="field"><label for="password">Пароль</label><input id="password" type="password" autocomplete="current-password" required></div>
+<button class="btn" type="submit" id="loginBtn">Войти</button>
+<p class="status" id="loginStatus" role="status"></p>
+</form></section>
+<section id="appPanel" class="hidden">
+<div class="panel topline"><div><strong id="who"></strong><div class="hint">Доступ только для назначенного администратора.</div></div><button class="btn gray" id="logoutBtn">Выйти</button></div>
+<div class="panel">
+<div class="tabs" id="tabs">
+<button class="active" data-table="queen_breeder_submissions">Матководы</button>
+<button data-table="bee_package_sellers">Пчелопакеты</button>
+<button data-table="honey_plant_sellers">Медоносы и растения</button>
+<button data-table="beekeeper_map_profiles">Карта пчеловодов</button>
+</div>
+<div class="toolbar"><label for="statusFilter"><strong>Показывать:</strong></label><select id="statusFilter" style="padding:9px;border:1px solid var(--line);border-radius:8px"><option value="all">Все записи</option><option value="pending">На проверке</option><option value="approved">Опубликованные</option><option value="rejected">Отклонённые</option></select><button class="btn gray" id="reloadBtn">Обновить</button><span id="recordCount" class="hint"></span></div>
+<p id="appStatus" class="status" role="status"></p>
+<div id="records"></div>
+</div>
+</section>
+<section id="editorPanel" class="panel hidden">
+<h2 style="margin-top:0">Редактирование записи</h2><p class="hint">Измените JSON-поля записи. Не меняйте id и created_at. Перед сохранением проверьте контактные данные.</p>
+<textarea id="editor" class="editor" spellcheck="false"></textarea>
+<div class="actions"><button class="btn green" id="saveEdit">Сохранить изменения</button><button class="btn gray" id="cancelEdit">Отмена</button></div><p id="editorStatus" class="status" role="status"></p>
+</section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.0/dist/umd/supabase.min.js"></script>
+<script>
+(function(){
+'use strict';
+const URL='https://uycjzsttxhtwochgghrs.supabase.co';
+const KEY='sb_publishable_ySg6j14PYR-uhz_Od9WeCQ_IP0WTY7t';
+const client=supabase.createClient(URL,KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+const $=id=>document.getElementById(id);
+const labels={
+ queen_breeder_submissions:{title:'Матковод',name:['apiary_name','full_name'],fields:['full_name','apiary_name','region','district','locality','breeds','lines','queen_types','prices','delivery','contact_phone','contact_email','website_url','logo_url','description']},
+ bee_package_sellers:{title:'Пчелопакеты',name:['apiary_name','seller_name'],fields:['seller_name','apiary_name','region','district','locality','bee_breed','package_type','package_details','quantity_available','price_info','sales_period','delivery_info','contact_phone','contact_email','website_url','description']},
+ honey_plant_sellers:{title:'Медоносы и растения',name:['seller_name','seller_type'],fields:['seller_type','seller_name','region','district','locality','plants','price_info','sales_delivery','contacts','website_url','image_url','description','latitude','longitude']},
+ beekeeper_map_profiles:{title:'Профиль пчеловода',name:['apiary_name','beekeeper_name'],fields:['beekeeper_name','apiary_name','region','district','products','description','contact_public','latitude','longitude','hive_count','contact_methods','logo_url','website_url']}
+};
+let activeTable='queen_breeder_submissions',currentRows=[],editing=null;
+function say(id,msg){$(id).textContent=msg||''}
+function showLogin(){ $('loginPanel').classList.remove('hidden');$('appPanel').classList.add('hidden');$('editorPanel').classList.add('hidden')}
+function showApp(user){$('loginPanel').classList.add('hidden');$('appPanel').classList.remove('hidden');$('who').textContent=user.email||'Администратор';}
+async function ensureAdmin(user){
+ const {data,error}=await client.from('site_admins').select('user_id,email').eq('user_id',user.id).maybeSingle();
+ if(error)throw new Error('Не удалось проверить права администратора: '+error.message);
+ if(!data)throw new Error('Для этой учётной записи не назначены права администратора.');
+ return true;
+}
+async function start(user){
+ try{await ensureAdmin(user);showApp(user);await loadRows()}
+ catch(e){say('loginStatus',e.message);await client.auth.signOut();showLogin()}
+}
+$('loginForm').addEventListener('submit',async e=>{e.preventDefault();$('loginBtn').disabled=true;say('loginStatus','Проверяем вход…');
+ try{const {data,error}=await client.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error)throw error;await start(data.user)}
+ catch(err){say('loginStatus','Не удалось войти: '+(err.message||'проверьте почту и пароль'))}
+ finally{$('loginBtn').disabled=false}
+});
+$('logoutBtn').addEventListener('click',async()=>{await client.auth.signOut();currentRows=[];showLogin();say('loginStatus','Вы вышли из системы.')});
+client.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_IN'&&session?.user)start(session.user);if(event==='SIGNED_OUT')showLogin()});
+async function loadRows(){
+ say('appStatus','Загружаем записи…');$('records').replaceChildren();
+ const status=$('statusFilter').value;
+ try{
+  let q=client.from(activeTable).select('*').order('created_at',{ascending:false}).limit(250);
+  if(status!=='all')q=q.eq('status',status);
+  const {data,error}=await q;if(error)throw error;currentRows=data||[];renderRows();say('appStatus','')
+ }catch(err){say('appStatus','Ошибка загрузки: '+err.message+' (проверьте права доступа и интернет)')}
+}
+function displayValue(v){if(v===null||v===undefined||v==='')return '—';if(Array.isArray(v))return v.join(', ');if(typeof v==='object')return JSON.stringify(v);return String(v)}
+function renderRows(){
+ const root=$('records');root.replaceChildren();$('recordCount').textContent='Записей: '+currentRows.length;
+ if(!currentRows.length){const p=document.createElement('div');p.className='empty';p.textContent='Записей с таким статусом нет.';root.appendChild(p);return}
+ currentRows.forEach(row=>{
+  const card=document.createElement('article');card.className='record';
+  const nameKeys=labels[activeTable].name;const title=nameKeys.map(k=>row[k]).find(Boolean)||'Запись без названия';
+  const h=document.createElement('h3');h.textContent=title;card.appendChild(h);
+  const b=document.createElement('span');b.className='badge '+(row.status||'');b.textContent=({pending:'На проверке',approved:'Опубликовано',rejected:'Отклонено'})[row.status]||row.status||'без статуса';card.appendChild(b);
+  const meta=document.createElement('div');meta.className='meta';
+  labels[activeTable].fields.forEach(k=>{if(row[k]!==null&&row[k]!==undefined&&row[k]!==''){const line=document.createElement('div');line.textContent=k+': '+displayValue(row[k]);meta.appendChild(line)}});
+  if(row.created_at){const line=document.createElement('div');line.textContent='Создано: '+new Date(row.created_at).toLocaleString('ru-RU');meta.appendChild(line)}
+  card.appendChild(meta);
+  const actions=document.createElement('div');actions.className='actions';
+  const edit=document.createElement('button');edit.className='btn gray small';edit.textContent='Изменить';edit.addEventListener('click',()=>openEditor(row));actions.appendChild(edit);
+  if(row.status!=='approved'){const approve=document.createElement('button');approve.className='btn green small';approve.textContent='Одобрить';approve.addEventListener('click',()=>setStatus(row,'approved'));actions.appendChild(approve)}
+  if(row.status!=='rejected'){const reject=document.createElement('button');reject.className='btn gray small';reject.textContent='Отклонить';reject.addEventListener('click',()=>setStatus(row,'rejected'));actions.appendChild(reject)}
+  if(row.status!=='pending'&&row.status!==undefined){const pending=document.createElement('button');pending.className='btn gray small';pending.textContent='Вернуть на проверку';pending.addEventListener('click',()=>setStatus(row,'pending'));actions.appendChild(pending)}
+  const del=document.createElement('button');del.className='btn red small';del.textContent='Удалить';del.addEventListener('click',()=>removeRow(row));actions.appendChild(del);
+  card.appendChild(actions);root.appendChild(card);
+ });
+}
+async function setStatus(row,status){
+ if(!confirm('Изменить статус записи на «'+({pending:'На проверке',approved:'Опубликовано',rejected:'Отклонено'})[status]+'»?'))return;
+ const patch={status};
+ if(activeTable==='queen_breeder_submissions'||activeTable==='bee_package_sellers'||activeTable==='honey_plant_sellers')patch.reviewed_at=status==='pending'?null:new Date().toISOString();
+ if(activeTable==='beekeeper_map_profiles')patch.approved_at=status==='approved'?new Date().toISOString():null;
+ await updateRow(row.id,patch,'Статус обновлён.');
+}
+async function updateRow(id,patch,success){
+ say('appStatus','Сохраняем…');
+ const {error}=await client.from(activeTable).update(patch).eq('id',id);
+ if(error){say('appStatus','Не удалось сохранить: '+error.message);return}
+ say('appStatus',success);await loadRows();
+}
+async function removeRow(row){
+ if(!confirm('Удалить запись без возможности восстановления?'))return;
+ const {error}=await client.from(activeTable).delete().eq('id',row.id);
+ if(error){say('appStatus','Не удалось удалить: '+error.message);return}
+ say('appStatus','Запись удалена.');await loadRows();
+}
+function openEditor(row){
+ editing=row;$('editor').value=JSON.stringify(row,null,2);$('editorPanel').classList.remove('hidden');say('editorStatus','');$('editorPanel').scrollIntoView({behavior:'smooth',block:'start'});
+}
+$('saveEdit').addEventListener('click',async()=>{
+ if(!editing)return;
+ let parsed;try{parsed=JSON.parse($('editor').value)}catch(e){say('editorStatus','Ошибка JSON: '+e.message);return}
+ if(!parsed||parsed.id!==editing.id){say('editorStatus','Поле id должно остаться неизменным.');return}
+ const patch={};const allowed=new Set([...labels[activeTable].fields,'status']);
+ allowed.forEach(k=>{if(Object.prototype.hasOwnProperty.call(parsed,k))patch[k]=parsed[k]});
+ if(!['pending','approved','rejected'].includes(patch.status||editing.status)){say('editorStatus','Недопустимый статус.');return}
+ $('saveEdit').disabled=true;
+ try{const {error}=await client.from(activeTable).update(patch).eq('id',editing.id);if(error)throw error;$('editorPanel').classList.add('hidden');editing=null;say('appStatus','Изменения сохранены.');await loadRows()}
+ catch(e){say('editorStatus','Не удалось сохранить: '+e.message)}
+ finally{$('saveEdit').disabled=false}
+});
+$('cancelEdit').addEventListener('click',()=>{$('editorPanel').classList.add('hidden');editing=null});
+$('tabs').addEventListener('click',e=>{const b=e.target.closest('button[data-table]');if(!b)return;activeTable=b.dataset.table;$$('tabs button').forEach(x=>x.classList.toggle('active',x===b));$('editorPanel').classList.add('hidden');loadRows()});
+function $$(selector){return document.querySelectorAll(selector)}
+$('statusFilter').addEventListener('change',loadRows);$('reloadBtn').addEventListener('click',loadRows);
+client.auth.getSession().then(({data})=>{if(data.session?.user)start(data.session.user);else showLogin()});
+})();
+</script>
+</body></html>
