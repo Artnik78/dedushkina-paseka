@@ -8,7 +8,7 @@
 </style>
 </head>
 <body>
-<header><div class="wrap"><h1>🐝 Администрирование сайта</h1><p>Каталоги пчеловодов и продавцов · рабочая версия сайта</p></div></header>
+<header><div class="wrap"><h1>🐝 Администрирование сайта</h1><p>Каталоги, заявки пчеловодов и карточки на карте · рабочая версия сайта</p></div></header>
 <main>
 <section id="loginPanel" class="panel login">
 <h2 style="margin-top:0">Вход администратора</h2>
@@ -26,7 +26,10 @@
 <button class="active" data-table="queen_breeder_submissions">Матководы</button>
 <button data-table="bee_package_sellers">Пчелопакеты</button>
 <button data-table="honey_plant_sellers">Медоносы и растения</button>
-<button data-table="beekeeper_map_profiles">Карта пчеловодов</button>
+<button data-table="beekeeper_map_profiles">Пчеловоды на карте</button>
+<button data-table="beekeeper_map_requests">Заявки пчеловодов</button>
+<button data-table="beekeeper_map_edit_requests">Изменения карточек</button>
+<button data-table="beekeeper_map_claim_requests">Закрепление карточек</button>
 </div>
 <div class="toolbar"><label for="statusFilter"><strong>Показывать:</strong></label><select id="statusFilter" style="padding:9px;border:1px solid var(--line);border-radius:8px"><option value="all">Все записи</option><option value="pending">На проверке</option><option value="approved">Опубликованные</option><option value="rejected">Отклонённые</option></select><button class="btn gray" id="reloadBtn">Обновить</button><span id="recordCount" class="hint"></span></div>
 <p id="appStatus" class="status" role="status"></p>
@@ -51,7 +54,10 @@ const labels={
  queen_breeder_submissions:{title:'Матковод',name:['apiary_name','full_name'],fields:['full_name','apiary_name','region','district','locality','breeds','lines','queen_types','prices','delivery','contact_phone','contact_email','website_url','logo_url','description']},
  bee_package_sellers:{title:'Пчелопакеты',name:['apiary_name','seller_name'],fields:['seller_name','apiary_name','region','district','locality','bee_breed','package_type','package_details','quantity_available','price_info','sales_period','delivery_info','contact_phone','contact_email','website_url','description']},
  honey_plant_sellers:{title:'Медоносы и растения',name:['seller_name','seller_type'],fields:['seller_type','seller_name','region','district','locality','plants','price_info','sales_delivery','contacts','website_url','image_url','description','latitude','longitude']},
- beekeeper_map_profiles:{title:'Профиль пчеловода',name:['apiary_name','beekeeper_name'],fields:['beekeeper_name','apiary_name','region','district','products','description','contact_public','latitude','longitude','hive_count','contact_methods','logo_url','website_url']}
+ beekeeper_map_profiles:{title:'Профиль пчеловода',name:['apiary_name','beekeeper_name'],fields:['beekeeper_name','apiary_name','region','district','products','description','contact_public','latitude','longitude','hive_count','contact_methods','logo_url','website_url']},
+ beekeeper_map_requests:{title:'Заявка пчеловода',name:['apiary_name','beekeeper_name'],fields:['beekeeper_name','apiary_name','region','district','products','contact','consent_to_publish','latitude','longitude','hive_count','contact_methods','website_url']},
+ beekeeper_map_edit_requests:{title:'Запрос изменения карточки',name:['apiary_name','beekeeper_name'],fields:['beekeeper_name','apiary_name','region','district','products','description','contact_public','latitude','longitude','hive_count','contact_methods','logo_url','website_url','profile_id','user_id']},
+ beekeeper_map_claim_requests:{title:'Запрос закрепления карточки',name:['profile_id','user_id'],fields:['profile_id','user_id','message']}
 };
 let activeTable='queen_breeder_submissions',currentRows=[],editing=null;
 function say(id,msg){$(id).textContent=msg||''}
