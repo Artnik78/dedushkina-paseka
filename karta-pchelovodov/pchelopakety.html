@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#244a2e">
+<title>Продажа пчелопакетов в Беларуси — каталог пасек</title>
+<meta name="description" content="Каталог продавцов пчелопакетов в Беларуси: породы пчёл, состав пакетов, цены, сроки продажи и доставка.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://artnik78.github.io/dedushkina-paseka/karta-pchelovodov/pchelopakety.html">
+<style>
+:root{--green:#244a2e;--green2:#356c45;--gold:#f6b916;--cream:#fffaf0;--ink:#25291f;--muted:#697264;--line:#e4ddca}
+*{box-sizing:border-box}
+body{margin:0;background:#f3f0e5;color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+a{color:#245b38;overflow-wrap:anywhere}
+.top{background:var(--green);color:#fff;padding:16px max(16px,calc((100% - 1050px)/2))}
+.top a{color:#fff;text-decoration:none;font-weight:650}
+.wrap{max-width:1050px;margin:auto;padding:18px 14px 44px}
+.hero{background:linear-gradient(130deg,#fff8d9,#e5eddb);border:1px solid var(--line);border-radius:20px;padding:22px;margin-bottom:16px}
+.hero h1{margin:0 0 8px;font-size:clamp(26px,4vw,36px);line-height:1.15}
+.hero p{margin:0;color:#53604f}
+.panel{background:#fffdf7;border:1px solid var(--line);border-radius:16px;padding:18px;margin:14px 0;box-shadow:0 4px 14px #273a2608}
+button,input,select,textarea{font:inherit}
+input,select,textarea{width:100%;min-width:0;padding:11px 12px;border:1px solid #cfd6c9;border-radius:10px;background:#fff;color:var(--ink)}
+label{display:block;font-weight:650;font-size:14px;margin-bottom:5px}
+.filters,.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.field{min-width:0}
+.field.full{grid-column:1/-1}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:42px;padding:10px 14px;border:1px solid #c9d7c6;border-radius:10px;background:#edf3e8;color:#244a2e;text-decoration:none;font-weight:750;cursor:pointer}
+.btn.primary{background:var(--green);border-color:var(--green);color:#fff}
+.btn:disabled{opacity:.6;cursor:wait}
+.form-toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:13px 15px;border:0;border-radius:12px;background:#e8efdf;color:var(--green);font-weight:800;text-align:left;cursor:pointer}
+.form-body[hidden]{display:none}
+.status{min-height:1.4em;margin:10px 0 0;color:#42543c}
+.toolbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin:18px 0 10px}
+#count{color:var(--muted);font-size:14px}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.card{min-width:0;background:#fffdf7;border:1px solid var(--line);border-radius:16px;padding:17px;box-shadow:0 4px 14px #273a2608}
+.card h2{font-size:20px;line-height:1.25;margin:0 0 8px;color:var(--green)}
+.meta{margin:7px 0;color:#4e5c4a;overflow-wrap:anywhere}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.tag{display:inline-flex;background:#e8efdf;color:#244a2e;border-radius:999px;padding:4px 9px;font-size:12px;font-weight:750}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}
+.empty{padding:22px;text-align:center;background:#fffdf7;border:1px dashed #c9d7c6;border-radius:14px;color:#596653}
+.note{font-size:13px;color:var(--muted)}
+@media(max-width:640px){.wrap{padding:12px 10px 30px}.hero{padding:18px 15px}.panel{padding:13px}.filters,.formgrid,.cards{grid-template-columns:1fr}.field.full{grid-column:auto}.btn{width:100%}.toolbar{align-items:flex-start}.card{padding:14px}}
+</style>
+</head>
+<body>
+<div class="top"><a href="map-live.html">← Назад к карте пчеловодов</a></div>
+<main class="wrap">
+<section class="hero">
+<h1>🐝 Продажа пчелопакетов в Беларуси</h1>
+<p>Найдите пасеки, которые продают пчелопакеты. Сравните породы пчёл, состав пакета, цены, сроки продажи и условия доставки.</p>
+</section>
+<section class="panel">
+<button class="form-toggle" type="button" id="toggleForm" aria-expanded="false" aria-controls="formBody"><span>➕ Добавить объявление о продаже пчелопакетов</span><span id="toggleIcon">＋</span></button>
+<div class="form-body" id="formBody" hidden>
+<p class="note">Заполните анкету. Контактные данные и объявление станут видны посетителям только после проверки модератором.</p>
+<form id="sellerForm">
+<div class="formgrid">
+<div class="field"><label for="sellerName">Имя и фамилия *</label><input id="sellerName" required minlength="2" maxlength="160" autocomplete="name"></div>
+<div class="field"><label for="apiaryName">Название пасеки или хозяйства *</label><input id="apiaryName" required minlength="2" maxlength="180"></div>
+<div class="field"><label for="region">Область *</label><select id="region" required><option value="">Выберите область</option><option>Брестская</option><option>Витебская</option><option>Гомельская</option><option>Гродненская</option><option>Минская</option><option>Могилёвская</option></select></div>
+<div class="field"><label for="district">Район</label><input id="district" maxlength="120" placeholder="Например, Клецкий"></div>
+<div class="field"><label for="locality">Населённый пункт</label><input id="locality" maxlength="120"></div>
+<div class="field"><label for="breed">Порода пчёл *</label><input id="breed" required maxlength="300" placeholder="Карника, Бакфаст, Карпатка…"></div>
+<div class="field"><label for="packageType">Тип пчелопакета *</label><select id="packageType" required><option value="">Выберите тип</option><option value="4-рамочный">4-рамочный</option><option value="6-рамочный">6-рамочный</option><option value="Другой">Другой</option></select></div>
+<div class="field"><label for="quantity">Количество пакетов</label><input id="quantity" type="number" min="0" max="100000" step="1" placeholder="Например, 20"></div>
+<div class="field full"><label for="packageDetails">Состав и особенности пакета</label><input id="packageDetails" maxlength="500" placeholder="Количество рамок с расплодом, возраст матки, тип матки и др."></div>
+<div class="field"><label for="priceInfo">Цена и условия оплаты</label><input id="priceInfo" maxlength="500" placeholder="Например, цена за пакет"></div>
+<div class="field"><label for="salesPeriod">Сроки продажи</label><input id="salesPeriod" maxlength="200" placeholder="Например, май — июнь"></div>
+<div class="field"><label for="deliveryInfo">Доставка и самовывоз</label><input id="deliveryInfo" maxlength="300"></div>
+<div class="field"><label for="phone">Телефон *</label><input id="phone" type="tel" required maxlength="80" autocomplete="tel"></div>
+<div class="field"><label for="email">Электронная почта</label><input id="email" type="email" maxlength="160" autocomplete="email"></div>
+<div class="field"><label for="website">Сайт или страница</label><input id="website" type="url" maxlength="500" placeholder="https://..."></div>
+<div class="field full"><label for="description">Дополнительная информация</label><textarea id="description" rows="3" maxlength="1000" placeholder="Условия заказа, предварительная запись и т. п."></textarea></div>
+</div>
+<label style="display:flex;gap:9px;align-items:flex-start;margin:14px 0;font-weight:500"><input id="consent" type="checkbox" required style="width:20px;flex:0 0 20px;margin-top:3px"><span>Согласен на публикацию указанных данных и контактной информации в открытом каталоге. *</span></label>
+<button class="btn primary" id="submitBtn" type="submit">Отправить на проверку</button>
+<p class="status" id="formStatus" role="status" aria-live="polite"></p>
+</form>
+</div>
+</section>
+<section class="panel">
+<h2 style="margin:0 0 12px;color:var(--green)">Найти пчелопакеты</h2>
+<div class="filters">
+<div class="field"><label for="search">Поиск</label><input id="search" type="search" placeholder="Порода, пасека, район…"></div>
+<div class="field"><label for="filterRegion">Область</label><select id="filterRegion"><option value="">Все области</option><option>Брестская</option><option>Витебская</option><option>Гомельская</option><option>Гродненская</option><option>Минская</option><option>Могилёвская</option></select></div>
+<div class="field"><label for="filterType">Тип пакета</label><select id="filterType"><option value="">Любой тип</option><option>4-рамочный</option><option>6-рамочный</option><option>Другой</option></select></div>
+</div>
+<div class="toolbar"><span id="count" aria-live="polite">Загружаем объявления…</span><button type="button" class="btn" id="clearFilters">Сбросить фильтры</button></div>
+</section>
+<div class="cards" id="cards" aria-live="polite"></div>
+<div class="empty" id="empty" hidden>Пока нет опубликованных объявлений. Вы можете добавить своё — оно появится после проверки.</div>
+<p class="note">Перед покупкой уточните у продавца актуальность наличия, сроки передачи пчёл и ветеринарные документы.</p>
+</main>
+<script>
+(function(){
+'use strict';
+const API='https://uycjzsttxhtwochgghrs.supabase.co/rest/v1/bee_package_sellers';
+const KEY='sb_publishable_ySg6j14PYR-uhz_Od9WeCQ_IP0WTY7t';
+const $=id=>document.getElementById(id);
+const form=$('sellerForm'),status=$('formStatus'),submit=$('submitBtn'),cardsEl=$('cards'),empty=$('empty'),count=$('count');
+let sellers=[];
+$('toggleForm').addEventListener('click',function(){const open=$('formBody').hidden;$('formBody').hidden=!open;this.setAttribute('aria-expanded',String(open));$('toggleIcon').textContent=open?'−':'＋';if(open)setTimeout(()=>$('sellerName').focus({preventScroll:true}),0)});
+function safeUrl(value){try{const u=new URL(value);return ['https:','http:'].includes(u.protocol)?u.href:''}catch{return ''}}
+function addText(parent,tag,className,text){const el=document.createElement(tag);if(className)el.className=className;el.textContent=text;parent.appendChild(el);return el}
+function render(){
+ const q=$('search').value.trim().toLocaleLowerCase('ru'),region=$('filterRegion').value,type=$('filterType').value;
+ const rows=sellers.filter(s=>(!region||s.region===region)&&(!type||s.package_type===type)&&(!q||[s.seller_name,s.apiary_name,s.region,s.district,s.locality,s.bee_breed,s.package_type,s.package_details,s.price_info,s.description].filter(Boolean).join(' ').toLocaleLowerCase('ru').includes(q)));
+ cardsEl.replaceChildren();count.textContent='Найдено объявлений: '+rows.length;empty.hidden=rows.length>0;
+ rows.forEach(s=>{
+  const card=document.createElement('article');card.className='card';
+  addText(card,'h2','',s.apiary_name||s.seller_name);
+  addText(card,'div','meta','👤 '+s.seller_name);
+  addText(card,'div','meta','📍 '+[s.region,s.district,s.locality].filter(Boolean).join(' · '));
+  const tags=document.createElement('div');tags.className='tags';[s.bee_breed,s.package_type].filter(Boolean).forEach(t=>addText(tags,'span','tag',t));if(s.quantity_available!==null&&s.quantity_available!==undefined)addText(tags,'span','tag','В наличии: '+s.quantity_available);card.appendChild(tags);
+  [['Состав',s.package_details],['Цена',s.price_info],['Сроки продажи',s.sales_period],['Доставка',s.delivery_info],['Дополнительно',s.description]].forEach(([label,value])=>{if(value)addText(card,'p','meta',label+': '+value)});
+  const actions=document.createElement('div');actions.className='actions';
+  if(s.contact_phone){const a=addText(actions,'a','btn','☎ Позвонить');a.href='tel:'+s.contact_phone.replace(/[^+\d]/g,'')}
+  if(s.contact_email){const a=addText(actions,'a','btn','✉ Написать');a.href='mailto:'+s.contact_email}
+  const site=safeUrl(s.website_url);if(site){const a=addText(actions,'a','btn primary','Открыть сайт ↗');a.href=site;a.target='_blank';a.rel='noopener noreferrer'}
+  if(actions.childNodes.length)card.appendChild(actions);cardsEl.appendChild(card);
+ });
+}
+async function load(){
+ count.textContent='Загружаем объявления…';
+ try{const res=await fetch(API+'?select=id,seller_name,apiary_name,region,district,locality,bee_breed,package_type,package_details,quantity_available,price_info,sales_period,delivery_info,contact_phone,contact_email,website_url,description&status=eq.approved&order=apiary_name.asc',{headers:{apikey:KEY,Authorization:'Bearer '+KEY},cache:'no-store'});if(!res.ok)throw new Error('HTTP '+res.status);sellers=await res.json();render()}
+ catch(err){count.textContent='Не удалось загрузить объявления. Проверьте интернет и обновите страницу.';empty.hidden=true;console.error('Bee package catalog load failed',err)}
+}
+['search','filterRegion','filterType'].forEach(id=>$(id).addEventListener(id==='search'?'input':'change',render));
+$('clearFilters').addEventListener('click',()=>{$('search').value='';$('filterRegion').value='';$('filterType').value='';render()});
+form.addEventListener('submit',async e=>{
+ e.preventDefault();if(!form.reportValidity())return;if(!$('consent').checked){status.textContent='Подтвердите согласие на публикацию объявления.';return}
+ const website=safeUrl($('website').value.trim());
+ if($('website').value.trim()&&!website){status.textContent='Укажите корректный адрес сайта, начинающийся с http:// или https://.';return}
+ const quantity=$('quantity').value.trim();
+ const payload={seller_name:$('sellerName').value.trim(),apiary_name:$('apiaryName').value.trim(),region:$('region').value,district:$('district').value.trim()||null,locality:$('locality').value.trim()||null,bee_breed:$('breed').value.trim(),package_type:$('packageType').value,package_details:$('packageDetails').value.trim()||null,quantity_available:quantity===''?null:Number(quantity),price_info:$('priceInfo').value.trim()||null,sales_period:$('salesPeriod').value.trim()||null,delivery_info:$('deliveryInfo').value.trim()||null,contact_phone:$('phone').value.trim(),contact_email:$('email').value.trim()||null,website_url:website||null,description:$('description').value.trim()||null,consent_to_publish:true,status:'pending'};
+ submit.disabled=true;status.textContent='Отправляем объявление на проверку…';
+ try{const res=await fetch(API,{method:'POST',headers:{apikey:KEY,Authorization:'Bearer '+KEY,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(payload)});if(!res.ok){const body=await res.text();throw new Error('HTTP '+res.status+' '+body)}form.reset();status.textContent='Объявление отправлено на проверку. Оно появится в каталоге после одобрения.'}
+ catch(err){console.error('Bee package application failed',err);status.textContent='Не удалось отправить объявление. Проверьте подключение и попробуйте позже.'}
+ finally{submit.disabled=false}
+});
+load();
+})();
+</script>
+</body>
+</html>
