@@ -82,17 +82,20 @@ $('loginForm').addEventListener('submit',async e=>{e.preventDefault();$('loginBt
  finally{$('loginBtn').disabled=false}
 });
 $('logoutBtn').addEventListener('click',async()=>{await client.auth.signOut();currentRows=[];showLogin();say('loginStatus','Вы вышли из системы.')});
-client.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_IN'&&session?.user)start(session.user);if(event==='SIGNED_OUT')showLogin()});
+let starting=false;client.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_IN'&&session?.user&&!starting){starting=true;start(session.user).finally(()=>{starting=false})}if(event==='SIGNED_OUT')showLogin()});
+async function withTimeout(promise,ms,label){return Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>reject(new Error(label+' — превышено время ожидания. Проверьте интернет и права доступа Supabase.')),ms))])}
 async function loadRows(){
- say('appStatus','Загружаем записи…');$('records').replaceChildren();
- const status=$('statusFilter').value;
+ say('appStatus','Загружаем данные…');$('records').replaceChildren();$('recordCount').textContent='';const status=$('statusFilter').value;
  try{
   if(activeTable==='all_pending'){
-   const results=await Promise.all(queueTables.map(async table=>{let q=client.from(table).select('*').order('created_at',{ascending:false}).limit(250);if(status!=='all')q=q.eq('status',status);const {data,error}=await q;if(error)throw new Error(queueNames[table]+': '+error.message);return (data||[]).map(row=>({...row,__sourceTable:table}))}));
+   const results=await withTimeout(Promise.all(queueTables.map(async table=>{let q=client.from(table).select('*').order('created_at',{ascending:false}).limit(250);if(status!=='all')q=q.eq('status',status);const {data,error}=await q;if(error)throw new Error(queueNames[table]+': '+error.message);return (data||[]).map(row=>({...row,__sourceTable:table}))})),12000,'Не удалось загрузить общую очередь');
    currentRows=results.flat().sort((a,b)=>new Date(b.created_at||0)-new Date(a.created_at||0));
-  }else{let q=client.from(activeTable).select('*').order('created_at',{ascending:false}).limit(250);if(status!=='all')q=q.eq('status',status);const {data,error}=await q;if(error)throw error;currentRows=data||[]}
+  }else{
+   let q=client.from(activeTable).select('*').order('created_at',{ascending:false}).limit(250);if(status!=='all')q=q.eq('status',status);
+   const {data,error}=await withTimeout(q,12000,'Не удалось загрузить '+(queueNames[activeTable]||labels[activeTable]?.title||activeTable));if(error)throw error;currentRows=data||[];
+  }
   renderRows();say('appStatus','')
- }catch(err){say('appStatus','Ошибка загрузки: '+err.message+' (проверьте права доступа и интернет)')}
+ }catch(err){say('appStatus','Ошибка загрузки: '+(err.message||String(err)));$('recordCount').textContent='';}
 }
 function displayValue(v){if(v===null||v===undefined||v==='')return '—';if(Array.isArray(v))return v.join(', ');if(typeof v==='object')return JSON.stringify(v);return String(v)}
 function renderRows(){
