@@ -140,4 +140,31 @@ async function loadApproved(){const list=document.getElementById('cards');if(lis
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initDistrictFallback);else initDistrictFallback();
 })();
 </script>
+<script>
+(function(){
+ function forcePinSupport(){
+  var host=document.getElementById('breederLocationMap'),lat=document.getElementById('bfLatitude'),lng=document.getElementById('bfLongitude'),msg=document.getElementById('breederMapStatus');
+  if(!host||!lat||!lng)return;
+  function savePoint(a,b){
+   a=Number(a);b=Number(b);if(!Number.isFinite(a)||!Number.isFinite(b)||Math.abs(a)>90||Math.abs(b)>180)return;
+   lat.value=a.toFixed(6);lng.value=b.toFixed(6);
+   if(window.L&&window.breederLocationMapInstance){
+    var map=window.breederLocationMapInstance,point=L.latLng(a,b);
+    if(window.__breederFallbackPin)window.__breederFallbackPin.setLatLng(point);
+    else window.__breederFallbackPin=L.marker(point,{icon:L.divIcon({className:'breeder-fallback-pin',html:'<span style="font-size:32px;line-height:36px">📍</span>',iconSize:[36,40],iconAnchor:[18,36]}),title:'Метка пасеки'}).addTo(map);
+   }
+   if(msg)msg.textContent='Метка установлена: '+lat.value+', '+lng.value;
+  }
+  host.addEventListener('click',function(e){
+   if(!window.L||!window.breederLocationMapInstance)return;
+   var rect=host.getBoundingClientRect(),x=e.clientX-rect.left,y=e.clientY-rect.top;
+   if(x<0||y<0||x>rect.width||y>rect.height)return;
+   var p=window.breederLocationMapInstance.containerPointToLatLng([x,y]);savePoint(p.lat,p.lng);
+  },true);
+  function fromInputs(){if(lat.value.trim()!==''&&lng.value.trim()!=='')savePoint(lat.value,lng.value);}
+  lat.addEventListener('change',fromInputs);lng.addEventListener('change',fromInputs);
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',forcePinSupport);else forcePinSupport();
+})();
+</script>
 </body></html>
