@@ -138,7 +138,7 @@ function render(){
   [['Состав',s.package_details],['Цена',s.price_info],['Сроки продажи',s.sales_period],['Доставка',s.delivery_info],['Дополнительно',s.description]].forEach(([label,value])=>{if(value)addText(card,'p','meta',label+': '+value)});
   const actions=document.createElement('div');actions.className='actions';
   if(s.contact_phone){const a=addText(actions,'a','btn','☎ Позвонить');a.href='tel:'+s.contact_phone.replace(/[^+\d]/g,'')}
-  if(s.contact_email){const a=addText(actions,'a','btn','✉ Написать');a.href='mailto:'+s.contact_email}
+  if(s.contact_email){const a=addText(actions,'a','btn','✉ E-mail');a.href='mailto:'+s.contact_email}if(s.contact_telegram){const t=String(s.contact_telegram).trim();const m=t.match(/(?:https?:\\/\\/)?(?:www\\.)?(?:t\\.me|telegram\\.me)\\/([a-z0-9_]{5,})\\/?/i)||t.match(/^@?([a-z0-9_]{5,})$/i);if(m){const a=addText(actions,'a','btn','✈ Telegram');a.href='https://t.me/'+m[1];a.target='_blank';a.rel='noopener noreferrer'}}if(s.contact_viber){const v=String(s.contact_viber).trim();const a=addText(actions,'a','btn','💜 Viber');a.href=/^https?:|^viber:/i.test(v)?v:'viber://chat?number=%2B'+v.replace(/[^\\d]/g,'')}
   const site=safeUrl(s.website_url);if(site){const a=addText(actions,'a','btn primary','Открыть сайт ↗');a.href=site;a.target='_blank';a.rel='noopener noreferrer'}
   if(actions.childNodes.length)card.appendChild(actions);cardsEl.appendChild(card);
  });
