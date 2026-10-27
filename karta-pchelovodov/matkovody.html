@@ -41,6 +41,13 @@ a{color:#245b38;overflow-wrap:anywhere}.top{background:var(--green);color:#fff;p
 .filters[aria-label="Поиск матководов"]>div:first-child,.filters[aria-label="Поиск матководов"]>div:last-child{display:none!important}
 #clearBreederFilters{display:none!important}
 .filters[aria-label="Поиск матководов"]{grid-template-columns:minmax(0,1fr)!important}
+
+/* Click a directory card to open its full profile in a readable overlay. */
+.directory-profile-overlay{position:fixed;inset:0;z-index:99999;background:rgba(18,30,20,.68);display:flex;align-items:center;justify-content:center;padding:18px;overflow:auto}
+.directory-profile-dialog{position:relative;width:min(760px,100%);max-height:92vh;overflow:auto;background:#fffdf7;border:1px solid #e4ddca;border-radius:18px;padding:24px;box-shadow:0 18px 60px #0004}
+.directory-profile-close{position:sticky;top:0;float:right;border:0;border-radius:10px;background:#244a2e;color:#fff;padding:9px 13px;font:inherit;font-weight:700;cursor:pointer;z-index:2}
+.card{cursor:pointer}.card a,.card button{cursor:pointer}
+@media(max-width:600px){.directory-profile-overlay{padding:8px}.directory-profile-dialog{padding:16px;max-height:96vh}}
 </style>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><script>window.addEventListener("load",function(){setTimeout(function(){var host=document.getElementById("breederLocationMap");if(host&&!window.L){host.innerHTML="<div style=\"padding:16px;color:#244a2e\"><strong>Карта не загрузилась.</strong><p>Возможно, соединение блокирует картографический сервис. Укажите координаты вручную ниже или откройте карту по ссылке.</p><a href=\"https://www.openstreetmap.org/#map=7/53.5/28\" target=\"_blank\" rel=\"noopener noreferrer\">Открыть карту Беларуси ↗</a></div>";}},1500);});</script></head>
 <body>
@@ -174,6 +181,24 @@ async function loadApproved(){const list=document.getElementById('cards');if(lis
   lat.addEventListener('change',fromInputs);lng.addEventListener('change',fromInputs);
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',forcePinSupport);else forcePinSupport();
+})();
+</script>
+<script>
+(function(){
+ let active=null;
+ function close(){if(active){active.remove();active=null;document.body.style.overflow='';}}
+ document.addEventListener('click',function(e){
+   if(e.target.closest('.directory-profile-close')){close();return}
+   if(active&&e.target===active){close();return}
+   if(e.target.closest('a,button,input,select,textarea,label'))return;
+   const card=e.target.closest('#cards .card, .cards .card');
+   if(!card||active)return;
+   const overlay=document.createElement('div');overlay.className='directory-profile-overlay';overlay.setAttribute('role','presentation');
+   const dialog=document.createElement('section');dialog.className='directory-profile-dialog';dialog.setAttribute('role','dialog');dialog.setAttribute('aria-modal','true');dialog.setAttribute('aria-label','Подробная информация');
+   const closeBtn=document.createElement('button');closeBtn.type='button';closeBtn.className='directory-profile-close';closeBtn.textContent='Закрыть ✕';dialog.appendChild(closeBtn);
+   const content=card.cloneNode(true);content.style.cursor='default';content.removeAttribute('tabindex');dialog.appendChild(content);overlay.appendChild(dialog);document.body.appendChild(overlay);document.body.style.overflow='hidden';active=overlay;closeBtn.focus();
+ });
+ document.addEventListener('keydown',function(e){if(e.key==='Escape')close()});
 })();
 </script>
 </body></html>
