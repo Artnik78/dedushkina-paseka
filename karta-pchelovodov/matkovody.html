@@ -35,6 +35,12 @@ a{color:#245b38;overflow-wrap:anywhere}.top{background:var(--green);color:#fff;p
 
 /* Hide individual submission form in directory; profiles are managed through the unified map application. */
 #add-breeder{display:none!important}
+
+/* Directory-only layout: the unified map form is the sole entry point for new profiles. */
+#add-breeder{display:none!important}
+.filters[aria-label="Поиск матководов"]>div:first-child,.filters[aria-label="Поиск матководов"]>div:last-child{display:none!important}
+#clearBreederFilters{display:none!important}
+.filters[aria-label="Поиск матководов"]{grid-template-columns:minmax(0,1fr)!important}
 </style>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><script>window.addEventListener("load",function(){setTimeout(function(){var host=document.getElementById("breederLocationMap");if(host&&!window.L){host.innerHTML="<div style=\"padding:16px;color:#244a2e\"><strong>Карта не загрузилась.</strong><p>Возможно, соединение блокирует картографический сервис. Укажите координаты вручную ниже или откройте карту по ссылке.</p><a href=\"https://www.openstreetmap.org/#map=7/53.5/28\" target=\"_blank\" rel=\"noopener noreferrer\">Открыть карту Беларуси ↗</a></div>";}},1500);});</script></head>
 <body>
