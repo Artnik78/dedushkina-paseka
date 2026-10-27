@@ -97,7 +97,7 @@ async function loadRows(){
   if(activeTable==='beekeeper_map_claim_requests'&&currentRows.length){
    const ids=[...new Set(currentRows.map(row=>row.profile_id).filter(Boolean))];
    if(ids.length){
-    const {data:profiles,error:profileError}=await withTimeout(client.from('beekeeper_map_profiles').select('id,apiary_name,beekeeper_name,region,district,locality').in('id',ids),12000,'Не удалось загрузить названия пасек');
+    const {data:profiles,error:profileError}=await withTimeout(client.from('beekeeper_map_profiles').select('id,apiary_name,beekeeper_name,region,district').in('id',ids),12000,'Не удалось загрузить названия пасек');
     if(profileError)throw new Error('Не удалось сопоставить карточки: '+profileError.message);
     const byId=new Map((profiles||[]).map(p=>[p.id,p]));
     currentRows=currentRows.map(row=>({...row,__profile:byId.get(row.profile_id)||null}));
@@ -126,7 +126,7 @@ function renderRows(){
   summary.textContent=useful.map(k=>(displayTitles[k]||k)+': '+displayValue(row[k])).join(' · ')||'Нажмите «Подробнее», чтобы посмотреть анкету';card.appendChild(summary);
   const details=document.createElement('details');details.className='details';const summaryToggle=document.createElement('summary');summaryToggle.textContent='Подробнее';details.appendChild(summaryToggle);
   const meta=document.createElement('div');meta.className='meta';
-  if(tableName==='beekeeper_map_claim_requests'&&row.__profile){[['Название пасеки',row.__profile.apiary_name],['Имя пчеловода',row.__profile.beekeeper_name],['Область',row.__profile.region],['Район',row.__profile.district],['Населённый пункт',row.__profile.locality]].forEach(([label,value])=>{if(value){const line=document.createElement('div');line.textContent=label+': '+displayValue(value);meta.appendChild(line)}})}
+  if(tableName==='beekeeper_map_claim_requests'&&row.__profile){[['Название пасеки',row.__profile.apiary_name],['Имя пчеловода',row.__profile.beekeeper_name],['Область',row.__profile.region],['Район',row.__profile.district]].forEach(([label,value])=>{if(value){const line=document.createElement('div');line.textContent=label+': '+displayValue(value);meta.appendChild(line)}})}
   schema.fields.forEach(k=>{if(row[k]!==null&&row[k]!==undefined&&row[k]!==''){const line=document.createElement('div');line.textContent=(displayTitles[k]||k)+': '+displayValue(row[k]);meta.appendChild(line)}});
   if(row.created_at){const line=document.createElement('div');line.textContent='Дата заявки: '+new Date(row.created_at).toLocaleString('ru-RU');meta.appendChild(line)}
   details.appendChild(meta);card.appendChild(details);
