@@ -179,7 +179,7 @@ async function load(){
  }
  let extra=[];
  try{
-  const profileRes=await fetchWithTimeout('https://uycjzsttxhtwochgghghrs.supabase.co/rest/v1/beekeeper_map_profiles?select=id,beekeeper_name,apiary_name,region,district,products,contact_public,latitude,longitude,website_url,description,directions,direction_details&status=eq.approved&_='+Date.now(),{headers});
+  const profileRes=await fetchWithTimeout('https://uycjzsttxhtwochgghrs.supabase.co/rest/v1/beekeeper_map_profiles?select=id,beekeeper_name,apiary_name,region,district,products,contact_public,latitude,longitude,website_url,description,directions,direction_details&status=eq.approved&_='+Date.now(),{headers});
   if(!profileRes.ok)throw new Error('HTTP '+profileRes.status);
   const profiles=await profileRes.json();
   extra=profiles.filter(p=>Array.isArray(p.directions)&&p.directions.includes('packages')).map(p=>{
