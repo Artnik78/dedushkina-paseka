@@ -103,15 +103,13 @@ async function loadMapStats(){
   const date=part('year')+'-'+part('month')+'-'+part('day');
   const todayStart=new Date(date+'T00:00:00+03:00').toISOString();
   const weekStart=new Date(now.getTime()-7*24*60*60*1000).toISOString();
-  const [total,today,week]=await Promise.all([
-   withTimeout(client.from('beekeeper_map_visits').select('id',{count:'exact',head:true}),10000,'Общий счётчик не ответил за 10 секунд'),
-   withTimeout(client.from('beekeeper_map_visits').select('id',{count:'exact',head:true}).gte('visited_at',todayStart),10000,'Счётчик за сегодня не ответил за 10 секунд'),
-   withTimeout(client.from('beekeeper_map_visits').select('id',{count:'exact',head:true}).gte('visited_at',weekStart),10000,'Счётчик за 7 дней не ответил за 10 секунд')
-  ]);
-  const err=[total.error,today.error,week.error].find(Boolean);if(err)throw err;
-  $('mapViewsTotal').textContent=Number(total.count||0).toLocaleString('ru-RU');
-  $('mapViewsToday').textContent=Number(today.count||0).toLocaleString('ru-RU');
-  $('mapViewsWeek').textContent=Number(week.count||0).toLocaleString('ru-RU');
+  const result=await withTimeout(client.rpc('get_beekeeper_map_visit_stats'),10000,'Сервер статистики не ответил за 10 секунд');
+  if(result.error)throw new Error(result.error.message||result.error.details||JSON.stringify(result.error));
+  const stats=result.data||{};
+  if(stats.total===undefined)throw new Error('Сервер не вернул счётчик просмотров.');
+  $('mapViewsTotal').textContent=Number(stats.total||0).toLocaleString('ru-RU');
+  $('mapViewsToday').textContent=Number(stats.today||0).toLocaleString('ru-RU');
+  $('mapViewsWeek').textContent=Number(stats.last7days||0).toLocaleString('ru-RU');
   say('mapStatsStatus','Обновлено: '+now.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})+'. Счётчик считает все записи в базе, а не только первые 1000.');
  }catch(e){const detail=e?.message||(e?.details?String(e.details):'Неизвестная ошибка');say('mapStatsStatus','Не удалось загрузить статистику просмотров: '+detail)}
  finally{if(button)button.disabled=false}
