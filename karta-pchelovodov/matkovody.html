@@ -32,6 +32,9 @@ a{color:#245b38;overflow-wrap:anywhere}.top{background:var(--green);color:#fff;p
 @media(max-width:420px){#toggleBreederForm{padding:14px!important;font-size:16px!important}.card h2{font-size:19px}.card .actions{display:grid;grid-template-columns:1fr}.card .actions .btn{width:100%}}
 /* Readable breeder profile cards */
 .breeder-person{font-weight:700;margin:7px 0 3px;overflow-wrap:anywhere}.breeder-location{display:block;margin:4px 0 10px;padding:9px 11px;border-radius:10px;background:#edf3e7;color:#244a2e;font-weight:700;overflow-wrap:anywhere}.breeder-detail{overflow-wrap:anywhere}.card .actions .btn{min-height:44px}.card .actions a[href^="tel:"],.card .actions a[href^="mailto:"]{background:#e7efe1;color:#244a2e}.card .actions a[href^="https:"]{overflow-wrap:anywhere}
+
+/* Hide individual submission form in directory; profiles are managed through the unified map application. */
+#add-breeder{display:none!important}
 </style>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><script>window.addEventListener("load",function(){setTimeout(function(){var host=document.getElementById("breederLocationMap");if(host&&!window.L){host.innerHTML="<div style=\"padding:16px;color:#244a2e\"><strong>Карта не загрузилась.</strong><p>Возможно, соединение блокирует картографический сервис. Укажите координаты вручную ниже или откройте карту по ссылке.</p><a href=\"https://www.openstreetmap.org/#map=7/53.5/28\" target=\"_blank\" rel=\"noopener noreferrer\">Открыть карту Беларуси ↗</a></div>";}},1500);});</script></head>
 <body>
