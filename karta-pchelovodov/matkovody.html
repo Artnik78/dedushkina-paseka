@@ -49,7 +49,25 @@ a{color:#245b38;overflow-wrap:anywhere}.top{background:var(--green);color:#fff;p
 .card{cursor:pointer}.card a,.card button{cursor:pointer}
 @media(max-width:600px){.directory-profile-overlay{padding:8px}.directory-profile-dialog{padding:16px;max-height:96vh}}
 </style>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><script>window.addEventListener("load",function(){setTimeout(function(){var host=document.getElementById("breederLocationMap");if(host&&!window.L){host.innerHTML="<div style=\"padding:16px;color:#244a2e\"><strong>Карта не загрузилась.</strong><p>Возможно, соединение блокирует картографический сервис. Укажите координаты вручную ниже или откройте карту по ссылке.</p><a href=\"https://www.openstreetmap.org/#map=7/53.5/28\" target=\"_blank\" rel=\"noopener noreferrer\">Открыть карту Беларуси ↗</a></div>";}},1500);});</script></head>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><script>window.addEventListener("load",function(){setTimeout(function(){var host=document.getElementById("breederLocationMap");if(host&&!window.L){host.innerHTML="<div style=\"padding:16px;color:#244a2e\"><strong>Карта не загрузилась.</strong><p>Возможно, соединение блокирует картографический сервис. Укажите координаты вручную ниже или откройте карту по ссылке.</p><a href=\"https://www.openstreetmap.org/#map=7/53.5/28\" target=\"_blank\" rel=\"noopener noreferrer\">Открыть карту Беларуси ↗</a></div>";}},1500);});</script><style id="mobile-breeders-polish-20261027">
+@media(max-width:700px){
+ html{scroll-padding-top:10px}
+ body{overflow-x:hidden}
+ .wrap{width:100%;max-width:100%;box-sizing:border-box;padding-left:10px!important;padding-right:10px!important}
+ .card,.hero,.filters,.directory-profile-dialog{max-width:100%;min-width:0;box-sizing:border-box}
+ #breederFormPanel{padding-left:10px!important;padding-right:10px!important}
+ #breederLocationMap{height:260px!important;min-height:220px;touch-action:pan-x pan-y}
+ #breederForm input,#breederForm select,#breederForm textarea{min-height:46px;padding:11px 12px}
+ #breederForm button,.actions .btn{min-height:44px}
+ #breederForm .filters{grid-template-columns:minmax(0,1fr)!important}
+ .card .actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .card .actions .btn{min-width:0;white-space:normal}
+}
+@media(max-width:380px){
+ #breederLocationMap{height:230px!important}
+ .card .actions{grid-template-columns:minmax(0,1fr)!important}
+}
+</style></head>
 <body>
 <div class="top"><a href="map-live.html?v=20261019q">← Назад к карте пчеловодов</a></div>
 <main class="wrap">
