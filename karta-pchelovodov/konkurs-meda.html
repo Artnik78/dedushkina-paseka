@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Архив победителей конкурса «Лучший мёд сезона» Беларуси</title>
+<meta name="description" content="Архив результатов республиканского конкурса «Лучший мёд сезона» в Беларуси по годам и номинациям.">
+<style>
+:root{--green:#234c31;--gold:#f3b71b;--paper:#fffdf5;--line:#e5ddc9;--muted:#687365}
+*{box-sizing:border-box}body{margin:0;background:#f4f1e7;color:#272b24;font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+header{background:linear-gradient(125deg,#fdf2cf,#d9e7c9 55%,#315e3b);padding:24px 16px;border-bottom:1px solid #d4c9a9}
+.head{max-width:1150px;margin:auto}nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}nav a{color:#233f2b;text-decoration:none;font-weight:700;padding:8px 12px;background:#ffffffb8;border-radius:9px}
+.kicker{text-transform:uppercase;letter-spacing:.12em;color:#805e0b;font-weight:800;font-size:.78rem}h1{font:clamp(2rem,5vw,3.3rem)/1.05 Georgia,serif;color:var(--green);margin:8px 0}header p{max-width:760px;margin:8px 0 0}
+main{max-width:1150px;margin:20px auto;padding:0 12px}.toolbar{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:14px;display:grid;grid-template-columns:1fr 2fr;gap:12px;margin-bottom:14px}
+label{font-weight:750;font-size:.9rem;display:block;margin-bottom:5px}select,input{width:100%;min-height:44px;padding:10px 12px;border:1px solid #d8d2c1;border-radius:9px;background:white;font:inherit}
+.summary{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.pill{background:#e8efdf;color:#2b5635;border-radius:99px;padding:6px 10px;font-size:.86rem;font-weight:700}
+.notice{border-left:4px solid var(--gold);background:#fff8df;padding:12px 14px;border-radius:0 10px 10px 0;margin:12px 0 18px;font-size:.92rem}
+.group{background:var(--paper);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin:12px 0}.group h2{margin:0;background:#e9efdf;color:var(--green);padding:13px 15px;font-size:1.12rem}.group-meta{padding:8px 15px;color:var(--muted);font-size:.85rem;border-bottom:1px solid #eee7d7}
+.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:450px}th,td{text-align:left;padding:10px 13px;border-bottom:1px solid #eee7d7;vertical-align:top}th{font-size:.82rem;color:#596354;background:#fffaf0}tr:last-child td{border-bottom:0}.place{font-weight:850;color:#234c31;white-space:nowrap}.sample{color:var(--muted);font-size:.84rem;white-space:nowrap}.empty{padding:18px;color:var(--muted)}
+footer{text-align:center;color:var(--muted);font-size:.86rem;padding:25px 14px 35px}footer a{color:var(--green)}
+@media(max-width:600px){.toolbar{grid-template-columns:1fr}.group h2{font-size:1rem}td,th{padding:9px 10px;font-size:.9rem}header{padding:18px 13px}}
+</style>
+</head>
+<body>
+<header><div class="head">
+<nav aria-label="Навигация"><a href="map-live.html">← Карта пчеловодов</a><a href="matkovody.html">👑 Матководы</a><a href="pchelopakety.html">🐝 Пчелопакеты</a></nav>
+<div class="kicker">Белорусское пчеловодство</div>
+<h1>🏆 Архив победителей конкурса «Лучший мёд сезона»</h1>
+<p>Результаты республиканского конкурса по годам, видам мёда и призовым местам. Архив составляется по опубликованным источникам; фамилии и названия хозяйств не считаются проверенными профилями карты автоматически.</p>
+</div></header>
+<main>
+<div class="toolbar">
+<div><label for="year">Год конкурса</label><select id="year"><option value="all">Все доступные годы</option><option value="2025">2025</option><option value="2024">2024</option><option value="2026">2026</option></select></div>
+<div><label for="search">Поиск по участнику, хозяйству или номинации</label><input id="search" type="search" placeholder="Например, Самосват, липовый мёд…"></div>
+</div>
+<div class="summary" id="summary"></div>
+<div class="notice" id="yearNotice">Для 2026 года оставлен раздел ожидания официальных итогов. Не публикуем победителей до появления подтверждённого списка организаторов.</div>
+<div id="results" aria-live="polite"></div>
+<section class="group"><h2>Источники и проверка</h2><div style="padding:14px">
+<p><a href="https://www.honeyway.by/novosti/63-luchshij-mjod-sezona-2025.html" target="_blank" rel="noopener">Официальная публикация результатов конкурса «Лучший мёд сезона — 2025» на Honeyway.by</a></p>
+<p><a href="https://www.honeyway.by/novosti/61-itogi-respublikanskogo-konkursa-meda-prazdnik-belorusskogo-pchelovodstva.html" target="_blank" rel="noopener">Публикация итогов республиканского конкурса мёда 2024 года на Honeyway.by</a></p>
+<p style="color:#687365;font-size:.9rem">В опубликованном материале за 2024 год подтверждён обладатель Гран-при — мёд Любанского лесхоза. Полный поимённый перечень призёров 2024 года в этот архив пока не добавлен: его нужно сверить с отдельным списком результатов.</p>
+</div></section>
+</main>
+<footer>Архив справочный. Если заметили неточность, сверяйте результат с первоисточником организаторов конкурса.</footer>
+<script>
+const awards=[
+{year:2025,category:"Вересковый мёд",place:1,name:"Самосват Пётр Николаевич",sample:"027-25/2м"},
+{year:2025,category:"Вересковый мёд",place:2,name:"Парадня Евгений Николаевич",sample:"038-25/1м"},
+{year:2025,category:"Вересковый мёд",place:3,name:"Гончар Виталий Владимирович",sample:"004-25/2м"},
+{year:2025,category:"Липовый мёд",place:1,name:"Гончар Виталий Владимирович",sample:"004-25/1м"},
+{year:2025,category:"Липовый мёд",place:2,name:"Вошкинель Станислав Зенонович",sample:"040-25/1м"},
+{year:2025,category:"Липовый мёд",place:3,name:"Акуло Дмитрий Анатольевич",sample:"044-25/1м"},
+{year:2025,category:"Ивовый мёд",place:1,name:"Колесникович Дмитрий Петрович",sample:"002-25/1м"},
+{year:2025,category:"Ивовый мёд",place:2,name:"Дубновицкий Александр Васильевич",sample:"043-25/1м"},
+{year:2025,category:"Ивовый мёд",place:3,name:"Чапля Владимир Иванович",sample:"050-25/1м"},
+{year:2025,category:"Гречишный мёд",place:1,name:"Самосват Пётр Николаевич",sample:"027-25/3м"},
+{year:2025,category:"Гречишный мёд",place:2,name:"ГЛХУ «Белыничский лесхоз»",sample:"029-25/3м"},
+{year:2025,category:"Гречишный мёд",place:3,name:"Шовгеня Сергей Владимирович",sample:"039-25/2м"},
+{year:2025,category:"Клеверный мёд",place:1,name:"Климович Антон Вячеславович",sample:"006-25/4м"},
+{year:2025,category:"Рапсовый мёд",place:1,name:"Концевой Иван Александрович",sample:"017-25/3м"},
+{year:2025,category:"Рапсовый мёд",place:2,name:"ГЛХУ «Бешенковичский лесхоз»",sample:"034-25/3м"},
+{year:2025,category:"Рапсовый мёд",place:3,name:"ГЛХУ «Барановичский лесхоз»",sample:"042-25/1м"},
+{year:2025,category:"Золотарниковый мёд",place:1,name:"ГЛХУ «Белыничский лесхоз»",sample:"029-25/5м"},
+{year:2025,category:"Золотарниковый мёд",place:2,name:"Гончар Виталий Владимирович",sample:"004-25/3м"},
+{year:2025,category:"Клёновый мёд",place:1,name:"Марчик Александр Геннадьевич",sample:"003-25/1м"},
+{year:2025,category:"Клёновый мёд",place:2,name:"Дедкова Эмилия Михайловна",sample:"024-25/1м"},
+{year:2025,category:"Васильковый мёд",place:1,name:"Концевой Иван Александрович",sample:"017-25/2м"},
+{year:2025,category:"Васильковый мёд",place:2,name:"Шовгеня Сергей Владимирович",sample:"039-25/1м"},
+{year:2025,category:"Васильковый мёд",place:3,name:"Климович Антон Вячеславович",sample:"006-25/3м"},
+{year:2025,category:"Городской липовый мёд",place:1,name:"Соловьёв Сергей Александрович",sample:"001-25/1м"},
+{year:2025,category:"Городской липовый мёд",place:2,name:"Центральный ботанический сад НАН Беларуси",sample:"052-25/1п"},
+{year:2025,category:"Падевый мёд",place:1,name:"Барченок Людмила Петровна",sample:"033-25/1м"},
+{year:2025,category:"Падевый мёд",place:2,name:"Усков Александр Павлович",sample:"025-25//3м"},
+{year:2025,category:"Бортевой мёд",place:1,name:"Лукашевич Валерий Николаевич",sample:"051-25/2мб"},
+{year:2025,category:"Бортевой мёд",place:2,name:"ГЛХУ «Бешенковичский лесхоз»",sample:"034-25/8мб"},
+{year:2025,category:"Цветочный полифлорный мёд",place:1,name:"Группа компаний VDS — пчеловод Татур Сергей",sample:"013-25/1п"},
+{year:2025,category:"Цветочный полифлорный мёд",place:1,name:"Товкач Александр Владимирович",sample:"019-25/1п"},
+{year:2025,category:"Цветочный полифлорный мёд",place:1,name:"ГЛХУ «Лепельский лесхоз»",sample:"030-25/1п"},
+{year:2025,category:"Цветочный полифлорный мёд",place:1,name:"ГЛХУ «Борисовский лесхоз»",sample:"048-25/2п"},
+{year:2025,category:"Цветочный полифлорный мёд",place:1,name:"Группа компаний VDS — пчеловод Корнев Евгений",sample:"008-25/1п"},
+{year:2025,category:"Цветочный полифлорный мёд",place:1,name:"Группа компаний VDS — пчеловод Рахматулин Дмитрий",sample:"007-25/1п"},
+{year:2025,category:"Цветочный полифлорный мёд",place:1,name:"Даниленко Андрей Валерьевич",sample:"018-25/3п"},
+{year:2025,category:"Цветочный полифлорный мёд",place:1,name:"ГЛХУ «Ляховичский лесхоз»",sample:"026-25/1п"},
+{year:2025,category:"Цветочный полифлорный мёд",place:2,name:"Лаппо Михаил Иосифович",sample:"014-25/1п"},
+{year:2025,category:"Цветочный полифлорный мёд",place:2,name:"Шлык Николай Иванович",sample:"020-25/2п"},
+{year:2025,category:"Цветочный полифлорный мёд",place:2,name:"Врублевский Сергей Валентинович",sample:"023-25/4п"},
+{year:2025,category:"Цветочный полифлорный мёд",place:3,name:"Щеголев Юрий Николаевич",sample:"005-25/1п"},
+{year:2025,category:"Цветочный полифлорный мёд",place:3,name:"Гуринович Анастасия Александровна",sample:"021-25/1п"},
+{year:2025,category:"Цветочный полифлорный мёд",place:3,name:"УО «Кохановский государственный колледж»",sample:"035-25/2п"},
+{year:2025,category:"Цветочный полифлорный мёд",place:3,name:"ИП Кононович Мария Анатольевна",sample:"046-25/1п"},
+{year:2024,category:"Гран-при конкурса",place:"Гран-при",name:"Любанский лесхоз",sample:"Номер образца в источнике не указан"}
+];
+const year=document.getElementById('year'),search=document.getElementById('search'),results=document.getElementById('results'),summary=document.getElementById('summary'),notice=document.getElementById('yearNotice');
+function render(){const y=year.value,q=search.value.trim().toLocaleLowerCase('ru');const list=awards.filter(a=>(y==='all'||String(a.year)===y)&&[a.name,a.category,a.sample,String(a.year)].join(' ').toLocaleLowerCase('ru').includes(q));const total=list.length;summary.innerHTML='<span class="pill">Найдено записей: '+total+'</span><span class="pill">2025: '+awards.filter(a=>a.year===2025).length+' призовых результатов</span><span class="pill">2024: 1 подтверждённый Гран-при</span>';notice.hidden=y!=='2026'&&y!=='all';if(y==='2026'){results.innerHTML='<section class="group"><h2>2026 — результаты ожидаются</h2><div class="empty">Официальный список победителей ещё не добавлен. Раздел будет заполнен после публикации итогов организаторами.</div></section>';return;}if(!total){results.innerHTML='<div class="empty">По вашему запросу ничего не найдено.</div>';return;}const groups={};list.forEach(a=>(groups[a.year+'|'+a.category]??=[]).push(a));results.innerHTML=Object.entries(groups).map(([key,items])=>{const [yr,cat]=key.split('|');return '<section class="group"><h2>'+esc(cat)+'</h2><div class="group-meta">Конкурс '+yr+'</div><div class="table-wrap"><table><thead><tr><th>Место</th><th>Победитель / хозяйство</th><th>№ образца</th></tr></thead><tbody>'+items.sort((a,b)=>(typeof a.place==='number'?a.place:0)-(typeof b.place==='number'?b.place:0)).map(a=>'<tr><td class="place">'+esc(String(a.place))+(typeof a.place==='number'?(a.place===1?' 🥇':a.place===2?' 🥈':' 🥉'):'')+'</td><td>'+esc(a.name)+'</td><td class="sample">'+esc(a.sample)+'</td></tr>').join('')+'</tbody></table></div></section>';}).join('');}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+year.addEventListener('change',render);search.addEventListener('input',render);render();
+</script>
+</body></html>
