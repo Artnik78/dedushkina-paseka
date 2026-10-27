@@ -783,6 +783,27 @@ button:focus-visible,a:focus-visible{outline:3px solid #d8a919;outline-offset:2p
  .stats{grid-template-columns:repeat(2,minmax(0,1fr))!important}
  .beekeeper-contact-actions{grid-template-columns:minmax(0,1fr)!important}
 }
+</style><style id="mobile-map-stage2">
+@media(max-width:680px){
+ .workspace{align-items:stretch!important}
+ .left-panel,.right-panel,.map-panel,.panel,.card{border-radius:12px}
+ .left-panel,.right-panel{padding:12px!important}
+ .map-panel{padding:6px!important}
+ #map{width:100%!important;min-width:0!important}
+ .leaflet-control-zoom a{width:40px!important;height:40px!important;line-height:40px!important;font-size:23px!important}
+ .leaflet-control-attribution{font-size:9px!important;max-width:80%;white-space:normal!important}
+ .leaflet-popup-content-wrapper{border-radius:12px}
+ .leaflet-popup-content{max-width: min(250px,70vw);margin:12px!important;overflow-wrap:anywhere}
+ .leaflet-popup-content button,.leaflet-popup-content a{min-height:40px;display:inline-flex;align-items:center}
+ .filter-grid,.filters-grid,.form-grid{grid-template-columns:minmax(0,1fr)!important}
+ .left-panel label{display:block;line-height:1.4}
+ .left-panel input,.left-panel select,.left-panel textarea,.left-panel button{width:100%;min-height:44px}
+ .stats>*{overflow-wrap:anywhere}
+}
+@media(max-width:380px){
+ .left-panel,.right-panel{padding:10px!important}
+ .leaflet-control-zoom{margin:7px!important}
+}
 </style></head><body>
 <a class="cross-project-banner" href="../journal/" aria-label="Перейти в цифровой журнал пасечника"><span class="cross-icon" aria-hidden="true">🐝 🍯</span><span class="cross-copy"><span class="cross-title">Цифровой журнал пасечника</span><span class="cross-subtitle">Ульи · Осмотры · Обработки · Мёд · Отчёты</span></span><span class="cross-cta">Перейти в журнал <span aria-hidden="true">➜</span></span></a>
 <header class="hero hero-image"><img class="hero-art" src="https://raw.githubusercontent.com/Artnik78/dedushkina-paseka/fix/beekeeper-map-districts/karta-pchelovodov/header-pchelovody.png" alt="Карта беларускіх пчаляроў: пчела на цветах, мёд и белорусский пейзаж"></header>
