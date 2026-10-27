@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Администрирование — Дедушкина пасека</title>
 <style>
-:root{--ink:#243247;--blue:#245b8f;--pale:#edf4fb;--line:#d4e0ed;--green:#247548;--red:#a33b32}*{box-sizing:border-box}body{margin:0;background:#f4f7fb;color:var(--ink);font:15px Arial,sans-serif}header{background:#fff;border-bottom:1px solid var(--line);padding:18px 16px}header .wrap,main{max-width:1100px;margin:auto}h1{font-size:25px;margin:0 0 5px}header p{margin:0;color:#5e6d7f}.wrap{max-width:1100px;margin:auto}main{padding:18px 14px 45px}.panel{background:white;border:1px solid var(--line);border-radius:14px;padding:18px;margin:0 0 15px;box-shadow:0 2px 8px #2432470a}.login{max-width:460px;margin:25px auto}.field{margin:0 0 12px}.field label{display:block;font-weight:700;margin:0 0 6px}.field input,.field select{width:100%;padding:12px;border:1px solid #b9c9d9;border-radius:8px;font-size:16px;background:white}.btn{border:0;border-radius:8px;padding:10px 13px;background:var(--blue);color:white;font-weight:700;cursor:pointer}.btn:disabled{opacity:.55}.btn.gray{background:#e8eef5;color:#25364a}.btn.green{background:var(--green)}.btn.red{background:var(--red)}.btn.small{padding:8px 10px;font-size:13px}.status{margin:10px 0 0;line-height:1.4}.hidden{display:none!important}.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:12px 0}.tabs{display:flex;gap:8px;flex-wrap:wrap}.tabs button{border:1px solid var(--line);background:#f4f7fb;color:#263b52;border-radius:9px;padding:10px 12px;cursor:pointer}.tabs button.active{background:var(--blue);color:white;border-color:var(--blue)}.record{border:1px solid var(--line);border-radius:12px;padding:14px;margin:10px 0}.record-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.record h3{font-size:17px;margin:0 0 8px;overflow-wrap:anywhere}.summary{font-size:14px;line-height:1.5;color:#536579;margin:6px 0}.details{margin-top:8px;border-top:1px solid var(--line);padding-top:8px}.details summary{cursor:pointer;font-weight:700;color:var(--blue);padding:7px 0}.details[hidden]{display:none!important}.actions .btn{font-size:14px;padding:10px 12px}.actions .btn.green{flex:1}.actions .btn.gray.small{flex:1}.actions .btn.red{flex-basis:100%}.record h3{font-size:17px;margin:0 0 8px;overflow-wrap:anywhere}.meta{font-size:13px;color:#536579;line-height:1.55;overflow-wrap:anywhere}.badge{display:inline-block;border-radius:20px;padding:4px 9px;background:#edf1f5;font-size:12px;margin:0 5px 6px 0}.badge.pending{background:#fff0c9;color:#795600}.badge.approved{background:#dff4e7;color:#17613a}.badge.rejected{background:#fce6e4;color:#8b2f29}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.hint{font-size:13px;color:#5d6c7e;line-height:1.5}.topline{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.editor{width:100%;min-height:260px;font:13px ui-monospace,monospace;padding:12px;border:1px solid var(--line);border-radius:8px}.edit-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.edit-grid .field{margin:0}.edit-grid textarea{width:100%;min-height:90px;padding:12px;border:1px solid #b9c9d9;border-radius:8px;font:16px Arial,sans-serif}.edit-grid .wide{grid-column:1/-1}@media(max-width:600px){.edit-grid{grid-template-columns:1fr}.edit-grid .wide{grid-column:auto}}.empty{padding:22px;text-align:center;color:#68788a}@media(max-width:600px){h1{font-size:21px}.panel{padding:13px}.actions .btn{flex:1}.tabs button{flex:1}.record{padding:12px}}
+:root{--ink:#243247;--blue:#245b8f;--pale:#edf4fb;--line:#d4e0ed;--green:#247548;--red:#a33b32}*{box-sizing:border-box}body{margin:0;background:#f4f7fb;color:var(--ink);font:15px Arial,sans-serif}header{background:#fff;border-bottom:1px solid var(--line);padding:18px 16px}header .wrap,main{max-width:1100px;margin:auto}h1{font-size:25px;margin:0 0 5px}header p{margin:0;color:#5e6d7f}.wrap{max-width:1100px;margin:auto}main{padding:18px 14px 45px}.panel{background:white;border:1px solid var(--line);border-radius:14px;padding:18px;margin:0 0 15px;box-shadow:0 2px 8px #2432470a}.login{max-width:460px;margin:25px auto}.field{margin:0 0 12px}.field label{display:block;font-weight:700;margin:0 0 6px}.field input,.field select{width:100%;padding:12px;border:1px solid #b9c9d9;border-radius:8px;font-size:16px;background:white}.btn{border:0;border-radius:8px;padding:10px 13px;background:var(--blue);color:white;font-weight:700;cursor:pointer}.btn:disabled{opacity:.55}.btn.gray{background:#e8eef5;color:#25364a}.btn.green{background:var(--green)}.btn.red{background:var(--red)}.btn.small{padding:8px 10px;font-size:13px}.status{margin:10px 0 0;line-height:1.4}.hidden{display:none!important}.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:12px 0}.tabs{display:flex;gap:8px;flex-wrap:wrap}.tabs button{border:1px solid var(--line);background:#f4f7fb;color:#263b52;border-radius:9px;padding:10px 12px;cursor:pointer}.tabs button.active{background:var(--blue);color:white;border-color:var(--blue)}.record{border:1px solid var(--line);border-radius:12px;padding:14px;margin:10px 0}.record-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.record h3{font-size:17px;margin:0 0 8px;overflow-wrap:anywhere}.summary{font-size:14px;line-height:1.5;color:#536579;margin:6px 0}.details{margin-top:8px;border-top:1px solid var(--line);padding-top:8px}.details summary{cursor:pointer;font-weight:700;color:var(--blue);padding:7px 0}.details[hidden]{display:none!important}.actions .btn{font-size:14px;padding:10px 12px}.actions .btn.green{flex:1}.actions .btn.gray.small{flex:1}.actions .btn.red{flex-basis:100%}.record h3{font-size:17px;margin:0 0 8px;overflow-wrap:anywhere}.meta{font-size:13px;color:#536579;line-height:1.55;overflow-wrap:anywhere}.badge{display:inline-block;border-radius:20px;padding:4px 9px;background:#edf1f5;font-size:12px;margin:0 5px 6px 0}.badge.pending{background:#fff0c9;color:#795600}.badge.approved{background:#dff4e7;color:#17613a}.badge.rejected{background:#fce6e4;color:#8b2f29}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.hint{font-size:13px;color:#5d6c7e;line-height:1.5}.topline{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.editor{width:100%;min-height:260px;font:13px ui-monospace,monospace;padding:12px;border:1px solid var(--line);border-radius:8px}.edit-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.edit-grid .field{margin:0}.edit-grid textarea{width:100%;min-height:90px;padding:12px;border:1px solid #b9c9d9;border-radius:8px;font:16px Arial,sans-serif}.edit-grid .wide{grid-column:1/-1}@media(max-width:600px){.edit-grid{grid-template-columns:1fr}.edit-grid .wide{grid-column:auto}}.empty{padding:22px;text-align:center;color:#68788a}.stats-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}.stat-tile{background:#f4f7fb;border:1px solid var(--line);border-radius:10px;padding:13px}.stat-label{font-size:13px;color:#5d6c7e;margin-bottom:6px}.stat-number{font-size:25px;font-weight:700;overflow-wrap:anywhere}.stat-note{font-size:12px;color:#6b7b8c;margin-top:8px}@media(max-width:600px){.stats-grid{grid-template-columns:1fr}}@media(max-width:600px){h1{font-size:21px}.panel{padding:13px}.actions .btn{flex:1}.tabs button{flex:1}.record{padding:12px}}
 </style>
 </head>
 <body>
@@ -20,6 +20,15 @@
 <p class="status" id="loginStatus" role="status"></p>
 </form></section>
 <section id="appPanel" class="hidden">
+<div class="panel" id="mapStatsPanel">
+ <div class="topline"><div><h2 style="margin:0">Просмотры карты пчеловодов</h2><div class="hint">Общий счётчик без ограничения в 1000 записей</div></div><button class="btn gray" id="refreshMapStats">Обновить статистику</button></div>
+ <div class="stats-grid">
+  <div class="stat-tile"><div class="stat-label">Всего просмотров</div><div class="stat-number" id="mapViewsTotal">—</div></div>
+  <div class="stat-tile"><div class="stat-label">Сегодня (Беларусь)</div><div class="stat-number" id="mapViewsToday">—</div></div>
+  <div class="stat-tile"><div class="stat-label">За последние 7 дней</div><div class="stat-number" id="mapViewsWeek">—</div></div>
+ </div>
+ <p id="mapStatsStatus" class="hint" role="status">Статистика ещё не загружена.</p>
+</div>
 <div class="panel topline"><div><strong id="who"></strong><div class="hint">Доступ только для назначенного администратора.</div></div><button class="btn gray" id="logoutBtn">Выйти</button></div>
 <div class="panel">
 <div class="tabs" id="tabs">
@@ -73,7 +82,7 @@ async function ensureAdmin(user){
  return true;
 }
 async function start(user){
- try{await ensureAdmin(user);showApp(user);$('statusFilter').value='pending';await loadRows()}
+ try{await ensureAdmin(user);showApp(user);$('statusFilter').value='pending';await Promise.all([loadRows(),loadMapStats()])}
  catch(e){say('loginStatus',e.message);await client.auth.signOut();showLogin()}
 }
 $('loginForm').addEventListener('submit',async e=>{e.preventDefault();$('loginBtn').disabled=true;say('loginStatus','Проверяем вход…');
@@ -84,6 +93,30 @@ $('loginForm').addEventListener('submit',async e=>{e.preventDefault();$('loginBt
 $('logoutBtn').addEventListener('click',async()=>{await client.auth.signOut();currentRows=[];showLogin();say('loginStatus','Вы вышли из системы.')});
 let starting=false;client.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_IN'&&session?.user&&!starting){starting=true;start(session.user).finally(()=>{starting=false})}if(event==='SIGNED_OUT')showLogin()});
 async function withTimeout(promise,ms,label){return Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>reject(new Error(label+' — превышено время ожидания. Проверьте интернет и права доступа Supabase.')),ms))])}
+async function loadMapStats(){
+ const button=$('refreshMapStats');if(button)button.disabled=true;
+ say('mapStatsStatus','Загружаем статистику…');
+ try{
+  const now=new Date();
+  const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Minsk',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(now);
+  const part=k=>parts.find(x=>x.type===k)?.value;
+  const date=part('year')+'-'+part('month')+'-'+part('day');
+  const todayStart=new Date(date+'T00:00:00+03:00').toISOString();
+  const weekStart=new Date(now.getTime()-7*24*60*60*1000).toISOString();
+  const [total,today,week]=await Promise.all([
+   client.from('beekeeper_map_visits').select('id',{count:'exact',head:true}),
+   client.from('beekeeper_map_visits').select('id',{count:'exact',head:true}).gte('visited_at',todayStart),
+   client.from('beekeeper_map_visits').select('id',{count:'exact',head:true}).gte('visited_at',weekStart)
+  ]);
+  const err=[total.error,today.error,week.error].find(Boolean);if(err)throw err;
+  $('mapViewsTotal').textContent=Number(total.count||0).toLocaleString('ru-RU');
+  $('mapViewsToday').textContent=Number(today.count||0).toLocaleString('ru-RU');
+  $('mapViewsWeek').textContent=Number(week.count||0).toLocaleString('ru-RU');
+  say('mapStatsStatus','Обновлено: '+now.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})+'. Счётчик считает все записи в базе, а не только первые 1000.');
+ }catch(e){say('mapStatsStatus','Не удалось загрузить статистику просмотров: '+(e.message||String(e)))}
+ finally{if(button)button.disabled=false}
+}
+$('refreshMapStats').addEventListener('click',loadMapStats);
 async function loadRows(){
  say('appStatus','Загружаем данные…');$('records').replaceChildren();$('recordCount').textContent='';const status=$('statusFilter').value;
  try{
