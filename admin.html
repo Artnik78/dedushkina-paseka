@@ -60,7 +60,7 @@ const labels={
  beekeeper_map_edit_requests:{title:'Запрос изменения карточки',name:['apiary_name','beekeeper_name'],fields:['beekeeper_name','apiary_name','region','district','products','description','contact_public','latitude','longitude','hive_count','contact_methods','logo_url','website_url','profile_id','user_id']},
  beekeeper_map_claim_requests:{title:'Запрос закрепления карточки',name:['profile_id','user_id'],fields:['profile_id','user_id','message']}
 };
-let activeTable='all_pending',currentRows=[],editing=null;
+let activeTable='beekeeper_map_requests',currentRows=[],editing=null;
 const queueTables=['queen_breeder_submissions','bee_package_sellers','honey_plant_sellers','beekeeper_map_requests'];
 const queueNames={queen_breeder_submissions:'Матководы',bee_package_sellers:'Пчелопакеты',honey_plant_sellers:'Цветники и медоносы',beekeeper_map_requests:'Пчеловоды'};
 function say(id,msg){$(id).textContent=msg||''}
@@ -101,7 +101,7 @@ function displayValue(v){if(v===null||v===undefined||v==='')return '—';if(Arra
 const displayTitles={beekeeper_name:'Пчеловод',apiary_name:'Пасека',region:'Область',district:'Район',locality:'Населённый пункт',products:'Продукция',description:'Описание',contact_public:'Контакты',contact:'Контактные данные',latitude:'Широта',longitude:'Долгота',hive_count:'Пчелосемей',contact_methods:'Связь',logo_url:'Логотип',website_url:'Сайт',profile_id:'ID карточки',user_id:'ID пользователя',message:'Сообщение',consent_to_publish:'Согласие на публикацию',full_name:'ФИО',seller_name:'Продавец',seller_type:'Тип продавца',breeds:'Породы',lines:'Линии',queen_types:'Тип маток',prices:'Цены',delivery:'Доставка',contact_phone:'Телефон',contact_email:'Электронная почта',contact_telegram:'Telegram (@имя или ссылка)',contact_viber:'Viber (номер или ссылка)',latitude:'Широта для карты',longitude:'Долгота для карты',bee_breed:'Порода пчёл',package_type:'Тип пакета',package_details:'Описание пакета',quantity_available:'Количество',price_info:'Цена',sales_period:'Период продажи',delivery_info:'Доставка',plants:'Растения',sales_delivery:'Продажа и доставка',contacts:'Контакты',image_url:'Фото'};
 function renderRows(){
  const root=$('records');root.replaceChildren();$('recordCount').textContent='Записей: '+currentRows.length;
- if(!currentRows.length){const p=document.createElement('div');p.className='empty';p.textContent='Новых заявок нет.';root.appendChild(p);return}
+ if(!currentRows.length){const p=document.createElement('div');p.className='empty';p.textContent=activeTable==='beekeeper_map_claim_requests'?(status==='pending'?'Нет запросов на привязку, ожидающих проверки.':'История запросов на привязку пуста.'):'Записей по выбранному фильтру нет.';root.appendChild(p);return}
  currentRows.forEach(row=>{
   const tableName=row.__sourceTable||activeTable;const schema=labels[tableName];
   const card=document.createElement('article');card.className='record';
@@ -172,7 +172,7 @@ $('saveEdit').addEventListener('click',async()=>{
  finally{$('saveEdit').disabled=false}
 });
 $('cancelEdit').addEventListener('click',()=>{$('editorPanel').classList.add('hidden');editing=null});
-$('tabs').addEventListener('click',e=>{const b=e.target.closest('button[data-table]');if(!b)return;activeTable=b.dataset.table;document.querySelectorAll('#tabs button').forEach(x=>x.classList.toggle('active',x===b));$('editorPanel').classList.add('hidden');if(activeTable==='all_pending'||['beekeeper_map_requests','beekeeper_map_edit_requests','beekeeper_map_claim_requests','queen_breeder_submissions','bee_package_sellers','honey_plant_sellers'].includes(activeTable))$('statusFilter').value='pending';else if(activeTable==='beekeeper_map_profiles')$('statusFilter').value='approved';else $('statusFilter').value='all';loadRows()});
+$('tabs').addEventListener('click',e=>{const b=e.target.closest('button[data-table]');if(!b)return;activeTable=b.dataset.table;document.querySelectorAll('#tabs button').forEach(x=>x.classList.toggle('active',x===b));$('editorPanel').classList.add('hidden');if(activeTable==='beekeeper_map_claim_requests')$('statusFilter').value='all';else if(activeTable==='all_pending'||['beekeeper_map_requests','beekeeper_map_edit_requests','queen_breeder_submissions','bee_package_sellers','honey_plant_sellers'].includes(activeTable))$('statusFilter').value='pending';else if(activeTable==='beekeeper_map_profiles')$('statusFilter').value='approved';else $('statusFilter').value='all';loadRows()});
 function $$(selector){return document.querySelectorAll(selector)}
 $('statusFilter').addEventListener('change',loadRows);$('reloadBtn').addEventListener('click',loadRows);
 client.auth.getSession().then(({data})=>{if(data.session?.user)start(data.session.user);else showLogin()});
