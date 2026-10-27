@@ -113,7 +113,7 @@ async function loadMapStats(){
   $('mapViewsToday').textContent=Number(today.count||0).toLocaleString('ru-RU');
   $('mapViewsWeek').textContent=Number(week.count||0).toLocaleString('ru-RU');
   say('mapStatsStatus','Обновлено: '+now.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})+'. Счётчик считает все записи в базе, а не только первые 1000.');
- }catch(e){say('mapStatsStatus','Не удалось загрузить статистику просмотров: '+(e.message||String(e)))}
+ }catch(e){const detail=e?.message||(e?.details?String(e.details):'Неизвестная ошибка');say('mapStatsStatus','Не удалось загрузить статистику просмотров: '+detail)}
  finally{if(button)button.disabled=false}
 }
 $('refreshMapStats').addEventListener('click',loadMapStats);
