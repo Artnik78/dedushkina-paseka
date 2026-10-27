@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#214b2d">
+<title>Mellimap — анализ территории Беларуси</title>
+<meta name="description" content="Откройте Mellimap и быстро задайте координаты центра Беларуси для анализа медоносной территории.">
+<style>
+:root{color-scheme:light;--green:#214b2d;--green2:#2e7047;--gold:#f6bd28;--cream:#fffaf0;--ink:#25291f}
+*{box-sizing:border-box}body{margin:0;background:#f2f1e8;color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+header{background:linear-gradient(130deg,#fff8de,#dbe8cd);padding:24px 18px 22px;border-bottom:1px solid #ddd4b9}
+.wrap{max-width:720px;margin:auto}h1{font:700 clamp(1.8rem,6vw,2.5rem)/1.08 Georgia,serif;color:var(--green);margin:0 0 8px}header p{margin:0;color:#43533b}
+main{max-width:720px;margin:16px auto;padding:0 12px 28px}.card{background:#fffdf7;border:1px solid #e2dccb;border-radius:16px;padding:18px;margin:12px 0;box-shadow:0 5px 18px #263d240b}
+h2{font-size:1.1rem;color:var(--green);margin:0 0 10px}.coords{display:flex;gap:8px;margin:12px 0}.coord{flex:1;background:#f0f4e8;border:1px solid #d8e3cc;border-radius:12px;padding:12px;text-align:center}.coord small{display:block;color:#65715e;font-size:.8rem}.coord strong{font-size:1.3rem;color:var(--green);font-variant-numeric:tabular-nums}
+button,.primary{display:flex;width:100%;min-height:48px;align-items:center;justify-content:center;border:0;border-radius:11px;padding:12px 15px;font:inherit;font-weight:750;text-decoration:none;cursor:pointer;background:var(--gold);color:#242518;margin-top:9px}
+.secondary{background:#e8efe1;color:var(--green)}ol{padding-left:22px;margin:8px 0}li{padding:4px 0}.hint{font-size:.9rem;color:#5d6858}.status{min-height:1.4em;font-size:.9rem;color:var(--green);margin:8px 0 0}
+@media(max-width:380px){.card{padding:14px}.coords{gap:6px}.coord{padding:10px 5px}.coord strong{font-size:1.15rem}}
+</style>
+</head>
+<body>
+<header><div class="wrap"><h1>🌿 Mellimap — Беларусь</h1><p>Помощник для анализа медоносной территории вокруг пасеки</p></div></header>
+<main>
+<section class="card">
+<h2>Координаты центра Беларуси</h2>
+<p>В Mellimap адресная строка не меняется после нажатия Go, поэтому сначала откроем карту, а координаты можно скопировать отсюда.</p>
+<div class="coords"><div class="coord"><small>Широта · lat</small><strong id="lat">53.5</strong></div><div class="coord"><small>Долгота · lng</small><strong id="lng">28.0</strong></div></div>
+<button id="copy" type="button">📋 Скопировать координаты</button>
+<button id="open" type="button" class="secondary">Открыть Mellimap ↗</button>
+<p class="status" id="status" role="status" aria-live="polite"></p>
+</section>
+<section class="card">
+<h2>Как перейти к Беларуси</h2>
+<ol><li>Нажми «Скопировать координаты».</li><li>Открой Mellimap и найди поля <b>lat, lng</b>.</li><li>Вставь широту <b>53.5</b> и долготу <b>28.0</b>, затем нажми <b>Go</b>.</li><li>Карта перейдёт к Беларуси. При необходимости увеличь масштаб кнопкой «+».</li></ol>
+<p class="hint">Это центр страны для начала анализа, а не рекомендация места для размещения пасеки. Для оценки конкретной пасеки вводи её реальные координаты.</p>
+<a class="primary" href="https://mellimap.eu/" target="_blank" rel="noopener noreferrer">Перейти в Mellimap</a>
+</section>
+<p class="hint">Mellimap — внешний сервис. Доступность и точность слоёв данных для Беларуси зависят от источников, используемых самим сервисом.</p>
+</main>
+<script>
+(function(){
+ const status=document.getElementById('status');
+ document.getElementById('copy').addEventListener('click',async function(){
+   const value='53.5, 28.0';
+   try{
+     if(navigator.clipboard && window.isSecureContext){await navigator.clipboard.writeText(value);status.textContent='Координаты скопированы: '+value;}
+     else {const t=document.createElement('textarea');t.value=value;t.setAttribute('readonly','');t.style.position='fixed';t.style.opacity='0';document.body.appendChild(t);t.select();const ok=document.execCommand('copy');t.remove();status.textContent=ok?'Координаты скопированы: '+value:'Координаты: '+value+' — выдели и скопируй вручную.';}
+   }catch(e){status.textContent='Координаты для ввода: '+value;}
+ });
+ document.getElementById('open').addEventListener('click',function(){window.open('https://mellimap.eu/','_blank','noopener');});
+})();
+</script>
+</body></html>
