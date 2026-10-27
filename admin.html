@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Администрирование — Дедушкина пасека</title>
 <style>
-:root{--ink:#243247;--blue:#245b8f;--pale:#edf4fb;--line:#d4e0ed;--green:#247548;--red:#a33b32}*{box-sizing:border-box}body{margin:0;background:#f4f7fb;color:var(--ink);font:15px Arial,sans-serif}header{background:#fff;border-bottom:1px solid var(--line);padding:18px 16px}header .wrap,main{max-width:1100px;margin:auto}h1{font-size:25px;margin:0 0 5px}header p{margin:0;color:#5e6d7f}.wrap{max-width:1100px;margin:auto}main{padding:18px 14px 45px}.panel{background:white;border:1px solid var(--line);border-radius:14px;padding:18px;margin:0 0 15px;box-shadow:0 2px 8px #2432470a}.login{max-width:460px;margin:25px auto}.field{margin:0 0 12px}.field label{display:block;font-weight:700;margin:0 0 6px}.field input,.field select{width:100%;padding:12px;border:1px solid #b9c9d9;border-radius:8px;font-size:16px;background:white}.btn{border:0;border-radius:8px;padding:10px 13px;background:var(--blue);color:white;font-weight:700;cursor:pointer}.btn:disabled{opacity:.55}.btn.gray{background:#e8eef5;color:#25364a}.btn.green{background:var(--green)}.btn.red{background:var(--red)}.btn.small{padding:8px 10px;font-size:13px}.status{margin:10px 0 0;line-height:1.4}.hidden{display:none!important}.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:12px 0}.tabs{display:flex;gap:8px;flex-wrap:wrap}.tabs button{border:1px solid var(--line);background:#f4f7fb;color:#263b52;border-radius:9px;padding:10px 12px;cursor:pointer}.tabs button.active{background:var(--blue);color:white;border-color:var(--blue)}.record{border:1px solid var(--line);border-radius:12px;padding:14px;margin:10px 0}.record-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.record h3{font-size:17px;margin:0 0 8px;overflow-wrap:anywhere}.summary{font-size:14px;line-height:1.5;color:#536579;margin:6px 0}.details{margin-top:8px;border-top:1px solid var(--line);padding-top:8px}.details summary{cursor:pointer;font-weight:700;color:var(--blue);padding:7px 0}.details[hidden]{display:none!important}.actions .btn{font-size:14px;padding:10px 12px}.actions .btn.green{flex:1}.actions .btn.gray.small{flex:1}.actions .btn.red{flex-basis:100%}.record h3{font-size:17px;margin:0 0 8px;overflow-wrap:anywhere}.meta{font-size:13px;color:#536579;line-height:1.55;overflow-wrap:anywhere}.badge{display:inline-block;border-radius:20px;padding:4px 9px;background:#edf1f5;font-size:12px;margin:0 5px 6px 0}.badge.pending{background:#fff0c9;color:#795600}.badge.approved{background:#dff4e7;color:#17613a}.badge.rejected{background:#fce6e4;color:#8b2f29}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.hint{font-size:13px;color:#5d6c7e;line-height:1.5}.topline{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.editor{width:100%;min-height:260px;font:13px ui-monospace,monospace;padding:12px;border:1px solid var(--line);border-radius:8px}.edit-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.edit-grid .field{margin:0}.edit-grid textarea{width:100%;min-height:90px;padding:12px;border:1px solid #b9c9d9;border-radius:8px;font:16px Arial,sans-serif}.edit-grid .wide{grid-column:1/-1}@media(max-width:600px){.edit-grid{grid-template-columns:1fr}.edit-grid .wide{grid-column:auto}}.empty{padding:22px;text-align:center;color:#68788a}.stats-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}.stat-tile{background:#f4f7fb;border:1px solid var(--line);border-radius:10px;padding:13px}.stat-label{font-size:13px;color:#5d6c7e;margin-bottom:6px}.stat-number{font-size:25px;font-weight:700;overflow-wrap:anywhere}.stat-note{font-size:12px;color:#6b7b8c;margin-top:8px}@media(max-width:600px){.stats-grid{grid-template-columns:1fr}}@media(max-width:600px){h1{font-size:21px}.panel{padding:13px}.actions .btn{flex:1}.tabs button{flex:1}.record{padding:12px}}
+:root{--ink:#243247;--blue:#245b8f;--pale:#edf4fb;--line:#d4e0ed;--green:#247548;--red:#a33b32}*{box-sizing:border-box}body{margin:0;background:#f4f7fb;color:var(--ink);font:15px Arial,sans-serif}header{background:#fff;border-bottom:1px solid var(--line);padding:18px 16px}header .wrap,main{max-width:1100px;margin:auto}h1{font-size:25px;margin:0 0 5px}header p{margin:0;color:#5e6d7f}.wrap{max-width:1100px;margin:auto}main{padding:18px 14px 45px}.panel{background:white;border:1px solid var(--line);border-radius:14px;padding:18px;margin:0 0 15px;box-shadow:0 2px 8px #2432470a}.login{max-width:460px;margin:25px auto}.field{margin:0 0 12px}.field label{display:block;font-weight:700;margin:0 0 6px}.field input,.field select{width:100%;padding:12px;border:1px solid #b9c9d9;border-radius:8px;font-size:16px;background:white}.btn{border:0;border-radius:8px;padding:10px 13px;background:var(--blue);color:white;font-weight:700;cursor:pointer}.btn:disabled{opacity:.55}.btn.gray{background:#e8eef5;color:#25364a}.btn.green{background:var(--green)}.btn.red{background:var(--red)}.btn.small{padding:8px 10px;font-size:13px}.status{margin:10px 0 0;line-height:1.4}.hidden{display:none!important}.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:12px 0}.tabs{display:flex;gap:8px;flex-wrap:wrap}.tabs button{border:1px solid var(--line);background:#f4f7fb;color:#263b52;border-radius:9px;padding:10px 12px;cursor:pointer}.tabs button.active{background:var(--blue);color:white;border-color:var(--blue)}.record{border:1px solid var(--line);border-radius:12px;padding:14px;margin:10px 0}.record-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.record h3{font-size:17px;margin:0 0 8px;overflow-wrap:anywhere}.summary{font-size:14px;line-height:1.5;color:#536579;margin:6px 0}.details{margin-top:8px;border-top:1px solid var(--line);padding-top:8px}.details summary{cursor:pointer;font-weight:700;color:var(--blue);padding:7px 0}.details[hidden]{display:none!important}.actions .btn{font-size:14px;padding:10px 12px}.actions .btn.green{flex:1}.actions .btn.gray.small{flex:1}.actions .btn.red{flex-basis:100%}.record h3{font-size:17px;margin:0 0 8px;overflow-wrap:anywhere}.meta{font-size:13px;color:#536579;line-height:1.55;overflow-wrap:anywhere}.badge{display:inline-block;border-radius:20px;padding:4px 9px;background:#edf1f5;font-size:12px;margin:0 5px 6px 0}.badge.pending{background:#fff0c9;color:#795600}.badge.approved{background:#dff4e7;color:#17613a}.badge.rejected{background:#fce6e4;color:#8b2f29}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.hint{font-size:13px;color:#5d6c7e;line-height:1.5}.topline{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.editor{width:100%;min-height:260px;font:13px ui-monospace,monospace;padding:12px;border:1px solid var(--line);border-radius:8px}.edit-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.edit-grid .field{margin:0}.edit-grid textarea{width:100%;min-height:90px;padding:12px;border:1px solid #b9c9d9;border-radius:8px;font:16px Arial,sans-serif}.edit-grid .wide{grid-column:1/-1}@media(max-width:600px){.edit-grid{grid-template-columns:1fr}.edit-grid .wide{grid-column:auto}}.empty{padding:22px;text-align:center;color:#68788a}.stats-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}.stat-tile{background:#f4f7fb;border:1px solid var(--line);border-radius:10px;padding:13px}.stat-label{font-size:13px;color:#5d6c7e;margin-bottom:6px}.stat-number{font-size:25px;font-weight:700;overflow-wrap:anywhere}.stat-note{font-size:12px;color:#6b7b8c;margin-top:8px}.admin-list{display:grid;gap:8px;margin-top:12px}.admin-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px;border:1px solid var(--line);border-radius:9px;background:#f8fafc}.admin-row-email{font-weight:700;overflow-wrap:anywhere}.admin-row-meta{font-size:12px;color:#657589;margin-top:4px}.admin-add-form{display:flex;gap:8px;align-items:end;flex-wrap:wrap;margin-top:14px}.admin-add-form .field{flex:1;min-width:200px;margin:0}.admin-add-form input{width:100%;padding:12px;border:1px solid #b9c9d9;border-radius:8px;font-size:16px}@media(max-width:600px){.admin-row{align-items:flex-start;flex-direction:column}.admin-add-form .field{min-width:100%}}@media(max-width:600px){.stats-grid{grid-template-columns:1fr}}@media(max-width:600px){h1{font-size:21px}.panel{padding:13px}.actions .btn{flex:1}.tabs button{flex:1}.record{padding:12px}}
 </style>
 </head>
 <body>
@@ -28,6 +28,12 @@
   <div class="stat-tile"><div class="stat-label">За последние 7 дней</div><div class="stat-number" id="mapViewsWeek">—</div></div>
  </div>
  <p id="mapStatsStatus" class="hint" role="status">Статистика ещё не загружена.</p>
+</div>
+<div class="panel" id="adminsPanel">
+ <div class="topline"><div><h2 style="margin:0">Администраторы</h2><div class="hint">Назначение и отзыв доступа к новой админ-панели</div></div><button class="btn gray" id="refreshAdmins">Обновить список</button></div>
+ <p class="hint">Новый администратор должен сначала зарегистрироваться на сайте и войти хотя бы один раз. Добавляй только тех, кому доверяешь управление сайтом.</p>
+ <form id="addAdminForm" class="admin-add-form"><div class="field"><label for="newAdminEmail">Электронная почта нового администратора</label><input id="newAdminEmail" type="email" autocomplete="off" placeholder="example@email.com" required></div><button class="btn green" id="addAdminBtn" type="submit">Назначить администратора</button></form>
+ <p id="adminsStatus" class="status" role="status"></p><div id="adminsList" class="admin-list"></div>
 </div>
 <div class="panel topline"><div><strong id="who"></strong><div class="hint">Доступ только для назначенного администратора.</div></div><button class="btn gray" id="logoutBtn">Выйти</button></div>
 <div class="panel">
@@ -69,7 +75,7 @@ const labels={
  beekeeper_map_edit_requests:{title:'Запрос изменения карточки',name:['apiary_name','beekeeper_name'],fields:['beekeeper_name','apiary_name','region','district','products','description','contact_public','latitude','longitude','hive_count','contact_methods','logo_url','website_url','profile_id','user_id']},
  beekeeper_map_claim_requests:{title:'Запрос закрепления карточки',name:['profile_id','user_id'],fields:['profile_id','user_id','message']}
 };
-let activeTable='beekeeper_map_requests',currentRows=[],editing=null;
+let activeTable='beekeeper_map_requests',currentRows=[],editing=null,currentAdminUser=null;
 const queueTables=['queen_breeder_submissions','bee_package_sellers','honey_plant_sellers','beekeeper_map_requests'];
 const queueNames={queen_breeder_submissions:'Матководы',bee_package_sellers:'Пчелопакеты',honey_plant_sellers:'Цветники и медоносы',beekeeper_map_requests:'Пчеловоды'};
 function say(id,msg){$(id).textContent=msg||''}
@@ -82,7 +88,7 @@ async function ensureAdmin(user){
  return true;
 }
 async function start(user){
- try{await ensureAdmin(user);showApp(user);$('statusFilter').value='pending';await Promise.all([loadRows(),loadMapStats()])}
+ try{await ensureAdmin(user);currentAdminUser=user;showApp(user);$('statusFilter').value='pending';await Promise.all([loadRows(),loadMapStats(),loadAdmins()])}
  catch(e){say('loginStatus',e.message);await client.auth.signOut();showLogin()}
 }
 $('loginForm').addEventListener('submit',async e=>{e.preventDefault();$('loginBtn').disabled=true;say('loginStatus','Проверяем вход…');
@@ -115,6 +121,49 @@ async function loadMapStats(){
  finally{if(button)button.disabled=false}
 }
 $('refreshMapStats').addEventListener('click',loadMapStats);
+$('refreshAdmins').addEventListener('click',loadAdmins);
+async function loadAdmins(){
+ const button=$('refreshAdmins');if(button)button.disabled=true;
+ say('adminsStatus','Загружаем список администраторов…');$('adminsList').replaceChildren();
+ try{
+  const {data,error}=await withTimeout(client.rpc('admin_list_site_admins'),10000,'Список администраторов не загрузился за 10 секунд');
+  if(error)throw new Error(error.message||JSON.stringify(error));
+  const rows=Array.isArray(data)?data:[];
+  if(!rows.length){say('adminsStatus','Список администраторов пуст. Не добавляй пользователя, пока не проверишь свою учётную запись.');return}
+  say('adminsStatus','Назначено администраторов: '+rows.length);
+  rows.forEach(row=>{
+   const item=document.createElement('div');item.className='admin-row';
+   const info=document.createElement('div');info.style.minWidth='0';
+   const email=document.createElement('div');email.className='admin-row-email';email.textContent=row.email||'Почта не указана';info.appendChild(email);
+   const meta=document.createElement('div');meta.className='admin-row-meta';meta.textContent=(row.user_id===currentAdminUser?.id?'Вы · ':'')+'Назначен: '+(row.created_at?new Date(row.created_at).toLocaleDateString('ru-RU'):'—');info.appendChild(meta);item.appendChild(info);
+   if(row.user_id!==currentAdminUser?.id){
+    const remove=document.createElement('button');remove.className='btn red small';remove.textContent='Отозвать доступ';
+    remove.addEventListener('click',async()=>{
+     if(!confirm('Отозвать права администратора у '+(row.email||row.user_id)+'?'))return;
+     remove.disabled=true;say('adminsStatus','Отзываем доступ…');
+     try{const result=await withTimeout(client.rpc('admin_remove_site_admin',{p_user_id:row.user_id}),10000,'Запрос отзыва доступа не завершён');if(result.error)throw new Error(result.error.message||JSON.stringify(result.error));say('adminsStatus','Доступ отозван.');await loadAdmins()}
+     catch(e){say('adminsStatus','Не удалось отозвать доступ: '+(e.message||String(e)))}
+     finally{remove.disabled=false}
+    });item.appendChild(remove);
+   }else{const current=document.createElement('span');current.className='badge approved';current.textContent='Текущий аккаунт';item.appendChild(current)}
+   $('adminsList').appendChild(item);
+  });
+ }catch(e){say('adminsStatus','Не удалось загрузить список: '+(e.message||String(e)))}
+ finally{if(button)button.disabled=false}
+}
+$('addAdminForm').addEventListener('submit',async e=>{
+ e.preventDefault();const button=$('addAdminBtn');const email=$('newAdminEmail').value.trim();
+ if(!email)return;
+ if(!confirm('Назначить администратора для учётной записи '+email+'?'))return;
+ button.disabled=true;say('adminsStatus','Проверяем учётную запись и назначаем доступ…');
+ try{
+  const result=await withTimeout(client.rpc('admin_add_site_admin',{p_email:email}),12000,'Назначение администратора не завершилось за 12 секунд');
+  if(result.error)throw new Error(result.error.message||JSON.stringify(result.error));
+  $('newAdminEmail').value='';say('adminsStatus','Администратор назначен: '+(result.data?.email||email)+'.');await loadAdmins()
+ }catch(err){say('adminsStatus','Не удалось назначить администратора: '+(err.message||String(err)))}
+ finally{button.disabled=false}
+});
+
 async function loadRows(){
  say('appStatus','Загружаем данные…');$('records').replaceChildren();$('recordCount').textContent='';const status=$('statusFilter').value;
  try{
