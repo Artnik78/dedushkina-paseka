@@ -104,9 +104,9 @@ async function loadMapStats(){
   const todayStart=new Date(date+'T00:00:00+03:00').toISOString();
   const weekStart=new Date(now.getTime()-7*24*60*60*1000).toISOString();
   const [total,today,week]=await Promise.all([
-   client.from('beekeeper_map_visits').select('id',{count:'exact',head:true}),
-   client.from('beekeeper_map_visits').select('id',{count:'exact',head:true}).gte('visited_at',todayStart),
-   client.from('beekeeper_map_visits').select('id',{count:'exact',head:true}).gte('visited_at',weekStart)
+   withTimeout(client.from('beekeeper_map_visits').select('id',{count:'exact',head:true}),10000,'Общий счётчик не ответил за 10 секунд'),
+   withTimeout(client.from('beekeeper_map_visits').select('id',{count:'exact',head:true}).gte('visited_at',todayStart),10000,'Счётчик за сегодня не ответил за 10 секунд'),
+   withTimeout(client.from('beekeeper_map_visits').select('id',{count:'exact',head:true}).gte('visited_at',weekStart),10000,'Счётчик за 7 дней не ответил за 10 секунд')
   ]);
   const err=[total.error,today.error,week.error].find(Boolean);if(err)throw err;
   $('mapViewsTotal').textContent=Number(total.count||0).toLocaleString('ru-RU');
