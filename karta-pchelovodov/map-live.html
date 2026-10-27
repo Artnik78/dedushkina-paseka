@@ -755,6 +755,34 @@ button:focus-visible,a:focus-visible{outline:3px solid #d8a919;outline-offset:2p
 #directory #resultsList .result-meta,#directory #resultsList .result-goods{font-size:.84rem;color:#5a6556;margin-top:4px}
 #directory #resultsList .results-count{position:sticky;top:0;padding:7px 0;background:#fffdf6;font-weight:800;color:#1d452b}
 @media(max-width:680px){#directory #resultsList.results-visible{max-height:52vh}#directory #resultsList .result-item{padding:13px}}
+</style><style id="mobile-map-polish-20261027">
+@media(max-width:680px){
+ html{scroll-padding-top:8px}
+ body{overflow-x:hidden}
+ .hero-inner{width:100%;box-sizing:border-box}
+ nav{max-width:100%;box-sizing:border-box;flex-wrap:nowrap!important;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin}
+ nav a{flex:0 0 auto;min-height:42px;display:inline-flex;align-items:center;white-space:nowrap}
+ .stats{gap:8px!important}
+ .stats>*{min-width:0;padding:10px 8px!important}
+ .workspace{display:flex!important;flex-direction:column!important;gap:12px!important;width:100%;min-width:0}
+ .left-panel,.right-panel,.map-panel,.map-card,.feature-card{width:100%;min-width:0;max-width:100%;box-sizing:border-box}
+ .right-panel{display:flex!important;flex-direction:column!important;gap:12px!important}
+ #map,.map-container,.leaflet-container{max-width:100%;touch-action:pan-x pan-y}
+ .map-panel{padding:8px!important}
+ .map-controls{display:flex;flex-wrap:wrap;gap:7px}
+ button,.btn,input,select,textarea{font-size:16px;min-height:42px;max-width:100%;box-sizing:border-box}
+ .filter-grid,.filters-grid{grid-template-columns:minmax(0,1fr)!important}
+ .profile-details,.profile-card,.result-card{overflow-wrap:anywhere;min-width:0}
+ .beekeeper-contact-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:390px){
+ .hero-inner{gap:7px!important;padding:8px!important}
+ .logo-mark{flex-basis:44px!important;width:44px!important;height:48px!important;font-size:25px!important}
+ .brand{max-width:calc(100% - 48px)!important}
+ h1{font-size:1.4rem!important}
+ .stats{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ .beekeeper-contact-actions{grid-template-columns:minmax(0,1fr)!important}
+}
 </style></head><body>
 <a class="cross-project-banner" href="../journal/" aria-label="Перейти в цифровой журнал пасечника"><span class="cross-icon" aria-hidden="true">🐝 🍯</span><span class="cross-copy"><span class="cross-title">Цифровой журнал пасечника</span><span class="cross-subtitle">Ульи · Осмотры · Обработки · Мёд · Отчёты</span></span><span class="cross-cta">Перейти в журнал <span aria-hidden="true">➜</span></span></a>
 <header class="hero hero-image"><img class="hero-art" src="https://raw.githubusercontent.com/Artnik78/dedushkina-paseka/fix/beekeeper-map-districts/karta-pchelovodov/header-pchelovody.png" alt="Карта беларускіх пчаляроў: пчела на цветах, мёд и белорусский пейзаж"></header>
