@@ -689,6 +689,37 @@ main{max-width:1800px;margin:8px auto 24px;padding:0 8px}.workspace{grid-templat
 
 /* Keep hive-count input interaction inside the application form; it must never trigger page-level navigation. */
 #hiveCount{position:relative;z-index:5;pointer-events:auto;touch-action:manipulation}
+
+/* Mobile-first final polish: touch targets, map sizing and safe popup layout */
+@media(max-width:680px){
+  html{scroll-padding-top:8px}
+  body{overflow-x:hidden}
+  nav{-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+  nav a,nav button,.btn,.map-mode button,.directory-collapse-btn,.mobile-filter-toggle{
+    touch-action:manipulation;
+  }
+  .filters-mobile-head{gap:8px}
+  .filters-mobile-head h2{flex:1 1 auto}
+  .directory-collapse-btn{min-width:42px;min-height:42px}
+  .mobile-view-switch{flex:0 0 auto}
+  .mobile-view-switch button{min-height:40px;padding:8px 10px}
+  .map-panel{width:100%;overflow:hidden}
+  #map{height:56dvh;height:56svh;min-height:320px;max-height:620px}
+  .leaflet-control-zoom a{width:42px!important;height:42px!important;line-height:42px!important;font-size:23px!important}
+  .leaflet-popup-content-wrapper{max-width:calc(100vw - 58px);border-radius:12px}
+  .leaflet-popup-content{max-width:calc(100vw - 90px);margin:11px 13px;overflow-wrap:anywhere}
+  .map-pin-popup{min-width:0;max-width:calc(100vw - 100px);font-size:13px}
+  #mobileProfileSlot{scroll-margin-top:10px}
+  .profile-details .btn,.right-contacts .btn,.beekeeper-contact .contact-action{min-height:42px}
+  input,select,textarea{font-size:16px}
+  .map-panel>.map-note{overflow-wrap:anywhere}
+}
+@media(max-width:360px){
+  #map{min-height:300px}
+  .mobile-view-switch button{padding:7px 8px;font-size:.76rem}
+  .filters-mobile-head h2{font-size:16px!important}
+  .map-mode button{padding:6px;font-size:.72rem}
+}
 </style>
 <style id="map-safe-cleanup-20261022">
 /* Осторожная визуальная уборка карты: без изменений данных, фильтров и обработчиков. */
