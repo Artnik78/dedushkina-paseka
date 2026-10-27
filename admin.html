@@ -94,6 +94,15 @@ async function loadRows(){
    let q=client.from(activeTable).select('*').order('created_at',{ascending:false}).limit(250);if(status!=='all')q=q.eq('status',status);
    const {data,error}=await withTimeout(q,12000,'Не удалось загрузить '+(queueNames[activeTable]||labels[activeTable]?.title||activeTable));if(error)throw error;currentRows=data||[];
   }
+  if(activeTable==='beekeeper_map_claim_requests'&&currentRows.length){
+   const ids=[...new Set(currentRows.map(row=>row.profile_id).filter(Boolean))];
+   if(ids.length){
+    const {data:profiles,error:profileError}=await withTimeout(client.from('beekeeper_map_profiles').select('id,apiary_name,beekeeper_name,region,district,locality').in('id',ids),12000,'Не удалось загрузить названия пасек');
+    if(profileError)throw new Error('Не удалось сопоставить карточки: '+profileError.message);
+    const byId=new Map((profiles||[]).map(p=>[p.id,p]));
+    currentRows=currentRows.map(row=>({...row,__profile:byId.get(row.profile_id)||null}));
+   }
+  }
   renderRows();say('appStatus','')
  }catch(err){say('appStatus','Ошибка загрузки: '+(err.message||String(err)));$('recordCount').textContent='';}
 }
@@ -107,15 +116,17 @@ function renderRows(){
   const card=document.createElement('article');card.className='record';
   const top=document.createElement('div');top.className='record-top';
   const left=document.createElement('div');left.style.minWidth='0';
-  const h=document.createElement('h3');h.textContent=(row.__sourceTable?queueNames[tableName]+' · ':'')+(schema.name.map(k=>row[k]).find(Boolean)||'Заявка без названия');left.appendChild(h);
+  const h=document.createElement('h3');const linkedName=tableName==='beekeeper_map_claim_requests'?(row.__profile?.apiary_name||row.__profile?.beekeeper_name):null;h.textContent=(row.__sourceTable?queueNames[tableName]+' · ':'')+(linkedName||schema.name.map(k=>row[k]).find(Boolean)||'Заявка без названия');left.appendChild(h);
   const b=document.createElement('span');b.className='badge '+(row.status||'');b.textContent=({pending:'На проверке',approved:'Одобрено',rejected:'Отклонено'})[row.status]||row.status||'Без статуса';left.appendChild(b);
   top.appendChild(left);card.appendChild(top);
   const summary=document.createElement('div');summary.className='summary';
-  const quickFields=tableName==='queen_breeder_submissions'?['region','district','breeds','contact_phone']:tableName==='bee_package_sellers'?['region','district','bee_breed','package_type','quantity_available','price_info']:tableName==='honey_plant_sellers'?['region','district','plants','contact_phone']:tableName==='beekeeper_map_requests'?['region','district','products','contact']:tableName==='beekeeper_map_profiles'?['region','district','products','contact_public']:['profile_id','message'];
+  const quickFields=tableName==='queen_breeder_submissions'?['region','district','breeds','contact_phone']:tableName==='bee_package_sellers'?['region','district','bee_breed','package_type','quantity_available','price_info']:tableName==='honey_plant_sellers'?['region','district','plants','contact_phone']:tableName==='beekeeper_map_requests'?['region','district','products','contact']:tableName==='beekeeper_map_profiles'?['region','district','products','contact_public']:tableName==='beekeeper_map_claim_requests'?['__linked_name','__linked_region','__linked_district','message']:['profile_id','message'];
+  if(tableName==='beekeeper_map_claim_requests'&&row.__profile){row.__linked_name=row.__profile.apiary_name||row.__profile.beekeeper_name;row.__linked_region=row.__profile.region;row.__linked_district=row.__profile.district;}
   const useful=quickFields.filter(k=>row[k]!==null&&row[k]!==undefined&&row[k]!=='');
   summary.textContent=useful.map(k=>(displayTitles[k]||k)+': '+displayValue(row[k])).join(' · ')||'Нажмите «Подробнее», чтобы посмотреть анкету';card.appendChild(summary);
   const details=document.createElement('details');details.className='details';const summaryToggle=document.createElement('summary');summaryToggle.textContent='Подробнее';details.appendChild(summaryToggle);
   const meta=document.createElement('div');meta.className='meta';
+  if(tableName==='beekeeper_map_claim_requests'&&row.__profile){[['Название пасеки',row.__profile.apiary_name],['Имя пчеловода',row.__profile.beekeeper_name],['Область',row.__profile.region],['Район',row.__profile.district],['Населённый пункт',row.__profile.locality]].forEach(([label,value])=>{if(value){const line=document.createElement('div');line.textContent=label+': '+displayValue(value);meta.appendChild(line)}})}
   schema.fields.forEach(k=>{if(row[k]!==null&&row[k]!==undefined&&row[k]!==''){const line=document.createElement('div');line.textContent=(displayTitles[k]||k)+': '+displayValue(row[k]);meta.appendChild(line)}});
   if(row.created_at){const line=document.createElement('div');line.textContent='Дата заявки: '+new Date(row.created_at).toLocaleString('ru-RU');meta.appendChild(line)}
   details.appendChild(meta);card.appendChild(details);
