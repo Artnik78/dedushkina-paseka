@@ -1065,4 +1065,31 @@ window.addEventListener('load',()=>setTimeout(()=>map.invalidateSize({pan:false}
   } catch(_){}
 })();
 </script>
+
+<script>
+/* На мобильном телефоне карточка выбранной пасеки располагается сразу под подсказкой над картой. */
+(function(){
+ const workspace=document.querySelector('.workspace');
+ const mapPanel=document.getElementById('map-section');
+ const hint=document.getElementById('selectApiaryHint');
+ const featured=document.getElementById('featured');
+ if(!workspace||!mapPanel||!hint||!featured)return;
+ const desktopAnchor=document.createComment('featured-panel-original-position');
+ workspace.insertBefore(desktopAnchor,featured);
+ function placeFeaturedPanel(){
+  const mobile=window.matchMedia('(max-width:680px)').matches;
+  if(mobile){
+   if(featured.parentElement!==mapPanel)hint.insertAdjacentElement('afterend',featured);
+  }else if(featured.parentElement!==workspace){
+   desktopAnchor.parentNode.insertBefore(featured,desktopAnchor.nextSibling);
+  }
+  if(window.map&&typeof window.map.invalidateSize==='function'){
+   window.setTimeout(()=>{try{window.map.invalidateSize()}catch(e){}},120);
+  }
+ }
+ placeFeaturedPanel();
+ window.addEventListener('resize',placeFeaturedPanel,{passive:true});
+})();
+</script>
+
 </body></html>
