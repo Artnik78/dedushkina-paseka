@@ -720,6 +720,14 @@ main{max-width:1800px;margin:8px auto 24px;padding:0 8px}.workspace{grid-templat
   .filters-mobile-head h2{font-size:16px!important}
   .map-mode button{padding:6px;font-size:.72rem}
 }
+
+/* На мобильных убираем дублирующие подписи областей и городов поверх карты: названия уже есть на подложке. */
+@media(max-width:680px){
+ .map-region-label,.map-city-label{display:none!important}
+ #map{height:58vh;min-height:360px;max-height:620px}
+ .map-head .atlas-subtitle{font-size:.88rem;line-height:1.4}
+ .select-apiary-hint{font-size:.92rem;line-height:1.45}
+}
 </style>
 <style id="map-safe-cleanup-20261022">
 /* Осторожная визуальная уборка карты: без изменений данных, фильтров и обработчиков. */
