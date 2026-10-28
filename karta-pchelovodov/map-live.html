@@ -19,6 +19,12 @@ input,select,textarea{font:inherit;color:var(--ink);background:white;border:1px 
 .section{margin-top:16px}.section-intro{color:var(--muted);margin:-4px 0 15px;line-height:1.5}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 16px}.field.full-width{grid-column:1/-1}.consent{display:flex;align-items:flex-start;gap:9px;font-size:.86rem;color:#566052;line-height:1.5;margin:12px 0}.consent input{width:18px;min-height:18px;height:18px;flex:0 0 18px;margin-top:2px;accent-color:var(--green)}#status{min-height:1.3em;margin:9px 0 0;color:var(--green);font-size:.9rem}.how-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.how-card{padding:15px;border:1px solid #e2e8d8;background:#f5f8ef;border-radius:13px}.how-card b{display:block;color:var(--green);margin-bottom:5px}.how-card p{margin:0;font-size:.88rem;color:var(--muted)}footer{text-align:center;color:#76806f;padding:25px 14px 35px;font-size:.84rem}.footer-partnership{display:inline-block;margin-top:7px;color:#52634f;font-weight:650}
 @media(max-width:1050px){.workspace{grid-template-columns:245px minmax(0,1fr)}.right-panel{grid-column:1/-1;display:grid;grid-template-columns:minmax(220px,.8fr) minmax(0,1.2fr)}.motto{display:none}}
 @media(max-width:680px){
+ /* В режиме списка всегда показываем весь блок фильтров, включая «Мёд» и «Пчелопродукты». */
+ .workspace.mobile-list-mode #directory .filter-controls{display:block!important;visibility:visible!important;height:auto!important;max-height:none!important;overflow:visible!important}
+ .workspace.mobile-list-mode #directory #productChecks{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ .workspace.mobile-list-mode #directory #productChecks .check-item{display:grid!important;visibility:visible!important}
+}
+@media(max-width:680px){
  /* На телефоне список результатов разворачивается полностью: без отдельной внутренней прокрутки на 5 карточек. */
  #directory .results-list{max-height:none!important;height:auto!important;overflow:visible!important;overscroll-behavior:auto!important}
  #directory .results-list .result-item{min-height:72px;padding:12px!important}
