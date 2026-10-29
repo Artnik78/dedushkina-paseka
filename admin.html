@@ -292,10 +292,10 @@ const arrayFields=new Set(['products','contact_methods','breeds','queen_types','
 function openEditor(row){
  editing=row;const root=$('editFields');root.replaceChildren();
  labels[activeTable].fields.forEach(k=>{
-  const wrap=document.createElement('div');wrap.className='field'+(['description','products','contact_public','contact','message','package_details','delivery_info','sales_delivery','plants','breeds','lines','prices'].includes(k)?' wide':'');
+  const wrap=document.createElement('div');wrap.className='field'+(['description','products','contact_public','direction_details','directions','contact','message','package_details','delivery_info','sales_delivery','plants','breeds','lines','prices'].includes(k)?' wide':'');
   const label=document.createElement('label');label.textContent=fieldTitles[k]||k;label.htmlFor='edit_'+k;wrap.appendChild(label);
   let input;
-  if(arrayFields.has(k)||['description','contact_public','contact','message','package_details','delivery_info','sales_delivery','prices','lines'].includes(k)){input=document.createElement('textarea');input.value=k==='direction_details'?JSON.stringify(row[k]??{},null,2):(Array.isArray(row[k])?row[k].join(', '):(row[k]??''));if(arrayFields.has(k))input.placeholder=k==='directions'?'beekeeper, queen, packages, plants':'Введите значения через запятую';if(k==='direction_details')input.placeholder='JSON: queen, packages, plants';}
+  if(arrayFields.has(k)||k==='direction_details'||['description','contact_public','contact','message','package_details','delivery_info','sales_delivery','prices','lines'].includes(k)){input=document.createElement('textarea');input.value=k==='direction_details'?JSON.stringify(row[k]??{},null,2):(Array.isArray(row[k])?row[k].join(', '):(row[k]??''));if(arrayFields.has(k))input.placeholder=k==='directions'?'beekeeper, queen, packages, plants':'Введите значения через запятую';if(k==='direction_details')input.placeholder='JSON: queen, packages, plants';}
   else{input=document.createElement('input');input.type=['latitude','longitude'].includes(k)?'number':(k==='website_url'||k==='logo_url'||k==='image_url'?'url':(['hive_count','quantity_available'].includes(k)?'number':'text'));if(input.type==='number')input.step='any';input.value=row[k]??'';}
   input.id='edit_'+k;input.dataset.field=k;wrap.appendChild(input);root.appendChild(wrap);
  });
