@@ -174,13 +174,19 @@ async function loadRows(){
    let q=client.from(activeTable).select('*').order('created_at',{ascending:false}).limit(250);if(status!=='all')q=q.eq('status',status);
    const {data,error}=await withTimeout(q,12000,'Не удалось загрузить '+(queueNames[activeTable]||labels[activeTable]?.title||activeTable));if(error)throw error;currentRows=data||[];
   }
-  if(activeTable==='queen_breeder_submissions'&&(status==='approved'||status==='all')){
-   const {data:profiles,error:profilesError}=await withTimeout(client.from('beekeeper_map_profiles').select('id,apiary_name,beekeeper_name,region,district,contact_public,directions,direction_details,status,created_at').eq('status','approved').order('created_at',{ascending:false}).limit(250),12000,'Не удалось загрузить одобренные анкеты матководов');
-   if(profilesError)throw new Error('Не удалось проверить направления матководов: '+profilesError.message);
-   const existingNames=new Set(currentRows.map(r=>String(r.apiary_name||'').trim().toLocaleLowerCase('ru')));
-   const profileRows=(profiles||[]).filter(p=>Array.isArray(p.directions)&&p.directions.includes('queen')&&!existingNames.has(String(p.apiary_name||'').trim().toLocaleLowerCase('ru'))).map(p=>{
-    const d=p.direction_details?.queen||{};
-    return {id:p.id,full_name:p.beekeeper_name,apiary_name:p.apiary_name,region:p.region,district:p.district,breeds:d.breeds||'',lines:d.lines||'',queen_types:d.queen_types||'',prices:d.prices||'',delivery:d.delivery||'',contact_phone:p.contact_public||'',status:'approved',created_at:p.created_at,__sourceTable:'queen_breeder_submissions',__virtualFromProfile:true};
+  const profileDirections={
+   queen_breeder_submissions:{key:'queen',table:'queen_breeder_submissions',map:(p,d)=>({full_name:p.beekeeper_name,apiary_name:p.apiary_name,breeds:d.breeds||'',lines:d.lines||'',queen_types:d.queen_types||'',prices:d.prices||'',delivery:d.delivery||'',contact_phone:p.contact_public||''})},
+   bee_package_sellers:{key:'packages',table:'bee_package_sellers',map:(p,d)=>({seller_name:p.beekeeper_name||p.apiary_name,apiary_name:p.apiary_name,bee_breed:d.bee_breed||'',package_type:d.package_type||'',package_details:d.package_details||d.details||'',quantity_available:d.quantity_available||'',price_info:d.price_info||d.price||'',sales_period:d.sales_period||'',delivery_info:d.delivery_info||d.delivery||'',contact_phone:p.contact_public||''})},
+   honey_plant_sellers:{key:'plants',table:'honey_plant_sellers',map:(p,d)=>({seller_type:d.seller_type||'Медоносы и растения',seller_name:p.beekeeper_name||p.apiary_name,plants:d.plants||'',price_info:d.price_info||d.price||'',sales_delivery:d.sales_delivery||d.delivery||'',contacts:p.contact_public||''})}
+  };
+  const directionConfig=profileDirections[activeTable];
+  if(directionConfig&&(status==='approved'||status==='all')){
+   const {data:profiles,error:profilesError}=await withTimeout(client.from('beekeeper_map_profiles').select('id,apiary_name,beekeeper_name,region,district,locality,contact_public,directions,direction_details,status,created_at').eq('status','approved').order('created_at',{ascending:false}).limit(250),12000,'Не удалось загрузить одобренные анкеты из общего каталога');
+   if(profilesError)throw new Error('Не удалось проверить дополнительные направления: '+profilesError.message);
+   const existingNames=new Set(currentRows.map(r=>String(r.apiary_name||r.seller_name||r.full_name||'').trim().toLocaleLowerCase('ru')));
+   const profileRows=(profiles||[]).filter(p=>Array.isArray(p.directions)&&p.directions.includes(directionConfig.key)&&!existingNames.has(String(p.apiary_name||'').trim().toLocaleLowerCase('ru'))).map(p=>{
+    const d=p.direction_details?.[directionConfig.key]||{};
+    return {id:p.id,...directionConfig.map(p,d),region:p.region,district:p.district,locality:p.locality||'',status:'approved',created_at:p.created_at,__sourceTable:directionConfig.table,__virtualFromProfile:true};
    });
    currentRows=[...currentRows,...profileRows];
   }
