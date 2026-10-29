@@ -176,8 +176,8 @@ async function loadRows(){
   }
   const profileDirections={
    queen_breeder_submissions:{key:'queen',table:'queen_breeder_submissions',map:(p,d)=>({full_name:p.beekeeper_name,apiary_name:p.apiary_name,breeds:d.breeds||'',lines:d.lines||'',queen_types:d.queen_types||'',prices:d.prices||'',delivery:d.delivery||'',contact_phone:p.contact_public||''})},
-   bee_package_sellers:{key:'packages',table:'bee_package_sellers',map:(p,d)=>({seller_name:p.beekeeper_name||p.apiary_name,apiary_name:p.apiary_name,bee_breed:d.bee_breed||'',package_type:d.package_type||'',package_details:d.package_details||d.details||'',quantity_available:d.quantity_available||'',price_info:d.price_info||d.price||'',sales_period:d.sales_period||'',delivery_info:d.delivery_info||d.delivery||'',contact_phone:p.contact_public||''})},
-   honey_plant_sellers:{key:'plants',table:'honey_plant_sellers',map:(p,d)=>({seller_type:d.seller_type||'Медоносы и растения',seller_name:p.beekeeper_name||p.apiary_name,plants:d.plants||'',price_info:d.price_info||d.price||'',sales_delivery:d.sales_delivery||d.delivery||'',contacts:p.contact_public||''})}
+   bee_package_sellers:{key:'packages',table:'bee_package_sellers',map:(p,d)=>({seller_name:p.beekeeper_name||p.apiary_name,apiary_name:p.apiary_name,bee_breed:d.bee_breed||'',package_type:d.package_type||'',package_details:d.package_details||d.details||'',quantity_available:d.quantity||d.quantity_available||'',price_info:d.prices||d.price_info||d.price||'',sales_period:d.sales_period||'',delivery_info:d.delivery||d.delivery_info||'',contact_phone:p.contact_public||''})},
+   honey_plant_sellers:{key:'plants',table:'honey_plant_sellers',map:(p,d)=>({seller_type:d.seller_type||'Медоносы и растения',seller_name:p.beekeeper_name||p.apiary_name,plants:d.plants||'',price_info:d.prices||d.price_info||d.price||'',sales_delivery:d.delivery||d.sales_delivery||'',contacts:p.contact_public||''})}
   };
   const directionConfig=profileDirections[activeTable];
   if(directionConfig&&(status==='approved'||status==='all')){
