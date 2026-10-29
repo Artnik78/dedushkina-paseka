@@ -238,13 +238,18 @@ function renderRows(){
   schema.fields.forEach(k=>{if(row[k]!==null&&row[k]!==undefined&&row[k]!==''&&tableName!=='beekeeper_map_edit_requests'){const line=document.createElement('div');line.textContent=(displayTitles[k]||k)+': '+displayValue(row[k]);meta.appendChild(line)}});
   if(row.created_at){const line=document.createElement('div');line.textContent='Дата заявки: '+new Date(row.created_at).toLocaleString('ru-RU');meta.appendChild(line)}
   details.appendChild(meta);card.appendChild(details);
-  const actions=document.createElement('div');actions.className='actions';
-  const edit=document.createElement('button');edit.className='btn gray small';edit.textContent='Изменить';edit.addEventListener('click',()=>{if(row.__sourceTable)activeTable=row.__sourceTable;openEditor(row)});actions.appendChild(edit);
-  if(row.status!=='approved'){const approve=document.createElement('button');approve.className='btn green small';approve.textContent='Одобрить';approve.addEventListener('click',()=>setStatus(row,'approved',tableName));actions.appendChild(approve)}
-  if(row.status!=='rejected'){const reject=document.createElement('button');reject.className='btn gray small';reject.textContent='Отклонить';reject.addEventListener('click',()=>setStatus(row,'rejected',tableName));actions.appendChild(reject)}
-  if(row.status!=='pending'&&row.status!==undefined){const pending=document.createElement('button');pending.className='btn gray small';pending.textContent='Вернуть на проверку';pending.addEventListener('click',()=>setStatus(row,'pending',tableName));actions.appendChild(pending)}
-  const del=document.createElement('button');del.className='btn red';del.textContent='Удалить';del.addEventListener('click',()=>removeRow(row,tableName));actions.appendChild(del);
-  card.appendChild(actions);root.appendChild(card);
+  if(!row.__virtualFromProfile){
+   const actions=document.createElement('div');actions.className='actions';
+   const edit=document.createElement('button');edit.className='btn gray small';edit.textContent='Изменить';edit.addEventListener('click',()=>{if(row.__sourceTable)activeTable=row.__sourceTable;openEditor(row)});actions.appendChild(edit);
+   if(row.status!=='approved'){const approve=document.createElement('button');approve.className='btn green small';approve.textContent='Одобрить';approve.addEventListener('click',()=>setStatus(row,'approved',tableName));actions.appendChild(approve)}
+   if(row.status!=='rejected'){const reject=document.createElement('button');reject.className='btn gray small';reject.textContent='Отклонить';reject.addEventListener('click',()=>setStatus(row,'rejected',tableName));actions.appendChild(reject)}
+   if(row.status!=='pending'&&row.status!==undefined){const pending=document.createElement('button');pending.className='btn gray small';pending.textContent='Вернуть на проверку';pending.addEventListener('click',()=>setStatus(row,'pending',tableName));actions.appendChild(pending)}
+   const del=document.createElement('button');del.className='btn red';del.textContent='Удалить';del.addEventListener('click',()=>removeRow(row,tableName));actions.appendChild(del);
+   card.appendChild(actions);
+  }else{
+   const note=document.createElement('p');note.className='hint';note.textContent='Эта анкета опубликована через общий каталог пчеловодов. Изменять её нужно в разделе «Пчеловоды на карте».';card.appendChild(note);
+  }
+  root.appendChild(card);
  });
 }
 async function setStatus(row,status,tableName=activeTable){
