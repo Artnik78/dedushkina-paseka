@@ -270,6 +270,25 @@ function renderRows(){
 }
 async function setStatus(row,status,tableName=activeTable){
  if(!confirm('Изменить статус записи на «'+({pending:'На проверке',approved:'Опубликовано',rejected:'Отклонено'})[status]+'»?'))return;
+ if(tableName==='beekeeper_map_requests'&&status==='approved'){
+  say('appStatus','Проверяем согласие и публикуем пасеку на карте…');
+  const {data:request,error:requestError}=await client.from('beekeeper_map_requests').select('*').eq('id',row.id).single();
+  if(requestError||!request){say('appStatus','Не удалось загрузить заявку: '+(requestError?.message||'запись не найдена'));return}
+  if(request.consent_to_publish!==true){say('appStatus','Нельзя опубликовать заявку: нет согласия на публикацию.');return}
+  const {data:existing,error:existingError}=await client.from('beekeeper_map_profiles').select('id').eq('apiary_name',request.apiary_name).limit(1);
+  if(existingError){say('appStatus','Не удалось проверить опубликованные карточки: '+existingError.message);return}
+  let insertedId=null;
+  if(!existing?.length){
+   const profile={beekeeper_name:request.beekeeper_name||'Пасечник',apiary_name:request.apiary_name,region:request.region,district:request.district,products:request.products||[],description:null,contact_public:request.contact||null,contact_methods:request.contact_methods||[],hive_count:request.hive_count??0,logo_url:request.logo_url||null,website_url:request.website_url||null,latitude:request.latitude??null,longitude:request.longitude??null,directions:Array.isArray(request.directions)&&request.directions.length?request.directions:['beekeeper'],direction_details:request.direction_details&&typeof request.direction_details==='object'?request.direction_details:{},status:'approved',approved_at:new Date().toISOString()};
+   const {data:created,error:createError}=await client.from('beekeeper_map_profiles').insert(profile).select('id').single();
+   if(createError||!created){say('appStatus','Публикация не выполнена: '+(createError?.message||'не удалось создать карточку'));return}
+   insertedId=created.id;
+  }
+  const {error:updateError}=await client.from('beekeeper_map_requests').update({status:'approved'}).eq('id',row.id);
+  if(updateError){if(insertedId)await client.from('beekeeper_map_profiles').delete().eq('id',insertedId);say('appStatus','Не удалось завершить одобрение. Созданная карточка отменена: '+updateError.message);return}
+  say('appStatus',existing?.length?'Заявка одобрена. Карточка уже была на карте.':'Заявка одобрена, пасека опубликована на карте.');
+  await loadRows();return;
+ }
  const patch={status};
  if(['queen_breeder_submissions','bee_package_sellers','honey_plant_sellers'].includes(tableName))patch.reviewed_at=status==='pending'?null:new Date().toISOString();
  if(tableName==='beekeeper_map_profiles')patch.approved_at=status==='approved'?new Date().toISOString():null;
