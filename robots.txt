@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
 
+Sitemap: https://artnik78.github.io/dedushkina-paseka/sitemap.txt
 Sitemap: https://artnik78.github.io/dedushkina-paseka/sitemap.xml
