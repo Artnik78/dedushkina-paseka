@@ -867,6 +867,10 @@ button:focus-visible,a:focus-visible{outline:3px solid #d8a919;outline-offset:2p
 @keyframes uv-flip{0%{transform:rotateX(75deg);opacity:.35}100%{transform:rotateX(0);opacity:1}}
 @media(max-width:700px){.uv-counter{padding:5px 7px;gap:5px}.uv-bee{font-size:19px}.uv-title{font-size:7px}.uv-digit{min-width:15px;height:22px;font-size:15px}}
 @media(prefers-reduced-motion:reduce){.uv-digit{animation:none}}
+</style><style id="counter-visible-fix">
+.uv-counter{position:fixed!important;top:12px!important;right:12px!important;z-index:10020!important;display:inline-flex!important;visibility:visible!important;opacity:1!important}
+.uv-counter.uv-unavailable{opacity:.9}
+@media(max-width:700px){.uv-counter{top:8px!important;right:8px!important;transform:scale(.92);transform-origin:top right}}
 </style></head><body>
 <a class="cross-project-banner" href="../journal/" aria-label="Перейти в цифровой журнал пасечника"><span class="cross-icon" aria-hidden="true">🐝 🍯</span><span class="cross-copy"><span class="cross-title">Цифровой журнал пасечника</span><span class="cross-subtitle">Ульи · Осмотры · Обработки · Мёд · Отчёты</span></span><span class="cross-cta">Перейти в журнал <span aria-hidden="true">➜</span></span></a>
 <header class="hero hero-image"><img class="hero-art" src="https://raw.githubusercontent.com/Artnik78/dedushkina-paseka/fix/beekeeper-map-districts/karta-pchelovodov/header-pchelovody.png" alt="Карта беларускіх пчаляроў: пчела на цветах, мёд и белорусский пейзаж"></header>
@@ -1177,9 +1181,17 @@ window.addEventListener('load',()=>setTimeout(()=>map.invalidateSize({pan:false}
     body:JSON.stringify({p_site_key:siteKey,p_visitor_id:visitorId()}),
     cache:'no-store'
   }).then(function(response){
-    if(!response.ok)throw new Error('Counter unavailable');
-    return response.json();
-  }).then(showCount).catch(function(){widget.classList.add('uv-unavailable')});
+    if(!response.ok)throw new Error('Counter unavailable: '+response.status);
+    return response.text();
+  }).then(function(raw){
+    var value=JSON.parse(raw);
+    if(Array.isArray(value))value=value.length?value[0]:0;
+    showCount(value);
+  }).catch(function(error){
+    widget.classList.add('uv-unavailable');
+    if(output)output.textContent='—';
+    console.warn('Счётчик гостей временно недоступен:',error);
+  });
 })();
 </script>
 
