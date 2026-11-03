@@ -1627,20 +1627,26 @@ footer{border-top:1px solid rgba(233,215,184,.18);line-height:1.6}
  function paint(){button.textContent=enabled?'🐝 🔊':'🐝 🔇';button.setAttribute('aria-pressed',String(enabled));button.setAttribute('aria-label',enabled?'Отключить жужжание пчелы':'Включить жужжание пчелы');button.title=enabled?'Звук пчелы включён':'Звук пчелы выключен'}
  function buzz(){
   if(!enabled||started)return;started=true;
-  var AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
+  var AC=window.AudioContext||window.webkitAudioContext;if(!AC){started=false;return}
   try{
-   var ctx=new AC();if(ctx.state==='suspended')ctx.resume();
-   var now=ctx.currentTime,duration=2.15;
-   var master=ctx.createGain();master.gain.setValueAtTime(0.0001,now);master.gain.exponentialRampToValueAtTime(0.045,now+0.12);master.gain.setValueAtTime(0.035,now+1.45);master.gain.exponentialRampToValueAtTime(0.0001,now+duration);master.connect(ctx.destination);
-   var filter=ctx.createBiquadFilter();filter.type='lowpass';filter.frequency.value=950;filter.Q.value=0.7;filter.connect(master);
-   [178,184,356].forEach(function(freq,index){
-    var osc=ctx.createOscillator(),gain=ctx.createGain();osc.type=index===2?'triangle':'sawtooth';osc.frequency.setValueAtTime(freq,now);osc.frequency.linearRampToValueAtTime(freq+(index===2?7:4),now+duration);gain.gain.value=index===2?0.12:0.28;osc.connect(gain);gain.connect(filter);osc.start(now);osc.stop(now+duration);
-   });
-   var lfo=ctx.createOscillator(),lfoGain=ctx.createGain();lfo.frequency.value=27;lfoGain.gain.value=0.008;lfo.connect(lfoGain);lfoGain.connect(master.gain);lfo.start(now);lfo.stop(now+duration);
-   window.setTimeout(function(){ctx.close().catch(function(){})},2600);
-  }catch(e){console.warn('Не удалось воспроизвести звук пчелы',e)}
+   var ctx=new AC();
+   var play=function(){
+    var now=ctx.currentTime,duration=2.25;
+    var master=ctx.createGain();master.gain.setValueAtTime(0.0001,now);master.gain.exponentialRampToValueAtTime(0.14,now+0.14);master.gain.setValueAtTime(0.12,now+1.55);master.gain.exponentialRampToValueAtTime(0.0001,now+duration);master.connect(ctx.destination);
+    var filter=ctx.createBiquadFilter();filter.type='lowpass';filter.frequency.value=1450;filter.Q.value=0.8;filter.connect(master);
+    [165,172,330,495].forEach(function(freq,index){
+     var osc=ctx.createOscillator(),gain=ctx.createGain();osc.type=index===2?'triangle':'sawtooth';osc.frequency.setValueAtTime(freq,now);osc.frequency.linearRampToValueAtTime(freq+(index===2?9:5),now+duration);gain.gain.value=index===3?0.08:(index===2?0.16:0.34);osc.connect(gain);gain.connect(filter);osc.start(now);osc.stop(now+duration);
+    });
+    var lfo=ctx.createOscillator(),lfoGain=ctx.createGain();lfo.frequency.value=31;lfoGain.gain.value=0.018;lfo.connect(lfoGain);lfoGain.connect(master.gain);lfo.start(now);lfo.stop(now+duration);
+    window.setTimeout(function(){ctx.close().catch(function(){})},2700);
+   };
+   if(ctx.state==='suspended')ctx.resume().then(play).catch(function(){started=false});else play();
+  }catch(e){started=false;console.warn('Не удалось воспроизвести звук пчелы',e)}
  }
- function firstGesture(){if(enabled)buzz();window.removeEventListener('pointerdown',firstGesture,true);window.removeEventListener('keydown',firstGesture,true);window.removeEventListener('touchstart',firstGesture,true)}
+ function firstGesture(event){
+  if(enabled&&event&&event.target!==button)buzz();
+  window.removeEventListener('pointerdown',firstGesture,true);window.removeEventListener('keydown',firstGesture,true);window.removeEventListener('touchstart',firstGesture,true);
+ }
  window.addEventListener('pointerdown',firstGesture,true);window.addEventListener('keydown',firstGesture,true);window.addEventListener('touchstart',firstGesture,true);
  button.addEventListener('click',function(){enabled=!enabled;try{localStorage.setItem(storageKey,String(enabled))}catch(e){}started=false;paint();if(enabled)buzz()});
  paint();
