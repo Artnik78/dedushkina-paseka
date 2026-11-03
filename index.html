@@ -1605,9 +1605,47 @@ footer{border-top:1px solid rgba(233,215,184,.18);line-height:1.6}
 @keyframes uv-flip{0%{transform:rotateX(75deg);opacity:.35}100%{transform:rotateX(0);opacity:1}}
 @media(max-width:700px){.uv-counter{padding:5px 7px;gap:5px}.uv-bee{font-size:19px}.uv-title{font-size:7px}.uv-digit{min-width:15px;height:22px;font-size:15px}}
 @media(prefers-reduced-motion:reduce){.uv-digit{animation:none}}
+</style><style id="counter-visible-fix">
+.uv-counter{position:fixed!important;top:12px!important;right:12px!important;z-index:10020!important;display:inline-flex!important;visibility:visible!important;opacity:1!important}
+.uv-counter.uv-unavailable{opacity:.9}
+@media(max-width:700px){.uv-counter{top:8px!important;right:8px!important;transform:scale(.92);transform-origin:top right}}
 </style></head><body>
 <div class="top"><div class="wrap topinner"><a class="brand" href="#home"><span class="bee">🐝</span><span><strong>Дедушкина пасека</strong><small>НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</small></span></a><nav class="nav"><a href="#home">Главная</a><a href="#about">О пасеке</a><a href="#catalog">Каталог</a><a href="#gifts">🎁 Подарочные наборы</a><a href="#info">Полезная информация</a><a href="#delivery">Доставка</a><a href="#contacts">Контакты</a></nav><div class="uv-counter" data-site-counter="shop" aria-label="Уникальные посетители магазина"><span class="uv-bee" aria-hidden="true">🐝</span><span class="uv-copy"><span class="uv-title">ГОСТИ ПАСЕКИ</span><span class="uv-total" data-counter-value aria-live="polite"><span class="uv-digit">0</span></span></span></div></div></div>
-<header class="hero" id="home"><div class="herobox"><div class="hero-kicker">🐝 СЕМЕЙНАЯ ПАСЕКА · КЛЕЦКИЙ РАЙОН</div><h1>Дедушкина пасека</h1><div class="ornament">── 🐝 ──</div><p class="sub">НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</p><p class="motto">Мёд и продукты пчеловодства с заботой о природе</p><div class="virtues"><div><span>♧</span>Натурально<br/>и полезно</div><div><span>⬡</span>Собственное<br/>производство</div><div><span>♡</span>Традиции<br/>и качество</div></div></div></header>
+<button type="button" id="beeSoundToggle" class="bee-sound-toggle" aria-label="Отключить жужжание пчелы" aria-pressed="true" title="Звук пчелы">🐝 🔊</button>
+<style id="bee-sound-style">
+.bee-sound-toggle{position:fixed;top:68px;right:12px;z-index:10019;border:1px solid #b98a43;border-radius:22px;padding:8px 12px;background:linear-gradient(135deg,#4b2f19,#6b4826);color:#fff1cf;font:600 14px Arial,sans-serif;box-shadow:0 2px 8px #39251435;cursor:pointer}
+.bee-sound-toggle:focus-visible{outline:3px solid #d6a94d;outline-offset:3px}
+@media(max-width:700px){.bee-sound-toggle{top:57px;right:8px;padding:7px 10px;font-size:13px}}
+</style>
+<script>
+(function(){
+ var button=document.getElementById('beeSoundToggle');if(!button)return;
+ var storageKey='dedushkina_bee_sound_enabled';
+ var enabled=true;
+ try{var saved=localStorage.getItem(storageKey);if(saved!==null)enabled=saved==='true'}catch(e){}
+ var started=false;
+ function paint(){button.textContent=enabled?'🐝 🔊':'🐝 🔇';button.setAttribute('aria-pressed',String(enabled));button.setAttribute('aria-label',enabled?'Отключить жужжание пчелы':'Включить жужжание пчелы');button.title=enabled?'Звук пчелы включён':'Звук пчелы выключен'}
+ function buzz(){
+  if(!enabled||started)return;started=true;
+  var AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
+  try{
+   var ctx=new AC();if(ctx.state==='suspended')ctx.resume();
+   var now=ctx.currentTime,duration=2.15;
+   var master=ctx.createGain();master.gain.setValueAtTime(0.0001,now);master.gain.exponentialRampToValueAtTime(0.045,now+0.12);master.gain.setValueAtTime(0.035,now+1.45);master.gain.exponentialRampToValueAtTime(0.0001,now+duration);master.connect(ctx.destination);
+   var filter=ctx.createBiquadFilter();filter.type='lowpass';filter.frequency.value=950;filter.Q.value=0.7;filter.connect(master);
+   [178,184,356].forEach(function(freq,index){
+    var osc=ctx.createOscillator(),gain=ctx.createGain();osc.type=index===2?'triangle':'sawtooth';osc.frequency.setValueAtTime(freq,now);osc.frequency.linearRampToValueAtTime(freq+(index===2?7:4),now+duration);gain.gain.value=index===2?0.12:0.28;osc.connect(gain);gain.connect(filter);osc.start(now);osc.stop(now+duration);
+   });
+   var lfo=ctx.createOscillator(),lfoGain=ctx.createGain();lfo.frequency.value=27;lfoGain.gain.value=0.008;lfo.connect(lfoGain);lfoGain.connect(master.gain);lfo.start(now);lfo.stop(now+duration);
+   window.setTimeout(function(){ctx.close().catch(function(){})},2600);
+  }catch(e){console.warn('Не удалось воспроизвести звук пчелы',e)}
+ }
+ function firstGesture(){if(enabled)buzz();window.removeEventListener('pointerdown',firstGesture,true);window.removeEventListener('keydown',firstGesture,true);window.removeEventListener('touchstart',firstGesture,true)}
+ window.addEventListener('pointerdown',firstGesture,true);window.addEventListener('keydown',firstGesture,true);window.addEventListener('touchstart',firstGesture,true);
+ button.addEventListener('click',function(){enabled=!enabled;try{localStorage.setItem(storageKey,String(enabled))}catch(e){}started=false;paint();if(enabled)buzz()});
+ paint();
+})();
+</script>\n<header class="hero" id="home"><div class="herobox"><div class="hero-kicker">🐝 СЕМЕЙНАЯ ПАСЕКА · КЛЕЦКИЙ РАЙОН</div><h1>Дедушкина пасека</h1><div class="ornament">── 🐝 ──</div><p class="sub">НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</p><p class="motto">Мёд и продукты пчеловодства с заботой о природе</p><div class="virtues"><div><span>♧</span>Натурально<br/>и полезно</div><div><span>⬡</span>Собственное<br/>производство</div><div><span>♡</span>Традиции<br/>и качество</div></div></div></header>
 <section class="catalog" id="catalog"><div class="wrap"><h2 class="heading">── Каталог продукции ──</h2><div class="cards">
 <a class="tile" href="#honey"><img alt="Натуральный мёд" src="images/honey.jpg"/><span class="name">Натуральный мёд <span class="arrow">›</span></span></a>
 <a class="tile" href="#cream"><img alt="Взбитый мёд с мятой" src="images/cream-mint.png?v=20261016"/><span class="name">Взбитый мёд <span class="arrow">›</span></span></a>
@@ -2374,9 +2412,17 @@ document.addEventListener('DOMContentLoaded',function(){
     body:JSON.stringify({p_site_key:siteKey,p_visitor_id:visitorId()}),
     cache:'no-store'
   }).then(function(response){
-    if(!response.ok)throw new Error('Counter unavailable');
-    return response.json();
-  }).then(showCount).catch(function(){widget.classList.add('uv-unavailable')});
+    if(!response.ok)throw new Error('Counter unavailable: '+response.status);
+    return response.text();
+  }).then(function(raw){
+    var value=JSON.parse(raw);
+    if(Array.isArray(value))value=value.length?value[0]:0;
+    showCount(value);
+  }).catch(function(error){
+    widget.classList.add('uv-unavailable');
+    if(output)output.textContent='—';
+    console.warn('Счётчик гостей временно недоступен:',error);
+  });
 })();
 </script>
 
