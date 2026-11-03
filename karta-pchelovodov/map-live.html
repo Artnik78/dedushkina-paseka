@@ -856,12 +856,23 @@ button:focus-visible,a:focus-visible{outline:3px solid #d8a919;outline-offset:2p
  .left-panel,.right-panel{padding:10px!important}
  .leaflet-control-zoom{margin:7px!important}
 }
+</style><style id="unique-visitor-counter">
+/* Медовый перекидной счётчик уникальных посетителей */
+.uv-counter{display:inline-flex;align-items:center;gap:7px;flex:0 0 auto;padding:6px 9px;border:1px solid #b98a43;border-radius:9px;background:linear-gradient(135deg,#4b2f19,#6b4826);box-shadow:inset 0 0 0 1px rgba(255,245,215,.12),0 2px 6px rgba(45,27,10,.18);color:#f8e8c4;text-decoration:none;white-space:nowrap;line-height:1}
+.uv-bee{font-size:22px;filter:drop-shadow(0 1px 1px #1d1209)}
+.uv-copy{display:flex;flex-direction:column;gap:4px;align-items:flex-start}
+.uv-title{font:700 8px/1 Arial,sans-serif;letter-spacing:1.1px;color:#f1d59a}
+.uv-total{display:flex;gap:2px;align-items:center;min-height:25px}
+.uv-digit{position:relative;display:inline-grid;place-items:center;min-width:17px;height:25px;padding:0 2px;border:1px solid #d5b77d;border-radius:3px;background:linear-gradient(180deg,#fff4d9 0%,#f0d7a5 48%,#d8b879 50%,#f6e5c2 100%);box-shadow:0 1px 2px #1b1008;color:#4b3018;font:700 17px/1 Georgia,serif;text-shadow:0 1px #fff8;animation:uv-flip .32s ease both}
+@keyframes uv-flip{0%{transform:rotateX(75deg);opacity:.35}100%{transform:rotateX(0);opacity:1}}
+@media(max-width:700px){.uv-counter{padding:5px 7px;gap:5px}.uv-bee{font-size:19px}.uv-title{font-size:7px}.uv-digit{min-width:15px;height:22px;font-size:15px}}
+@media(prefers-reduced-motion:reduce){.uv-digit{animation:none}}
 </style></head><body>
 <a class="cross-project-banner" href="../journal/" aria-label="Перейти в цифровой журнал пасечника"><span class="cross-icon" aria-hidden="true">🐝 🍯</span><span class="cross-copy"><span class="cross-title">Цифровой журнал пасечника</span><span class="cross-subtitle">Ульи · Осмотры · Обработки · Мёд · Отчёты</span></span><span class="cross-cta">Перейти в журнал <span aria-hidden="true">➜</span></span></a>
 <header class="hero hero-image"><img class="hero-art" src="https://raw.githubusercontent.com/Artnik78/dedushkina-paseka/fix/beekeeper-map-districts/karta-pchelovodov/header-pchelovody.png" alt="Карта беларускіх пчаляроў: пчела на цветах, мёд и белорусский пейзаж"></header>
 
 
-<nav aria-label="Навигация"><a href="#map-section" aria-label="Главная карта пчеловодов">🗺️ Главная карта</a><a class="active" href="#map-section">🗺️ Карта</a><a href="#directory">👥 Пчеловоды</a><a href="matkovody.html">👑 Матководы</a><a href="pchelopakety.html">🐝 Продажа пчелопакетов</a><a href="medonosy.html">🌼 Медоносы</a><a href="konkurs-meda.html">🏆 Победители конкурса мёда</a><a href="my-apiary.html">👤 Моя пасека</a><a href="community.html">💬 Сообщество</a><a href="mellimap.html" aria-label="Открыть помощник Mellimap для анализа территории Беларуси">🌿 Анализ территории</a><button type="button" class="add-link" id="openAddForm" onclick="(function(){var m=document.getElementById('addModal');if(!m)return;m.hidden=false;document.body.classList.add('modal-open');m.setAttribute('aria-hidden','false');var f=document.getElementById('name');if(f)f.focus();setTimeout(function(){if(typeof window.initApiaryMapForForm==='function')window.initApiaryMapForForm()},250)})()">＋ Добавить пасеку</button></nav>
+<nav aria-label="Навигация"><a href="#map-section" aria-label="Главная карта пчеловодов">🗺️ Главная карта</a><a class="active" href="#map-section">🗺️ Карта</a><a href="#directory">👥 Пчеловоды</a><a href="matkovody.html">👑 Матководы</a><a href="pchelopakety.html">🐝 Продажа пчелопакетов</a><a href="medonosy.html">🌼 Медоносы</a><a href="konkurs-meda.html">🏆 Победители конкурса мёда</a><a href="my-apiary.html">👤 Моя пасека</a><a href="community.html">💬 Сообщество</a><a href="mellimap.html" aria-label="Открыть помощник Mellimap для анализа территории Беларуси">🌿 Анализ территории</a><button type="button" class="add-link" id="openAddForm" onclick="(function(){var m=document.getElementById('addModal');if(!m)return;m.hidden=false;document.body.classList.add('modal-open');m.setAttribute('aria-hidden','false');var f=document.getElementById('name');if(f)f.focus();setTimeout(function(){if(typeof window.initApiaryMapForForm==='function')window.initApiaryMapForForm()},250)})()">＋ Добавить пасеку</button><div class="uv-counter" data-site-counter="map" aria-label="Уникальные посетители карты"><span class="uv-bee" aria-hidden="true">🐝</span><span class="uv-copy"><span class="uv-title">ГОСТИ КАРТЫ</span><span class="uv-total" data-counter-value aria-live="polite"><span class="uv-digit">0</span></span></span></div></nav>
 <main>
 <div class="workspace">
 <aside class="panel filters-panel directory-panel-collapsed filters-collapsed" id="directory"><div class="filters-mobile-head"><h2>🔎 Найти пасеку <span id="mobileResultsCount" class="mobile-results-count" aria-live="polite"></span></h2><button type="button" id="collapseDirectoryPanel" class="directory-collapse-btn" aria-expanded="false" aria-label="Развернуть окно поиска" onclick="var p=document.getElementById('directory'),c=document.getElementById('filterControls'),v=p.querySelector('.mobile-view-switch'),expand=this.getAttribute('aria-expanded')!=='true';p.classList.toggle('directory-panel-collapsed',!expand);p.classList.toggle('filters-collapsed',!expand);if(c)c.style.setProperty('display',expand?'block':'none','important');if(v)v.style.setProperty('display',expand?'flex':'none','important');this.setAttribute('aria-expanded',String(expand));this.setAttribute('aria-label',expand?'Свернуть окно поиска':'Развернуть окно поиска');this.textContent=expand?'−':'+';">+</button><div class="mobile-view-switch" role="group" aria-label="Вид каталога"><button type="button" id="mobileMapView" class="active" aria-pressed="true">Карта</button><button type="button" id="mobileListView" aria-pressed="false">Список</button></div><button type="button" id="toggleMobileFilters" class="mobile-filter-toggle" aria-expanded="true" aria-controls="filterControls">Фильтры <span aria-hidden="true">⌄</span></button></div><div id="filterControls" class="filter-controls">
@@ -1114,6 +1125,61 @@ window.addEventListener('load',()=>setTimeout(()=>map.invalidateSize({pan:false}
  }
  placeFeaturedPanel();
  window.addEventListener('resize',placeFeaturedPanel,{passive:true});
+})();
+</script>
+
+
+<script>
+/* Независимый счётчик уникальных браузеров для каждого раздела сайта. */
+(function(){
+  var widget=document.querySelector('[data-site-counter]');
+  if(!widget)return;
+  var siteKey=widget.getAttribute('data-site-counter');
+  var projectUrl='https://uycjzsttxhtwochgghrs.supabase.co';
+  var publishableKey='sb_publishable_ySg6j14PYR-uhz_Od9WeCQ_IP0WTY7t';
+  var output=widget.querySelector('[data-counter-value]');
+  function makeId(){
+    var c=window.crypto;
+    if(c&&typeof c.randomUUID==='function')return c.randomUUID();
+    if(c&&typeof c.getRandomValues==='function'){
+      var b=new Uint8Array(16);c.getRandomValues(b);
+      b[6]=(b[6]&15)|64;b[8]=(b[8]&63)|128;
+      var h=Array.from(b,function(x){return x.toString(16).padStart(2,'0')}).join('');
+      return h.slice(0,8)+'-'+h.slice(8,12)+'-'+h.slice(12,16)+'-'+h.slice(16,20)+'-'+h.slice(20);
+    }
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,function(ch){var r=Math.random()*16|0;return(ch==='x'?r:(r&3|8)).toString(16)});
+  }
+  function visitorId(){
+    var key='dedushkina_unique_visitor_'+siteKey;
+    try{
+      var id=localStorage.getItem(key);
+      if(!id){id=makeId();localStorage.setItem(key,id)}
+      return id;
+    }catch(e){
+      try{var sid=sessionStorage.getItem(key);if(!sid){sid=makeId();sessionStorage.setItem(key,sid)}return sid}
+      catch(e2){return makeId()}
+    }
+  }
+  function showCount(value){
+    var count=String(value==null?0:value).replace(/[^0-9]/g,'')||'0';
+    if(output.getAttribute('data-value')===count)return;
+    output.setAttribute('data-value',count);
+    output.textContent='';
+    for(var i=0;i<count.length;i++){
+      var digit=document.createElement('span');
+      digit.className='uv-digit';digit.textContent=count.charAt(i);
+      output.appendChild(digit);
+    }
+  }
+  fetch(projectUrl+'/rest/v1/rpc/register_site_unique_visitor',{
+    method:'POST',
+    headers:{'apikey':publishableKey,'Authorization':'Bearer '+publishableKey,'Content-Type':'application/json'},
+    body:JSON.stringify({p_site_key:siteKey,p_visitor_id:visitorId()}),
+    cache:'no-store'
+  }).then(function(response){
+    if(!response.ok)throw new Error('Counter unavailable');
+    return response.json();
+  }).then(showCount).catch(function(){widget.classList.add('uv-unavailable')});
 })();
 </script>
 
