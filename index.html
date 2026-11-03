@@ -1605,10 +1605,12 @@ footer{border-top:1px solid rgba(233,215,184,.18);line-height:1.6}
 @keyframes uv-flip{0%{transform:rotateX(75deg);opacity:.35}100%{transform:rotateX(0);opacity:1}}
 @media(max-width:700px){.uv-counter{padding:5px 7px;gap:5px}.uv-bee{font-size:19px}.uv-title{font-size:7px}.uv-digit{min-width:15px;height:22px;font-size:15px}}
 @media(prefers-reduced-motion:reduce){.uv-digit{animation:none}}
-</style><style id="counter-visible-fix">
-.uv-counter{position:fixed!important;top:12px!important;right:12px!important;z-index:10020!important;display:inline-flex!important;visibility:visible!important;opacity:1!important}
-.uv-counter.uv-unavailable{opacity:.9}
-@media(max-width:700px){.uv-counter{top:8px!important;right:8px!important;transform:scale(.92);transform-origin:top right}}
+</style><style id="counter-layout-fix">
+/* Счётчик занимает место в шапке и не перекрывает ссылки меню. */
+.uv-counter{position:static!important;top:auto!important;right:auto!important;transform:none!important;z-index:auto!important;visibility:visible!important;opacity:1!important;margin-left:12px;flex:0 0 auto}
+@media(min-width:1101px){.topinner{display:grid!important;grid-template-columns:auto minmax(0,1fr) auto!important;align-items:center!important;column-gap:18px!important}.topinner .nav{min-width:0;justify-content:center;gap:clamp(8px,1.25vw,20px);flex-wrap:wrap}.topinner .uv-counter{margin-left:0}}
+@media(max-width:1100px){.topinner .uv-counter{margin:4px auto 0;order:3}}
+@media(max-width:700px){.topinner .uv-counter{grid-column:2;grid-row:1;justify-self:end;align-self:center;margin:0;transform:scale(.88)!important;transform-origin:right center}.topinner .nav{grid-column:1/-1;grid-row:2}}
 </style></head><body>
 <div class="top"><div class="wrap topinner"><a class="brand" href="#home"><span class="bee">🐝</span><span><strong>Дедушкина пасека</strong><small>НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</small></span></a><nav class="nav"><a href="#home">Главная</a><a href="#about">О пасеке</a><a href="#catalog">Каталог</a><a href="#gifts">🎁 Подарочные наборы</a><a href="#info">Полезная информация</a><a href="#delivery">Доставка</a><a href="#contacts">Контакты</a></nav><div class="uv-counter" data-site-counter="shop" aria-label="Уникальные посетители магазина"><span class="uv-bee" aria-hidden="true">🐝</span><span class="uv-copy"><span class="uv-title">ГОСТИ ПАСЕКИ</span><span class="uv-total" data-counter-value aria-live="polite"><span class="uv-digit">0</span></span></span></div></div></div>
 <header class="hero" id="home"><div class="herobox"><div class="hero-kicker">🐝 СЕМЕЙНАЯ ПАСЕКА · КЛЕЦКИЙ РАЙОН</div><h1>Дедушкина пасека</h1><div class="ornament">── 🐝 ──</div><p class="sub">НАТУРАЛЬНЫЕ ПРОДУКТЫ ПЧЕЛОВОДСТВА</p><p class="motto">Мёд и продукты пчеловодства с заботой о природе</p><div class="virtues"><div><span>♧</span>Натурально<br/>и полезно</div><div><span>⬡</span>Собственное<br/>производство</div><div><span>♡</span>Традиции<br/>и качество</div></div></div></header>
