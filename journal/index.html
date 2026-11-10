@@ -975,6 +975,15 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
         <p><b>Мои ульи:</b> <span id="settingsHiveCount">0</span></p>
         <div class="actions"><button class="btn secondary" id="refreshBtn">Обновить данные</button></div>
       </div>
+      <div class="panel" id="shareJournalPanel">
+        <h3>🔗 Поделиться журналом</h3>
+        <p class="muted">Отправьте ссылку на цифровой журнал другим пчеловодам через Telegram, Viber, WhatsApp, SMS или любое другое приложение.</p>
+        <div class="actions">
+          <button class="btn gold" type="button" id="shareJournalBtn">↗ Поделиться ссылкой</button>
+          <button class="btn secondary" type="button" id="copyJournalLinkBtn">Копировать ссылку</button>
+        </div>
+        <p id="shareJournalStatus" class="muted" role="status" aria-live="polite">Личные записи, пароли и данные пасеки не передаются — отправляется только адрес журнала.</p>
+      </div>
       <div class="panel" id="pushNotificationsPanel">
         <h3>🔔 Уведомления на телефон</h3>
         <p class="muted">Разрешите уведомления в Chrome на Android. После настройки push-уведомления смогут приходить, даже когда журнал закрыт.</p>
@@ -1999,6 +2008,57 @@ $('restoreRunBtn')?.addEventListener('click',async()=>{
 
 $('exportJsonBtn')?.addEventListener('click',exportJson);
 document.querySelectorAll('.export-csv').forEach(b=>b.addEventListener('click',()=>exportCsv(b.dataset.export)));
+
+// Отправляем только чистую ссылку на журнал, без параметров и фрагментов URL.
+function getCleanJournalShareUrl(){
+  const url=new URL(window.location.href);
+  url.search='';
+  url.hash='';
+  return url.href;
+}
+async function copyJournalShareUrl(){
+  const url=getCleanJournalShareUrl();
+  try{
+    if(navigator.clipboard?.writeText){
+      await navigator.clipboard.writeText(url);
+    }else{
+      const field=document.createElement('textarea');
+      field.value=url;
+      field.setAttribute('readonly','');
+      field.style.position='fixed';
+      field.style.opacity='0';
+      document.body.appendChild(field);
+      field.select();
+      const copied=document.execCommand('copy');
+      field.remove();
+      if(!copied)throw new Error('Браузер не разрешил копирование');
+    }
+    const status=$('shareJournalStatus');
+    if(status)status.textContent='Ссылка скопирована. Теперь её можно вставить в сообщение.';
+    toast('Ссылка на журнал скопирована');
+  }catch(e){
+    const status=$('shareJournalStatus');
+    if(status)status.textContent='Не удалось скопировать автоматически. Скопируйте адрес журнала из адресной строки браузера.';
+    toast('Не удалось скопировать ссылку');
+  }
+}
+$('shareJournalBtn')?.addEventListener('click',async()=>{
+  const url=getCleanJournalShareUrl();
+  const shareData={title:'Цифровой журнал пасечника',text:'Откройте цифровой журнал пасечника:',url};
+  if(navigator.share){
+    try{
+      await navigator.share(shareData);
+      const status=$('shareJournalStatus');
+      if(status)status.textContent='Меню отправки открыто. Выберите Telegram, Viber или другое приложение.';
+    }catch(e){
+      if(e?.name!=='AbortError')toast('Не удалось открыть меню отправки');
+    }
+  }else{
+    await copyJournalShareUrl();
+  }
+});
+$('copyJournalLinkBtn')?.addEventListener('click',copyJournalShareUrl);
+
 if($('saveJournalDisplayNameBtn')) $('saveJournalDisplayNameBtn').onclick=async()=>{
   const input=$('journalDisplayName');
   const value=(input?.value||'').trim();
