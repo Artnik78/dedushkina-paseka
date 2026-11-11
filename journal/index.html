@@ -1253,7 +1253,7 @@ function exportCsv(key){
 }
 function exportJson(){
   const copy={exported_at:new Date().toISOString(),journal_name:$('sidebarJournalName')?.textContent||'Дедушкина пасека',
-    apiaries:state.apiaries,contacts:state.contacts||[],hives:state.hives,inspections:state.inspections,workLogs:state.workLogs||[],hiveMovements:state.hiveMovements||[],health:state.health,treatments:state.treatments,queens:state.queens,queenBatches:state.queenBatches,colonyOperations:state.colonyOperations,waxOperations:state.waxOperations,apiaryProductsOperations:state.apiaryProductsOperations,
+    apiaries:state.apiaries,contacts:state.contacts||[],hives:state.hives,hiveWeightReadings:state.hiveWeightReadings||[],inspections:state.inspections,workLogs:state.workLogs||[],hiveMovements:state.hiveMovements||[],health:state.health,treatments:state.treatments,queens:state.queens,queenBatches:state.queenBatches,colonyOperations:state.colonyOperations,waxOperations:state.waxOperations,apiaryProductsOperations:state.apiaryProductsOperations,
     honey:state.honey,honeySales:state.honeySales,tasks:state.tasks,finance:state.finance,medicines:state.medicines,medicineStockMovements:state.medicineStockMovements,disinfection:state.disinfection,beeFamilies:state.beeFamilies,photos:state.photos};
   downloadFile('dedushkina-paseka-backup-'+today()+'.json',JSON.stringify(copy,null,2),'application/json;charset=utf-8');
   toast('Копия журнала подготовлена');
