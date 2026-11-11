@@ -79,7 +79,7 @@ create policy hive_weight_readings_delete_own
 drop policy if exists hive_weight_readings_journal_access_gate on public.hive_weight_readings;
 create policy hive_weight_readings_journal_access_gate
   on public.hive_weight_readings as restrictive for all to authenticated
-  using ((select public.journal_access_enabled()))
-  with check ((select public.journal_access_enabled()));
+  using ((select public.is_journal_user_allowed()))
+  with check ((select public.is_journal_user_allowed()));
 
 grant select, insert, update, delete on public.hive_weight_readings to authenticated;
