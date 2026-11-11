@@ -4,11 +4,11 @@
 
 create table if not exists public.hive_weight_readings (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid not null default auth.uid(),
+  user_id uuid not null default auth.uid() references auth.users(id) on delete cascade,
   apiary_id uuid not null references public.apiaries(id) on delete cascade,
   hive_id uuid not null references public.hives(id) on delete cascade,
   measured_at timestamptz not null default now(),
-  weight_kg numeric(10,2) not null check (weight_kg > 0),
+  weight_kg numeric(10,2) not null check (weight_kg > 0 and weight_kg < 1000),
   scale_type text not null default 'mechanical'
     check (scale_type in ('mechanical', 'electronic', 'bluetooth')),
   reading_method text not null default 'manual'
@@ -60,7 +60,14 @@ create policy hive_weight_readings_insert_own
 drop policy if exists hive_weight_readings_update_own on public.hive_weight_readings;
 create policy hive_weight_readings_update_own
   on public.hive_weight_readings for update to authenticated
-  using (user_id = (select auth.uid()))
+  using (
+    user_id = (select auth.uid())
+    and exists (
+      select 1 from public.hives h
+      where h.id = hive_weight_readings.hive_id
+        and h.user_id = (select auth.uid())
+    )
+  )
   with check (
     user_id = (select auth.uid())
     and exists (
@@ -68,6 +75,11 @@ create policy hive_weight_readings_update_own
       where h.id = hive_weight_readings.hive_id
         and h.user_id = (select auth.uid())
         and h.apiary_id = hive_weight_readings.apiary_id
+    )
+    and exists (
+      select 1 from public.apiaries a
+      where a.id = hive_weight_readings.apiary_id
+        and a.user_id = (select auth.uid())
     )
   );
 
