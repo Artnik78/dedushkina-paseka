@@ -242,3 +242,33 @@ ALTER POLICY community_storage_moderator_read ON storage.objects
     AND EXISTS (SELECT 1 FROM public.community_moderators m
                 WHERE m.user_id = (SELECT auth.uid()))
   );
+
+-- Moderator override policies are permissive too, so each must carry the
+-- same approved-account gate rather than bypassing the regular read policy.
+ALTER POLICY community_posts_moderator_read ON public.community_posts
+  USING (EXISTS (SELECT 1 FROM public.journal_users ju WHERE ju.user_id=(SELECT auth.uid()) AND ju.allowed=true)
+     AND EXISTS (SELECT 1 FROM public.community_moderators m WHERE m.user_id=(SELECT auth.uid())));
+ALTER POLICY community_posts_moderator_update ON public.community_posts
+  USING (EXISTS (SELECT 1 FROM public.journal_users ju WHERE ju.user_id=(SELECT auth.uid()) AND ju.allowed=true)
+     AND EXISTS (SELECT 1 FROM public.community_moderators m WHERE m.user_id=(SELECT auth.uid())))
+  WITH CHECK (EXISTS (SELECT 1 FROM public.journal_users ju WHERE ju.user_id=(SELECT auth.uid()) AND ju.allowed=true)
+     AND EXISTS (SELECT 1 FROM public.community_moderators m WHERE m.user_id=(SELECT auth.uid())));
+ALTER POLICY community_posts_moderator_delete ON public.community_posts
+  USING (EXISTS (SELECT 1 FROM public.journal_users ju WHERE ju.user_id=(SELECT auth.uid()) AND ju.allowed=true)
+     AND EXISTS (SELECT 1 FROM public.community_moderators m WHERE m.user_id=(SELECT auth.uid())));
+
+ALTER POLICY community_comments_moderator_read ON public.community_comments
+  USING (EXISTS (SELECT 1 FROM public.journal_users ju WHERE ju.user_id=(SELECT auth.uid()) AND ju.allowed=true)
+     AND EXISTS (SELECT 1 FROM public.community_moderators m WHERE m.user_id=(SELECT auth.uid())));
+ALTER POLICY community_comments_moderator_update ON public.community_comments
+  USING (EXISTS (SELECT 1 FROM public.journal_users ju WHERE ju.user_id=(SELECT auth.uid()) AND ju.allowed=true)
+     AND EXISTS (SELECT 1 FROM public.community_moderators m WHERE m.user_id=(SELECT auth.uid())))
+  WITH CHECK (EXISTS (SELECT 1 FROM public.journal_users ju WHERE ju.user_id=(SELECT auth.uid()) AND ju.allowed=true)
+     AND EXISTS (SELECT 1 FROM public.community_moderators m WHERE m.user_id=(SELECT auth.uid())));
+ALTER POLICY community_comments_moderator_delete ON public.community_comments
+  USING (EXISTS (SELECT 1 FROM public.journal_users ju WHERE ju.user_id=(SELECT auth.uid()) AND ju.allowed=true)
+     AND EXISTS (SELECT 1 FROM public.community_moderators m WHERE m.user_id=(SELECT auth.uid())));
+
+ALTER POLICY community_post_images_moderator_read ON public.community_post_images
+  USING (EXISTS (SELECT 1 FROM public.journal_users ju WHERE ju.user_id=(SELECT auth.uid()) AND ju.allowed=true)
+     AND EXISTS (SELECT 1 FROM public.community_moderators m WHERE m.user_id=(SELECT auth.uid())));
