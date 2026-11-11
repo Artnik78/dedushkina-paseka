@@ -333,6 +333,7 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
     <button data-page="apiaries">🍯 Мои пасеки</button>
     <button data-page="hives">⬡ Ульи</button>
     <button data-page="inspections">📋 Осмотры</button>
+    <button data-page="weights">⚖️ Весы и медосбор</button>
     <button data-page="health">🩺 Здоровье</button>
     <button data-page="queens">👑 Племенная работа</button>
     <button data-page="colonies">🐝 Рои и отводки</button>
@@ -503,6 +504,42 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
           <button type="button" class="btn secondary" id="closeHiveHistoryBtn">Закрыть</button>
         </div>
         <div id="hiveHistoryList" class="table-wrap"></div>
+      </div>
+    </section>
+
+    <section id="page-weights" class="section">
+      <h1>⚖️ Весы и медосбор</h1>
+      <p class="sub">Учёт контрольного веса ульев, динамика привеса и наблюдение за медосбором.</p>
+      <div class="panel" id="weightGuestNote" style="display:none"><b>Гостевой просмотр</b><p class="muted">Для записи и просмотра личной истории взвешиваний войдите в свой журнал.</p></div>
+      <div id="weightEditor" class="panel">
+        <h3>➕ Новое взвешивание</h3>
+        <p class="muted">На первом этапе показания вносятся вручную. Bluetooth-подключение и импорт файлов добавим после проверки моделей оборудования.</p>
+        <form id="weightForm" class="form">
+          <div class="field"><label for="weightApiary">Пасека *</label><select id="weightApiary" required><option value="">Выберите пасеку</option></select></div>
+          <div class="field"><label for="weightHive">Контрольный улей *</label><select id="weightHive" required><option value="">Сначала выберите пасеку</option></select></div>
+          <div class="field"><label for="weightMeasuredAt">Дата и время *</label><input id="weightMeasuredAt" type="datetime-local" required></div>
+          <div class="field"><label for="weightValue">Общий вес улья, кг *</label><input id="weightValue" type="number" min="0.001" max="999.999" step="0.001" required placeholder="Например, 48.650"></div>
+          <div class="field"><label for="weightScaleType">Тип весов</label><select id="weightScaleType"><option value="mechanical">Механические</option><option value="electronic">Электронные</option><option value="bluetooth">Bluetooth (пока ручной ввод)</option></select></div>
+          <div class="field"><label for="weightEventType">Что происходило</label><select id="weightEventType"><option value="measurement">Обычное взвешивание</option><option value="feeding">Подкормка</option><option value="honey_harvest">Откачка мёда</option><option value="equipment_change">Изменение комплектации улья</option><option value="other">Другое</option></select></div>
+          <div class="field full"><label for="weightNotes">Примечание</label><textarea id="weightNotes" rows="2" placeholder="Например: начало цветения липы, установлены два магазина…"></textarea></div>
+          <div class="actions"><button type="submit" class="btn gold">Сохранить показание</button></div>
+        </form>
+      </div>
+      <div class="panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h3>📈 История и динамика веса</h3><button type="button" class="btn secondary" id="weightRefreshBtn">Обновить</button></div>
+        <div class="field" style="max-width:320px;margin:10px 0"><label for="weightFilterHive">Показать улей</label><select id="weightFilterHive"><option value="">Все ульи</option></select></div>
+        <div id="weightSummary" class="cards" style="grid-template-columns:repeat(auto-fit,minmax(190px,1fr));margin:12px 0"></div>
+        <div id="weightChart" style="margin:14px 0"></div>
+        <div id="weightHistory"><div class="empty">Откройте раздел, чтобы загрузить измерения.</div></div>
+      </div>
+      <div class="panel">
+        <h3>ℹ️ Как правильно вести контрольный улей</h3>
+        <ul style="line-height:1.7;padding-left:22px">
+          <li>Взвешивайте один и тот же улей, по возможности в одинаковое время.</li>
+          <li>Записывайте полный вес улья в килограммах, а не только изменение.</li>
+          <li>Отмечайте подкормку, откачку и изменение числа корпусов или магазинов.</li>
+          <li>Разница между взвешиваниями показывает изменение общей массы. Это не всегда равно количеству принесённого мёда.</li>
+        </ul>
       </div>
     </section>
 
@@ -1193,7 +1230,7 @@ const recoveryHashParams = new URLSearchParams((window.location.hash || '').repl
 const recoveryLinkDetected = recoveryHashParams.get('type') === 'recovery' || recoverySearchParams.get('type') === 'recovery' || recoverySearchParams.has('code');
 const db = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { storageKey: 'dedushkina-paseka-journal-auth' } });
 
-const state = {contacts:[], hives:[], inspections:[], workLogs:[], hiveMovements:[], health:[], treatments:[], queens:[], queenBatches:[], colonyOperations:[], waxOperations:[], apiaryProductsOperations:[], photos:[], honey:[], honeyPackagingRuns:[], honeyJarLabels:[], honeySales:[], tasks:[], finance:[], apiaries:[], medicines:[], medicineStockMovements:[], disinfection:[], beeFamilies:[]};
+const state = {hiveWeightReadings:[], contacts:[], hives:[], inspections:[], workLogs:[], hiveMovements:[], health:[], treatments:[], queens:[], queenBatches:[], colonyOperations:[], waxOperations:[], apiaryProductsOperations:[], photos:[], honey:[], honeyPackagingRuns:[], honeyJarLabels:[], honeySales:[], tasks:[], finance:[], apiaries:[], medicines:[], medicineStockMovements:[], disinfection:[], beeFamilies:[]};
 let guestMode=false;
 let calendarMonth = new Date();
 calendarMonth.setDate(1);
@@ -1934,7 +1971,7 @@ clearConfirmBtn?.addEventListener('click', async () => {
     if(data && data.success===false)throw new Error(data.message||'Очистка не завершена');
 
     // Обновляем интерфейс, не затрагивая сессию, имя пасечника и доступ.
-    ['hives','inspections','health','treatments','queens','queenBatches','colonyOperations','waxOperations','apiaryProductsOperations','photos','honey','honeyPackagingRuns','honeyJarLabels','honeySales','tasks','finance','apiaries','medicines','medicineStockMovements','disinfection','beeFamilies'].forEach(k=>state[k]=[]);
+    ['hives','hiveWeightReadings','inspections','health','treatments','queens','queenBatches','colonyOperations','waxOperations','apiaryProductsOperations','photos','honey','honeyPackagingRuns','honeyJarLabels','honeySales','tasks','finance','apiaries','medicines','medicineStockMovements','disinfection','beeFamilies'].forEach(k=>state[k]=[]);
     await loadAll();
     $('clearJournalConfirm').style.display='none';
     if(clearPhraseInput)clearPhraseInput.value='';
@@ -1957,7 +1994,7 @@ clearConfirmBtn?.addEventListener('click', async () => {
 let restorePayload = null;
 let restoreFileFingerprint = '';
 const restoreTablePlan = [
-  ['apiaries','apiaries'],['medicines','medicines'],['hives','hives'],
+  ['apiaries','apiaries'],['medicines','medicines'],['hives','hives'],['hiveWeightReadings','hive_weight_readings'],
   ['beeFamilies','bee_families'],['inspections','inspections'],['workLogs','work_logs'],
   ['health','hive_health_records'],['queens','hive_queens'],['queenBatches','queen_rearing_batches'],
   ['colonyOperations','colony_operations'],['hiveMovements','hive_movements'],
@@ -1969,7 +2006,7 @@ const restoreTablePlan = [
 ];
 const restoreKeyAliases = {workLogs:'workLogs',hiveMovements:'hiveMovements'};
 const restoreLabels = {
-  apiaries:'пасеки',medicines:'лекарства',hives:'ульи',beeFamilies:'семьи пчёл',
+  apiaries:'пасеки',medicines:'лекарства',hives:'ульи',hiveWeightReadings:'взвешивания ульев',beeFamilies:'семьи пчёл',
   inspections:'осмотры',workLogs:'история работ',health:'записи здоровья',
   queens:'матки',queenBatches:'партии маток',colonyOperations:'операции с семьями',
   hiveMovements:'перемещения ульев',treatments:'лечение',medicineStockMovements:'движение лекарств',
@@ -2407,7 +2444,7 @@ async function getTable(table,order='created_at'){
 async function loadAll(){
   const names=[
     ['apiaries','apiaries'],['hives','hives'],['inspections','inspections'],['workLogs','work_logs'],['hiveMovements','hive_movements'],['health','hive_health_records'],['treatments','hive_treatments'],['queenBatches','queen_rearing_batches'],['colonyOperations','colony_operations'],['waxOperations','wax_operations'],['apiaryProductsOperations','apiary_products_operations'],['photos','photos'],['honey','honey_batches'],['honeyPackagingRuns','honey_packaging_runs'],['honeyJarLabels','honey_jar_labels'],['honeySales','honey_sales'],
-    ['contacts','contacts'],['tasks','tasks'],['finance','finances'],['medicines','medicines'],['medicineStockMovements','medicine_stock_movements'],['disinfection','disinfection_logs'],['beeFamilies','bee_families']
+    ['contacts','contacts'],['hiveWeightReadings','hive_weight_readings'],['tasks','tasks'],['finance','finances'],['medicines','medicines'],['medicineStockMovements','medicine_stock_movements'],['disinfection','disinfection_logs'],['beeFamilies','bee_families']
   ];
   const results=await Promise.all(names.map(async([key,table])=>{
     try{return {key,data:await getTable(table),error:null}}
@@ -4667,6 +4704,7 @@ async function communityRenderModeration(){
   update();
 })();
 </script>
+<script src="hive-scales.js"></script>
 </body>
 </html>
 
