@@ -32,13 +32,13 @@ async function load(){
 }
 async function save(e){
  e.preventDefault();if(guestMode)return toast('Гостевой просмотр — только чтение');
- const b=e.currentTarget.querySelector('[type=submit]');b.disabled=true;
+ const form=e.currentTarget;const b=form.querySelector('[type=submit]');b.disabled=true;
  try{
  const {data:{user},error:ue}=await db.auth.getUser();if(ue)throw ue;if(!user)throw Error('Войдите в журнал');
  const apiary_id=$w('weightApiary').value,hive_id=$w('weightHive').value,weight_kg=Number($w('weightValue').value);
  if(!apiary_id||!hive_id)throw Error('Выберите пасеку и улей');if(!(weight_kg>0&&weight_kg<1000))throw Error('Проверьте вес в килограммах');
  const {error}=await db.from('hive_weight_readings').insert({user_id:user.id,apiary_id,hive_id,weight_kg,measured_at:new Date($w('weightMeasuredAt').value||new Date()).toISOString(),scale_type:$w('weightScaleType').value,reading_method:'manual',event_type:$w('weightEventType').value,notes:$w('weightNotes').value.trim()||null});
- if(error)throw error;e.currentTarget.reset();$w('weightMeasuredAt').value=localDT();fill();await load();toast('Показание сохранено');
+ if(error)throw error;form.reset();$w('weightMeasuredAt').value=localDT();fill();await load();toast('Показание сохранено');
  }catch(err){toast('Не удалось сохранить: '+(err.message||err))}finally{b.disabled=false}
 }
 function init(){if(!$w('page-weights'))return;$w('weightApiary').onchange=fill;$w('weightFilterHive').onchange=render;$w('weightForm').onsubmit=save;$w('weightRefreshBtn').onclick=load;document.querySelectorAll('[data-page="weights"]').forEach(b=>b.addEventListener('click',()=>{fill();load()}));fill();$w('weightMeasuredAt').value=localDT()}
