@@ -2212,7 +2212,7 @@ if($('loginBtn')) $('loginBtn').onclick=async()=>{
   detectAuthMethod(identifier);
   const captchaToken=getCaptchaToken();
   if(!identifier || !password){$('authMessage').textContent='Введите email или номер телефона и пароль.';return}
-  if(authMethod!=='phone'&&!captchaToken){$('authMessage').textContent='Подтвердите проверку безопасности Cloudflare.';return}
+  if(!captchaToken){$('authMessage').textContent='Подтвердите проверку безопасности Cloudflare.';return}
   if(authMethod==='phone'&&!/^\+[1-9]\d{7,14}$/.test(identifier)){$('authMessage').textContent='Укажите номер в международном формате, например +375291234567.';return}
   if(authMethod==='phone'&&(password.length<8||password.length>128)){$('authMessage').textContent='Пароль должен содержать от 8 до 128 символов.';return}
   registrationMode=false;syncAuthIdentifierMode();
