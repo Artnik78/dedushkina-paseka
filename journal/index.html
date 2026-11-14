@@ -2212,7 +2212,7 @@ if($('loginBtn')) $('loginBtn').onclick=async()=>{
   detectAuthMethod(identifier);
   const captchaToken=getCaptchaToken();
   if(!identifier || !password){$('authMessage').textContent='Введите email или номер телефона и пароль.';return}
-  if(!captchaToken){$('authMessage').textContent='Подтвердите проверку безопасности Cloudflare.';return}
+  if(authMethod!=='phone'&&!captchaToken){$('authMessage').textContent='Подтвердите проверку безопасности Cloudflare.';return}
   if(authMethod==='phone'&&!/^\+[1-9]\d{7,14}$/.test(identifier)){$('authMessage').textContent='Укажите номер в международном формате, например +375291234567.';return}
   if(authMethod==='phone'&&(password.length<8||password.length>128)){$('authMessage').textContent='Пароль должен содержать от 8 до 128 символов.';return}
   registrationMode=false;syncAuthIdentifierMode();
@@ -2254,7 +2254,10 @@ if($('signupBtn')) $('signupBtn').onclick=async()=>{
   try{
     if(authMethod==='phone'){
       const payload=await callPhoneAuth('register',identifier,password,displayName,captchaToken);
-      $('authMessage').textContent=payload.message||'Заявка создана. Дождитесь одобрения владельца журнала.';
+      if(!payload.access_token||!payload.refresh_token)throw new Error('Регистрация завершена, но автоматический вход не получен. Попробуйте войти по телефону и паролю.');
+      const {error}=await db.auth.setSession({access_token:payload.access_token,refresh_token:payload.refresh_token});
+      if(error)throw error;
+      $('authMessage').textContent=payload.message||'Регистрация завершена. Открываем ваш личный журнал…';
     }else{
       const {data,error}=await db.auth.signUp({email:identifier,password,options:{captchaToken}});
       if(error)throw error;
