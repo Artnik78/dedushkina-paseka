@@ -2311,7 +2311,8 @@ if($('signupBtn')) $('signupBtn').onclick=async()=>{
   if(authMethod==='phone'&&!registrationMode){registrationMode=true;syncAuthIdentifierMode();$('authMessage').textContent='Укажите имя, затем нажмите «Регистрация» ещё раз.';return;}
   const displayName=$('authDisplayName').value.trim();
   const captchaToken=getCaptchaToken();
-  if(!captchaToken){$('authMessage').textContent='Подтвердите проверку безопасности CAPTCHA.';return}
+  const isPhonePreview=authMethod==='phone' && location.hostname.endsWith('.dedushkina-paseka.pages.dev') && location.hostname!=='dedushkina-paseka.pages.dev';
+  if(!captchaToken && !isPhonePreview){$('authMessage').textContent='Подтвердите проверку безопасности CAPTCHA.';return}
   if(!identifier || !password){$('authMessage').textContent='Введите email и пароль.';return}
   if(password.length<8 || password.length>128){$('authMessage').textContent='Пароль должен содержать от 8 до 128 символов.';return}
   if(!/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/[0-9]/.test(password) || !/[^A-Za-z0-9]/.test(password)){$('authMessage').textContent='Пароль должен содержать строчные и заглавные латинские буквы, цифру и специальный символ.';return}
