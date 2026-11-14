@@ -2186,7 +2186,7 @@ let authMethod='email';
 let registrationMode=false;
 function detectAuthMethod(value){
   const identifier=String(value??$('authIdentifier')?.value??'').trim();
-  authMethod=identifier.includes('@')?'email':'phone';
+  authMethod=identifier.includes('@')?'email':(/[0-9]/.test(identifier)?'phone':'email');
   return authMethod;
 }
 function syncAuthIdentifierMode(){
