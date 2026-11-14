@@ -265,7 +265,7 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
     <div class="field"><label for="authPassword">Пароль</label><input id="authPassword" type="password" autocomplete="current-password" placeholder="Не менее 8 символов" maxlength="128" aria-describedby="passwordRequirements"></div>
     <p class="muted" id="passwordRequirements" style="display:none;margin-top:-4px">Для регистрации: минимум 8 символов, строчные и заглавные латинские буквы, цифра и специальный символ (например ! или #).</p>
     <div class="cf-turnstile" id="signupTurnstile" data-sitekey="0x4AAAAAAFVRRKyWkIBv6dtO" data-action="signup"></div>
-    <p class="muted" id="authMethodHint">Введите email и пароль. Доступ к журналу откроется после одобрения владельцем.</p>
+    <p class="muted" id="authMethodHint">Введите email и пароль. После регистрации вы сразу попадёте в журнал.</p>
     <div class="auth-message" id="authMessage"></div>
     <div class="actions">
       <button class="btn" id="loginBtn">Войти</button>
@@ -1558,7 +1558,7 @@ async function authInit(){
   try{
     const inviteMode=new URLSearchParams(window.location.search).get('invite')==='1';
     if(inviteMode){
-      $('authMessage').textContent='Вас пригласили в цифровой журнал. Зарегистрируйтесь или войдите, после чего владелец сможет разрешить доступ.';
+      $('authMessage').textContent='Вас пригласили в цифровой журнал. Зарегистрируйтесь или войдите, чтобы начать работу.';
       $('signupBtn')?.classList.add('gold');
       $('loginBtn')?.classList.remove('gold');
     }
@@ -2191,7 +2191,7 @@ function setAuthMethod(method){
   phoneBtn.className='btn '+(phone?'':'secondary');
   emailBtn.setAttribute('aria-pressed',String(!phone));
   phoneBtn.setAttribute('aria-pressed',String(phone));
-  hint.textContent=phone?'Введите телефон и пароль. Для регистрации укажите имя. SMS не требуется; доступ появится после одобрения владельцем.':'Введите email и пароль. Доступ к журналу откроется после одобрения владельцем.';
+  hint.textContent=phone?'Введите телефон, пароль и имя. SMS и ожидание одобрения не нужны.':'Введите email и пароль. После регистрации вы сразу попадёте в журнал.';
   $('authMessage').textContent='';
 }
 function openRecoveryPanel(setPassword=false){
@@ -2311,12 +2311,22 @@ if($('signupBtn')) $('signupBtn').onclick=async()=>{
   try{
     if(authMethod==='phone'){
       const payload=await callPhoneAuth('register',identifier,password,displayName);
-      $('authMessage').textContent=payload.message||'Заявка создана. Дождитесь одобрения владельца журнала.';
-    }else{
-      const {data,error}=await db.auth.signUp({email:identifier,password,options:{captchaToken:turnstileToken}});
+      if(!payload.access_token||!payload.refresh_token)throw new Error(payload.message||'Не удалось выполнить автоматический вход.');
+      const {error}=await db.auth.setSession({access_token:payload.access_token,refresh_token:payload.refresh_token});
       if(error)throw error;
-      if(data.session){$('authMessage').textContent='Регистрация отправлена владельцу журнала на одобрение. Доступ откроется после одобрения администратором.';await db.auth.signOut({scope:'local'});}
-      else $('authMessage').textContent='Аккаунт создан. Подтвердите email, если потребуется. Владелец журнала получит уведомление, а доступ откроется после одобрения администратором.';
+      $('authMessage').textContent='Регистрация завершена. Загружаем журнал…';
+    }else{
+      const response=await fetch(SUPABASE_URL+'/functions/v1/journal-email-register',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY},
+        body:JSON.stringify({email:identifier,password,captcha_token:turnstileToken})
+      });
+      const payload=await response.json().catch(()=>({}));
+      if(!response.ok)throw new Error(payload.error||'Не удалось зарегистрироваться.');
+      if(!payload.access_token||!payload.refresh_token)throw new Error(payload.message||'Не удалось выполнить автоматический вход.');
+      const {error}=await db.auth.setSession({access_token:payload.access_token,refresh_token:payload.refresh_token});
+      if(error)throw error;
+      $('authMessage').textContent='Регистрация завершена. Загружаем журнал…';
     }
   }catch(error){
     $('authMessage').textContent=error.message||'Не удалось зарегистрироваться. Проверьте данные и попробуйте снова.';
