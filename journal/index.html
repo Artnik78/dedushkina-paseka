@@ -261,17 +261,13 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
     <p class="sub">Вход в цифровой журнал пасечника</p>
 
     <div class="field">
-      <label>Способ регистрации и входа</label>
-      <div class="actions" style="margin:4px 0 8px">
-        <button class="btn" type="button" id="authMethodEmail" aria-pressed="true">✉️ По email</button>
-        <button class="btn secondary" type="button" id="authMethodPhone" aria-pressed="false">📱 По телефону</button>
-      </div>
+      <label for="authIdentifier">Email или номер телефона</label>
+      <input id="authIdentifier" type="text" inputmode="email" autocomplete="username" placeholder="Введите email или +375291234567">
     </div>
+    <div class="field"><label for="authPassword">Пароль</label><input id="authPassword" type="password" autocomplete="current-password" placeholder="Ваш пароль" maxlength="128" aria-describedby="passwordRequirements"></div>
     <div class="field" id="authDisplayNameField" style="display:none"><label for="authDisplayName">Ваше имя</label><input id="authDisplayName" type="text" maxlength="80" autocomplete="name" placeholder="Как к вам обращаться"></div>
-    <div class="field"><label id="authIdentifierLabel" for="authIdentifier">Email</label><input id="authIdentifier" type="email" autocomplete="email" placeholder="Ваш email"></div>
-    <div class="field"><label for="authPassword">Пароль</label><input id="authPassword" type="password" autocomplete="current-password" placeholder="Не менее 8 символов" maxlength="128" aria-describedby="passwordRequirements"></div>
     <p class="muted" id="passwordRequirements" style="display:none;margin-top:-4px">Для регистрации: минимум 8 символов, строчные и заглавные латинские буквы, цифра и специальный символ (например ! или #).</p>
-    <p class="muted" id="authMethodHint">Введите email и пароль. Доступ к журналу откроется после одобрения владельцем.</p>
+    <p class="muted" id="authMethodHint">Введите email или телефон и пароль.</p>
     <div class="field" id="captchaField"><label>Проверка безопасности</label><div class="cf-turnstile" data-sitekey="0x4AAAAAAFVRRKyWkIBv6dtO" data-theme="light"></div><small class="muted">Подтвердите, что вы не робот, перед входом или регистрацией.</small></div>
     <div class="auth-message" id="authMessage"></div>
     <div class="actions">
@@ -2187,27 +2183,26 @@ if($('saveJournalDisplayNameBtn')) $('saveJournalDisplayNameBtn').onclick=async(
   toast('Название сохранено');
 };
 let authMethod='email';
-function setAuthMethod(method){
-  authMethod=method==='phone'?'phone':'email';
-  const phone=authMethod==='phone';
-  const input=$('authIdentifier'), label=$('authIdentifierLabel'), emailBtn=$('authMethodEmail'), phoneBtn=$('authMethodPhone'), hint=$('authMethodHint');
-  input.value='';
-  input.type=phone?'tel':'email';
-  input.autocomplete=phone?'tel':'email';
-  input.inputMode=phone?'tel':'email';
-  input.placeholder=phone?'+375 XX XXX-XX-XX':'Ваш email';
-  label.textContent=phone?'Номер телефона в международном формате':'Email';
-  $('authDisplayNameField').style.display=phone?'block':'none';
-  $('authPassword').placeholder='Не менее 8 символов';
-  $('passwordRequirements').style.display='block';
-  $('authPassword').autocomplete='current-password';
-  emailBtn.className='btn '+(phone?'secondary':'');
-  phoneBtn.className='btn '+(phone?'':'secondary');
-  emailBtn.setAttribute('aria-pressed',String(!phone));
-  phoneBtn.setAttribute('aria-pressed',String(phone));
-  hint.textContent=phone?'Вход по телефону без SMS. Используйте номер в международном формате и пароль.':'Введите email и пароль. Доступ проверяется при входе.';
-  $('authMessage').textContent='';
+let registrationMode=false;
+function detectAuthMethod(value){
+  const identifier=String(value??$('authIdentifier')?.value??'').trim();
+  authMethod=identifier.includes('@')?'email':'phone';
+  return authMethod;
 }
+function syncAuthIdentifierMode(){
+  const method=detectAuthMethod();
+  const phone=method==='phone';
+  $('authIdentifier').inputMode=phone?'tel':'email';
+  $('authIdentifier').placeholder=phone?'Международный номер, например +375291234567':'Введите ваш email';
+  $('authDisplayNameField').style.display=(phone&&registrationMode)?'block':'none';
+  $('passwordRequirements').style.display=registrationMode?'block':'none';
+  $('authPassword').placeholder=registrationMode?'Не менее 8 символов':'Ваш пароль';
+  $('authMethodHint').textContent=phone
+    ?'Вход по телефону и паролю. Номер укажите в международном формате, начиная с +.'
+    :'Вход по email и паролю.';
+}
+$('authIdentifier')?.addEventListener('input',syncAuthIdentifierMode);
+function setAuthMethod(method){ /* compatibility for existing links: the field itself determines the method */ syncAuthIdentifierMode(); }
 function openRecoveryPanel(setPassword=false){
   const panel=$('recoveryPanel');if(!panel)return;
   panel.style.display='block';
@@ -2220,7 +2215,7 @@ function openRecoveryPanel(setPassword=false){
   if(!setPassword&&authMethod==='phone') $('recoveryHelp').textContent='Вход по телефону: безопасное восстановление выполняется владельцем после проверки личности.';
   panel.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
-if($('forgotAccessBtn')) $('forgotAccessBtn').onclick=()=>openRecoveryPanel(false);
+if($('forgotAccessBtn')) $('forgotAccessBtn').onclick=()=>{syncAuthIdentifierMode();openRecoveryPanel(false)};
 if($('closeRecoveryBtn')) $('closeRecoveryBtn').onclick=()=>{
   $('recoveryPanel').style.display='none';
   $('recoveryMessage').textContent='';
@@ -2267,8 +2262,6 @@ if($('saveRecoveryPasswordBtn')) $('saveRecoveryPasswordBtn').onclick=async()=>{
     $('recoveryMessage').textContent='Не удалось изменить пароль. Откройте ссылку из письма ещё раз или запросите новую.';
   }finally{button.disabled=false}
 };
-if($('authMethodEmail')) $('authMethodEmail').onclick=()=>setAuthMethod('email');
-if($('authMethodPhone')) $('authMethodPhone').onclick=()=>setAuthMethod('phone');
 if($('guestBtn')) $('guestBtn').onclick=showGuest;
 function getCaptchaToken(){
   try{return window.turnstile?.getResponse?.()||''}catch(_){return ''}
@@ -2289,6 +2282,7 @@ async function callPhoneAuth(action, phone, password, displayName, captchaToken)
 if($('loginBtn')) $('loginBtn').onclick=async()=>{
   $('authMessage').textContent='';
   const identifier=$('authIdentifier').value.trim(), password=$('authPassword').value;
+  detectAuthMethod(identifier);
   const captchaToken=getCaptchaToken();
   if(!captchaToken){$('authMessage').textContent='Подтвердите проверку безопасности CAPTCHA.';return}
   if(!identifier || !password){$('authMessage').textContent='Введите email и пароль.';return}
@@ -2313,6 +2307,8 @@ if($('loginBtn')) $('loginBtn').onclick=async()=>{
 if($('signupBtn')) $('signupBtn').onclick=async()=>{
   $('authMessage').textContent='';
   const identifier=$('authIdentifier').value.trim(), password=$('authPassword').value;
+  detectAuthMethod(identifier);
+  if(authMethod==='phone'&&!registrationMode){registrationMode=true;syncAuthIdentifierMode();$('authMessage').textContent='Укажите имя, затем нажмите «Регистрация» ещё раз.';return;}
   const displayName=$('authDisplayName').value.trim();
   const captchaToken=getCaptchaToken();
   if(!captchaToken){$('authMessage').textContent='Подтвердите проверку безопасности CAPTCHA.';return}
@@ -2335,7 +2331,7 @@ if($('signupBtn')) $('signupBtn').onclick=async()=>{
     }
   }catch(error){
     $('authMessage').textContent=error.message||'Не удалось зарегистрироваться. Проверьте данные и попробуйте снова.';
-  }finally{$('signupBtn').disabled=false;resetCaptcha()}
+  }finally{$('signupBtn').disabled=false;resetCaptcha();registrationMode=false;syncAuthIdentifierMode()}
 };
 if($('logoutBtn')) $('logoutBtn').onclick=async()=>{
   $('logoutBtn').disabled=true;
