@@ -1147,6 +1147,7 @@ const db = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { storageKey: IS_PRO
 
 const state = {hiveWeightReadings:[], contacts:[], hives:[], inspections:[], workLogs:[], hiveMovements:[], health:[], treatments:[], queens:[], queenBatches:[], colonyOperations:[], waxOperations:[], apiaryProductsOperations:[], photos:[], honey:[], honeyPackagingRuns:[], honeyJarLabels:[], honeySales:[], tasks:[], finance:[], apiaries:[], medicines:[], medicineStockMovements:[], disinfection:[], beeFamilies:[]};
 let guestMode=false;
+let suppressAuthAppDuringSignup=false;
 let calendarMonth = new Date();
 calendarMonth.setDate(1);
 
@@ -1504,6 +1505,7 @@ async function authInit(){
         return;
       }
       if(session){
+        if(suppressAuthAppDuringSignup)return;
         setTimeout(()=>showApp(session.user).catch(e=>{
           console.error(e);
           $('authMessage').textContent='Ошибка загрузки журнала: '+e.message;
@@ -2259,10 +2261,17 @@ if($('signupBtn')) $('signupBtn').onclick=async()=>{
       if(error)throw error;
       $('authMessage').textContent=payload.message||'Регистрация завершена. Открываем ваш личный журнал…';
     }else{
-      const {data,error}=await db.auth.signUp({email:identifier,password,options:{captchaToken}});
-      if(error)throw error;
-      if(data.session){$('authMessage').textContent='Регистрация отправлена владельцу журнала на одобрение. Доступ откроется после одобрения администратором.';await db.auth.signOut({scope:'local'});}
-      else $('authMessage').textContent='Аккаунт создан. Подтвердите email, если потребуется. Владелец журнала получит уведомление, а доступ откроется после одобрения администратором.';
+      suppressAuthAppDuringSignup=true;
+      try{
+        const {data,error}=await db.auth.signUp({email:identifier,password,options:{captchaToken}});
+        if(error)throw error;
+        if(data.session){
+          $('authMessage').textContent='Регистрация отправлена владельцу журнала на одобрение. Доступ откроется после одобрения администратора.';
+          await db.auth.signOut({scope:'local'});
+        }else $('authMessage').textContent='Аккаунт создан. Подтвердите email, если потребуется. Владелец журнала получит уведомление, а доступ откроется после одобрения администратора.';
+      }finally{
+        suppressAuthAppDuringSignup=false;
+      }
     }
   }catch(error){
     $('authMessage').textContent=error.message||'Не удалось зарегистрироваться. Проверьте данные и попробуйте снова.';
