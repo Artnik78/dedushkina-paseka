@@ -2328,7 +2328,7 @@ async function loadJournalUsers(){
     const {data:{user},error:authError}=await db.auth.getUser();
     if(authError)throw authError;
     if(!user){box.innerHTML='<div class="empty">Войдите в журнал, чтобы загрузить пользователей.</div>';return}
-    const {data,error}=await db.from('journal_users').select('user_id,email,phone,display_name,allowed,created_at,last_seen_at').order('created_at',{ascending:true});
+    const {data,error}=await db.from('journal_users').select('user_id,email,phone,display_name,allowed,approval_status,trial_started_at,trial_ends_at,subscription_status,subscription_ends_at,created_at,last_seen_at').order('created_at',{ascending:true});
     if(error)throw error;
     box.innerHTML=(data||[]).map(u=>{
       const owner=(String(u.email||'').toLowerCase()==='78artnik@gmail.com');
@@ -2345,7 +2345,7 @@ async function loadJournalUsers(){
         ? 'Последний вход: '+seen.toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})
         : 'Дата активности отсутствует';
       return '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 0;border-bottom:1px solid var(--line)">'+
-        '<div><b>'+esc(u.display_name||u.email||u.phone||'—')+'</b><div class="muted">'+(u.phone&&!u.email?'Вход по телефону · ':'')+(owner?'Владелец':'Пользователь')+' · '+(active?'Доступ разрешён':'Доступ заблокирован')+'</div><div style="margin-top:4px">'+activityStatus+'</div><div class="muted" style="margin-top:4px">'+esc(activityLabel)+'</div></div>'+
+        '<div><b>'+esc(u.display_name||u.email||u.phone||'—')+'</b><div class="muted">'+(u.phone&&!u.email?'Вход по телефону · ':'')+(owner?'Владелец':'Пользователь')+' · '+(u.approval_status==='approved'?'Заявка одобрена':u.approval_status==='rejected'?'Заявка отклонена':'Ожидает одобрения')+' · '+(active?'Доступ разрешён':'Доступ закрыт')+'</div><div class="muted" style="margin-top:4px">'+(u.subscription_status==='trial'&&u.trial_ends_at?'Пробный период до: '+new Date(u.trial_ends_at).toLocaleString('ru-RU'):(u.subscription_status==='active'&&u.subscription_ends_at?'Подписка до: '+new Date(u.subscription_ends_at).toLocaleDateString('ru-RU'):(u.subscription_status==='manual'?'Ручной доступ': 'Подписка: '+(u.subscription_status||'нет'))))+'</div><div style="margin-top:4px">'+activityStatus+'</div><div class="muted" style="margin-top:4px">'+esc(activityLabel)+'</div></div>'+
         (owner?'':'<div style="display:flex;gap:8px;flex-wrap:wrap">'+
           '<button type="button" class="btn '+(active?'danger':'gold')+'" data-user-access="'+esc(u.user_id)+'" data-user-allowed="'+(active?'1':'0')+'">'+(active?'Заблокировать':'Разрешить доступ')+'</button>'+
           '<button type="button" class="btn danger" data-user-delete="'+esc(u.user_id)+'" data-user-email="'+esc(u.email||u.phone||'')+'">Удалить пользователя</button></div>')+
@@ -2386,11 +2386,20 @@ document.addEventListener('click',async e=>{
   const b=e.target.closest('[data-user-access]'); if(!b)return;
   const id=b.dataset.userAccess, allow=b.dataset.userAllowed!=='1';
   b.disabled=true;
-  const {error}=await db.from('journal_users').update({allowed:allow}).eq('user_id',id);
-  b.disabled=false;
-  if(error){toast('Ошибка: '+error.message);return}
-  toast(allow?'Доступ разрешён':'Пользователь заблокирован');
-  loadJournalUsers();
+  try{
+    const {data:{session}}=await db.auth.getSession();
+    if(!session?.access_token)throw new Error('Необходимо войти как администратор.');
+    const res=await fetch(SUPABASE_URL+'/functions/v1/journal-admin-set-access',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token,'apikey':SUPABASE_KEY},
+      body:JSON.stringify({user_id:id,allowed:allow})
+    });
+    const payload=await res.json().catch(()=>({}));
+    if(!res.ok)throw new Error(payload.error||'HTTP '+res.status);
+    toast(payload.message|| (allow?'Заявка одобрена':'Пользователь заблокирован'));
+    await loadJournalUsers();
+  }catch(err){toast('Не удалось изменить доступ: '+(err.message||err));}
+  finally{b.disabled=false}
 });
 
 async function getTable(table,order='created_at'){
