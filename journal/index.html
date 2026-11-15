@@ -352,6 +352,13 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
       </div>
 
       </div>
+      <div id="subscriptionStatusPanel" class="panel" style="margin:0 0 16px;border-left:5px solid #d5a72b;display:none">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
+          <div><div class="muted" style="font-weight:800;letter-spacing:.05em">ДОСТУП К ЖУРНАЛУ</div><h3 id="subscriptionStatusTitle" style="margin:5px 0">Пробный период</h3><div id="subscriptionStatusText" class="muted"></div></div>
+          <div id="subscriptionDaysLeft" style="font-size:24px;font-weight:800;color:var(--green2);white-space:nowrap"></div>
+        </div>
+        <div id="subscriptionStatusNote" class="muted" style="margin-top:10px">Все записи и история пасеки сохраняются в вашем аккаунте.</div>
+      </div>
       <div class="grid home-alerts-row" style="margin-top:18px">
         <div id="homeMedicineAlerts" class="panel home-alert" style="margin-top:0"></div>
         <div id="homeDisinfectionAlerts" class="panel home-alert" style="margin-top:0"></div>
@@ -1264,6 +1271,58 @@ function updateHomeApiarySubtitle(){
   const apiary=apiaries.find(a=>String(a?.name||'').trim());
   el.textContent=apiary?String(apiary.name).trim():'Название пасеки не указано';
 }
+function renderSubscriptionStatus(profile){
+  const box=$('subscriptionStatusPanel'); if(!box)return;
+  const status=String(profile?.subscription_status||'none');
+  const allowed=profile?.allowed===true;
+  const endValue=status==='trial'?profile?.trial_ends_at:profile?.subscription_ends_at;
+  const end=endValue?new Date(endValue):null;
+  const validEnd=end&&!Number.isNaN(end.getTime());
+  const now=Date.now();
+  const expired=validEnd&&end.getTime()<=now;
+  let title='Доступ к журналу';
+  let detail='Состояние доступа уточняется.';
+  let remain='';
+  let note='Ваши записи, фотографии и история пасеки остаются привязаны к аккаунту.';
+  if(status==='trial'&&validEnd&&!expired){
+    const ms=end.getTime()-now;
+    const days=Math.ceil(ms/86400000);
+    title='Пробный период';
+    detail='Доступ открыт до '+end.toLocaleString('ru-RU',{day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    remain=days===1?'Остался 1 день':('Осталось '+days+' дн.');
+    note='После окончания пробного периода потребуется оформить доступ. Данные пасеки не удаляются.';
+  }else if(status==='active'&&validEnd&&!expired){
+    title='Подписка активна';
+    detail='Доступ открыт до '+end.toLocaleDateString('ru-RU');
+    remain='Действует';
+  }else if(status==='manual'){
+    title='Доступ предоставлен владельцем';
+    detail='Ручной доступ';
+    remain='Активен';
+  }else if(status==='trial'&&expired){
+    title='Пробный период завершён';
+    detail='Срок закончился '+end.toLocaleDateString('ru-RU');
+    remain='Завершён';
+    note='Чтобы снова пользоваться всеми функциями, потребуется оформить доступ. Данные пасеки сохраняются.';
+  }else if(status==='active'&&expired){
+    title='Срок подписки завершён';
+    detail='Подписка закончилась '+end.toLocaleDateString('ru-RU');
+    remain='Завершена';
+  }else if(!allowed){
+    title='Доступ пока не активирован';
+    detail='После одобрения заявки начнётся пробный период.';
+    remain='Ожидание';
+  }else{
+    title='Доступ к журналу';
+    detail='Для этого аккаунта действует ранее выданный доступ.';
+    remain='Активен';
+  }
+  $('subscriptionStatusTitle').textContent=title;
+  $('subscriptionStatusText').textContent=detail;
+  $('subscriptionDaysLeft').textContent=remain;
+  $('subscriptionStatusNote').textContent=note;
+  box.style.display='block';
+}
 function syncHomeUser(email,displayName){
   const el=$('homeUserEmail');if(el)el.textContent=email||'Гостевой просмотр';
   const se=$('settingsUserEmail');if(se)se.textContent=email||'Гостевой просмотр';
@@ -1821,7 +1880,10 @@ async function showApp(user){
     }
     if(!profile.allowed){
       $('auth').style.display='flex'; $('app').style.display='none';
-      $('authMessage').textContent='Доступ к журналу временно приостановлен. Ваши данные сохранены. Для восстановления доступа обратитесь к владельцу.';
+      const endValue=profile.subscription_status==='trial'?profile.trial_ends_at:profile.subscription_ends_at;
+      const endDate=endValue?new Date(endValue):null;
+      const endText=endDate&&!Number.isNaN(endDate.getTime())?' Срок доступа завершился: '+endDate.toLocaleDateString('ru-RU')+'.':'';
+      $('authMessage').textContent='Доступ к журналу временно приостановлен. Ваши данные сохранены.'+endText+' Для восстановления доступа обратитесь к владельцу журнала.';
       return;
     }
   }catch(e){
@@ -1835,6 +1897,7 @@ async function showApp(user){
   $('app').style.display='';
   $('userEmail').textContent=user.email||user.phone||'Пользователь';
   syncHomeUser(user.email||user.phone,profile.display_name);
+  renderSubscriptionStatus(profile);
   const owner=email==='78artnik@gmail.com';
   const p=$('userAccessPanel'); if(p)p.style.display=owner?'block':'none';
   startJournalActivityTracking();
