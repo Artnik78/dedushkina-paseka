@@ -1799,14 +1799,29 @@ async function showApp(user){
   const email=(user.email||'').toLowerCase();
   let profile=null;
   try{
-    const {data,error}=await db.from('journal_users').select('allowed,display_name').eq('user_id',user.id).maybeSingle();
+    const {data,error}=await db.from('journal_users')
+      .select('allowed,display_name,approval_status,trial_started_at,trial_ends_at,subscription_status,subscription_ends_at,trial_used_at')
+      .eq('user_id',user.id).maybeSingle();
     if(error) throw error;
     profile=data;
-    if(!profile || !profile.allowed){
-      await db.auth.signOut({scope:'local'});
-      $('auth').style.display='flex';
-      $('app').style.display='none';
-      $('authMessage').textContent='Доступ к журналу пока не разрешён владельцем. После одобрения войдите снова.';
+    if(!profile){
+      $('auth').style.display='flex'; $('app').style.display='none';
+      $('authMessage').textContent='Профиль журнала ещё создаётся. Обновите страницу через минуту.';
+      return;
+    }
+    if(profile.approval_status==='rejected'){
+      $('auth').style.display='flex'; $('app').style.display='none';
+      $('authMessage').textContent='Заявка отклонена. Если это ошибка, свяжитесь с владельцем журнала.';
+      return;
+    }
+    if(profile.approval_status!=='approved' && !profile.allowed){
+      $('auth').style.display='flex'; $('app').style.display='none';
+      $('authMessage').textContent='Заявка принята и ожидает одобрения владельца. Повторно регистрироваться не нужно — войдите позже с теми же данными.';
+      return;
+    }
+    if(!profile.allowed){
+      $('auth').style.display='flex'; $('app').style.display='none';
+      $('authMessage').textContent='Доступ к журналу временно приостановлен. Ваши данные сохранены. Для восстановления доступа обратитесь к владельцу.';
       return;
     }
   }catch(e){
