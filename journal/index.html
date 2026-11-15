@@ -358,6 +358,41 @@ h1{font-size:22px;margin-bottom:4px}.sub{font-size:12px;margin-bottom:14px}
           <div id="subscriptionDaysLeft" style="font-size:24px;font-weight:800;color:var(--green2);white-space:nowrap"></div>
         </div>
         <div id="subscriptionStatusNote" class="muted" style="margin-top:10px">Все записи и история пасеки сохраняются в вашем аккаунте.</div>
+        <div id="subscriptionPriceBox" style="margin-top:14px;padding:14px;border:1px solid #e5d7b7;border-radius:13px;background:rgba(255,255,255,.72)">
+          <div style="font-weight:800;margin-bottom:5px">Годовая подписка — эквивалент 20 USD</div>
+          <div class="muted" style="font-size:13px;margin-bottom:10px">Выберите страну оплаты. Сумма будет рассчитана по официальному курсу Национального банка Беларуси на текущую дату.</div>
+          <div class="field" style="max-width:420px;margin-bottom:10px">
+            <label for="subscriptionCountry">Страна оплаты</label>
+            <select id="subscriptionCountry">
+              <option value="">Выберите страну</option>
+              <option value="BY">Беларусь — BYN</option>
+              <option value="RU">Россия — RUB</option>
+              <option value="AT">Австрия — EUR</option>
+              <option value="DE">Германия — EUR</option>
+              <option value="PL">Польша — PLN</option>
+              <option value="UA">Украина — UAH</option>
+              <option value="GB">Великобритания — GBP</option>
+              <option value="CH">Швейцария — CHF</option>
+              <option value="KZ">Казахстан — KZT</option>
+              <option value="TR">Турция — TRY</option>
+              <option value="GE">Грузия — GEL</option>
+              <option value="MD">Молдова — MDL</option>
+              <option value="AM">Армения — AMD</option>
+              <option value="AZ">Азербайджан — AZN</option>
+              <option value="CN">Китай — CNY</option>
+              <option value="JP">Япония — JPY</option>
+              <option value="IN">Индия — INR</option>
+              <option value="IL">Израиль — ILS</option>
+              <option value="NO">Норвегия — NOK</option>
+              <option value="SE">Швеция — SEK</option>
+              <option value="DK">Дания — DKK</option>
+              <option value="CZ">Чехия — CZK</option>
+            </select>
+          </div>
+          <button type="button" class="btn gold" id="subscriptionQuoteBtn">Рассчитать стоимость</button>
+          <div id="subscriptionQuoteResult" class="muted" role="status" aria-live="polite" style="margin-top:10px"></div>
+          <div class="muted" style="font-size:12px;margin-top:8px">Это предварительный расчёт. Итоговая сумма фиксируется при создании платежа. Оплата пока не подключена.</div>
+        </div>
       </div>
       <div class="grid home-alerts-row" style="margin-top:18px">
         <div id="homeMedicineAlerts" class="panel home-alert" style="margin-top:0"></div>
@@ -1323,6 +1358,33 @@ function renderSubscriptionStatus(profile){
   $('subscriptionStatusNote').textContent=note;
   box.style.display='block';
 }
+async function calculateSubscriptionQuote(){
+  const country=$('subscriptionCountry')?.value||'';
+  const result=$('subscriptionQuoteResult');
+  const button=$('subscriptionQuoteBtn');
+  if(!country){if(result)result.textContent='Сначала выберите страну оплаты.';return}
+  if(button){button.disabled=true;button.textContent='Получаем официальный курс…'}
+  if(result)result.textContent='';
+  try{
+    const {data,error}=await db.functions.invoke('journal-subscription-quote',{body:{country_code:country}});
+    if(error)throw error;
+    if(!data||!Number.isFinite(Number(data.amount)))throw new Error(data?.error||'Не удалось рассчитать сумму.');
+    const amount=new Intl.NumberFormat('ru-RU',{minimumFractionDigits:0,maximumFractionDigits:2}).format(Number(data.amount));
+    const rateDate=data.exchange_rate_date?new Date(data.exchange_rate_date+'T00:00:00'):null;
+    const dateText=rateDate&&!Number.isNaN(rateDate.getTime())?rateDate.toLocaleDateString('ru-RU'):'не указана';
+    result.textContent='К оплате за 1 год: '+amount+' '+data.currency+'. Курс НБРБ на '+dateText+'. Базовая цена: 20 USD.';
+    result.style.color='var(--green2)';
+    window.currentSubscriptionQuote=data;
+  }catch(error){
+    console.error('Subscription quote:',error);
+    if(result){result.textContent='Не удалось получить официальный курс. Попробуйте позже.';result.style.color='var(--danger,#a33)'}
+    window.currentSubscriptionQuote=null;
+  }finally{
+    if(button){button.disabled=false;button.textContent='Рассчитать стоимость'}
+  }
+}
+$('subscriptionQuoteBtn')?.addEventListener('click',calculateSubscriptionQuote);
+
 function syncHomeUser(email,displayName){
   const el=$('homeUserEmail');if(el)el.textContent=email||'Гостевой просмотр';
   const se=$('settingsUserEmail');if(se)se.textContent=email||'Гостевой просмотр';
