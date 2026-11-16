@@ -52,6 +52,38 @@
     }
   };
   const EXTRA = {"ru":{"page.apiaries":"Мои пасеки","desc.apiaries":"Пасеки и основные сведения о них.","page.hives":"Ульи","desc.hives":"Учёт ульев и пчелиных семей.","page.weights":"⚖️ Весы и медосбор","desc.weights":"Учёт контрольного веса ульев, динамика привеса и наблюдение за медосбором.","page.inspections":"Журнал осмотров","desc.inspections":"Записывайте состояние семей, маток, расплода, корма и работы.","page.health":"🩺 Здоровье семьи","desc.health":"Контроль варроа, признаков заболеваний и проведённых обработок по каждому улью.","page.wax":"🕯️ Учёт воска и вощины","page.products":"🌿 Прополис, пыльца и перга","page.calendar":"Календарь","page.calculators":"🧮 Калькуляторы пасечника","page.queens":"👑 Племенная работа и вывод маток","page.colonies":"🐝 Рои, отводки и объединение семей","page.honey":"Мёд / партии","page.finances":"Финансы","desc.finances":"Доходы и расходы пасеки.","page.tasks":"Напоминания","desc.tasks":"Работы, которые нельзя забыть.","page.photos":"Фото","desc.photos":"Фотографии ульев и осмотров хранятся отдельно в вашем журнале.","page.stats":"Статистика","desc.stats":"Состояние пчелиных семей и основные показатели журнала.","page.medicines":"💊 Лекарства","desc.medicines":"Учёт препаратов для пасеки, их количества и сроков годности.","page.disinfection":"🧴 Дезинфекция","desc.disinfection":"Учёт дезинфекции пасеки, ульев, рамок и инвентаря: когда, чем, как и по какой причине.","page.contacts":"👥 Контакты","desc.contacts":"Поставщики, пчеловоды и другие важные контакты. Дни рождения помогут не забыть поздравить."},"be":{"page.apiaries":"Мае пчальнікі","desc.apiaries":"Пчальнікі і асноўныя звесткі пра іх.","page.hives":"Вуллі","desc.hives":"Улік вулляў і пчаліных сем’яў.","page.weights":"⚖️ Шалі і медазбор","desc.weights":"Улік кантрольнай вагі вулляў, дынаміка прыбаўлення і назіранне за медазборам.","page.inspections":"Журнал аглядаў","desc.inspections":"Запісвайце стан сем’яў, матак, расплоду, корму і выкананых работ.","page.health":"🩺 Здароўе сям’і","desc.health":"Кантроль вароа, прыкмет захворванняў і праведзеных апрацовак па кожным вуллі.","page.wax":"🕯️ Улік воску і вашчыны","page.products":"🌿 Праполіс, пылок і пярга","page.calendar":"Каляндар","page.calculators":"🧮 Калькулятары пчаляра","page.queens":"👑 Племянная праца і вывядзенне матак","page.colonies":"🐝 Роі, адводкі і аб’яднанне сем’яў","page.honey":"Мёд / партыі","page.finances":"Фінансы","desc.finances":"Даходы і выдаткі пчальніка.","page.tasks":"Напаміны","desc.tasks":"Работы, пра якія нельга забыцца.","page.photos":"Фота","desc.photos":"Фатаграфіі вулляў і аглядаў захоўваюцца асобна ў вашым журнале.","page.stats":"Статыстыка","desc.stats":"Стан пчаліных сем’яў і асноўныя паказчыкі журнала.","page.medicines":"💊 Лекі","desc.medicines":"Улік прэпаратаў для пчальніка, іх колькасці і тэрмінаў прыдатнасці.","page.disinfection":"🧴 Дэзінфекцыя","desc.disinfection":"Улік дэзінфекцыі пчальніка, вулляў, рамак і інвентару: калі, чым, як і з якой прычыны.","page.contacts":"👥 Кантакты","desc.contacts":"Пастаўшчыкі, пчаляры і іншыя важныя кантакты. Дні нараджэння дапамогуць не забыцца павіншаваць."},"en":{"page.apiaries":"My apiaries","desc.apiaries":"Apiaries and their basic information.","page.hives":"Hives","desc.hives":"Hive and bee colony records.","page.weights":"⚖️ Scales & honey flow","desc.weights":"Track hive weight, weight gain trends and honey flow.","page.inspections":"Inspection log","desc.inspections":"Record colony condition, queens, brood, food stores and work performed.","page.health":"🩺 Colony health","desc.health":"Track Varroa, disease signs and treatments for each hive.","page.wax":"🕯️ Wax & foundation records","page.products":"🌿 Propolis, pollen & bee bread","page.calendar":"Calendar","page.calculators":"🧮 Beekeeping calculators","page.queens":"👑 Breeding & queen rearing","page.colonies":"🐝 Swarms, splits & colony merging","page.honey":"Honey / batches","page.finances":"Finances","desc.finances":"Apiary income and expenses.","page.tasks":"Reminders","desc.tasks":"Tasks you do not want to forget.","page.photos":"Photos","desc.photos":"Hive and inspection photos are stored separately in your journal.","page.stats":"Statistics","desc.stats":"Colony condition and key journal metrics.","page.medicines":"💊 Medicines","desc.medicines":"Track apiary medicines, quantities and expiry dates.","page.disinfection":"🧴 Disinfection","desc.disinfection":"Track disinfection of apiaries, hives, frames and equipment: when, what, how and why.","page.contacts":"👥 Contacts","desc.contacts":"Suppliers, beekeepers and other important contacts. Birthdays help you remember to send greetings."}};
+  Object.assign(EXTRA.be, {
+    'settings.restoreTitle':'📥 Восстановление из JSON',
+    'settings.restoreHelp':'Загрузіце раней захаваную поўную копію журнала. Існуючыя запісы не выдаляюцца: запісы з супадаючымі ID будуць абноўлены, астатнія дададзены. Акаўнт, назва пчаляра і налады доступу не змяняюцца.',
+    'settings.backupLabel':'Рэзервовая копія журнала (.json)',
+    'settings.checkBackup':'Праверыць копію',
+    'settings.clearTitle':'🗑 Ачыстка журнала',
+    'settings.clearHelp':'Выдаленне даных вашага журнала без выдалення акаўнта, назвы пчаляра і налад доступу.',
+    'settings.clearHives':'Усе вуллі і пчальнікі',
+    'settings.clearInspections':'Агляды, гісторыя работ і перамяшчэння вулляў',
+    'settings.clearHealth':'Запісы пра здароўе, лячэнне і дэзінфекцыю',
+    'settings.clearHoney':'Партыі мёду, фасоўка і QR-этыкеткі',
+    'settings.clearMedicines':'Лекі і рух іх запасаў',
+    'settings.clearFinances':'Фінансавыя запісы і задачы',
+    'settings.clearPhotos':'Фатаграфіі і звязаныя файлы',
+    'settings.install':'Усталяваць журнал'
+  });
+  Object.assign(EXTRA.en, {
+    'settings.restoreTitle':'📥 Restore from JSON',
+    'settings.restoreHelp':'Upload a previously saved full journal backup. Existing records are not deleted: records with matching IDs will be updated, and the rest will be added. Your account, beekeeper name and access settings will not change.',
+    'settings.backupLabel':'Journal backup (.json)',
+    'settings.checkBackup':'Check backup',
+    'settings.clearTitle':'🗑 Clear journal',
+    'settings.clearHelp':'Delete your journal data without deleting your account, beekeeper name or access settings.',
+    'settings.clearHives':'All hives and apiaries',
+    'settings.clearInspections':'Inspections, work history and hive movements',
+    'settings.clearHealth':'Health, treatment and disinfection records',
+    'settings.clearHoney':'Honey batches, packaging and QR labels',
+    'settings.clearMedicines':'Medicines and stock movements',
+    'settings.clearFinances':'Financial records and tasks',
+    'settings.clearPhotos':'Photos and related files',
+    'settings.install':'Install journal'
+  });
   const UI_TEXT = {
     be: {
       'Email или номер телефона':'Email або нумар тэлефона','Пароль':'Пароль','Ваше имя':'Вашае імя','Email аккаунта':'Email акаўнта','Новый пароль':'Новы пароль','Повторите новый пароль':'Паўтарыце новы пароль',
