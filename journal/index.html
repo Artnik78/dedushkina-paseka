@@ -1370,7 +1370,7 @@ async function calculateSubscriptionQuote(){
   const result=$('subscriptionQuoteResult');
   const button=$('subscriptionQuoteBtn');
   if(!country){if(result)result.textContent='Сначала выберите страну оплаты.';return}
-  if(button){button.disabled=true;button.textContent='Получаем официальный курс…'}
+  if(button){button.disabled=true;button.textContent='Получаем курс…'}
   if(result)result.textContent='';
   try{
     const {data,error}=await db.functions.invoke('journal-subscription-quote',{body:{country_code:country}});
@@ -1379,7 +1379,8 @@ async function calculateSubscriptionQuote(){
     const amount=new Intl.NumberFormat('ru-RU',{minimumFractionDigits:0,maximumFractionDigits:2}).format(Number(data.amount));
     const rateDate=data.exchange_rate_date?new Date(data.exchange_rate_date+'T00:00:00'):null;
     const dateText=rateDate&&!Number.isNaN(rateDate.getTime())?rateDate.toLocaleDateString('ru-RU'):'не указана';
-    result.textContent='К оплате за 1 год: '+amount+' '+data.currency+'. Курс НБРБ на '+dateText+'. Базовая цена: 20 USD.';
+    const sourceText=data.source_type==='official'?'Официальный курс НБРБ':'Резервный курс (не официальный курс НБРБ)';
+    result.textContent='К оплате за 1 год: '+amount+' '+data.currency+'. '+sourceText+' на '+dateText+'. Базовая цена: 20 USD.';
     result.style.color='var(--green2)';
     window.currentSubscriptionQuote=data;
   }catch(error){
