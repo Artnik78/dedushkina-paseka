@@ -234,15 +234,15 @@ body.subscription-readonly #subscriptionStatusNote::after{content:" Режим �
 
 <div id="auth">
   <div class="authbox">
-    <h1>🐝 Мир пчеловодства</h1>
-    <p class="sub">Вход в цифровой журнал пасечника</p>
+    <h1 data-i18n="auth.title">🐝 Мир пчеловодства</h1>
+    <p class="sub" data-i18n="auth.subtitle">Вход в цифровой журнал пасечника</p>
 
     <div class="field"><label for="authIdentifier">Email или номер телефона</label><input id="authIdentifier" type="text" inputmode="email" autocomplete="username" placeholder="Введите email или +375291234567"></div>
     <div class="field"><label for="authPassword">Пароль</label><input id="authPassword" type="password" autocomplete="current-password" placeholder="Ваш пароль" maxlength="128" aria-describedby="passwordRequirements"></div>
     <div class="field" id="authDisplayNameField" style="display:none"><label for="authDisplayName">Ваше имя</label><input id="authDisplayName" type="text" maxlength="80" autocomplete="name" placeholder="Как к вам обращаться"></div>
-    <p class="muted" id="passwordRequirements" style="display:none;margin-top:-4px">Для регистрации: минимум 8 символов, строчные и заглавные латинские буквы, цифра и специальный символ (например ! или #).</p>
+    <p class="muted" id="passwordRequirements" data-i18n="auth.passwordRequirements" style="display:none;margin-top:-4px">Для регистрации: минимум 8 символов, строчные и заглавные латинские буквы, цифра и специальный символ (например ! или #).</p>
     <div class="cf-turnstile" id="signupTurnstile" data-sitekey="0x4AAAAAAFVRRKyWkIBv6dtO" data-action="signup"></div>
-    <p class="muted" id="authMethodHint">Введите email или телефон и пароль.</p>
+    <p class="muted" id="authMethodHint" data-i18n="auth.methodHint">Введите email или телефон и пароль.</p>
     <div class="auth-message" id="authMessage"></div>
     <div class="actions">
       <button class="btn" id="loginBtn">Войти</button>
@@ -253,14 +253,14 @@ body.subscription-readonly #subscriptionStatusNote::after{content:" Режим �
       <button type="button" class="btn secondary" id="forgotAccessBtn" style="white-space:normal">Забыли пароль или логин?</button>
     </div>
     <div id="recoveryPanel" class="panel" style="display:none;margin-top:12px;padding:14px">
-      <h3 style="margin-bottom:8px">Восстановление доступа</h3>
-      <p id="recoveryHelp" class="muted">Укажите email, на который регистрировали журнал. Мы отправим ссылку для смены пароля.</p>
+      <h3 data-i18n="auth.recoveryTitle" style="margin-bottom:8px">Восстановление доступа</h3>
+      <p id="recoveryHelp" class="muted" data-i18n="auth.recoveryHelp">Укажите email, на который регистрировали журнал. Мы отправим ссылку для смены пароля.</p>
       <div id="recoveryEmailFields">
         <div class="field"><label for="recoveryEmail">Email аккаунта</label><input id="recoveryEmail" type="email" autocomplete="email" placeholder="name@example.com"></div>
         <div class="actions"><button type="button" class="btn gold" id="sendRecoveryEmailBtn">Отправить ссылку</button></div>
       </div>
       <div id="recoveryPhoneHelp" style="display:none">
-        <p class="muted">Для входа по телефону SMS-подтверждение не используется, поэтому автоматический сброс по одному номеру небезопасен. Не отправляйте пароль никому. Свяжитесь с владельцем журнала для проверки личности и восстановления доступа.</p>
+        <p class="muted" data-i18n="auth.phoneHelp">Для входа по телефону SMS-подтверждение не используется, поэтому автоматический сброс по одному номеру небезопасен. Не отправляйте пароль никому. Свяжитесь с владельцем журнала для проверки личности и восстановления доступа.</p>
       </div>
       <div id="recoveryNewPasswordFields" style="display:none">
         <div class="field"><label for="recoveryNewPassword">Новый пароль</label><input id="recoveryNewPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" placeholder="Не менее 8 символов"></div>
@@ -1210,7 +1210,7 @@ body.subscription-readonly #subscriptionStatusNote::after{content:" Режим �
 </div>
 <div id="journalError" style="display:none;position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:99999;max-width:min(900px,92vw);padding:14px 18px;border:2px solid #b33;border-radius:12px;background:#fff4f2;color:#7a2018;box-shadow:0 8px 30px rgba(0,0,0,.2);font:14px/1.45 Arial,sans-serif;white-space:pre-wrap"></div><div class="toast" id="toast"></div>
 
-<script src="i18n.js?v=5"></script>
+<script src="i18n.js?v=6"></script>
 <script>
 // Keep the live GitHub Pages journal isolated from the Vercel test journal.
 const IS_PRODUCTION_JOURNAL = window.location.hostname === 'artnik78.github.io';
