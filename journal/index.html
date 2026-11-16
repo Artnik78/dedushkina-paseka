@@ -299,27 +299,27 @@ body.subscription-readonly #subscriptionStatusNote::after{content:" Режим �
 <aside class="sidebar">
   <div class="brand"><div class="brand-b">🐝</div><div><strong id="sidebarJournalName">Дедушкина пасека</strong><span>Цифровой журнал пасечника</span></div></div>
   <nav class="nav">
-    <button class="active" data-page="home">🏠 Главная</button>
-    <button data-page="apiaries">🍯 Мои пасеки</button>
-    <button data-page="hives">⬡ Ульи</button>
-    <button data-page="inspections">📋 Осмотры</button>
-    <button data-page="weights">⚖️ Весы и медосбор</button>
-    <button data-page="health">🩺 Здоровье</button>
-    <button data-page="queens">👑 Племенная работа</button>
-    <button data-page="colonies">🐝 Рои и отводки</button>
-    <button data-page="wax">🕯️ Воск и вощина</button>
-    <button data-page="apiary-products">🌿 Прополис, пыльца и перга</button>
-    <button data-page="calendar">📅 Календарь</button>
-    <button data-page="honey">🍯 Мёд / партии</button>
-    <button data-page="calculators">🧮 Калькуляторы</button>
-    <button data-page="finances">💰 Финансы</button>
-    <button data-page="tasks">🔔 Напоминания</button>
-    <button data-page="medicines">💊 Лекарства</button>
-    <button data-page="disinfection">🧴 Дезинфекция</button>
-    <button data-page="contacts">👥 Контакты</button>
-    <button data-page="photos">📷 Фото</button>
-    <button data-page="stats">📊 Статистика</button>
-    <button data-page="settings">⚙️ Настройки</button>
+    <button class="active" data-page="home" data-i18n="nav.home">🏠 Главная</button>
+    <button data-page="apiaries" data-i18n="nav.apiaries">🍯 Мои пасеки</button>
+    <button data-page="hives" data-i18n="nav.hives">⬡ Ульи</button>
+    <button data-page="inspections" data-i18n="nav.inspections">📋 Осмотры</button>
+    <button data-page="weights" data-i18n="nav.weights">⚖️ Весы и медосбор</button>
+    <button data-page="health" data-i18n="nav.health">🩺 Здоровье</button>
+    <button data-page="queens" data-i18n="nav.queens">👑 Племенная работа</button>
+    <button data-page="colonies" data-i18n="nav.colonies">🐝 Рои и отводки</button>
+    <button data-page="wax" data-i18n="nav.wax">🕯️ Воск и вощина</button>
+    <button data-page="apiary-products" data-i18n="nav.products">🌿 Прополис, пыльца и перга</button>
+    <button data-page="calendar" data-i18n="nav.calendar">📅 Календарь</button>
+    <button data-page="honey" data-i18n="nav.honey">🍯 Мёд / партии</button>
+    <button data-page="calculators" data-i18n="nav.calculators">🧮 Калькуляторы</button>
+    <button data-page="finances" data-i18n="nav.finances">💰 Финансы</button>
+    <button data-page="tasks" data-i18n="nav.tasks">🔔 Напоминания</button>
+    <button data-page="medicines" data-i18n="nav.medicines">💊 Лекарства</button>
+    <button data-page="disinfection" data-i18n="nav.disinfection">🧴 Дезинфекция</button>
+    <button data-page="contacts" data-i18n="nav.contacts">👥 Контакты</button>
+    <button data-page="photos" data-i18n="nav.photos">📷 Фото</button>
+    <button data-page="stats" data-i18n="nav.stats">📊 Статистика</button>
+    <button data-page="settings" data-i18n="nav.settings">⚙️ Настройки</button>
   </nav>
 </aside>
 
@@ -336,7 +336,7 @@ body.subscription-readonly #subscriptionStatusNote::after{content:" Режим �
     <section id="page-home" class="section active">
       <div class="home-masthead">
         <div class="mast-brand">🐝 <span id="homeJournalName">Дедушкина<br>пасека</span></div>
-        <div class="mast-title"><strong>Журнал пасечника</strong><span><span id="homeApiarySubtitle">Название пасеки</span> · Натуральный мёд с родных полей</span></div>
+        <div class="mast-title"><strong data-i18n="home.title">Журнал пасечника</strong><span><span id="homeApiarySubtitle">Название пасеки</span> · Натуральный мёд с родных полей</span></div>
         <div class="mast-info">
           <span>📅 <b id="homeDateLabel">Сегодня</b></span>
           <span id="homeWeatherLabel">🌤️ Погода не настроена</span>
@@ -345,12 +345,12 @@ body.subscription-readonly #subscriptionStatusNote::after{content:" Режим �
         </div>
       </div>
       <div class="hero">
-        <h2>Добро пожаловать на пасеку 🐝</h2>
+        <h2 data-i18n="home.welcome">Добро пожаловать на пасеку 🐝</h2>
         <p class="sub" id="homeLocationIntro">Цифровой журнал пасечника «Дедушкина пасека».</p>
         <div class="actions">
-          <button class="btn gold" data-page="hives">➕ Добавить улей</button>
-          <button class="btn secondary" data-page="inspections">📋 Записать осмотр</button>
-          <button class="btn secondary" data-page="honey">🍯 Добавить партию мёда</button>
+          <button class="btn gold" data-page="hives" data-i18n="home.addHive">➕ Добавить улей</button>
+          <button class="btn secondary" data-page="inspections" data-i18n="home.addInspection">📋 Записать осмотр</button>
+          <button class="btn secondary" data-page="honey" data-i18n="home.addHoney">🍯 Добавить партию мёда</button>
           <button class="btn secondary" data-page="honey">📄 Паспорт мёда</button>
           <button class="btn secondary" id="homePackagingShortcut" type="button" onclick="showPage('honey');setTimeout(()=>document.getElementById('honeyPackagingPanel')?.scrollIntoView({behavior:'smooth',block:'start'}),100)">🫙 Фасовка и QR-коды</button>
           <button class="btn secondary" data-page="apiaries">🏡 Паспорт пасеки</button>
@@ -1065,7 +1065,20 @@ body.subscription-readonly #subscriptionStatusNote::after{content:" Режим �
     </section>
 
     <section id="page-settings" class="section">
-      <h1>Настройки</h1><p class="sub">Ваш личный журнал.</p>
+      <h1 data-i18n="settings.title">Настройки</h1><p class="sub" data-i18n="settings.subtitle">Ваш личный журнал.</p>
+      <div class="panel" id="journalLanguagePanel">
+        <h3 data-i18n="settings.languageTitle">🌐 Язык интерфейса</h3>
+        <p class="muted" data-i18n="settings.languageHelp">Выберите язык, на котором вам удобно работать. Настройка сохранится в вашем аккаунте.</p>
+        <div class="field" style="max-width:360px">
+          <label for="journalLanguageSelect" data-i18n="settings.languageLabel">Язык журнала</label>
+          <select id="journalLanguageSelect">
+            <option value="ru">🇷🇺 Русский</option>
+            <option value="be">🇧🇾 Беларуская</option>
+            <option value="en">🇬🇧 English</option>
+          </select>
+        </div>
+        <p id="journalLanguageStatus" class="muted" role="status" aria-live="polite"></p>
+      </div>
       <div class="panel">
         <h3>Моя учётная запись</h3>
         <p><b>Email:</b> <span id="settingsUserEmail">—</span></p>
@@ -1197,6 +1210,7 @@ body.subscription-readonly #subscriptionStatusNote::after{content:" Режим �
 </div>
 <div id="journalError" style="display:none;position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:99999;max-width:min(900px,92vw);padding:14px 18px;border:2px solid #b33;border-radius:12px;background:#fff4f2;color:#7a2018;box-shadow:0 8px 30px rgba(0,0,0,.2);font:14px/1.45 Arial,sans-serif;white-space:pre-wrap"></div><div class="toast" id="toast"></div>
 
+<script src="i18n.js?v=1"></script>
 <script>
 // Keep the live GitHub Pages journal isolated from the Vercel test journal.
 const IS_PRODUCTION_JOURNAL = window.location.hostname === 'artnik78.github.io';
@@ -1949,6 +1963,7 @@ async function showApp(user){
       $('authMessage').textContent='Профиль журнала ещё создаётся. Обновите страницу через минуту.';
       return;
     }
+    if(window.JournalI18n) window.JournalI18n.init(user,db);
     if(profile.approval_status==='rejected'){
       $('auth').style.display='flex'; $('app').style.display='none';
       $('authMessage').textContent='Заявка отклонена. Если это ошибка, свяжитесь с владельцем журнала.';
