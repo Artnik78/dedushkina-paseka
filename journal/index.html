@@ -1117,13 +1117,13 @@ body.subscription-readonly #subscriptionStatusNote::after{content:" Режим �
         <p id="pushStatus" class="muted" role="status" aria-live="polite" data-i18n="settings.pushNotConnected">Push ещё не подключён на этом устройстве.</p>
       </div>
       <div class="panel" id="restoreJournalPanel">
-        <h3>📥 Восстановление из JSON</h3>
-        <p class="muted">Загрузите ранее сохранённую полную копию журнала. Существующие записи не удаляются: записи с совпадающими ID будут обновлены, остальные добавлены. Аккаунт, название пасечника и настройки доступа не изменяются.</p>
+        <h3 data-i18n="settings.restoreTitle">📥 Восстановление из JSON</h3>
+        <p class="muted" data-i18n="settings.restoreHelp">Загрузите ранее сохранённую полную копию журнала. Существующие записи не удаляются: записи с совпадающими ID будут обновлены, остальные добавлены. Аккаунт, название пасечника и настройки доступа не изменяются.</p>
         <div class="field" style="max-width:560px">
-          <label for="restoreJsonFile">Резервная копия журнала (.json)</label>
+          <label for="restoreJsonFile" data-i18n="settings.backupLabel">Резервная копия журнала (.json)</label>
           <input id="restoreJsonFile" type="file" accept=".json,application/json">
         </div>
-        <div class="actions"><button type="button" class="btn gold" id="restorePreviewBtn">Проверить копию</button></div>
+        <div class="actions"><button type="button" class="btn gold" id="restorePreviewBtn" data-i18n="settings.checkBackup">Проверить копию</button></div>
         <div id="restorePreview" style="display:none;margin-top:14px;padding:14px;border:1px solid var(--line);border-radius:12px">
           <div id="restorePreviewSummary"></div>
           <p class="muted" style="margin-top:10px">Файл JSON содержит данные записей, но не сами фотографии. Записи фото будут пропущены, поскольку файлы изображений в резервную копию не включены. Перед восстановлением сохраните текущую копию журнала.</p>
@@ -1133,16 +1133,16 @@ body.subscription-readonly #subscriptionStatusNote::after{content:" Режим �
         </div>
       </div>
       <div class="panel" id="clearJournalPanel" style="border:1px solid #d97757;background:rgba(180,65,45,.06)">
-        <h3>🗑 Очистка журнала</h3>
-        <p class="muted">Удаление данных вашего журнала без удаления аккаунта, названия пасечника и настроек доступа.</p>
+        <h3 data-i18n="settings.clearTitle">🗑 Очистка журнала</h3>
+        <p class="muted" data-i18n="settings.clearHelp">Удаление данных вашего журнала без удаления аккаунта, названия пасечника и настроек доступа.</p>
         <ul style="padding-left:22px;line-height:1.8">
-          <li>Все ульи и пасеки</li>
-          <li>Осмотры, история работ и движения ульев</li>
-          <li>Записи здоровья, лечения и дезинфекции</li>
-          <li>Партии мёда, фасовка и QR-этикетки</li>
-          <li>Лекарства и движение их запасов</li>
-          <li>Финансовые записи и задачи</li>
-          <li>Фотографии и связанные файлы</li>
+          <li data-i18n="settings.clearHives">Все ульи и пасеки</li>
+          <li data-i18n="settings.clearInspections">Осмотры, история работ и движения ульев</li>
+          <li data-i18n="settings.clearHealth">Записи здоровья, лечения и дезинфекции</li>
+          <li data-i18n="settings.clearHoney">Партии мёда, фасовка и QR-этикетки</li>
+          <li data-i18n="settings.clearMedicines">Лекарства и движение их запасов</li>
+          <li data-i18n="settings.clearFinances">Финансовые записи и задачи</li>
+          <li data-i18n="settings.clearPhotos">Фотографии и связанные файлы</li>
         </ul>
         <p style="font-weight:700;color:#b43d2d">⚠️ Внимание: удалённые данные восстановить будет нельзя. Перед очисткой при необходимости скачайте копию журнала в разделе «Экспорт данных».</p>
         <div class="actions"><button type="button" class="btn danger" id="clearJournalStartBtn">🗑 Очистить журнал…</button></div>
