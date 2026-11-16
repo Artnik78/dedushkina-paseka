@@ -205,6 +205,30 @@
     'Сохранить операцию':'Save operation','Сохранить изменения':'Save changes','Изменить':'Edit','Удалить':'Delete',
     'Экспорт CSV':'Export CSV','Очистить форму':'Clear form'
   });
+  Object.assign(UI_STATIC.be, {
+    'Журнал пчеловода':'Журнал пчаляра','Сердечно приглашаем на пасеку 🐝':'Сардэчна запрашаем на пчальнік 🐝',
+    'Цифровой журнал пасечника · Укажите район в настройках пасеки.':'Лічбавы журнал пчаляра · Укажыце раён у наладах пчальніка.',
+    'Паспорт мёда':'Пашпарт мёду','Фасовка и QR-коды':'Фасоўка і QR-коды',
+    'КОНТРОЛЬ ПАСЕКИ':'КАНТРОЛЬ ПЧАЛЬНІКА','Напоминания':'Напаміны','Дезинфекция':'Дэзінфекцыя',
+    'Лекарства — требуют внимания':'Лекі — патрабуюць увагі','Открыть лекарства':'Адкрыць лекі',
+    'Срочных племенных напоминаний нет. Когда появятся серии с контрольными датами, они отобразятся здесь.':'Тэрміновых племянных напамінаў няма. Калі з’явяцца серыі з кантрольнымі датамі, яны будуць паказаныя тут.',
+    'Записей о дезинфекции пока нет.':'Запісаў пра дэзінфекцыю пакуль няма.','Открыть':'Адкрыць','Все':'Усе',
+    'История движения воска и вощины':'Гісторыя руху воску і вашчыны','История операций':'Гісторыя аперацый',
+    'Операций пока нет. Добавьте поступление воска или первую сдачу в переработку.':'Аперацый пакуль няма. Дадайце паступленне воску або першую здачу ў перапрацоўку.',
+    'Пока нет операций.':'Пакуль няма аперацый.','Пока нет операций с воском.':'Пакуль няма аперацый з воскам.'
+  });
+  Object.assign(UI_STATIC.en, {
+    'Журнал пчеловода':'Beekeeper journal','Сердечно приглашаем на пасеку 🐝':'Welcome to the apiary 🐝',
+    'Цифровой журнал пасечника · Укажите район в настройках пасеки.':'Digital beekeeper journal · Set your district in apiary settings.',
+    'Паспорт мёда':'Honey passport','Фасовка и QR-коды':'Packaging and QR codes',
+    'КОНТРОЛЬ ПАСЕКИ':'APIARY CONTROL','Напоминания':'Reminders','Дезинфекция':'Disinfection',
+    'Лекарства — требуют внимания':'Medicines need attention','Открыть лекарства':'Open medicines',
+    'Срочных племенных напоминаний нет. Когда появятся серии с контрольными датами, они отобразятся здесь.':'No urgent queen-breeding reminders. Series with check dates will appear here.',
+    'Записей о дезинфекции пока нет.':'No disinfection records yet.','Открыть':'Open','Все':'All',
+    'История движения воска и вощины':'Wax and foundation history','История операций':'Operation history',
+    'Операций пока нет. Добавьте поступление воска или первую сдачу в переработку.':'No operations yet. Add wax received or the first processing shipment.',
+    'Пока нет операций.':'No operations yet.','Пока нет операций с воском.':'No wax operations yet.'
+  });
   const UI_PLACEHOLDERS = {
     be: {'Введите email или +375291234567':'Увядзіце email або +375291234567','Ваш пароль':'Ваш пароль','Как к вам обращаться':'Як да вас звяртацца','name@example.com':'name@example.com','Не менее 8 символов':'Не менш за 8 сімвалаў','Повторите пароль':'Паўтарыце пароль','Поиск по журналу...':'Пошук па журнале...','Например, Дедушкина пасека':'Напрыклад, Дзядуляў пчальнік','Основная пасека, количество ульев, особенности...':'Асноўны пчальнік, колькасць вулляў, асаблівасці...','Что обнаружено при осмотре':'Што выяўлена падчас агляду','Например, поставлены полоски':'Напрыклад, пастаўлены палоскі','Что нужно сделать?':'Што трэба зрабіць?','Выберите препарат выше или введите название':'Выберыце прэпарат вышэй або ўвядзіце назву'},
     en: {'Введите email или +375291234567':'Enter email or +375291234567','Ваш пароль':'Your password','Как к вам обращаться':'What should we call you?','name@example.com':'name@example.com','Не менее 8 символов':'At least 8 characters','Повторите пароль':'Repeat password','Поиск по журналу...':'Search the journal...','Например, Дедушкина пасека':'e.g. Grandpa’s Apiary','Основная пасека, количество ульев, особенности...':'Main apiary, number of hives, details...','Что обнаружено при осмотре':'What was found during inspection','Например, поставлены полоски':'e.g. Strips were applied','Что нужно сделать?':'What needs to be done?','Выберите препарат выше или введите название':'Select a medicine above or enter a name'}
@@ -321,7 +345,7 @@
       if(value!==undefined) el.textContent=value;
     });
     const staticMap=UI_STATIC[current]||{};
-    queryAll(root,'#app .section > h1, #app .section > p.sub, #app .section .panel > h3, #app .section .section-head h3, #app .section .section-head .muted, #app .section .panel > .muted').forEach(el=>{
+    queryAll(root,'#app .section > h1, #app .section > p.sub, #app .section .panel > h3, #app .section .section-head h3, #app .section .section-head .muted, #app .section .panel > .muted, #page-home .hero h2, #page-home .hero > .sub, #page-home .home-dashboard-row .eyebrow').forEach(el=>{
       const original=el.dataset.i18nStaticOriginal??(el.textContent||'').replace(/\\s+/g,' ').trim();
       if(!el.dataset.i18nStaticOriginal)el.dataset.i18nStaticOriginal=original;
       if(staticMap[original]!==undefined)el.textContent=staticMap[original];
