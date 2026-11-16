@@ -104,6 +104,7 @@
     });
     const uiMap=UI_TEXT[current]||{};
     root.querySelectorAll('label,button').forEach(el=>{
+      if(el.tagName==='LABEL'&&el.querySelector('input,select,textarea,button'))return;
       const original=(el.textContent||'').replace(/\\s+/g,' ').trim();
       if(uiMap[original]!==undefined) el.textContent=uiMap[original];
     });
