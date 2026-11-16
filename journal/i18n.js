@@ -144,22 +144,26 @@
     const uiMap=UI_TEXT[current]||{};
     root.querySelectorAll('label,button').forEach(el=>{
       if(el.tagName==='LABEL'&&el.querySelector('input,select,textarea,button'))return;
-      const original=(el.textContent||'').replace(/\\s+/g,' ').trim();
+      const original=el.dataset.i18nOriginal??(el.textContent||'').replace(/\\s+/g,' ').trim();
+      if(!el.dataset.i18nOriginal)el.dataset.i18nOriginal=original;
       if(uiMap[original]!==undefined) el.textContent=uiMap[original];
     });
     const placeholderMap=UI_PLACEHOLDERS[current]||{};
     root.querySelectorAll('[placeholder]').forEach(el=>{
-      const original=el.getAttribute('placeholder');
+      const original=el.dataset.i18nPlaceholder??el.getAttribute('placeholder');
+      if(!el.dataset.i18nPlaceholder)el.dataset.i18nPlaceholder=original;
       if(placeholderMap[original]!==undefined) el.setAttribute('placeholder',placeholderMap[original]);
     });
     const optionMap=UI_OPTIONS[current]||{};
     root.querySelectorAll('select option').forEach(el=>{
-      const original=(el.textContent||'').trim();
+      const original=el.dataset.i18nOriginal??(el.textContent||'').trim();
+      if(!el.dataset.i18nOriginal)el.dataset.i18nOriginal=original;
       if(optionMap[original]!==undefined)el.textContent=optionMap[original];
     });
     const tableMap=UI_TABLES[current]||{};
     root.querySelectorAll('th').forEach(el=>{
-      const original=(el.textContent||'').replace(/\\s+/g,' ').trim();
+      const original=el.dataset.i18nOriginal??(el.textContent||'').replace(/\\s+/g,' ').trim();
+      if(!el.dataset.i18nOriginal)el.dataset.i18nOriginal=original;
       if(tableMap[original]!==undefined)el.textContent=tableMap[original];
     });
     root.documentElement?.setAttribute('lang',current);
