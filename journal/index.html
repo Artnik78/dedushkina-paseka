@@ -1126,9 +1126,9 @@ body.subscription-readonly #subscriptionStatusNote::after{content:" Режим �
         <div class="actions"><button type="button" class="btn gold" id="restorePreviewBtn" data-i18n="settings.checkBackup">Проверить копию</button></div>
         <div id="restorePreview" style="display:none;margin-top:14px;padding:14px;border:1px solid var(--line);border-radius:12px">
           <div id="restorePreviewSummary"></div>
-          <p class="muted" style="margin-top:10px">Файл JSON содержит данные записей, но не сами фотографии. Записи фото будут пропущены, поскольку файлы изображений в резервную копию не включены. Перед восстановлением сохраните текущую копию журнала.</p>
-          <label style="display:flex;align-items:flex-start;gap:8px;margin:12px 0"><input type="checkbox" id="restoreConfirmCheck" style="margin-top:4px"> Я проверил выбранный файл и понимаю, что совпадающие ID существующих записей будут обновлены.</label>
-          <div class="actions"><button type="button" class="btn gold" id="restoreRunBtn" disabled>Начать восстановление</button><button type="button" class="btn secondary" id="restoreCancelBtn">Отмена</button></div>
+          <p class="muted" style="margin-top:10px" data-i18n="settings.restorePhotoNote">Файл JSON содержит данные записей, но не сами фотографии. Записи фото будут пропущены, поскольку файлы изображений в резервную копию не включены. Перед восстановлением сохраните текущую копию журнала.</p>
+          <label style="display:flex;align-items:flex-start;gap:8px;margin:12px 0"><input type="checkbox" id="restoreConfirmCheck" style="margin-top:4px"> <span data-i18n="settings.restoreConfirm">Я проверил выбранный файл и понимаю, что совпадающие ID существующих записей будут обновлены.</span></label>
+          <div class="actions"><button type="button" class="btn gold" id="restoreRunBtn" disabled data-i18n="settings.restoreStart">Начать восстановление</button><button type="button" class="btn secondary" id="restoreCancelBtn" data-i18n="settings.cancel">Отмена</button></div>
           <p id="restoreStatus" class="muted" role="status" aria-live="polite"></p>
         </div>
       </div>
@@ -1144,41 +1144,41 @@ body.subscription-readonly #subscriptionStatusNote::after{content:" Режим �
           <li data-i18n="settings.clearFinances">Финансовые записи и задачи</li>
           <li data-i18n="settings.clearPhotos">Фотографии и связанные файлы</li>
         </ul>
-        <p style="font-weight:700;color:#b43d2d">⚠️ Внимание: удалённые данные восстановить будет нельзя. Перед очисткой при необходимости скачайте копию журнала в разделе «Экспорт данных».</p>
-        <div class="actions"><button type="button" class="btn danger" id="clearJournalStartBtn">🗑 Очистить журнал…</button></div>
+        <p style="font-weight:700;color:#b43d2d" data-i18n="settings.clearWarning">⚠️ Внимание: удалённые данные восстановить будет нельзя. Перед очисткой при необходимости скачайте копию журнала в разделе «Экспорт данных».</p>
+        <div class="actions"><button type="button" class="btn danger" id="clearJournalStartBtn" data-i18n="settings.clearStart">🗑 Очистить журнал…</button></div>
         <div id="clearJournalConfirm" style="display:none;margin-top:14px;padding:14px;border:1px solid #b43d2d;border-radius:12px">
-          <p><b>Подтверждение 2 из 2.</b> Будут удалены все перечисленные данные только вашего аккаунта. Аккаунт, название пасечника и доступ останутся.</p>
-          <p class="muted">Для подтверждения введите точно: <b>УДАЛИТЬ ВСЁ</b></p>
-          <div class="field" style="max-width:360px"><label for="clearJournalPhrase">Подтверждение удаления</label><input id="clearJournalPhrase" autocomplete="off" placeholder="УДАЛИТЬ ВСЁ"></div>
+          <p><b data-i18n="settings.clearConfirmTitle">Подтверждение 2 из 2.</b> <span data-i18n="settings.clearConfirmHelp">Будут удалены все перечисленные данные только вашего аккаунта. Аккаунт, название пасечника и доступ останутся.</span></p>
+          <p class="muted"><span data-i18n="settings.clearType">Для подтверждения введите точно:</span> <b>УДАЛИТЬ ВСЁ</b></p>
+          <div class="field" style="max-width:360px"><label for="clearJournalPhrase" data-i18n="settings.clearPhrase">Подтверждение удаления</label><input id="clearJournalPhrase" autocomplete="off" placeholder="УДАЛИТЬ ВСЁ"></div>
           <div class="actions">
-            <button type="button" class="btn danger" id="clearJournalConfirmBtn" disabled>Да, безвозвратно удалить</button>
-            <button type="button" class="btn secondary" id="clearJournalCancelBtn">Отмена</button>
+            <button type="button" class="btn danger" id="clearJournalConfirmBtn" disabled data-i18n="settings.clearYes">Да, безвозвратно удалить</button>
+            <button type="button" class="btn secondary" id="clearJournalCancelBtn" data-i18n="settings.cancel">Отмена</button>
           </div>
         </div>
         <p id="clearJournalStatus" class="muted" role="status" aria-live="polite"></p>
       </div>
       <div class="panel">
-        <h3>📦 Экспорт данных</h3>
-        <p class="muted">Скачать копию журнала для хранения или переноса. Фотографии отдельно не входят в JSON/CSV.</p>
+        <h3 data-i18n="settings.exportTitle">📦 Экспорт данных</h3>
+        <p class="muted" data-i18n="settings.exportHelp">Скачать копию журнала для хранения или переноса. Фотографии отдельно не входят в JSON/CSV.</p>
         <div class="actions" style="flex-wrap:wrap">
-          <button type="button" class="btn gold" id="exportJsonBtn">⬇️ Полная копия JSON</button>
-          <button type="button" class="btn secondary export-csv" data-export="hives">Ульи CSV</button>
-          <button type="button" class="btn secondary export-csv" data-export="inspections">Осмотры CSV</button>
-          <button type="button" class="btn secondary export-csv" data-export="health">Здоровье CSV</button>
-          <button type="button" class="btn secondary export-csv" data-export="treatments">Лечение CSV</button>
-          <button type="button" class="btn secondary export-csv" data-export="queens">Матки CSV</button>
-          <button type="button" class="btn secondary export-csv" data-export="honey">Мёд CSV</button>
-          <button type="button" class="btn secondary export-csv" data-export="tasks">Напоминания CSV</button>
-          <button type="button" class="btn secondary export-csv" data-export="finance">Финансы CSV</button>
-          <button type="button" class="btn secondary export-csv" data-export="medicines">Лекарства CSV</button><button type="button" class="btn secondary export-csv" data-export="medicineStockMovements">Движение лекарств CSV</button>
+          <button type="button" class="btn gold" id="exportJsonBtn" data-i18n="settings.exportFull">⬇️ Полная копия JSON</button>
+          <button type="button" class="btn secondary export-csv" data-export="hives" data-i18n="settings.exportHives">Ульи CSV</button>
+          <button type="button" class="btn secondary export-csv" data-export="inspections" data-i18n="settings.exportInspections">Осмотры CSV</button>
+          <button type="button" class="btn secondary export-csv" data-export="health" data-i18n="settings.exportHealth">Здоровье CSV</button>
+          <button type="button" class="btn secondary export-csv" data-export="treatments" data-i18n="settings.exportTreatments">Лечение CSV</button>
+          <button type="button" class="btn secondary export-csv" data-export="queens" data-i18n="settings.exportQueens">Матки CSV</button>
+          <button type="button" class="btn secondary export-csv" data-export="honey" data-i18n="settings.exportHoney">Мёд CSV</button>
+          <button type="button" class="btn secondary export-csv" data-export="tasks" data-i18n="settings.exportTasks">Напоминания CSV</button>
+          <button type="button" class="btn secondary export-csv" data-export="finance" data-i18n="settings.exportFinance">Финансы CSV</button>
+          <button type="button" class="btn secondary export-csv" data-export="medicines" data-i18n="settings.exportMedicines">Лекарства CSV</button><button type="button" class="btn secondary export-csv" data-export="medicineStockMovements" data-i18n="settings.exportMedicineMoves">Движение лекарств CSV</button>
         </div>
       </div>
       <div class="panel" id="userAccessPanel" style="display:none">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
-          <div><h3 style="margin-bottom:4px">👥 Пользователи журнала</h3><p class="muted">Только владелец может разрешать и блокировать доступ.</p></div>
-          <button class="btn secondary" type="button" id="refreshUsersBtn">Обновить</button>
+          <div><h3 style="margin-bottom:4px" data-i18n="settings.usersTitle">👥 Пользователи журнала</h3><p class="muted" data-i18n="settings.usersHelp">Только владелец может разрешать и блокировать доступ.</p></div>
+          <button class="btn secondary" type="button" id="refreshUsersBtn" data-i18n="settings.refreshUsers">Обновить</button>
         </div>
-        <div id="userAccessList" class="empty">Загрузка...</div>
+        <div id="userAccessList" class="empty" data-i18n="settings.loading">Загрузка...</div>
       </div>
     </section>
     </div>
