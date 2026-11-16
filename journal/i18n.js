@@ -126,6 +126,7 @@
   let current='ru', client=null, user=null;
   function valid(lang){return LANGS.includes(lang)?lang:'ru'}
   function translateMessage(message){const source=String(message??'');const map=UI_MESSAGES[current]||{};return map[source]!==undefined?map[source]:source;}
+  function queryAll(root,selector){const found=Array.from(root.querySelectorAll(selector));if(root.nodeType===1&&root.matches(selector))found.unshift(root);return found;}
   function apply(root=document){
     const dict={...(DICT[current]||DICT.ru),...(EXTRA[current]||{})};
     const sectionIds=['apiaries','hives','weights','inspections','health','wax','apiary-products','calendar','calculators','queens','colonies','honey','finances','tasks','photos','stats','medicines','disinfection','contacts'];
@@ -137,31 +138,31 @@
       if(heading&&dict['page.'+(id==='apiary-products'?'products':id)])heading.textContent=dict['page.'+(id==='apiary-products'?'products':id)];
       if(subtitle&&dict['desc.'+id])subtitle.textContent=dict['desc.'+id];
     });
-    root.querySelectorAll('[data-i18n]').forEach(el=>{
+    queryAll(root,'[data-i18n]').forEach(el=>{
       const value=dict[el.dataset.i18n];
       if(value!==undefined) el.textContent=value;
     });
     const uiMap=UI_TEXT[current]||{};
-    root.querySelectorAll('label,button').forEach(el=>{
+    queryAll(root,'label,button').forEach(el=>{
       if(el.tagName==='LABEL'&&el.querySelector('input,select,textarea,button'))return;
       const original=el.dataset.i18nOriginal??(el.textContent||'').replace(/\\s+/g,' ').trim();
       if(!el.dataset.i18nOriginal)el.dataset.i18nOriginal=original;
       if(uiMap[original]!==undefined) el.textContent=uiMap[original];
     });
     const placeholderMap=UI_PLACEHOLDERS[current]||{};
-    root.querySelectorAll('[placeholder]').forEach(el=>{
+    queryAll(root,'[placeholder]').forEach(el=>{
       const original=el.dataset.i18nPlaceholder??el.getAttribute('placeholder');
       if(!el.dataset.i18nPlaceholder)el.dataset.i18nPlaceholder=original;
       if(placeholderMap[original]!==undefined) el.setAttribute('placeholder',placeholderMap[original]);
     });
     const optionMap=UI_OPTIONS[current]||{};
-    root.querySelectorAll('select option').forEach(el=>{
+    queryAll(root,'select option').forEach(el=>{
       const original=el.dataset.i18nOriginal??(el.textContent||'').trim();
       if(!el.dataset.i18nOriginal)el.dataset.i18nOriginal=original;
       if(optionMap[original]!==undefined)el.textContent=optionMap[original];
     });
     const tableMap=UI_TABLES[current]||{};
-    root.querySelectorAll('th').forEach(el=>{
+    queryAll(root,'th').forEach(el=>{
       const original=el.dataset.i18nOriginal??(el.textContent||'').replace(/\\s+/g,' ').trim();
       if(!el.dataset.i18nOriginal)el.dataset.i18nOriginal=original;
       if(tableMap[original]!==undefined)el.textContent=tableMap[original];
