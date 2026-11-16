@@ -84,6 +84,28 @@
     'settings.clearPhotos':'Photos and related files',
     'settings.install':'Install journal'
   });
+  Object.assign(EXTRA.be, {
+    'settings.restorePhotoNote':'Файл JSON змяшчае даныя запісаў, але не самі фатаграфіі. Запісы фота будуць прапушчаны, бо файлы выяў не ўключаны ў рэзервовую копію. Перад аднаўленнем захавайце бягучую копію журнала.',
+    'settings.restoreConfirm':'Я праверыў выбраны файл і разумею, што запісы з супадаючымі ID будуць абноўлены.',
+    'settings.restoreStart':'Пачаць аднаўленне','settings.cancel':'Адмена',
+    'settings.clearWarning':'⚠️ Увага: выдаленыя даныя немагчыма будзе аднавіць. Перад ачысткай пры неабходнасці спампуйце копію журнала ў раздзеле «Экспарт даных».',
+    'settings.clearStart':'🗑 Ачысціць журнал…','settings.clearConfirmTitle':'Пацвярджэнне 2 з 2.','settings.clearConfirmHelp':'Будуць выдалены ўсе пералічаныя даныя толькі вашага акаўнта. Акаўнт, назва пчаляра і доступ застануцца.',
+    'settings.clearType':'Для пацвярджэння ўвядзіце дакладна:','settings.clearPhrase':'Пацвярджэнне выдалення','settings.clearPlaceholder':'ВЫДАЛІЦЬ УСЁ','settings.clearYes':'Так, выдаліць незваротна',
+    'settings.exportTitle':'📦 Экспарт даных','settings.exportHelp':'Спампаваць копію журнала для захоўвання або пераносу. Фатаграфіі асобна не ўключаюцца ў JSON/CSV.',
+    'settings.exportFull':'⬇️ Поўная копія JSON','settings.exportHives':'Вуллі CSV','settings.exportInspections':'Агляды CSV','settings.exportHealth':'Здароўе CSV','settings.exportTreatments':'Лячэнне CSV','settings.exportQueens':'Маткі CSV','settings.exportHoney':'Мёд CSV','settings.exportTasks':'Напаміны CSV','settings.exportFinance':'Фінансы CSV','settings.exportMedicines':'Лекі CSV','settings.exportMedicineMoves':'Рух лекаў CSV',
+    'settings.usersTitle':'👥 Карыстальнікі журнала','settings.usersHelp':'Толькі ўладальнік можа дазваляць і блакаваць доступ.','settings.refreshUsers':'Абнавіць','settings.loading':'Загрузка…'
+  });
+  Object.assign(EXTRA.en, {
+    'settings.restorePhotoNote':'The JSON file contains record data, but not the photos themselves. Photo records will be skipped because image files are not included in the backup. Save a current journal backup before restoring.',
+    'settings.restoreConfirm':'I have checked the selected file and understand that existing records with matching IDs will be updated.',
+    'settings.restoreStart':'Start restore','settings.cancel':'Cancel',
+    'settings.clearWarning':'⚠️ Warning: deleted data cannot be recovered. Before clearing, download a journal backup from the “Data export” section if needed.',
+    'settings.clearStart':'🗑 Clear journal…','settings.clearConfirmTitle':'Confirmation 2 of 2.','settings.clearConfirmHelp':'All listed data belonging only to your account will be deleted. Your account, beekeeper name and access will remain.',
+    'settings.clearType':'To confirm, enter exactly:','settings.clearPhrase':'Deletion confirmation','settings.clearPlaceholder':'DELETE EVERYTHING','settings.clearYes':'Yes, permanently delete',
+    'settings.exportTitle':'📦 Data export','settings.exportHelp':'Download a journal copy for storage or transfer. Photos are not included in JSON/CSV.',
+    'settings.exportFull':'⬇️ Full JSON backup','settings.exportHives':'Hives CSV','settings.exportInspections':'Inspections CSV','settings.exportHealth':'Health CSV','settings.exportTreatments':'Treatments CSV','settings.exportQueens':'Queens CSV','settings.exportHoney':'Honey CSV','settings.exportTasks':'Reminders CSV','settings.exportFinance':'Finances CSV','settings.exportMedicines':'Medicines CSV','settings.exportMedicineMoves':'Medicine movements CSV',
+    'settings.usersTitle':'👥 Journal users','settings.usersHelp':'Only the owner can grant and block access.','settings.refreshUsers':'Refresh','settings.loading':'Loading…'
+  });
   const UI_TEXT = {
     be: {
       'Email или номер телефона':'Email або нумар тэлефона','Пароль':'Пароль','Ваше имя':'Вашае імя','Email аккаунта':'Email акаўнта','Новый пароль':'Новы пароль','Повторите новый пароль':'Паўтарыце новы пароль',
