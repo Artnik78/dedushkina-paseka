@@ -1955,12 +1955,17 @@ async function showApp(user){
       (profile.subscription_status==='active'&&entitlementDateExpired)||
       profile.subscription_status==='expired'
     );
-    if(!profile.allowed&&!expiredSubscription){
+    if(expiredSubscription){
       $('auth').style.display='flex'; $('app').style.display='none';
-      $('authMessage').textContent='Доступ пока не активирован или приостановлен владельцем журнала. Если срок подписки закончился, ваши данные сохранены. Для уточнения обратитесь к владельцу журнала.';
+      $('authMessage').textContent='Срок доступа к журналу завершён. Ваши пасеки, семьи, осмотры, фотографии и история сохранены. Чтобы продолжить работу, свяжитесь с владельцем журнала для подтверждения оплаты и продления подписки на 1 год.';
       return;
     }
-    window.journalReadOnlyMode=!!expiredSubscription||(!profile.allowed);
+    if(!profile.allowed){
+      $('auth').style.display='flex'; $('app').style.display='none';
+      $('authMessage').textContent='Доступ пока не активирован или приостановлен владельцем журнала. Ваши данные сохранены. Для уточнения обратитесь к владельцу журнала.';
+      return;
+    }
+    window.journalReadOnlyMode=false;
   }catch(e){
     console.error(e);
     $('auth').style.display='flex';
@@ -2471,7 +2476,10 @@ async function loadJournalUsers(){
     if(error)throw error;
     box.innerHTML=(data||[]).map(u=>{
       const owner=(String(u.email||'').toLowerCase()==='78artnik@gmail.com');
-      const active=!!u.allowed;
+      const endValue=u.subscription_status==='trial'?u.trial_ends_at:u.subscription_ends_at;
+      const endDate=endValue?new Date(endValue):null;
+      const expired=!!(endDate&&!Number.isNaN(endDate.getTime())&&endDate.getTime()<=Date.now()&&(u.subscription_status==='trial'||u.subscription_status==='active'));
+      const active=!!u.allowed&&!expired;
       const seen=u.last_seen_at?new Date(u.last_seen_at):null;
       const validSeen=seen&&!Number.isNaN(seen.getTime());
       const days=validSeen?Math.max(0,Math.floor((Date.now()-seen.getTime())/86400000)):null;
@@ -2484,8 +2492,9 @@ async function loadJournalUsers(){
         ? 'Последний вход: '+seen.toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})
         : 'Дата активности отсутствует';
       return '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 0;border-bottom:1px solid var(--line)">'+
-        '<div><b>'+esc(u.display_name||u.email||u.phone||'—')+'</b><div class="muted">'+(u.phone&&!u.email?'Вход по телефону · ':'')+(owner?'Владелец':'Пользователь')+' · '+(u.approval_status==='approved'?'Заявка одобрена':u.approval_status==='rejected'?'Заявка отклонена':(active?'Действующий доступ (старый аккаунт)':'Ожидает одобрения'))+' · '+(active?'Доступ разрешён':'Доступ закрыт')+'</div><div class="muted" style="margin-top:4px">'+(u.subscription_status==='trial'&&u.trial_ends_at?'Пробный период до: '+new Date(u.trial_ends_at).toLocaleString('ru-RU'):(u.subscription_status==='active'&&u.subscription_ends_at?'Подписка до: '+new Date(u.subscription_ends_at).toLocaleDateString('ru-RU'):(u.subscription_status==='manual'?'Ручной доступ': 'Подписка: '+(u.subscription_status||'нет'))))+'</div><div style="margin-top:4px">'+activityStatus+'</div><div class="muted" style="margin-top:4px">'+esc(activityLabel)+'</div></div>'+
+        '<div><b>'+esc(u.display_name||u.email||u.phone||'—')+'</b><div class="muted">'+(u.phone&&!u.email?'Вход по телефону · ':'')+(owner?'Владелец':'Пользователь')+' · '+(u.approval_status==='approved'?'Заявка одобрена':u.approval_status==='rejected'?'Заявка отклонена':(active?'Действующий доступ (старый аккаунт)':'Ожидает одобрения'))+' · '+(active?'Доступ разрешён':'Доступ закрыт')+'</div><div class="muted" style="margin-top:4px">'+(u.subscription_status==='trial'&&u.trial_ends_at?'Пробный период до: '+new Date(u.trial_ends_at).toLocaleString('ru-RU'):(u.subscription_status==='active'&&u.subscription_ends_at?'Подписка до: '+new Date(u.subscription_ends_at).toLocaleDateString('ru-RU'):(u.subscription_status==='manual'?'Ручной доступ':(expired?'Срок истёк — требуется оплата':'Подписка: '+(u.subscription_status||'нет')))))+'</div><div style="margin-top:4px">'+activityStatus+'</div><div class="muted" style="margin-top:4px">'+esc(activityLabel)+'</div></div>'+
         (owner?'':'<div style="display:flex;gap:8px;flex-wrap:wrap">'+
+          (u.approval_status==='approved'?'<button type="button" class="btn gold" data-user-renew="'+esc(u.user_id)+'" data-user-email="'+esc(u.email||u.phone||'')+'">Подтвердить оплату · +1 год</button>':'')+
           '<button type="button" class="btn '+(active?'danger':'gold')+'" data-user-access="'+esc(u.user_id)+'" data-user-allowed="'+(active?'1':'0')+'">'+(active?'Заблокировать':'Разрешить доступ')+'</button>'+
           '<button type="button" class="btn danger" data-user-delete="'+esc(u.user_id)+'" data-user-email="'+esc(u.email||u.phone||'')+'">Удалить пользователя</button></div>')+
         '</div>';
@@ -2520,6 +2529,27 @@ document.addEventListener('click',async e=>{
       await loadJournalUsers();
     }catch(err){toast('Не удалось удалить пользователя: '+(err.message||err));}
     finally{del.disabled=false}
+    return;
+  }
+  const renew=e.target.closest('[data-user-renew]');
+  if(renew){
+    const id=renew.dataset.userRenew, email=renew.dataset.userEmail||'пользователя';
+    if(!confirm('Подтвердить получение оплаты от '+email+' и продлить доступ на 1 год?'))return;
+    renew.disabled=true;
+    try{
+      const {data:{session}}=await db.auth.getSession();
+      if(!session?.access_token)throw new Error('Необходимо войти как администратор.');
+      const res=await fetch(SUPABASE_URL+'/functions/v1/journal-admin-set-access',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token,'apikey':SUPABASE_KEY},
+        body:JSON.stringify({user_id:id,action:'renew'})
+      });
+      const payload=await res.json().catch(()=>({}));
+      if(!res.ok)throw new Error(payload.error||'HTTP '+res.status);
+      toast(payload.message||'Подписка продлена на 1 год');
+      await loadJournalUsers();
+    }catch(err){toast('Не удалось продлить подписку: '+(err.message||err));}
+    finally{renew.disabled=false}
     return;
   }
   const b=e.target.closest('[data-user-access]'); if(!b)return;
