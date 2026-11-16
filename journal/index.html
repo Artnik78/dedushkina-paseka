@@ -1384,7 +1384,14 @@ async function calculateSubscriptionQuote(){
     window.currentSubscriptionQuote=data;
   }catch(error){
     console.error('Subscription quote:',error);
-    if(result){result.textContent='Не удалось получить официальный курс. Попробуйте позже.';result.style.color='var(--danger,#a33)'}
+    let message=error?.message||'Временная ошибка получения курса.';
+    try{
+      if(error?.context&&typeof error.context.json==='function'){
+        const payload=await error.context.json();
+        if(payload?.error)message=payload.error;
+      }
+    }catch(_){}
+    if(result){result.textContent=message;result.style.color='var(--danger,#a33)'}
     window.currentSubscriptionQuote=null;
   }finally{
     if(button){button.disabled=false;button.textContent='Рассчитать стоимость'}
