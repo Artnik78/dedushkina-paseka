@@ -119,8 +119,13 @@
     be: {'Дата / операция':'Дата / аперацыя','Исходная семья':'Зыходная сям’я','Новая / принимающая':'Новая / прымаючая','Пасека':'Пчальнік','Рамки':'Рамкі','Матка / семья':'Матка / сям’я','Статус / результат':'Статус / вынік','Примечание':'Заўвага','Дата':'Дата','Операция':'Аперацыя','Количество':'Колькасць','Партия / переработчик':'Партыя / перапрацоўшчык','Продукция':'Прадукцыя','Партия':'Партыя','Банка':'Банка','Фасовано':'Расфасавана','Осталось банок':'Засталося слоікаў','Код этикетки / QR':'Код этыкеткі / QR','Действия':'Дзеянні','Продано':'Прададзена','Сумма':'Сума','Финансы':'Фінансы','Продукт':'Прадукт','Улей':'Вулей','Последний осмотр':'Апошні агляд','Сила':'Сіла','Матка':'Матка','Корм':'Корм','Семья':'Сям’я','Фото':'Фота','Заметки':'Нататкі','Тип':'Тып','Категория':'Катэгорыя','Описание':'Апісанне','Что':'Што','Средство':'Сродак','Способ':'Спосаб','Причина':'Прычына','Ответственный':'Адказны','Следующая':'Наступная','Серия / дата прививки':'Серыя / дата прышчэпкі','Материнская семья':'Матчына сям’я','Стартер / финишер':'Стартар / фінішар','Ячейки':'Ячэйкі','Контрольные даты':'Кантрольныя даты','Этап':'Этап','Изменение':'Змяненне','Было → стало':'Было → стала','Комментарий':'Каментарый','Подсадка':'Падсадка','Порода':'Парода','Год':'Год','Происхождение':'Паходжанне','Метка':'Метка','Расплод':'Расплод','Препарат':'Прэпарат','Цель':'Мэта','Доза':'Доза','Расход':'Выдатак','Откуда':'Адкуль','Куда':'Куды','Событие':'Падзея','Приоритет':'Прыярытэт','Напоминание':'Напамін'},
     en: {'Дата / операция':'Date / operation','Исходная семья':'Source colony','Новая / принимающая':'New / receiving colony','Пасека':'Apiary','Рамки':'Frames','Матка / семья':'Queen / colony','Статус / результат':'Status / result','Примечание':'Note','Дата':'Date','Операция':'Operation','Количество':'Quantity','Партия / переработчик':'Batch / processor','Продукция':'Product','Партия':'Batch','Банка':'Jar','Фасовано':'Packaged','Осталось банок':'Jars remaining','Код этикетки / QR':'Label / QR code','Действия':'Actions','Продано':'Sold','Сумма':'Amount','Финансы':'Finances','Продукт':'Product','Улей':'Hive','Последний осмотр':'Last inspection','Сила':'Strength','Матка':'Queen','Корм':'Food stores','Семья':'Colony','Фото':'Photo','Заметки':'Notes','Тип':'Type','Категория':'Category','Описание':'Description','Что':'Item','Средство':'Product used','Способ':'Method','Причина':'Reason','Ответственный':'Responsible','Следующая':'Next','Серия / дата прививки':'Batch / grafting date','Материнская семья':'Mother colony','Стартер / финишер':'Starter / finisher','Ячейки':'Cells','Контрольные даты':'Check dates','Этап':'Stage','Изменение':'Change','Было → стало':'Before → after','Комментарий':'Comment','Подсадка':'Introduction','Порода':'Breed','Год':'Year','Происхождение':'Origin','Метка':'Mark','Расплод':'Brood','Препарат':'Medicine','Цель':'Purpose','Доза':'Dose','Расход':'Usage','Откуда':'From','Куда':'To','Событие':'Event','Приоритет':'Priority','Напоминание':'Reminder'}
   };
+  const UI_MESSAGES = {
+    be: {'Контакт удалён':'Кантакт выдалены','Запись удалена':'Запіс выдалены','Операция удалена':'Аперацыя выдалена','Фотография удалена':'Фатаграфія выдалена','Продажа удалена, остаток партии пересчитан.':'Продаж выдалены, рэшта партыі пералічана.','В гостевом режиме очистка недоступна':'У гасцявым рэжыме ачыстка недаступная','Необходимо войти как администратор.':'Неабходна ўвайсці як адміністратар.','Сначала войдите в журнал.':'Спачатку ўвайдзіце ў журнал.','Удалить эту фотографию?':'Выдаліць гэтую фатаграфію?','Понятно':'Зразумела','Установить журнал':'Усталяваць журнал','Заявка отклонена. Если это ошибка, свяжитесь с владельцем журнала.':'Заяўка адхілена. Калі гэта памылка, звяжыцеся з уладальнікам журнала.','Заявка принята и ожидает одобрения владельца журнала.':'Заяўка прынята і чакае адабрэння ўладальніка журнала.'},
+    en: {'Контакт удалён':'Contact deleted','Запись удалена':'Record deleted','Операция удалена':'Operation deleted','Фотография удалена':'Photo deleted','Продажа удалена, остаток партии пересчитан.':'Sale deleted; batch balance recalculated.','В гостевом режиме очистка недоступна':'Clearing is unavailable in guest mode','Необходимо войти как администратор.':'You must sign in as an administrator.','Сначала войдите в журнал.':'Please sign in to the journal first.','Удалить эту фотографию?':'Delete this photo?','Понятно':'Got it','Установить журнал':'Install journal','Заявка отклонена. Если это ошибка, свяжитесь с владельцем журнала.':'Your application was declined. If this is a mistake, contact the journal owner.','Заявка принята и ожидает одобрения владельца журнала.':'Your application was received and is awaiting approval from the journal owner.'}
+  };
   let current='ru', client=null, user=null;
   function valid(lang){return LANGS.includes(lang)?lang:'ru'}
+  function translateMessage(message){const source=String(message??'');const map=UI_MESSAGES[current]||{};return map[source]!==undefined?map[source]:source;}
   function apply(root=document){
     const dict={...(DICT[current]||DICT.ru),...(EXTRA[current]||{})};
     const sectionIds=['apiaries','hives','weights','inspections','health','wax','apiary-products','calendar','calculators','queens','colonies','honey','finances','tasks','photos','stats','medicines','disinfection','contacts'];
@@ -184,6 +189,14 @@
     let local='ru';try{local=localStorage.getItem('journal-language')||'ru'}catch(_){}
     current=valid(saved||local);
     apply();
+    if(!window.__journalI18nObserver){
+      const observer=new MutationObserver(records=>{
+        records.forEach(record=>record.addedNodes.forEach(node=>{if(node.nodeType===1)apply(node);}));
+      });
+      const startObserver=()=>{if(document.body)observer.observe(document.body,{childList:true,subtree:true});};
+      if(document.body)startObserver();else document.addEventListener('DOMContentLoaded',startObserver,{once:true});
+      window.__journalI18nObserver=observer;
+    }
     const select=document.getElementById('journalLanguageSelect');
     if(select&&!select.dataset.i18nBound){
       select.dataset.i18nBound='1';
@@ -191,5 +204,5 @@
     }
     return current;
   }
-  window.JournalI18n={init,setLanguage,apply,getLanguage:()=>current,languages:LANGS.slice()};
+  window.JournalI18n={init,setLanguage,apply,translateMessage,getLanguage:()=>current,languages:LANGS.slice()};
 })();
