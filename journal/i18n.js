@@ -53,6 +53,15 @@
   function valid(lang){return LANGS.includes(lang)?lang:'ru'}
   function apply(root=document){
     const dict={...(DICT[current]||DICT.ru),...(EXTRA[current]||{})};
+    const sectionIds=['apiaries','hives','weights','inspections','health','wax','apiary-products','calendar','calculators','queens','colonies','honey','finances','tasks','photos','stats','medicines','disinfection','contacts'];
+    sectionIds.forEach(id=>{
+      const section=document.getElementById('page-'+id);
+      if(!section)return;
+      const heading=section.querySelector(':scope > h1');
+      const subtitle=section.querySelector(':scope > p.sub');
+      if(heading&&dict['page.'+(id==='apiary-products'?'products':id)])heading.textContent=dict['page.'+(id==='apiary-products'?'products':id)];
+      if(subtitle&&dict['desc.'+id])subtitle.textContent=dict['desc.'+id];
+    });
     root.querySelectorAll('[data-i18n]').forEach(el=>{
       const value=dict[el.dataset.i18n];
       if(value!==undefined) el.textContent=value;
