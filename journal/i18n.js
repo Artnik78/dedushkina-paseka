@@ -108,6 +108,30 @@
   });
   Object.assign(EXTRA.be, {'settings.restoreTitle':'📥 Аднаўленне з JSON','settings.account':'Мой уліковы запіс'});
   Object.assign(EXTRA.en, {'settings.account':'My account'});
+  Object.assign(EXTRA.be, {
+    'settings.apiariesCount':'Мае пчальнікі:',
+    'settings.hivesCount':'Мае вуллі:',
+    'settings.pushEnabled':'Атрымліваць push-напаміны',
+    'settings.lowStock':'Рэшткi лекаў',
+    'settings.expiry':'Тэрміны прыдатнасці прэпаратаў',
+    'settings.tasks':'Задачы і запланаваныя работы',
+    'settings.disinfection':'Планавая дэзінфекцыя',
+    'settings.birthdays':'Дні нараджэння кантактаў',
+    'settings.defaultPrefs':'Паказаны налады па змаўчанні. Яны яшчэ не захаваны — націсніце «Захаваць налады напамінаў».',
+    'settings.pushNotConnected':'Push яшчэ не падключаны на гэтай прыладзе.'
+  });
+  Object.assign(EXTRA.en, {
+    'settings.apiariesCount':'My apiaries:',
+    'settings.hivesCount':'My hives:',
+    'settings.pushEnabled':'Receive push reminders',
+    'settings.lowStock':'Medicine stock levels',
+    'settings.expiry':'Medicine expiry dates',
+    'settings.tasks':'Tasks and scheduled work',
+    'settings.disinfection':'Scheduled disinfection',
+    'settings.birthdays':'Contact birthdays',
+    'settings.defaultPrefs':'Default settings are shown. They have not been saved yet — click “Save reminder settings”.',
+    'settings.pushNotConnected':'Push notifications are not connected on this device.'
+  });
   const UI_TEXT = {
     be: {
       'Email или номер телефона':'Email або нумар тэлефона','Пароль':'Пароль','Ваше имя':'Вашае імя','Email аккаунта':'Email акаўнта','Новый пароль':'Новы пароль','Повторите новый пароль':'Паўтарыце новы пароль',
