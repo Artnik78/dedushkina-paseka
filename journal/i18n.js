@@ -644,7 +644,7 @@
   function queryAll(root,selector){const found=Array.from(root.querySelectorAll(selector));if(root.nodeType===1&&root.matches(selector))found.unshift(root);return found;}
   function applyTextMap(el,map,attribute){
     if(el.parentElement?.closest('[data-i18n-text-mapped="1"]'))return;
-    const original=el.dataset[attribute]??(el.textContent||'').replace(/\\s+/g,' ').trim();
+    const original=el.dataset[attribute]??(el.textContent||'').replace(/\s+/g,' ').trim();
     if(!el.dataset[attribute])el.dataset[attribute]=original;
     const translated=map[original];
     if(translated===undefined)return;
