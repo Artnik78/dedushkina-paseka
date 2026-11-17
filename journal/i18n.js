@@ -407,7 +407,8 @@
       if(value!==undefined) el.textContent=value;
     });
     const staticMap=UI_STATIC[current]||{};
-    queryAll(root,' .section > h1, .section > p.sub, .section .panel > h3, .section .section-head h3, .section .section-head .muted, .section .panel > .muted, .hero h2, .hero > .sub, .eyebrow, h3, button, .mobile-quick-actions b, .hive-card-grid small, .hive-health-badge, .task-badge, .medicine-mobile-grid small, .disinfection-mobile-meta span, .finance-mobile-top b, .empty').forEach(el=>{
+    queryAll(root,'.section > h1, .section > p.sub, .section .panel > h3, .section .section-head h3, .section .section-head .muted, .section .panel > .muted, .hero h2, .hero > .sub, .eyebrow, h3, button, .mobile-quick-actions b, .hive-card-grid small, .hive-health-badge, .task-badge, .medicine-mobile-grid small, .disinfection-mobile-meta span, .finance-mobile-top b, .empty').forEach(el=>{
+      if(el.children.length) return;
       const original=el.dataset.i18nStaticOriginal??(el.textContent||'').replace(/\\s+/g,' ').trim();
       if(!el.dataset.i18nStaticOriginal)el.dataset.i18nStaticOriginal=original;
       if(staticMap[original]!==undefined)el.textContent=staticMap[original];
