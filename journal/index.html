@@ -237,6 +237,12 @@ body.subscription-readonly #subscriptionStatusNote::after{content:" Режим �
 <div id="auth">
   <div class="authbox">
     <h1 data-i18n="auth.title">🐝 Мир пчеловодства</h1>
+    <div class="auth-language-row" style="display:flex;align-items:center;justify-content:flex-end;gap:8px;margin:-8px 0 12px">
+      <label for="journalLanguageAuthSelect" class="muted" style="font-size:12px">🌐 Язык</label>
+      <select id="journalLanguageAuthSelect" aria-label="Язык интерфейса" style="border:1px solid var(--line);border-radius:9px;padding:8px 10px;background:#fff;color:var(--ink);font-weight:700">
+        <option value="ru">🇷🇺 Русский</option><option value="be">🇧🇾 Беларуская</option><option value="en">🇬🇧 English</option>
+      </select>
+    </div>
     <p class="sub" data-i18n="auth.subtitle">Вход в цифровой журнал пасечника</p>
 
     <div class="field"><label for="authIdentifier">Email или номер телефона</label><input id="authIdentifier" type="text" inputmode="email" autocomplete="username" placeholder="Введите email или +375291234567"></div>
@@ -341,6 +347,7 @@ body.subscription-readonly #subscriptionStatusNote::after{content:" Режим �
         <div class="mast-brand">🐝 <span id="homeJournalName">Дедушкина<br>пасека</span></div>
         <div class="mast-title"><strong data-i18n="home.title">Журнал пасечника</strong><span><span id="homeApiarySubtitle">Название пасеки</span> · Натуральный мёд с родных полей</span></div>
         <div class="mast-info">
+          <label for="journalLanguageHomeSelect" class="muted" style="font-size:11px;font-weight:700">🌐 <select id="journalLanguageHomeSelect" aria-label="Язык интерфейса" style="border:1px solid #ead9a8;border-radius:9px;padding:7px 8px;background:#fff;color:#3d3229;font-weight:700;max-width:150px"><option value="ru">🇷🇺 Русский</option><option value="be">🇧🇾 Беларуская</option><option value="en">🇬🇧 English</option></select></label>
           <span>📅 <b id="homeDateLabel">Сегодня</b></span>
           <span id="homeWeatherLabel">🌤️ Погода не настроена</span>
           <button class="btn secondary" id="homeLogoutBtn" type="button" aria-label="Выйти из журнала" title="Выйти из журнала">🚪 Выйти</button>
@@ -1213,7 +1220,8 @@ body.subscription-readonly #subscriptionStatusNote::after{content:" Режим �
 </div>
 <div id="journalError" style="display:none;position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:99999;max-width:min(900px,92vw);padding:14px 18px;border:2px solid #b33;border-radius:12px;background:#fff4f2;color:#7a2018;box-shadow:0 8px 30px rgba(0,0,0,.2);font:14px/1.45 Arial,sans-serif;white-space:pre-wrap"></div><div class="toast" id="toast"></div>
 
-<script src="i18n.js?v=24"></script>
+<script src="i18n.js?v=25"></script>
+<script>if(window.JournalI18n)window.JournalI18n.init(null,null);</script>
 <script>
 // Keep the live GitHub Pages journal isolated from the Vercel test journal.
 const IS_PRODUCTION_JOURNAL = window.location.hostname === 'artnik78.github.io';
