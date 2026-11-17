@@ -917,8 +917,10 @@
     });
     root.documentElement?.setAttribute('lang',current);
     if(root===document) document.documentElement.lang=current;
-    const select=document.getElementById('journalLanguageSelect');
-    if(select&&select.value!==current)select.value=current;
+    ['journalLanguageSelect','journalLanguageTopSelect'].forEach(id=>{
+      const select=document.getElementById(id);
+      if(select&&select.value!==current)select.value=current;
+    });
   }
   async function setLanguage(lang){
     current=valid(lang);
@@ -951,11 +953,13 @@
       if(document.body)startObserver();else document.addEventListener('DOMContentLoaded',startObserver,{once:true});
       window.__journalI18nObserver=observer;
     }
-    const select=document.getElementById('journalLanguageSelect');
-    if(select&&!select.dataset.i18nBound){
-      select.dataset.i18nBound='1';
-      select.addEventListener('change',()=>setLanguage(select.value));
-    }
+    ['journalLanguageSelect','journalLanguageTopSelect'].forEach(id=>{
+      const select=document.getElementById(id);
+      if(select&&!select.dataset.i18nBound){
+        select.dataset.i18nBound='1';
+        select.addEventListener('change',()=>setLanguage(select.value));
+      }
+    });
     return current;
   }
   window.JournalI18n={init,setLanguage,apply,translateMessage,getLanguage:()=>current,languages:LANGS.slice()};
