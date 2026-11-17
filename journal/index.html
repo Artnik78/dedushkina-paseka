@@ -1210,7 +1210,7 @@ body.subscription-readonly #subscriptionStatusNote::after{content:" Режим �
 </div>
 <div id="journalError" style="display:none;position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:99999;max-width:min(900px,92vw);padding:14px 18px;border:2px solid #b33;border-radius:12px;background:#fff4f2;color:#7a2018;box-shadow:0 8px 30px rgba(0,0,0,.2);font:14px/1.45 Arial,sans-serif;white-space:pre-wrap"></div><div class="toast" id="toast"></div>
 
-<script src="i18n.js?v=22"></script>
+<script src="i18n.js?v=23"></script>
 <script>
 // Keep the live GitHub Pages journal isolated from the Vercel test journal.
 const IS_PRODUCTION_JOURNAL = window.location.hostname === 'artnik78.github.io';
@@ -4367,13 +4367,14 @@ if($('editHoneyBatchBtn')) $('editHoneyBatchBtn').onclick=()=>{const title=$('ho
 if($('honeyBatchModal')) $('honeyBatchModal').onclick=e=>{if(e.target.id==='honeyBatchModal')closeHoneyBatch}
 function renderCalendar(){
   const y=calendarMonth.getFullYear(), m=calendarMonth.getMonth();
-  const names=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
-  $('calendarMonthTitle').textContent=names[m]+' '+y;
+  const monthName=new Date(Date.UTC(y,m,1)).toLocaleDateString(journalLocale(),{month:'long',timeZone:'UTC'});
+  $('calendarMonthTitle').textContent=monthName+' '+y;
   const firstDow=(new Date(Date.UTC(y,m,1)).getUTCDay()+6)%7;
   const days=new Date(Date.UTC(y,m+1,0)).getUTCDate();
   const prevDays=new Date(Date.UTC(y,m,0)).getUTCDate();
   const todayStr=today();
-  let html=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(x=>'<div class="calendar-head">'+x+'</div>').join('');
+  const weekdays=Array.from({length:7},(_,i)=>new Date(Date.UTC(2024,0,1+i)).toLocaleDateString(journalLocale(),{weekday:'short',timeZone:'UTC'}));
+  let html=weekdays.map(x=>'<div class="calendar-head">'+x+'</div>').join('');
   for(let i=0;i<42;i++){
     const raw=i-firstDow+1;
     let yy=y, mm=m, dd=raw, other=false;
@@ -4401,6 +4402,7 @@ function renderCalendar(){
   $('calendarTasks').innerHTML=state.tasks.length?'<table class="table"><thead><tr><th>Дата</th><th>Тип</th><th>Событие</th><th>Приоритет</th><th>Статус</th><th>Напоминание</th><th></th></tr></thead><tbody>'+state.tasks.map(t=>'<tr><td>'+esc(t.due_date||'')+'</td><td>'+esc(eventType(t))+'</td><td>'+esc(eventTitle(t))+'</td><td>'+esc(t.priority)+'</td><td>'+esc(t.status)+'</td><td>'+esc(eventReminder(t))+'</td><td><button type="button" class="btn secondary calendar-open-table" data-event-id="'+esc(t.id)+'">Открыть</button></td></tr>').join('')+'</tbody></table>':'<div class="empty">Событий пока нет. Нажмите «Добавить событие».</div>';
   document.querySelectorAll('.calendar-event,.calendar-open-table').forEach(b=>b.onclick=()=>openEventModal(b.dataset.eventId));
 }
+window.addEventListener('journal-language-change',()=>{renderCalendar();renderQueenBreederCalendar();});
 if($('prevMonthBtn')) $('prevMonthBtn').onclick=()=>{calendarMonth.setMonth(calendarMonth.getMonth()-1);renderCalendar()};
 if($('nextMonthBtn')) $('nextMonthBtn').onclick=()=>{calendarMonth.setMonth(calendarMonth.getMonth()+1);renderCalendar()};
 if($('addCalendarEventBtn')) $('addCalendarEventBtn').onclick=()=>{$('calendarFormPanel').style.display='block';$('calendarForm').elements.due_date.value=today();$('calendarFormPanel').scrollIntoView({behavior:'smooth',block:'start'})};
