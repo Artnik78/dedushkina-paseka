@@ -917,7 +917,7 @@
     });
     root.documentElement?.setAttribute('lang',current);
     if(root===document) document.documentElement.lang=current;
-    ['journalLanguageSelect','journalLanguageTopSelect'].forEach(id=>{
+    ['journalLanguageSelect','journalLanguageTopSelect','journalLanguageAuthSelect','journalLanguageHomeSelect'].forEach(id=>{
       const select=document.getElementById(id);
       if(select&&select.value!==current)select.value=current;
     });
@@ -953,7 +953,7 @@
       if(document.body)startObserver();else document.addEventListener('DOMContentLoaded',startObserver,{once:true});
       window.__journalI18nObserver=observer;
     }
-    ['journalLanguageSelect','journalLanguageTopSelect'].forEach(id=>{
+    ['journalLanguageSelect','journalLanguageTopSelect','journalLanguageAuthSelect','journalLanguageHomeSelect'].forEach(id=>{
       const select=document.getElementById(id);
       if(select&&!select.dataset.i18nBound){
         select.dataset.i18nBound='1';
