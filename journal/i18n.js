@@ -407,7 +407,7 @@
       if(value!==undefined) el.textContent=value;
     });
     const staticMap=UI_STATIC[current]||{};
-    queryAll(root,'#app .section > h1, #app .section > p.sub, #app .section .panel > h3, #app .section .section-head h3, #app .section .section-head .muted, #app .section .panel > .muted, #page-home .hero h2, #page-home .hero > .sub, #page-home .home-dashboard-row .eyebrow, #page-home .home-dashboard-row h3, #page-home .home-dashboard-row button, #page-home .home-alerts-row .eyebrow, #page-home .home-alerts-row h3, #page-home .home-alerts-row button, #page-home .mobile-quick-actions b, #app .hive-card-grid small, #app .hive-health-badge, #app .task-badge, #app .medicine-mobile-grid small, #app .disinfection-mobile-meta span, #app .finance-mobile-top b').forEach(el=>{
+    queryAll(root,' .section > h1, .section > p.sub, .section .panel > h3, .section .section-head h3, .section .section-head .muted, .section .panel > .muted, .hero h2, .hero > .sub, .eyebrow, h3, button, .mobile-quick-actions b, .hive-card-grid small, .hive-health-badge, .task-badge, .medicine-mobile-grid small, .disinfection-mobile-meta span, .finance-mobile-top b, .empty').forEach(el=>{
       const original=el.dataset.i18nStaticOriginal??(el.textContent||'').replace(/\\s+/g,' ').trim();
       if(!el.dataset.i18nStaticOriginal)el.dataset.i18nStaticOriginal=original;
       if(staticMap[original]!==undefined)el.textContent=staticMap[original];
