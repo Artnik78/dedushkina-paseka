@@ -3789,6 +3789,7 @@ function queenPanelHtml(id){
     (rows.length?'<div class="table-wrap" style="margin-top:10px"><table class="table"><thead><tr><th>Подсадка</th><th>№</th><th>Порода</th><th>Год</th><th>Происхождение</th><th>Метка</th><th>Статус</th><th></th></tr></thead><tbody>'+history+'</tbody></table></div>':'')+form+'</div>';
 }
 function showHiveFamily(id){
+  window.__activeHiveFamilyId=id;
   const h=state.hives.find(x=>String(x.id)===String(id)); if(!h)return;
   const inspections=state.inspections.filter(i=>String(i.hive_id)===String(id)).sort((a,b)=>String(b.inspection_date||'').localeCompare(String(a.inspection_date||'')));
   const last=inspections[0]||null;
@@ -4412,7 +4413,7 @@ function renderCalendar(){
   $('calendarTasks').innerHTML=state.tasks.length?'<table class="table"><thead><tr><th>Дата</th><th>Тип</th><th>Событие</th><th>Приоритет</th><th>Статус</th><th>Напоминание</th><th></th></tr></thead><tbody>'+state.tasks.map(t=>'<tr><td>'+esc(t.due_date||'')+'</td><td>'+esc(eventType(t))+'</td><td>'+esc(eventTitle(t))+'</td><td>'+esc(t.priority)+'</td><td>'+esc(t.status)+'</td><td>'+esc(eventReminder(t))+'</td><td><button type="button" class="btn secondary calendar-open-table" data-event-id="'+esc(t.id)+'">Открыть</button></td></tr>').join('')+'</tbody></table>':'<div class="empty">Событий пока нет. Нажмите «Добавить событие».</div>';
   document.querySelectorAll('.calendar-event,.calendar-open-table').forEach(b=>b.onclick=()=>openEventModal(b.dataset.eventId));
 }
-window.addEventListener('journal-language-change',()=>{renderCalendar();renderQueenBreederCalendar();});
+window.addEventListener('journal-language-change',()=>{renderAll();renderCalendar();renderQueenBreederCalendar();if(window.__activeHiveFamilyId&&$('hiveFamilyModal')?.style.display==='flex')showHiveFamily(window.__activeHiveFamilyId);if(window.JournalI18n)window.JournalI18n.apply(document.getElementById('app')||document);});
 if($('prevMonthBtn')) $('prevMonthBtn').onclick=()=>{calendarMonth.setMonth(calendarMonth.getMonth()-1);renderCalendar()};
 if($('nextMonthBtn')) $('nextMonthBtn').onclick=()=>{calendarMonth.setMonth(calendarMonth.getMonth()+1);renderCalendar()};
 if($('addCalendarEventBtn')) $('addCalendarEventBtn').onclick=()=>{$('calendarFormPanel').style.display='block';$('calendarForm').elements.due_date.value=today();$('calendarFormPanel').scrollIntoView({behavior:'smooth',block:'start'})};
