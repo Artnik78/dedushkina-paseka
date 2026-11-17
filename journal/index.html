@@ -1210,7 +1210,7 @@ body.subscription-readonly #subscriptionStatusNote::after{content:" Режим �
 </div>
 <div id="journalError" style="display:none;position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:99999;max-width:min(900px,92vw);padding:14px 18px;border:2px solid #b33;border-radius:12px;background:#fff4f2;color:#7a2018;box-shadow:0 8px 30px rgba(0,0,0,.2);font:14px/1.45 Arial,sans-serif;white-space:pre-wrap"></div><div class="toast" id="toast"></div>
 
-<script src="i18n.js?v=16"></script>
+<script src="i18n.js?v=17"></script>
 <script>
 // Keep the live GitHub Pages journal isolated from the Vercel test journal.
 const IS_PRODUCTION_JOURNAL = window.location.hostname === 'artnik78.github.io';
@@ -2491,9 +2491,10 @@ if($('logoutBtn')) $('logoutBtn').onclick=async()=>{
 const homeLogoutButton=$('homeLogoutBtn'); if(homeLogoutButton)homeLogoutButton.onclick=()=>$('logoutBtn').click();
 if($('refreshBtn')) $('refreshBtn').onclick=()=>loadAll().catch(e=>toast('Ошибка загрузки: '+e.message));
 async function loadJournalUsers(){
+  const tr=(value)=>window.JournalI18n?.translateMessage(value)||value;
   const box=$('userAccessList'); if(!box)return;
   const button=$('refreshUsersBtn');
-  if(button){button.disabled=true;button.textContent='Обновление…'}
+  if(button){button.disabled=true;button.textContent=tr('Обновление…')}
   box.setAttribute('aria-live','polite');
   try{
     const {data:{user},error:authError}=await db.auth.getUser();
@@ -2511,27 +2512,27 @@ async function loadJournalUsers(){
       const validSeen=seen&&!Number.isNaN(seen.getTime());
       const days=validSeen?Math.max(0,Math.floor((Date.now()-seen.getTime())/86400000)):null;
       const activityStatus=days===null
-        ? '<span style="color:#777;font-weight:700">⚪ Ни разу не входил</span>'
+        ? '<span style="color:#777;font-weight:700">⚪ '+tr('Ни разу не входил')+'</span>'
         : days<7
-          ? '<span style="color:#16803d;font-weight:700">🟢 Недавно заходил</span>'
-          : '<span style="color:#c62828;font-weight:700">🔴 Не заходил более 7 дней</span>';
+          ? '<span style="color:#16803d;font-weight:700">🟢 '+tr('Недавно заходил')+'</span>'
+          : '<span style="color:#c62828;font-weight:700">🔴 '+tr('Не заходил более 7 дней')+'</span>';
       const activityLabel=validSeen
-        ? 'Последний вход: '+seen.toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})
-        : 'Дата активности отсутствует';
+        ? tr('Последний вход:')+' '+seen.toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})
+        : tr('Дата активности отсутствует');
       return '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 0;border-bottom:1px solid var(--line)">'+
-        '<div><b>'+esc(u.display_name||u.email||u.phone||'—')+'</b><div class="muted">'+(u.phone&&!u.email?'Вход по телефону · ':'')+(owner?'Владелец':'Пользователь')+' · '+(u.approval_status==='approved'?'Заявка одобрена':u.approval_status==='rejected'?'Заявка отклонена':(active?'Действующий доступ (старый аккаунт)':'Ожидает одобрения'))+' · '+(active?'Доступ разрешён':'Доступ закрыт')+'</div><div class="muted" style="margin-top:4px">'+(u.subscription_status==='trial'&&u.trial_ends_at?(expired?'Пробный период завершён':'Пробный период до: '+new Date(u.trial_ends_at).toLocaleString('ru-RU')):(u.subscription_status==='active'&&u.subscription_ends_at?'Подписка до: '+new Date(u.subscription_ends_at).toLocaleDateString('ru-RU'):(u.subscription_status==='manual'?'Ручной доступ':(expired?'Срок истёк — требуется оплата':'Подписка: '+(u.subscription_status||'нет')))))+'</div><div style="margin-top:4px">'+activityStatus+'</div><div class="muted" style="margin-top:4px">'+esc(activityLabel)+'</div></div>'+
+        '<div><b>'+esc(u.display_name||u.email||u.phone||'—')+'</b><div class="muted">'+(u.phone&&!u.email?tr('Вход по телефону · '):'')+(owner?tr('Владелец'):tr('Пользователь'))+' · '+(u.approval_status==='approved'?tr('Заявка одобрена'):u.approval_status==='rejected'?tr('Заявка отклонена'):(active?tr('Действующий доступ (старый аккаунт)'):tr('Ожидает одобрения')))+' · '+(active?tr('Доступ разрешён'):tr('Доступ закрыт'))+'</div><div class="muted" style="margin-top:4px">'+(u.subscription_status==='trial'&&u.trial_ends_at?(expired?tr('Пробный период завершён'):tr('Пробный период до:')+' '+new Date(u.trial_ends_at).toLocaleString('ru-RU')):(u.subscription_status==='active'&&u.subscription_ends_at?tr('Подписка до:')+' '+new Date(u.subscription_ends_at).toLocaleDateString('ru-RU'):(u.subscription_status==='manual'?tr('Ручной доступ'):(expired?tr('Срок истёк — требуется оплата'):tr('Подписка:')+' '+tr(u.subscription_status||'нет')))))+'</div><div style="margin-top:4px">'+activityStatus+'</div><div class="muted" style="margin-top:4px">'+esc(activityLabel)+'</div></div>'+
         (owner?'':'<div style="display:flex;gap:8px;flex-wrap:wrap">'+
-          (u.approval_status==='approved'?'<button type="button" class="btn gold" data-user-renew="'+esc(u.user_id)+'" data-user-email="'+esc(u.email||u.phone||'')+'">Подтвердить оплату · +1 год</button>':'')+
-          (expired?'':'<button type="button" class="btn '+(active?'danger':'gold')+'" data-user-access="'+esc(u.user_id)+'" data-user-allowed="'+(active?'1':'0')+'">'+(active?'Заблокировать':'Разрешить доступ')+'</button>')+
-          '<button type="button" class="btn danger" data-user-delete="'+esc(u.user_id)+'" data-user-email="'+esc(u.email||u.phone||'')+'">Удалить пользователя</button></div>')+
+          (u.approval_status==='approved'?'<button type="button" class="btn gold" data-user-renew="'+esc(u.user_id)+'" data-user-email="'+esc(u.email||u.phone||'')+'">'+tr('Подтвердить оплату · +1 год')+'</button>':'')+
+          (expired?'':'<button type="button" class="btn '+(active?'danger':'gold')+'" data-user-access="'+esc(u.user_id)+'" data-user-allowed="'+(active?'1':'0')+'">'+(active?tr('Заблокировать'):tr('Разрешить доступ'))+'</button>')+
+          '<button type="button" class="btn danger" data-user-delete="'+esc(u.user_id)+'" data-user-email="'+esc(u.email||u.phone||'')+'">'+tr('Удалить пользователя')+'</button></div>')+
         '</div>';
-    }).join('')||'<div class="empty">Пользователей пока нет.</div>';
+    }).join('')||'<div class="empty">'+tr('Пользователей пока нет.')+'</div>';
   }catch(error){
     console.error('Не удалось обновить список пользователей:',error);
     box.innerHTML='<div class="empty">Не удалось обновить список: '+esc(error?.message||'ошибка загрузки')+'</div>';
     toast('Не удалось обновить пользователей');
   }finally{
-    if(button){button.disabled=false;button.textContent='Обновить'}
+    if(button){button.disabled=false;button.textContent=tr('Обновить')}
   }
 }
 if($('refreshUsersBtn')) $('refreshUsersBtn').onclick=()=>loadJournalUsers();
