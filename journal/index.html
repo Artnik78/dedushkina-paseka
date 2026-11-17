@@ -139,8 +139,8 @@ button{cursor:pointer}
 .home-view .topbar{background:rgba(255,255,255,.34);border-bottom-color:rgba(255,255,255,.35);box-shadow:none}.home-view .topbar .search{background:rgba(255,255,255,.64)}.home-view .content{padding-top:10px}.topbar{height:64px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:10px 24px;position:sticky;top:0;z-index:5}
 .search{flex:1;max-width:560px;border:1px solid var(--line);border-radius:10px;padding:10px 13px}
 .profile{margin-left:auto;display:flex;align-items:center;gap:8px}
-.topbar #journalLanguageTopSelect{display:block!important;visibility:visible!important;opacity:1!important;flex:0 0 132px;width:132px;min-width:112px;max-width:132px;position:relative;z-index:6}
-@media(max-width:700px){.topbar{gap:7px;padding:8px}.topbar .search{min-width:0;width:0;flex:1 1 auto}.topbar #journalLanguageTopSelect{flex-basis:112px;width:112px;min-width:112px;max-width:112px;padding:8px 5px!important;font-size:12px}.topbar .profile{gap:4px;margin-left:0}.topbar .profile .btn{padding:8px 9px;font-size:12px}}
+.topbar .profile #journalLanguageTopSelect{display:block!important;visibility:visible!important;opacity:1!important;flex:0 0 132px;width:132px;min-width:112px;max-width:132px;position:relative;z-index:6;border:1px solid var(--line);border-radius:9px;padding:9px 8px;background:#fff;color:var(--ink);font-weight:700}
+@media(max-width:700px){.topbar{gap:7px;padding:8px}.topbar .search{min-width:0;width:0;flex:1 1 auto}.topbar .profile #journalLanguageTopSelect{flex-basis:112px;width:112px;min-width:112px;max-width:112px;padding:8px 5px!important;font-size:12px}.topbar .profile{gap:4px;margin-left:0}.topbar .profile .btn{padding:8px 9px;font-size:12px}}
 .status-dot{width:9px;height:9px;border-radius:50%;background:#36a65a;display:inline-block}
 .content{padding:24px;max-width:1400px;margin:auto}
 .section{display:none}.section.active{display:block}
@@ -335,8 +335,7 @@ body.subscription-readonly #subscriptionStatusNote::after{content:" Режим �
   <header class="topbar">
     <button type="button" id="pageBackBtn" class="btn secondary" aria-label="Назад" title="Вернуться на предыдущую страницу" style="flex:0 0 auto;min-width:42px;padding:9px 12px;font-size:20px;line-height:1" hidden>←</button>
     <input id="search" class="search" placeholder="Поиск по журналу...">
-    <select id="journalLanguageTopSelect" aria-label="Язык интерфейса" title="Язык интерфейса" style="flex:0 0 auto;max-width:150px;min-width:112px;border:1px solid var(--line);border-radius:9px;padding:9px 8px;background:#fff;color:var(--ink);font-weight:700"><option value="ru">🇷🇺 Русский</option><option value="be">🇧🇾 Беларуская</option><option value="en">🇬🇧 English</option></select>
-    <div class="profile"><span class="status-dot"></span><span id="userEmail">...</span><button class="btn secondary" id="logoutBtn">Выйти</button></div>
+    <div class="profile"><span class="status-dot"></span><span id="userEmail">...</span><button class="btn secondary" id="logoutBtn">Выйти</button><select id="journalLanguageTopSelect" aria-label="Язык интерфейса" title="Язык интерфейса"><option value="ru">🇷🇺 Русский</option><option value="be">🇧🇾 Беларуская</option><option value="en">🇬🇧 English</option></select></div>
   </header>
 
 
@@ -1220,7 +1219,7 @@ body.subscription-readonly #subscriptionStatusNote::after{content:" Режим �
 </div>
 <div id="journalError" style="display:none;position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:99999;max-width:min(900px,92vw);padding:14px 18px;border:2px solid #b33;border-radius:12px;background:#fff4f2;color:#7a2018;box-shadow:0 8px 30px rgba(0,0,0,.2);font:14px/1.45 Arial,sans-serif;white-space:pre-wrap"></div><div class="toast" id="toast"></div>
 
-<script src="i18n.js?v=26"></script>
+<script src="i18n.js?v=27"></script>
 <script>if(window.JournalI18n)window.JournalI18n.init(null,null);</script>
 <script>
 // Keep the live GitHub Pages journal isolated from the Vercel test journal.
