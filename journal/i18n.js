@@ -373,6 +373,39 @@
     'Не указано':'Not specified','Не указана':'Not specified','Не выявлено':'Not detected','Хороший':'Good','Нормальный':'Normal','Много':'Plenty','Достаточно':'Sufficient','Мало':'Low',
     'История перемещений':'Movement history'
   });
+  Object.assign(UI_STATIC.be, {
+    '🗺️ Схема пасеки':'🗺️ Схема пчальніка',
+    '🐝 Срочных племенных напоминаний нет. Когда появятся серии с контрольными датами, они отобразятся здесь.':'🐝 Тэрміновых племянных напамінаў няма. Калі з’явяцца серыі з кантрольнымі датамі, яны будуць паказаныя тут.',
+    'Готово к записи. Для работы разрешите доступ к микрофону.':'Гатова да запісу. Каб пачаць працу, дазвольце доступ да мікрафона.',
+    'Автоматически распознаются подсказки о силе семьи, матке, расплоде и корме. Остальной текст добавляется в заметки — перед сохранением проверьте поля.':'Аўтаматычна распазнаюцца звесткі пра сілу сям’і, матку, расплод і корм. Астатні тэкст дадаецца ў нататкі — перад захаваннем праверце палі.',
+    '📷 Фото прямо из осмотра (необязательно)':'📷 Фота непасрэдна падчас агляду (неабавязкова)',
+    'Можно сделать снимок камерой телефона или выбрать файл. Максимум 10 МБ.':'Можна зрабіць здымак камерай тэлефона або выбраць файл. Максімум 10 МБ.',
+    'Ульи без номера ряда показаны отдельно. Чтобы расположить их правильно, укажите ряд и место в карточке улья.':'Вуллі без нумара рада паказваюцца асобна. Каб размясціць іх правільна, пазначце рад і месца ў картцы вулля.',
+    'Осмотров ещё не было':'Аглядаў яшчэ не было',
+    'Последний осмотр':'Апошні агляд',
+    'Проверить состояние матки':'Праверыць стан маткі',
+    '⚠️ Лекарства — патрабуюць увагі':'⚠️ Лекі — патрабуюць увагі',
+    '⚠️ Лекарства — требуют внимания':'⚠️ Лекі — патрабуюць увагі',
+    'Открыть лекарства':'Адкрыць лекі','По лекарствам всё в порядке.':'З лекамі ўсё ў парадку.',
+    'срок годности заканчивается через':'тэрмін прыдатнасці заканчваецца праз',
+    'дн.':'дз.'
+  });
+  Object.assign(UI_STATIC.en, {
+    '🗺️ Схема пасеки':'🗺️ Apiary layout',
+    '🐝 Срочных племенных напоминаний нет. Когда появятся серии с контрольными датами, они отобразятся здесь.':'🐝 No urgent queen-rearing reminders. Batches with check dates will appear here.',
+    'Готово к записи. Для работы разрешите доступ к микрофону.':'Ready to record. Allow microphone access to continue.',
+    'Автоматически распознаются подсказки о силе семьи, матке, расплоде и корме. Остальной текст добавляется в заметки — перед сохранением проверьте поля.':'Colony strength, queen, brood and food-store details are recognized automatically. Other text is added to notes — check the fields before saving.',
+    '📷 Фото прямо из осмотра (необязательно)':'📷 Photo during inspection (optional)',
+    'Можно сделать снимок камерой телефона или выбрать файл. Максимум 10 МБ.':'Take a photo with your phone camera or choose a file. Maximum 10 MB.',
+    'Ульи без номера ряда показаны отдельно. Чтобы расположить их правильно, укажите ряд и место в карточке улья.':'Hives without a row number are shown separately. Set the row and position in the hive card to place them correctly.',
+    'Осмотров ещё не было':'No inspections yet',
+    'Последний осмотр':'Last inspection',
+    'Проверить состояние матки':'Check queen condition',
+    '⚠️ Лекарства — требуют внимания':'⚠️ Medicines need attention',
+    'Открыть лекарства':'Open medicines','По лекарствам всё в порядке.':'All medicines are in order.',
+    'срок годности заканчивается через':'expires in',
+    'дн.':'days'
+  });
   const UI_PLACEHOLDERS = {
     be: {'Введите email или +375291234567':'Увядзіце email або +375291234567','Ваш пароль':'Ваш пароль','Как к вам обращаться':'Як да вас звяртацца','name@example.com':'name@example.com','Не менее 8 символов':'Не менш за 8 сімвалаў','Повторите пароль':'Паўтарыце пароль','Поиск по журналу...':'Пошук па журнале...','Например, Дедушкина пасека':'Напрыклад, Дзядуляў пчальнік','Основная пасека, количество ульев, особенности...':'Асноўны пчальнік, колькасць вулляў, асаблівасці...','Что обнаружено при осмотре':'Што выяўлена падчас агляду','Например, поставлены полоски':'Напрыклад, пастаўлены палоскі','Что нужно сделать?':'Што трэба зрабіць?','Выберите препарат выше или введите название':'Выберыце прэпарат вышэй або ўвядзіце назву'},
     en: {'Введите email или +375291234567':'Enter email or +375291234567','Ваш пароль':'Your password','Как к вам обращаться':'What should we call you?','name@example.com':'name@example.com','Не менее 8 символов':'At least 8 characters','Повторите пароль':'Repeat password','Поиск по журналу...':'Search the journal...','Например, Дедушкина пасека':'e.g. Grandpa’s Apiary','Основная пасека, количество ульев, особенности...':'Main apiary, number of hives, details...','Что обнаружено при осмотре':'What was found during inspection','Например, поставлены полоски':'e.g. Strips were applied','Что нужно сделать?':'What needs to be done?','Выберите препарат выше или введите название':'Select a medicine above or enter a name'}
@@ -543,7 +576,7 @@
       if(value!==undefined) el.textContent=value;
     });
     const staticMap=UI_STATIC[current]||{};
-    queryAll(root,'.section > h1, .section > p.sub, .section .panel > h3, .section .section-head h3, .section .section-head .muted, .section .panel > .muted, .hero h2, .hero > .sub, .eyebrow, h1, h2, h3, h4, p, li, small, b, strong, button, .muted, .empty, .mobile-quick-actions b, .hive-card-grid small, .hive-health-badge, .task-badge, .medicine-mobile-grid small, .disinfection-mobile-meta span, .finance-mobile-top b').forEach(el=>{
+    queryAll(root,'#app .section > h1, #app .section > p.sub, #app .section .panel > h3, #app .section .section-head h3, #app .section .section-head .muted, #app .section .panel > .muted, #app .hero h2, #app .hero > .sub, #app .eyebrow, #app h1, #app h2, #app h3, #app h4, #app p, #app li, #app small, #app b, #app strong, #app button, #app .muted, #app .empty, #app .mobile-quick-actions b, #app .hive-card-grid small, #app .hive-health-badge, #app .task-badge, #app .medicine-mobile-grid small, #app .disinfection-mobile-meta span, #app .finance-mobile-top b').forEach(el=>{
       if(el.children.length) return;
       const original=el.dataset.i18nStaticOriginal??(el.textContent||'').replace(/\\s+/g,' ').trim();
       if(!el.dataset.i18nStaticOriginal)el.dataset.i18nStaticOriginal=original;
