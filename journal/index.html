@@ -1262,9 +1262,10 @@ window.addEventListener('error',e=>showJournalError('Ошибка JavaScript: '+
 window.addEventListener('unhandledrejection',e=>showJournalError('Ошибка Promise: '+(e.reason?.message||e.reason||'неизвестная ошибка')));
 function toast(msg){if(window.JournalI18n)msg=window.JournalI18n.translateMessage(msg);const t=$('toast');t.textContent=msg;t.style.display='block';clearTimeout(window.__toastTimer);window.__toastTimer=setTimeout(()=>t.style.display='none',12000)}
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+function journalLocale(){const lang=window.JournalI18n?.getLanguage?.()||'ru';return lang==='be'?'be-BY':lang==='en'?'en-GB':'ru-RU'}
 function today(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}function formatHomeDate(){
   const d=new Date();
-  const el=$('homeDateLabel'); if(el) el.textContent=d.toLocaleDateString('ru-RU',{day:'2-digit',month:'long',year:'numeric'});
+  const el=$('homeDateLabel'); if(el) el.textContent=d.toLocaleDateString(journalLocale(),{day:'2-digit',month:'long',year:'numeric'});
 }
 let homeWeatherRequestId=0;
 function homeLocationName(){
@@ -1348,12 +1349,12 @@ function renderSubscriptionStatus(profile){
     const ms=end.getTime()-now;
     const days=Math.ceil(ms/86400000);
     title='Пробный период';
-    detail='Доступ открыт до '+end.toLocaleString('ru-RU',{day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    detail='Доступ открыт до '+end.toLocaleString(journalLocale(),{day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
     remain=days===1?'Остался 1 день':('Осталось '+days+' дн.');
     note='После окончания пробного периода потребуется оформить доступ. Данные пасеки не удаляются.';
   }else if(status==='active'&&validEnd&&!expired){
     title='Подписка активна';
-    detail='Доступ открыт до '+end.toLocaleDateString('ru-RU');
+    detail='Доступ открыт до '+end.toLocaleDateString(journalLocale());
     remain='Действует';
   }else if(status==='manual'){
     title='Доступ предоставлен владельцем';
@@ -1361,12 +1362,12 @@ function renderSubscriptionStatus(profile){
     remain='Активен';
   }else if(status==='trial'&&expired){
     title='Пробный период завершён';
-    detail='Срок закончился '+end.toLocaleDateString('ru-RU');
+    detail='Срок закончился '+end.toLocaleDateString(journalLocale());
     remain='Завершён';
     note='Чтобы снова пользоваться всеми функциями, потребуется оформить доступ. Данные пасеки сохраняются.';
   }else if(status==='active'&&expired){
     title='Срок подписки завершён';
-    detail='Подписка закончилась '+end.toLocaleDateString('ru-RU');
+    detail='Подписка закончилась '+end.toLocaleDateString(journalLocale());
     remain='Завершена';
   }else if(!allowed){
     title='Доступ пока не активирован';
@@ -1396,7 +1397,7 @@ async function calculateSubscriptionQuote(){
     if(!data||!Number.isFinite(Number(data.amount)))throw new Error(data?.error||'Не удалось рассчитать сумму.');
     const amount=new Intl.NumberFormat('ru-RU',{minimumFractionDigits:0,maximumFractionDigits:2}).format(Number(data.amount));
     const rateDate=data.exchange_rate_date?new Date(data.exchange_rate_date+'T00:00:00'):null;
-    const dateText=rateDate&&!Number.isNaN(rateDate.getTime())?rateDate.toLocaleDateString('ru-RU'):'не указана';
+    const dateText=rateDate&&!Number.isNaN(rateDate.getTime())?rateDate.toLocaleDateString(journalLocale()):'не указана';
     const sourceText=data.source_type==='official'?'Официальный курс НБРБ':'Резервный курс (не официальный курс НБРБ)';
     result.textContent='К оплате за 1 год: '+amount+' '+data.currency+'. '+sourceText+' на '+dateText+'. Базовая цена: 20 USD.';
     result.style.color='var(--green2)';
@@ -1801,7 +1802,7 @@ function birthdayNextDate(value){
 function formatContactDate(value){
   if(!value)return 'Не указан';
   const d=new Date(String(value).slice(0,10)+'T12:00:00');
-  return d.toLocaleDateString('ru-RU',{day:'2-digit',month:'long',year:'numeric'});
+  return d.toLocaleDateString(journalLocale(),{day:'2-digit',month:'long',year:'numeric'});
 }
 function renderContacts(){
   const box=$('contactsList');if(!box)return;
@@ -2517,10 +2518,10 @@ async function loadJournalUsers(){
           ? '<span style="color:#16803d;font-weight:700">🟢 '+tr('Недавно заходил')+'</span>'
           : '<span style="color:#c62828;font-weight:700">🔴 '+tr('Не заходил более 7 дней')+'</span>';
       const activityLabel=validSeen
-        ? tr('Последний вход:')+' '+seen.toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})
+        ? tr('Последний вход:')+' '+seen.toLocaleString(journalLocale(),{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})
         : tr('Дата активности отсутствует');
       return '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 0;border-bottom:1px solid var(--line)">'+
-        '<div><b>'+esc(u.display_name||u.email||u.phone||'—')+'</b><div class="muted">'+(u.phone&&!u.email?tr('Вход по телефону · '):'')+(owner?tr('Владелец'):tr('Пользователь'))+' · '+(u.approval_status==='approved'?tr('Заявка одобрена'):u.approval_status==='rejected'?tr('Заявка отклонена'):(active?tr('Действующий доступ (старый аккаунт)'):tr('Ожидает одобрения')))+' · '+(active?tr('Доступ разрешён'):tr('Доступ закрыт'))+'</div><div class="muted" style="margin-top:4px">'+(u.subscription_status==='trial'&&u.trial_ends_at?(expired?tr('Пробный период завершён'):tr('Пробный период до:')+' '+new Date(u.trial_ends_at).toLocaleString('ru-RU')):(u.subscription_status==='active'&&u.subscription_ends_at?tr('Подписка до:')+' '+new Date(u.subscription_ends_at).toLocaleDateString('ru-RU'):(u.subscription_status==='manual'?tr('Ручной доступ'):(expired?tr('Срок истёк — требуется оплата'):tr('Подписка:')+' '+tr(u.subscription_status||'нет')))))+'</div><div style="margin-top:4px">'+activityStatus+'</div><div class="muted" style="margin-top:4px">'+esc(activityLabel)+'</div></div>'+
+        '<div><b>'+esc(u.display_name||u.email||u.phone||'—')+'</b><div class="muted">'+(u.phone&&!u.email?tr('Вход по телефону · '):'')+(owner?tr('Владелец'):tr('Пользователь'))+' · '+(u.approval_status==='approved'?tr('Заявка одобрена'):u.approval_status==='rejected'?tr('Заявка отклонена'):(active?tr('Действующий доступ (старый аккаунт)'):tr('Ожидает одобрения')))+' · '+(active?tr('Доступ разрешён'):tr('Доступ закрыт'))+'</div><div class="muted" style="margin-top:4px">'+(u.subscription_status==='trial'&&u.trial_ends_at?(expired?tr('Пробный период завершён'):tr('Пробный период до:')+' '+new Date(u.trial_ends_at).toLocaleString(journalLocale())):(u.subscription_status==='active'&&u.subscription_ends_at?tr('Подписка до:')+' '+new Date(u.subscription_ends_at).toLocaleDateString(journalLocale()):(u.subscription_status==='manual'?tr('Ручной доступ'):(expired?tr('Срок истёк — требуется оплата'):tr('Подписка:')+' '+tr(u.subscription_status||'нет')))))+'</div><div style="margin-top:4px">'+activityStatus+'</div><div class="muted" style="margin-top:4px">'+esc(activityLabel)+'</div></div>'+
         (owner?'':'<div style="display:flex;gap:8px;flex-wrap:wrap">'+
           (u.approval_status==='approved'?'<button type="button" class="btn gold" data-user-renew="'+esc(u.user_id)+'" data-user-email="'+esc(u.email||u.phone||'')+'">'+tr('Подтвердить оплату · +1 год')+'</button>':'')+
           (expired?'':'<button type="button" class="btn '+(active?'danger':'gold')+'" data-user-access="'+esc(u.user_id)+'" data-user-allowed="'+(active?'1':'0')+'">'+(active?tr('Заблокировать'):tr('Разрешить доступ'))+'</button>')+
@@ -2742,7 +2743,7 @@ $('colonyOperationForm')?.addEventListener('submit',async e=>{
   $('colonyOperationFormTitle').textContent='Новая операция с семьёй';
   toast(id?'Изменения сохранены':'Операция сохранена');await loadAll();
 });
-function waxKg(n){return (Number(n)||0).toLocaleString('ru-RU',{minimumFractionDigits:3,maximumFractionDigits:3})+' кг'}
+function waxKg(n){return (Number(n)||0).toLocaleString(journalLocale(),{minimumFractionDigits:3,maximumFractionDigits:3})+' кг'}
 function waxAmountFor(row){
   const map={'Получен воск':'wax_received_kg','Сдан в переработку':'wax_sent_kg','Получен воск после переработки':'wax_returned_kg','Получена вощина':'foundation_received_kg','Использована вощина':'foundation_used_kg','Корректировка':'wax_adjustment_kg'};
   return Number(row[map[row.operation_type]]||0);
@@ -2822,7 +2823,7 @@ $('waxOperationForm')?.addEventListener('submit',async e=>{
   $('waxFormTitle').textContent='Новая операция с воском';$('waxSaveBtn').textContent='💾 Сохранить операцию';updateWaxAmountLabel();
   toast(id?'Изменения сохранены':'Операция сохранена');await loadAll();
 });
-function apiaryProductKg(n){return (Number(n)||0).toLocaleString('ru-RU',{minimumFractionDigits:3,maximumFractionDigits:3})+' кг'}
+function apiaryProductKg(n){return (Number(n)||0).toLocaleString(journalLocale(),{minimumFractionDigits:3,maximumFractionDigits:3})+' кг'}
 function apiaryProductDelta(x){
   const q=Number(x.quantity_kg)||0;
   if(x.operation_type==='Получено')return q;
@@ -2925,14 +2926,14 @@ function renderHoneyPackagingAccounting(){
   if(!form.elements.id.value&&!form.elements.packaging_date.value)form.elements.packaging_date.value=today();
   const rows=(state.honeyPackagingRuns||[]).slice().sort((a,b)=>String(b.packaging_date||'').localeCompare(String(a.packaging_date||'')));
   if(!rows.length){box.innerHTML='<div class="empty">Фасовок пока нет. Добавьте первую запись выше.</div>';return}
-  box.innerHTML='<div class="table-wrap"><table class="table"><thead><tr><th>Дата</th><th>Партия</th><th>Банка</th><th>Фасовано</th><th>Осталось банок</th><th>Код этикетки / QR</th><th>Действия</th></tr></thead><tbody>'+rows.map(x=>{const h=state.honey.find(y=>String(y.id)===String(x.honey_batch_id));return '<tr><td>'+esc(x.packaging_date||'—')+'</td><td><b>'+esc(h?.batch_number||'Партия удалена')+'</b><div class="muted">'+esc(h?.honey_type||'')+'</div></td><td>'+esc(x.jar_size_g)+' г</td><td><b>'+esc(x.jar_count)+' шт.</b><div class="muted">'+(Number(x.jar_size_g||0)*Number(x.jar_count||0)/1000).toLocaleString('ru-RU',{maximumFractionDigits:3})+' кг</div></td><td><b>'+packagingRunRemaining(x)+' шт.</b></td><td>'+esc(x.label_code||'—')+'</td><td><div class="actions" style="margin:0;flex-wrap:wrap"><button type="button" class="btn gold honey-pack-qr" data-id="'+esc(x.id)+'">QR банок</button><button type="button" class="btn secondary honey-pack-edit" data-id="'+esc(x.id)+'">Изменить</button><button type="button" class="btn danger honey-pack-delete" data-id="'+esc(x.id)+'">Удалить</button></div></td></tr>'}).join('')+'</tbody></table></div>';
+  box.innerHTML='<div class="table-wrap"><table class="table"><thead><tr><th>Дата</th><th>Партия</th><th>Банка</th><th>Фасовано</th><th>Осталось банок</th><th>Код этикетки / QR</th><th>Действия</th></tr></thead><tbody>'+rows.map(x=>{const h=state.honey.find(y=>String(y.id)===String(x.honey_batch_id));return '<tr><td>'+esc(x.packaging_date||'—')+'</td><td><b>'+esc(h?.batch_number||'Партия удалена')+'</b><div class="muted">'+esc(h?.honey_type||'')+'</div></td><td>'+esc(x.jar_size_g)+' г</td><td><b>'+esc(x.jar_count)+' шт.</b><div class="muted">'+(Number(x.jar_size_g||0)*Number(x.jar_count||0)/1000).toLocaleString(journalLocale(),{maximumFractionDigits:3})+' кг</div></td><td><b>'+packagingRunRemaining(x)+' шт.</b></td><td>'+esc(x.label_code||'—')+'</td><td><div class="actions" style="margin:0;flex-wrap:wrap"><button type="button" class="btn gold honey-pack-qr" data-id="'+esc(x.id)+'">QR банок</button><button type="button" class="btn secondary honey-pack-edit" data-id="'+esc(x.id)+'">Изменить</button><button type="button" class="btn danger honey-pack-delete" data-id="'+esc(x.id)+'">Удалить</button></div></td></tr>'}).join('')+'</tbody></table></div>';
   box.querySelectorAll('.honey-pack-qr').forEach(b=>b.onclick=()=>openHoneyJarLabels(b.dataset.id));
   box.querySelectorAll('.honey-pack-edit').forEach(b=>b.onclick=()=>{if(guestMode)return;const x=rows.find(y=>String(y.id)===String(b.dataset.id));if(!x)return;Object.keys(x).forEach(k=>{if(form.elements[k])form.elements[k].value=x[k]??''});if(![100,130,280,500,1000].includes(Number(x.jar_size_g))){form.elements.jar_size_g.value='other';form.elements.jar_size_other_g.value=x.jar_size_g;$('honeyJarSizeOtherField').style.display='block'}$('honeyPackagingSaveBtn').textContent='💾 Сохранить изменения';form.scrollIntoView({behavior:'smooth',block:'center'})});
   box.querySelectorAll('.honey-pack-delete').forEach(b=>b.onclick=async()=>{if(guestMode)return;const x=rows.find(y=>String(y.id)===String(b.dataset.id));if(!x)return;if((state.honeySales||[]).some(s=>String(s.packaging_run_id||'')===String(x.id))||(state.honeyJarLabels||[]).some(l=>String(l.packaging_run_id)===String(x.id))){toast('Нельзя удалить фасовку после создания QR-кодов или привязки продаж.');return}if(!confirm('Удалить запись фасовки '+(x.label_code||x.jar_size_g+' г')+'?'))return;const {error}=await db.from('honey_packaging_runs').delete().eq('id',x.id);if(error){toast('Не удалось удалить фасовку: '+error.message);return}toast('Фасовка удалена.');await loadAll()});
 }
 $('honeyPackagingForm')?.elements.jar_size_g?.addEventListener('change',e=>{$('honeyJarSizeOtherField').style.display=e.target.value==='other'?'block':'none'});
 $('honeyPackagingCancelBtn')?.addEventListener('click',()=>{const f=$('honeyPackagingForm');f.reset();f.elements.id.value='';f.elements.packaging_date.value=today();$('honeyJarSizeOtherField').style.display='none';$('honeyPackagingSaveBtn').textContent='💾 Сохранить фасовку'});
-$('honeyPackagingForm')?.addEventListener('submit',async e=>{e.preventDefault();if(guestMode){toast('Гостевой режим — только просмотр');return}const f=e.currentTarget,d=formData(f),size=d.jar_size_g==='other'?Number(d.jar_size_other_g):Number(d.jar_size_g),count=Number(d.jar_count);if(!d.honey_batch_id||!d.packaging_date||!Number.isFinite(size)||size<=0||!Number.isInteger(count)||count<=0){toast('Проверьте партию, дату, массу банки и количество.');return}const id=d.id,existingRun=id?(state.honeyPackagingRuns||[]).find(x=>String(x.id)===String(id)):null,hasRunSales=!!id&&(state.honeySales||[]).some(s=>String(s.packaging_run_id||'')===String(id)),hasRunLabels=!!id&&(state.honeyJarLabels||[]).some(l=>String(l.packaging_run_id)===String(id));if(existingRun&&(hasRunSales||hasRunLabels)){const sameIdentity=String(d.honey_batch_id)===String(existingRun.honey_batch_id)&&Number(size)===Number(existingRun.jar_size_g)&&String(d.packaging_date)===String(existingRun.packaging_date)&&String(d.label_code||'').trim()===String(existingRun.label_code||'');if(!sameIdentity){toast('У фасовки с QR-кодами или продажами нельзя менять партию, массу банки, дату и код этикетки. Можно увеличить количество банок или изменить примечание.');return}if(count<Number(existingRun.jar_count||0)){toast('Количество нельзя уменьшить: ранее выданные QR-коды и продажи должны остаться действительными. Можно оставить прежнее количество или увеличить его.');return}}const batch=state.honey.find(h=>String(h.id)===String(d.honey_batch_id));if(!batch){toast('Не найдена партия урожая.');return}const availableKg=Math.max(0,Number(batch.quantity_kg||0)-Number(batch.sold_kg||0)-packagingKgReservedForBatch(d.honey_batch_id,id)),requestedKg=size*count/1000;if(requestedKg>availableKg+0.001){toast('Недостаточно нераспределённого мёда в партии. Доступно для фасовки: '+availableKg.toLocaleString('ru-RU',{maximumFractionDigits:3})+' кг.');return}const payload={honey_batch_id:d.honey_batch_id,packaging_date:d.packaging_date,jar_size_g:size,jar_count:count,label_code:d.label_code.trim()||null,notes:d.notes.trim()||null};const result=id?await db.from('honey_packaging_runs').update(payload).eq('id',id):await db.from('honey_packaging_runs').insert(payload);if(result.error){toast('Не удалось сохранить фасовку: '+result.error.message);return}f.reset();f.elements.id.value='';f.elements.packaging_date.value=today();$('honeyJarSizeOtherField').style.display='none';$('honeyPackagingSaveBtn').textContent='💾 Сохранить фасовку';toast(id?'Фасовка изменена.':'Фасовка сохранена.');await loadAll()});
+$('honeyPackagingForm')?.addEventListener('submit',async e=>{e.preventDefault();if(guestMode){toast('Гостевой режим — только просмотр');return}const f=e.currentTarget,d=formData(f),size=d.jar_size_g==='other'?Number(d.jar_size_other_g):Number(d.jar_size_g),count=Number(d.jar_count);if(!d.honey_batch_id||!d.packaging_date||!Number.isFinite(size)||size<=0||!Number.isInteger(count)||count<=0){toast('Проверьте партию, дату, массу банки и количество.');return}const id=d.id,existingRun=id?(state.honeyPackagingRuns||[]).find(x=>String(x.id)===String(id)):null,hasRunSales=!!id&&(state.honeySales||[]).some(s=>String(s.packaging_run_id||'')===String(id)),hasRunLabels=!!id&&(state.honeyJarLabels||[]).some(l=>String(l.packaging_run_id)===String(id));if(existingRun&&(hasRunSales||hasRunLabels)){const sameIdentity=String(d.honey_batch_id)===String(existingRun.honey_batch_id)&&Number(size)===Number(existingRun.jar_size_g)&&String(d.packaging_date)===String(existingRun.packaging_date)&&String(d.label_code||'').trim()===String(existingRun.label_code||'');if(!sameIdentity){toast('У фасовки с QR-кодами или продажами нельзя менять партию, массу банки, дату и код этикетки. Можно увеличить количество банок или изменить примечание.');return}if(count<Number(existingRun.jar_count||0)){toast('Количество нельзя уменьшить: ранее выданные QR-коды и продажи должны остаться действительными. Можно оставить прежнее количество или увеличить его.');return}}const batch=state.honey.find(h=>String(h.id)===String(d.honey_batch_id));if(!batch){toast('Не найдена партия урожая.');return}const availableKg=Math.max(0,Number(batch.quantity_kg||0)-Number(batch.sold_kg||0)-packagingKgReservedForBatch(d.honey_batch_id,id)),requestedKg=size*count/1000;if(requestedKg>availableKg+0.001){toast('Недостаточно нераспределённого мёда в партии. Доступно для фасовки: '+availableKg.toLocaleString(journalLocale(),{maximumFractionDigits:3})+' кг.');return}const payload={honey_batch_id:d.honey_batch_id,packaging_date:d.packaging_date,jar_size_g:size,jar_count:count,label_code:d.label_code.trim()||null,notes:d.notes.trim()||null};const result=id?await db.from('honey_packaging_runs').update(payload).eq('id',id):await db.from('honey_packaging_runs').insert(payload);if(result.error){toast('Не удалось сохранить фасовку: '+result.error.message);return}f.reset();f.elements.id.value='';f.elements.packaging_date.value=today();$('honeyJarSizeOtherField').style.display='none';$('honeyPackagingSaveBtn').textContent='💾 Сохранить фасовку';toast(id?'Фасовка изменена.':'Фасовка сохранена.');await loadAll()});
 function renderHoneySalesAccounting(){
   const form=$('honeySalesForm'),box=$('honeySalesList');if(!form||!box)return;
   const oldBatch=form.elements.honey_batch_id.value;
@@ -2947,7 +2948,7 @@ function renderHoneySalesAccounting(){
   const batchFor=id=>state.honey.find(h=>String(h.id)===String(id));
   box.innerHTML='<div class="table-wrap"><table class="table"><thead><tr><th>Дата</th><th>Партия</th><th>Продано</th><th>Сумма</th><th>Примечание</th><th>Финансы</th><th>Действия</th></tr></thead><tbody>'+rows.map(x=>{
     const h=batchFor(x.honey_batch_id),linked=(state.finance||[]).some(f=>String(f.source_honey_sale_id||'')===String(x.id)),pack=(state.honeyPackagingRuns||[]).find(p=>String(p.id)===String(x.packaging_run_id));
-    return '<tr><td>'+esc(x.sale_date||'—')+'</td><td><b>'+esc(h?.batch_number||'Партия удалена')+'</b><div class="muted">'+esc(h?.honey_type||'')+'</div>'+(pack?'<div class="muted">'+esc(x.package_count||0)+' × '+esc(pack.jar_size_g)+' г · '+esc(pack.label_code||'без кода')+'</div>':'')+'</td><td>'+esc(Number(x.quantity_kg||0).toLocaleString('ru-RU',{minimumFractionDigits:3,maximumFractionDigits:3}))+' кг'+(pack?'<div class="muted">'+esc(x.package_count||0)+' банок</div>':'')+'</td><td>'+esc(Number(x.sale_amount||0).toFixed(2))+'</td><td>'+esc(x.notes||'—')+'</td><td>'+(linked?'<span class="ok-badge">Доход учтён</span>':'<button type="button" class="btn gold honey-sale-finance" data-id="'+esc(x.id)+'">Добавить доход</button>')+'</td><td><div class="actions" style="margin:0;flex-wrap:wrap">'+(linked?'<span class="muted">Запись закреплена</span>':'<button type="button" class="btn secondary honey-sale-edit" data-id="'+esc(x.id)+'">Изменить</button><button type="button" class="btn danger honey-sale-delete" data-id="'+esc(x.id)+'">Удалить</button>')+'</div></td></tr>';
+    return '<tr><td>'+esc(x.sale_date||'—')+'</td><td><b>'+esc(h?.batch_number||'Партия удалена')+'</b><div class="muted">'+esc(h?.honey_type||'')+'</div>'+(pack?'<div class="muted">'+esc(x.package_count||0)+' × '+esc(pack.jar_size_g)+' г · '+esc(pack.label_code||'без кода')+'</div>':'')+'</td><td>'+esc(Number(x.quantity_kg||0).toLocaleString(journalLocale(),{minimumFractionDigits:3,maximumFractionDigits:3}))+' кг'+(pack?'<div class="muted">'+esc(x.package_count||0)+' банок</div>':'')+'</td><td>'+esc(Number(x.sale_amount||0).toFixed(2))+'</td><td>'+esc(x.notes||'—')+'</td><td>'+(linked?'<span class="ok-badge">Доход учтён</span>':'<button type="button" class="btn gold honey-sale-finance" data-id="'+esc(x.id)+'">Добавить доход</button>')+'</td><td><div class="actions" style="margin:0;flex-wrap:wrap">'+(linked?'<span class="muted">Запись закреплена</span>':'<button type="button" class="btn secondary honey-sale-edit" data-id="'+esc(x.id)+'">Изменить</button><button type="button" class="btn danger honey-sale-delete" data-id="'+esc(x.id)+'">Удалить</button>')+'</div></td></tr>';
   }).join('')+'</tbody></table></div>';
   box.querySelectorAll('.honey-sale-finance').forEach(b=>b.onclick=async()=>{
     if(guestMode)return;
@@ -2955,7 +2956,7 @@ function renderHoneySalesAccounting(){
     if((state.finance||[]).some(f=>String(f.source_honey_sale_id||'')===String(x.id))){toast('Доход по этой продаже уже учтён.');await loadAll();return}
     if(!confirm('Добавить в «Финансы» доход '+Number(x.sale_amount||0).toFixed(2)+' за продажу мёда?'))return;
     const h=batchFor(x.honey_batch_id);
-    const description='Продажа мёда '+(h?.honey_type||'')+' ('+(h?.batch_number||'без номера')+'), '+Number(x.quantity_kg||0).toLocaleString('ru-RU',{maximumFractionDigits:3})+' кг'+(x.notes?' • '+x.notes:'');
+    const description='Продажа мёда '+(h?.honey_type||'')+' ('+(h?.batch_number||'без номера')+'), '+Number(x.quantity_kg||0).toLocaleString(journalLocale(),{maximumFractionDigits:3})+' кг'+(x.notes?' • '+x.notes:'');
     const {error}=await db.from('finances').insert({operation_date:x.sale_date||today(),operation_type:'Доход',amount:Number(x.sale_amount),category:'Продажа мёда',description,source_honey_sale_id:x.id});
     if(error){if(String(error.code)==='23505'){toast('Доход по этой продаже уже существует.');await loadAll();return}toast('Не удалось добавить доход: '+error.message);return}
     toast('Доход от продажи мёда добавлен в «Финансы».');await loadAll();
@@ -3282,7 +3283,7 @@ function renderAll(){
         const medicineUses=state.treatments.filter(t=>String(t.medicine_id||'')===String(m.id)).sort((a,b)=>String(b.treatment_date||'').localeCompare(String(a.treatment_date||'')));
         const lastUse=medicineUses[0]?.treatment_date;
         const usageSummary=medicineUses.length
-          ? '<div class="muted" style="font-size:12px;margin-top:9px;padding-top:8px;border-top:1px solid var(--line)">🩺 Применений: <b>'+medicineUses.length+'</b> · последнее: <b>'+esc(lastUse?new Date(String(lastUse).slice(0,10)+'T00:00:00').toLocaleDateString('ru-RU'):'дата не указана')+'</b></div>'
+          ? '<div class="muted" style="font-size:12px;margin-top:9px;padding-top:8px;border-top:1px solid var(--line)">🩺 Применений: <b>'+medicineUses.length+'</b> · последнее: <b>'+esc(lastUse?new Date(String(lastUse).slice(0,10)+'T00:00:00').toLocaleDateString(journalLocale()):'дата не указана')+'</b></div>'
           : '<div class="muted" style="font-size:12px;margin-top:9px;padding-top:8px;border-top:1px solid var(--line)">🩺 Применений по журналу: нет</div>';
         return '<div class="medicine-mobile-card '+statusClass+'"><div class="medicine-mobile-top"><b>💊 '+esc(m.name)+'</b><span>'+status+'</span></div><div class="medicine-mobile-grid"><span><small>Фасовка</small><b>'+esc(m.volume||'—')+'</b></span><span><small>Остаток</small><b>'+esc(m.quantity)+' / '+esc(m.min_quantity??'—')+'</b></span><span><small>Срок годности</small><b>'+esc(m.expiry_date||'—')+'</b></span></div>'+usageSummary+'<div class="medicine-mobile-actions"><button type="button" class="btn secondary medicine-stock-history" data-id="'+esc(m.id)+'">📋 Движение склада</button><button type="button" class="btn secondary medicine-edit" data-id="'+esc(m.id)+'">Изменить</button><button type="button" class="btn danger medicine-delete" data-id="'+esc(m.id)+'">Удалить</button></div></div>';
       }).join('')+'</div>'
@@ -3396,7 +3397,7 @@ document.querySelectorAll('.honey-batch-card').forEach(b=>b.onclick=()=>openHone
   const financeRows=state.finance||[];
   const isIncome=f=>String(f.operation_type??f.entry_type??'').trim().toLowerCase().includes('доход');
   const isExpense=f=>String(f.operation_type??f.entry_type??'').trim().toLowerCase().includes('расход');
-  const money=n=>Number(n||0).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2})+' руб.';
+  const money=n=>Number(n||0).toLocaleString(journalLocale(),{minimumFractionDigits:2,maximumFractionDigits:2})+' руб.';
   const financeIncome=financeRows.filter(isIncome).reduce((sum,f)=>sum+(Number(f.amount)||0),0);
   const financeExpense=financeRows.filter(isExpense).reduce((sum,f)=>sum+(Number(f.amount)||0),0);
   setText('financeIncome',money(financeIncome));
@@ -3519,7 +3520,7 @@ function renderQueenBreederCalendar(){
   const grid=$('queenCalendarGrid'),title=$('queenCalendarMonthTitle'),upcoming=$('queenCalendarUpcoming');
   if(!grid||!title)return;
   const y=queenCalendarMonth.getFullYear(),m=queenCalendarMonth.getMonth();
-  title.textContent=queenCalendarMonth.toLocaleDateString('ru-RU',{month:'long',year:'numeric'});
+  title.textContent=queenCalendarMonth.toLocaleDateString(journalLocale(),{month:'long',year:'numeric'});
   const first=new Date(y,m,1),start=new Date(y,m,1);
   start.setDate(1-((first.getDay()+6)%7));
   const today=queenCalendarISO(new Date()),events=queenCalendarEvents();
@@ -3535,7 +3536,7 @@ function renderQueenBreederCalendar(){
   const monthEvents=events.filter(e=>e.date>=startISO&&e.date<=endISO);
   if(upcoming){
     const future=events.filter(e=>e.date>=today).slice(0,8);
-    upcoming.innerHTML='<h4 style="margin:0 0 8px">Ближайшие этапы</h4>'+(future.length?'<div class="reminder-list">'+future.map(e=>'<div class="reminder-row"><div><b>'+esc(e.title)+'</b><div class="muted">'+esc(e.code)+(e.estimated?' · расчётная дата':'')+'</div></div><span class="ok-badge">'+esc(queenCalendarDate(e.date).toLocaleDateString('ru-RU',{day:'2-digit',month:'short'}))+'</span></div>').join('')+'</div>':'<div class="empty">Предстоящих этапов нет. Добавьте серию вывода маток, чтобы заполнить календарь.</div>');
+    upcoming.innerHTML='<h4 style="margin:0 0 8px">Ближайшие этапы</h4>'+(future.length?'<div class="reminder-list">'+future.map(e=>'<div class="reminder-row"><div><b>'+esc(e.title)+'</b><div class="muted">'+esc(e.code)+(e.estimated?' · расчётная дата':'')+'</div></div><span class="ok-badge">'+esc(queenCalendarDate(e.date).toLocaleDateString(journalLocale(),{day:'2-digit',month:'short'}))+'</span></div>').join('')+'</div>':'<div class="empty">Предстоящих этапов нет. Добавьте серию вывода маток, чтобы заполнить календарь.</div>');
   }
 }
 $('queenCalendarPrev')?.addEventListener('click',()=>{queenCalendarMonth.setMonth(queenCalendarMonth.getMonth()-1);renderQueenBreederCalendar()});
@@ -4356,7 +4357,7 @@ function openHoneyBatch(id){
   const sourceApiary=state.apiaries.find(a=>String(a.id)===String(h.apiary_id));
   const relatedSales=(state.honeySales||[]).filter(s=>String(s.honey_batch_id)===String(h.id));
   const relatedPackaging=(state.honeyPackagingRuns||[]).filter(p=>String(p.honey_batch_id)===String(h.id));
-  $('honeyBatchInfo').innerHTML='<div class="honey-passport"><div class="honey-passport-main"><span>ПАРТИЯ / ПРОИСХОЖДЕНИЕ</span><b>'+esc(h.batch_number||'—')+'</b><strong>'+esc(h.honey_type||'Мёд')+'</strong></div><div class="honey-passport-grid"><div><small>Пасека-источник</small><b>'+esc(sourceApiary?.name||'Не указана')+'</b></div><div><small>Период сбора</small><b>'+esc(h.collection_period||'—')+'</b></div><div><small>Дата сбора</small><b>'+esc(h.collection_date||'—')+'</b></div><div><small>Собрано</small><b>'+esc(h.quantity_kg??'—')+' кг</b></div><div><small>Продано</small><b>'+esc(h.sold_kg??0)+' кг</b></div><div><small>Остаток</small><b>'+esc(h.remaining_kg??Math.max(0,(Number(h.quantity_kg)||0)-(Number(h.sold_kg)||0)))+' кг</b></div><div><small>Цена за кг</small><b>'+esc(h.price_per_kg??'—')+'</b></div><div><small>Стоимость сбора</small><b>'+esc(total?total.toFixed(2):'—')+'</b></div><div><small>Место сбора</small><b>'+esc(h.collection_place||'—')+'</b></div><div><small>Примечание</small><b>'+esc(h.notes||'—')+'</b></div></div><div class="panel" style="margin-top:12px"><h4 style="margin:0 0 8px">🔎 Прослеживаемость партии</h4><div class="reminder-list"><div class="reminder-row"><div><b>1. Пасека-источник</b><div class="muted">'+esc(sourceApiary?.name||'Не указана')+' · '+esc(sourceApiary?.location||h.collection_place||'Место не указано')+'</div></div><span class="ok-badge">'+(sourceApiary?'Связана':'Не заполнено')+'</span></div><div class="reminder-row"><div><b>2. Партия урожая</b><div class="muted">'+esc(h.batch_number||'—')+' · '+esc(h.quantity_kg??'—')+' кг</div></div><span class="ok-badge">Учтена</span></div><div class="reminder-row"><div><b>3. Фасовка</b><div class="muted">'+relatedPackaging.length+' записей · '+relatedPackaging.reduce((sum,p)=>sum+(Number(p.jar_size_g)||0)*(Number(p.jar_count)||0)/1000,0).toLocaleString('ru-RU',{maximumFractionDigits:3})+' кг подготовлено</div></div><span class="ok-badge">'+(relatedPackaging.length?'Связана':'Пока нет')+'</span></div><div class="reminder-row"><div><b>4. Продажи</b><div class="muted">'+relatedSales.length+' записей · '+relatedSales.reduce((sum,s)=>sum+(Number(s.quantity_kg)||0),0).toLocaleString('ru-RU',{maximumFractionDigits:3})+' кг продано</div></div><span class="ok-badge">'+(relatedSales.length?'Связаны':'Пока нет')+'</span></div><div class="muted" style="margin-top:8px">Продажи фасованного мёда связаны с размером банки и кодом этикетки.</div></div></div></div>';
+  $('honeyBatchInfo').innerHTML='<div class="honey-passport"><div class="honey-passport-main"><span>ПАРТИЯ / ПРОИСХОЖДЕНИЕ</span><b>'+esc(h.batch_number||'—')+'</b><strong>'+esc(h.honey_type||'Мёд')+'</strong></div><div class="honey-passport-grid"><div><small>Пасека-источник</small><b>'+esc(sourceApiary?.name||'Не указана')+'</b></div><div><small>Период сбора</small><b>'+esc(h.collection_period||'—')+'</b></div><div><small>Дата сбора</small><b>'+esc(h.collection_date||'—')+'</b></div><div><small>Собрано</small><b>'+esc(h.quantity_kg??'—')+' кг</b></div><div><small>Продано</small><b>'+esc(h.sold_kg??0)+' кг</b></div><div><small>Остаток</small><b>'+esc(h.remaining_kg??Math.max(0,(Number(h.quantity_kg)||0)-(Number(h.sold_kg)||0)))+' кг</b></div><div><small>Цена за кг</small><b>'+esc(h.price_per_kg??'—')+'</b></div><div><small>Стоимость сбора</small><b>'+esc(total?total.toFixed(2):'—')+'</b></div><div><small>Место сбора</small><b>'+esc(h.collection_place||'—')+'</b></div><div><small>Примечание</small><b>'+esc(h.notes||'—')+'</b></div></div><div class="panel" style="margin-top:12px"><h4 style="margin:0 0 8px">🔎 Прослеживаемость партии</h4><div class="reminder-list"><div class="reminder-row"><div><b>1. Пасека-источник</b><div class="muted">'+esc(sourceApiary?.name||'Не указана')+' · '+esc(sourceApiary?.location||h.collection_place||'Место не указано')+'</div></div><span class="ok-badge">'+(sourceApiary?'Связана':'Не заполнено')+'</span></div><div class="reminder-row"><div><b>2. Партия урожая</b><div class="muted">'+esc(h.batch_number||'—')+' · '+esc(h.quantity_kg??'—')+' кг</div></div><span class="ok-badge">Учтена</span></div><div class="reminder-row"><div><b>3. Фасовка</b><div class="muted">'+relatedPackaging.length+' записей · '+relatedPackaging.reduce((sum,p)=>sum+(Number(p.jar_size_g)||0)*(Number(p.jar_count)||0)/1000,0).toLocaleString(journalLocale(),{maximumFractionDigits:3})+' кг подготовлено</div></div><span class="ok-badge">'+(relatedPackaging.length?'Связана':'Пока нет')+'</span></div><div class="reminder-row"><div><b>4. Продажи</b><div class="muted">'+relatedSales.length+' записей · '+relatedSales.reduce((sum,s)=>sum+(Number(s.quantity_kg)||0),0).toLocaleString(journalLocale(),{maximumFractionDigits:3})+' кг продано</div></div><span class="ok-badge">'+(relatedSales.length?'Связаны':'Пока нет')+'</span></div><div class="muted" style="margin-top:8px">Продажи фасованного мёда связаны с размером банки и кодом этикетки.</div></div></div></div>';
   $('honeyBatchModal').style.display='flex';
 }
 function closeHoneyBatch(){$('honeyBatchModal').style.display='none'}
@@ -4535,7 +4536,7 @@ document.addEventListener('click',e=>{if(e.target.closest('#closeHiveQr,#closeHi
       return;
     }
     const pct=m/b*100;
-    output.textContent='Результат: '+pct.toLocaleString('ru-RU',{maximumFractionDigits:2})+'% заражённости ('+m+' клещей на '+b+' пчёл).';
+    output.textContent='Результат: '+pct.toLocaleString(journalLocale(),{maximumFractionDigits:2})+'% заражённости ('+m+' клещей на '+b+' пчёл).';
   };
   bees?.addEventListener('input',update); mites?.addEventListener('input',update);
   document.getElementById('varroaApplyResult')?.addEventListener('click',()=>{
@@ -4548,7 +4549,7 @@ document.addEventListener('click',e=>{if(e.target.closest('#closeHiveQr,#closeHi
     if(form?.elements.varroa_result)form.elements.varroa_result.value=pct.toFixed(2);
     if(form?.elements.varroa_unit)form.elements.varroa_unit.value='% поражения';
     if(form?.elements.varroa_method&&!form.elements.varroa_method.value)form.elements.varroa_method.value='Спиртовая смывка';
-    if(form?.elements.symptoms&&!form.elements.symptoms.value)form.elements.symptoms.value='Смыв: '+m+' клещей в пробе из '+b+' пчёл; расчётная заражённость '+pct.toLocaleString('ru-RU',{maximumFractionDigits:2})+'%.';
+    if(form?.elements.symptoms&&!form.elements.symptoms.value)form.elements.symptoms.value='Смыв: '+m+' клещей в пробе из '+b+' пчёл; расчётная заражённость '+pct.toLocaleString(journalLocale(),{maximumFractionDigits:2})+'%.';
     if(output)output.textContent='Результат перенесён в форму записи. Нажмите «Сохранить запись о здоровье», чтобы сохранить его в журнале.';
   });
   update();
