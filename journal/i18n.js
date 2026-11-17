@@ -642,6 +642,19 @@
   function valid(lang){return LANGS.includes(lang)?lang:'ru'}
   function translateMessage(message){const source=String(message??'');const map=UI_MESSAGES[current]||{};return map[source]!==undefined?map[source]:source;}
   function queryAll(root,selector){const found=Array.from(root.querySelectorAll(selector));if(root.nodeType===1&&root.matches(selector))found.unshift(root);return found;}
+  function applyTextMap(el,map,attribute){
+    if(el.parentElement?.closest('[data-i18n-text-mapped="1"]'))return;
+    const original=el.dataset[attribute]??(el.textContent||'').replace(/\\s+/g,' ').trim();
+    if(!el.dataset[attribute])el.dataset[attribute]=original;
+    const translated=map[original];
+    if(translated===undefined)return;
+    const walker=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);
+    const nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);
+    if(!nodes.length){el.textContent=translated;return;}
+    nodes[0].nodeValue=translated;
+    for(let i=1;i<nodes.length;i++)nodes[i].nodeValue='';
+    if(el.children.length)el.dataset.i18nTextMapped='1';
+  }
   function apply(root=document){
     const dict={...(DICT[current]||DICT.ru),...(EXTRA[current]||{})};
     const sectionIds=['apiaries','hives','weights','inspections','health','wax','apiary-products','calendar','calculators','queens','colonies','honey','finances','tasks','photos','stats','medicines','disinfection','contacts'];
@@ -658,18 +671,11 @@
       if(value!==undefined) el.textContent=value;
     });
     const staticMap=UI_STATIC[current]||{};
-    queryAll(root,'#app .section > h1, #app .section > p.sub, #app .section .panel > h3, #app .section .section-head h3, #app .section .section-head .muted, #app .section .panel > .muted, #app .hero h2, #app .hero > .sub, #app .eyebrow, #app h1, #app h2, #app h3, #app h4, #app p, #app li, #app small, #app b, #app strong, #app button, #app .muted, #app .empty, #app .mobile-quick-actions b, #app .hive-card-grid small, #app .hive-health-badge, #app .task-badge, #app .medicine-mobile-grid small, #app .disinfection-mobile-meta span, #app .finance-mobile-top b, #app .home-view span, #app .section span, .map-promo-title, .map-promo-subtitle, .map-promo-cta').forEach(el=>{
-      if(el.children.length) return;
-      const original=el.dataset.i18nStaticOriginal??(el.textContent||'').replace(/\\s+/g,' ').trim();
-      if(!el.dataset.i18nStaticOriginal)el.dataset.i18nStaticOriginal=original;
-      if(staticMap[original]!==undefined)el.textContent=staticMap[original];
-    });
+    queryAll(root,'#app .section > h1, #app .section > p.sub, #app .section .panel > h3, #app .section .section-head h3, #app .section .section-head .muted, #app .section .panel > .muted, #app .hero h2, #app .hero > .sub, #app .eyebrow, #app h1, #app h2, #app h3, #app h4, #app p, #app li, #app small, #app b, #app strong, #app button, #app .muted, #app .empty, #app .mobile-quick-actions b, #app .hive-card-grid small, #app .hive-health-badge, #app .task-badge, #app .medicine-mobile-grid small, #app .disinfection-mobile-meta span, #app .finance-mobile-top b, #app .home-view span, #app .section span, .map-promo-title, .map-promo-subtitle, .map-promo-cta').forEach(el=>applyTextMap(el,staticMap,'i18nStaticOriginal'));
     const uiMap=UI_TEXT[current]||{};
     queryAll(root,'label,button').forEach(el=>{
       if(el.tagName==='LABEL'&&el.querySelector('input,select,textarea,button'))return;
-      const original=el.dataset.i18nOriginal??(el.textContent||'').replace(/\\s+/g,' ').trim();
-      if(!el.dataset.i18nOriginal)el.dataset.i18nOriginal=original;
-      if(uiMap[original]!==undefined) el.textContent=uiMap[original];
+      applyTextMap(el,uiMap,'i18nOriginal');
     });
     const placeholderMap=UI_PLACEHOLDERS[current]||{};
     queryAll(root,'[placeholder]').forEach(el=>{
