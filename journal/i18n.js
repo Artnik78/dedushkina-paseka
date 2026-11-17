@@ -865,7 +865,7 @@
   // Preserve each original text node so switching languages always starts from the source text.
   const originalTextNodes=new WeakMap();
   function applyTextMap(el,map,attribute){
-    const original=el.dataset[attribute]??(el.textContent||'').replace(/\\s+/g,' ').trim();
+    const original=el.dataset[attribute]??(el.textContent||'').replace(/\s+/g,' ').trim();
     if(!el.dataset[attribute])el.dataset[attribute]=original;
     const walker=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);
     const nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);
