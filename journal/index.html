@@ -139,6 +139,8 @@ button{cursor:pointer}
 .home-view .topbar{background:rgba(255,255,255,.34);border-bottom-color:rgba(255,255,255,.35);box-shadow:none}.home-view .topbar .search{background:rgba(255,255,255,.64)}.home-view .content{padding-top:10px}.topbar{height:64px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:10px 24px;position:sticky;top:0;z-index:5}
 .search{flex:1;max-width:560px;border:1px solid var(--line);border-radius:10px;padding:10px 13px}
 .profile{margin-left:auto;display:flex;align-items:center;gap:8px}
+.topbar .profile #journalLanguageTopSelect{display:block!important;visibility:visible!important;opacity:1!important;flex:0 0 132px;width:132px;min-width:112px;max-width:132px;position:relative;z-index:6;border:1px solid var(--line);border-radius:9px;padding:9px 8px;background:#fff;color:var(--ink);font-weight:700}
+@media(max-width:700px){.topbar{gap:7px;padding:8px}.topbar .search{min-width:0;width:0;flex:1 1 auto}.topbar .profile #journalLanguageTopSelect{flex-basis:112px;width:112px;min-width:112px;max-width:112px;padding:8px 5px!important;font-size:12px}.topbar .profile{gap:4px;margin-left:0}.topbar .profile .btn{padding:8px 9px;font-size:12px}}
 .status-dot{width:9px;height:9px;border-radius:50%;background:#36a65a;display:inline-block}
 .content{padding:24px;max-width:1400px;margin:auto}
 .section{display:none}.section.active{display:block}
@@ -234,15 +236,21 @@ body.subscription-readonly #subscriptionStatusNote::after{content:" Режим �
 
 <div id="auth">
   <div class="authbox">
-    <h1>🐝 Мир пчеловодства</h1>
-    <p class="sub">Вход в цифровой журнал пасечника</p>
+    <h1 data-i18n="auth.title">🐝 Мир пчеловодства</h1>
+    <div class="auth-language-row" style="display:flex;align-items:center;justify-content:flex-end;gap:8px;margin:-8px 0 12px">
+      <label for="journalLanguageAuthSelect" class="muted" style="font-size:12px">🌐 Язык</label>
+      <select id="journalLanguageAuthSelect" aria-label="Язык интерфейса" style="border:1px solid var(--line);border-radius:9px;padding:8px 10px;background:#fff;color:var(--ink);font-weight:700">
+        <option value="ru">🇷🇺 Русский</option><option value="be">🇧🇾 Беларуская</option><option value="en">🇬🇧 English</option>
+      </select>
+    </div>
+    <p class="sub" data-i18n="auth.subtitle">Вход в цифровой журнал пасечника</p>
 
     <div class="field"><label for="authIdentifier">Email или номер телефона</label><input id="authIdentifier" type="text" inputmode="email" autocomplete="username" placeholder="Введите email или +375291234567"></div>
     <div class="field"><label for="authPassword">Пароль</label><input id="authPassword" type="password" autocomplete="current-password" placeholder="Ваш пароль" maxlength="128" aria-describedby="passwordRequirements"></div>
     <div class="field" id="authDisplayNameField" style="display:none"><label for="authDisplayName">Ваше имя</label><input id="authDisplayName" type="text" maxlength="80" autocomplete="name" placeholder="Как к вам обращаться"></div>
-    <p class="muted" id="passwordRequirements" style="display:none;margin-top:-4px">Для регистрации: минимум 8 символов, строчные и заглавные латинские буквы, цифра и специальный символ (например ! или #).</p>
+    <p class="muted" id="passwordRequirements" data-i18n="auth.passwordRequirements" style="display:none;margin-top:-4px">Для регистрации: минимум 8 символов, строчные и заглавные латинские буквы, цифра и специальный символ (например ! или #).</p>
     <div class="cf-turnstile" id="signupTurnstile" data-sitekey="0x4AAAAAAFVRRKyWkIBv6dtO" data-action="signup"></div>
-    <p class="muted" id="authMethodHint">Введите email или телефон и пароль.</p>
+    <p class="muted" id="authMethodHint" data-i18n="auth.methodHint">Введите email или телефон и пароль.</p>
     <div class="auth-message" id="authMessage"></div>
     <div class="actions">
       <button class="btn" id="loginBtn">Войти</button>
@@ -253,14 +261,14 @@ body.subscription-readonly #subscriptionStatusNote::after{content:" Режим �
       <button type="button" class="btn secondary" id="forgotAccessBtn" style="white-space:normal">Забыли пароль или логин?</button>
     </div>
     <div id="recoveryPanel" class="panel" style="display:none;margin-top:12px;padding:14px">
-      <h3 style="margin-bottom:8px">Восстановление доступа</h3>
-      <p id="recoveryHelp" class="muted">Укажите email, на который регистрировали журнал. Мы отправим ссылку для смены пароля.</p>
+      <h3 data-i18n="auth.recoveryTitle" style="margin-bottom:8px">Восстановление доступа</h3>
+      <p id="recoveryHelp" class="muted" data-i18n="auth.recoveryHelp">Укажите email, на который регистрировали журнал. Мы отправим ссылку для смены пароля.</p>
       <div id="recoveryEmailFields">
         <div class="field"><label for="recoveryEmail">Email аккаунта</label><input id="recoveryEmail" type="email" autocomplete="email" placeholder="name@example.com"></div>
         <div class="actions"><button type="button" class="btn gold" id="sendRecoveryEmailBtn">Отправить ссылку</button></div>
       </div>
       <div id="recoveryPhoneHelp" style="display:none">
-        <p class="muted">Для входа по телефону SMS-подтверждение не используется, поэтому автоматический сброс по одному номеру небезопасен. Не отправляйте пароль никому. Свяжитесь с владельцем журнала для проверки личности и восстановления доступа.</p>
+        <p class="muted" data-i18n="auth.phoneHelp">Для входа по телефону SMS-подтверждение не используется, поэтому автоматический сброс по одному номеру небезопасен. Не отправляйте пароль никому. Свяжитесь с владельцем журнала для проверки личности и восстановления доступа.</p>
       </div>
       <div id="recoveryNewPasswordFields" style="display:none">
         <div class="field"><label for="recoveryNewPassword">Новый пароль</label><input id="recoveryNewPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" placeholder="Не менее 8 символов"></div>
@@ -275,7 +283,7 @@ body.subscription-readonly #subscriptionStatusNote::after{content:" Режим �
 
 <div id="hiveMoveModal" class="event-modal" style="z-index:50">
   <div class="event-modal-box" style="width:min(560px,100%)">
-    <div class="event-modal-head"><h3 id="hiveMoveTitle">↔️ Перемещение улья</h3><button type="button" class="close-btn" id="closeHiveMoveBtn">×</button></div>
+    <div class="event-modal-head"><h3 id="hiveMoveTitle" data-i18n="modal.hiveMove">↔️ Перемещение улья</h3><button type="button" class="close-btn" id="closeHiveMoveBtn">×</button></div>
     <form id="hiveMoveForm" class="form">
       <input type="hidden" name="hive_id">
       <div class="field"><label>Откуда</label><input name="from_name" readonly></div>
@@ -289,7 +297,7 @@ body.subscription-readonly #subscriptionStatusNote::after{content:" Режим �
 </div>
 <div id="hiveFamilyModal" class="event-modal" style="z-index:45">
   <div class="event-modal-box">
-    <div class="event-modal-head"><h3 id="hiveFamilyTitle">🐝 Пчелиная семья</h3><button type="button" class="close-btn" id="closeHiveFamilyBtn">×</button></div>
+    <div class="event-modal-head"><h3 id="hiveFamilyTitle" data-i18n="modal.hiveFamily">🐝 Пчелиная семья</h3><button type="button" class="close-btn" id="closeHiveFamilyBtn">×</button></div>
     <div id="hiveFamilyInfo"></div>
     <div class="actions" style="justify-content:flex-end"><button type="button" class="btn secondary" id="closeHiveFamilyBtn2">Закрыть</button></div>
   </div>
@@ -299,27 +307,27 @@ body.subscription-readonly #subscriptionStatusNote::after{content:" Режим �
 <aside class="sidebar">
   <div class="brand"><div class="brand-b">🐝</div><div><strong id="sidebarJournalName">Дедушкина пасека</strong><span>Цифровой журнал пасечника</span></div></div>
   <nav class="nav">
-    <button class="active" data-page="home">🏠 Главная</button>
-    <button data-page="apiaries">🍯 Мои пасеки</button>
-    <button data-page="hives">⬡ Ульи</button>
-    <button data-page="inspections">📋 Осмотры</button>
-    <button data-page="weights">⚖️ Весы и медосбор</button>
-    <button data-page="health">🩺 Здоровье</button>
-    <button data-page="queens">👑 Племенная работа</button>
-    <button data-page="colonies">🐝 Рои и отводки</button>
-    <button data-page="wax">🕯️ Воск и вощина</button>
-    <button data-page="apiary-products">🌿 Прополис, пыльца и перга</button>
-    <button data-page="calendar">📅 Календарь</button>
-    <button data-page="honey">🍯 Мёд / партии</button>
-    <button data-page="calculators">🧮 Калькуляторы</button>
-    <button data-page="finances">💰 Финансы</button>
-    <button data-page="tasks">🔔 Напоминания</button>
-    <button data-page="medicines">💊 Лекарства</button>
-    <button data-page="disinfection">🧴 Дезинфекция</button>
-    <button data-page="contacts">👥 Контакты</button>
-    <button data-page="photos">📷 Фото</button>
-    <button data-page="stats">📊 Статистика</button>
-    <button data-page="settings">⚙️ Настройки</button>
+    <button class="active" data-page="home" data-i18n="nav.home">🏠 Главная</button>
+    <button data-page="apiaries" data-i18n="nav.apiaries">🍯 Мои пасеки</button>
+    <button data-page="hives" data-i18n="nav.hives">⬡ Ульи</button>
+    <button data-page="inspections" data-i18n="nav.inspections">📋 Осмотры</button>
+    <button data-page="weights" data-i18n="nav.weights">⚖️ Весы и медосбор</button>
+    <button data-page="health" data-i18n="nav.health">🩺 Здоровье</button>
+    <button data-page="queens" data-i18n="nav.queens">👑 Племенная работа</button>
+    <button data-page="colonies" data-i18n="nav.colonies">🐝 Рои и отводки</button>
+    <button data-page="wax" data-i18n="nav.wax">🕯️ Воск и вощина</button>
+    <button data-page="apiary-products" data-i18n="nav.products">🌿 Прополис, пыльца и перга</button>
+    <button data-page="calendar" data-i18n="nav.calendar">📅 Календарь</button>
+    <button data-page="honey" data-i18n="nav.honey">🍯 Мёд / партии</button>
+    <button data-page="calculators" data-i18n="nav.calculators">🧮 Калькуляторы</button>
+    <button data-page="finances" data-i18n="nav.finances">💰 Финансы</button>
+    <button data-page="tasks" data-i18n="nav.tasks">🔔 Напоминания</button>
+    <button data-page="medicines" data-i18n="nav.medicines">💊 Лекарства</button>
+    <button data-page="disinfection" data-i18n="nav.disinfection">🧴 Дезинфекция</button>
+    <button data-page="contacts" data-i18n="nav.contacts">👥 Контакты</button>
+    <button data-page="photos" data-i18n="nav.photos">📷 Фото</button>
+    <button data-page="stats" data-i18n="nav.stats">📊 Статистика</button>
+    <button data-page="settings" data-i18n="nav.settings">⚙️ Настройки</button>
   </nav>
 </aside>
 
@@ -327,7 +335,7 @@ body.subscription-readonly #subscriptionStatusNote::after{content:" Режим �
   <header class="topbar">
     <button type="button" id="pageBackBtn" class="btn secondary" aria-label="Назад" title="Вернуться на предыдущую страницу" style="flex:0 0 auto;min-width:42px;padding:9px 12px;font-size:20px;line-height:1" hidden>←</button>
     <input id="search" class="search" placeholder="Поиск по журналу...">
-    <div class="profile"><span class="status-dot"></span><span id="userEmail">...</span><button class="btn secondary" id="logoutBtn">Выйти</button></div>
+    <div class="profile"><span class="status-dot"></span><span id="userEmail">...</span><button class="btn secondary" id="logoutBtn">Выйти</button><select id="journalLanguageTopSelect" aria-label="Язык интерфейса" title="Язык интерфейса"><option value="ru">🇷🇺 Русский</option><option value="be">🇧🇾 Беларуская</option><option value="en">🇬🇧 English</option></select></div>
   </header>
 
 
@@ -336,8 +344,9 @@ body.subscription-readonly #subscriptionStatusNote::after{content:" Режим �
     <section id="page-home" class="section active">
       <div class="home-masthead">
         <div class="mast-brand">🐝 <span id="homeJournalName">Дедушкина<br>пасека</span></div>
-        <div class="mast-title"><strong>Журнал пасечника</strong><span><span id="homeApiarySubtitle">Название пасеки</span> · Натуральный мёд с родных полей</span></div>
+        <div class="mast-title"><strong data-i18n="home.title">Журнал пасечника</strong><span><span id="homeApiarySubtitle">Название пасеки</span> · Натуральный мёд с родных полей</span></div>
         <div class="mast-info">
+          <label for="journalLanguageHomeSelect" class="muted" style="font-size:11px;font-weight:700">🌐 <select id="journalLanguageHomeSelect" aria-label="Язык интерфейса" style="border:1px solid #ead9a8;border-radius:9px;padding:7px 8px;background:#fff;color:#3d3229;font-weight:700;max-width:150px"><option value="ru">🇷🇺 Русский</option><option value="be">🇧🇾 Беларуская</option><option value="en">🇬🇧 English</option></select></label>
           <span>📅 <b id="homeDateLabel">Сегодня</b></span>
           <span id="homeWeatherLabel">🌤️ Погода не настроена</span>
           <button class="btn secondary" id="homeLogoutBtn" type="button" aria-label="Выйти из журнала" title="Выйти из журнала">🚪 Выйти</button>
@@ -345,12 +354,12 @@ body.subscription-readonly #subscriptionStatusNote::after{content:" Режим �
         </div>
       </div>
       <div class="hero">
-        <h2>Добро пожаловать на пасеку 🐝</h2>
+        <h2 data-i18n="home.welcome">Добро пожаловать на пасеку 🐝</h2>
         <p class="sub" id="homeLocationIntro">Цифровой журнал пасечника «Дедушкина пасека».</p>
         <div class="actions">
-          <button class="btn gold" data-page="hives">➕ Добавить улей</button>
-          <button class="btn secondary" data-page="inspections">📋 Записать осмотр</button>
-          <button class="btn secondary" data-page="honey">🍯 Добавить партию мёда</button>
+          <button class="btn gold" data-page="hives" data-i18n="home.addHive">➕ Добавить улей</button>
+          <button class="btn secondary" data-page="inspections" data-i18n="home.addInspection">📋 Записать осмотр</button>
+          <button class="btn secondary" data-page="honey" data-i18n="home.addHoney">🍯 Добавить партию мёда</button>
           <button class="btn secondary" data-page="honey">📄 Паспорт мёда</button>
           <button class="btn secondary" id="homePackagingShortcut" type="button" onclick="showPage('honey');setTimeout(()=>document.getElementById('honeyPackagingPanel')?.scrollIntoView({behavior:'smooth',block:'start'}),100)">🫙 Фасовка и QR-коды</button>
           <button class="btn secondary" data-page="apiaries">🏡 Паспорт пасеки</button>
@@ -1065,107 +1074,120 @@ body.subscription-readonly #subscriptionStatusNote::after{content:" Режим �
     </section>
 
     <section id="page-settings" class="section">
-      <h1>Настройки</h1><p class="sub">Ваш личный журнал.</p>
+      <h1 data-i18n="settings.title">Настройки</h1><p class="sub" data-i18n="settings.subtitle">Ваш личный журнал.</p>
+      <div class="panel" id="journalLanguagePanel">
+        <h3 data-i18n="settings.languageTitle">🌐 Язык интерфейса</h3>
+        <p class="muted" data-i18n="settings.languageHelp">Выберите язык, на котором вам удобно работать. Настройка сохранится в вашем аккаунте.</p>
+        <div class="field" style="max-width:360px">
+          <label for="journalLanguageSelect" data-i18n="settings.languageLabel">Язык журнала</label>
+          <select id="journalLanguageSelect">
+            <option value="ru">🇷🇺 Русский</option>
+            <option value="be">🇧🇾 Беларуская</option>
+            <option value="en">🇬🇧 English</option>
+          </select>
+        </div>
+        <p id="journalLanguageStatus" class="muted" role="status" aria-live="polite"></p>
+      </div>
       <div class="panel">
-        <h3>Моя учётная запись</h3>
+        <h3 data-i18n="settings.account">Моя учётная запись</h3>
         <p><b>Email:</b> <span id="settingsUserEmail">—</span></p>
-        <div class="field" style="max-width:520px;margin:12px 0"><label>Название пасечника</label><input id="journalDisplayName" maxlength="80" placeholder="Например, Дедушкина пасека"><small class="muted">Это название будет показываться слева вверху журнала.</small></div>
-        <div class="actions"><button class="btn" type="button" id="saveJournalDisplayNameBtn">Сохранить название</button></div>
-        <p><b>Мои пасеки:</b> <span id="settingsApiaryCount">0</span></p>
-        <p><b>Мои ульи:</b> <span id="settingsHiveCount">0</span></p>
-        <div class="actions"><button class="btn secondary" id="refreshBtn">Обновить данные</button></div>
+        <div class="field" style="max-width:520px;margin:12px 0"><label data-i18n="settings.displayName">Название пасечника</label><input id="journalDisplayName" maxlength="80" placeholder="Например, Дедушкина пасека"><small class="muted" data-i18n="settings.displayNameHelp">Это название будет показываться слева вверху журнала.</small></div>
+        <div class="actions"><button class="btn" type="button" id="saveJournalDisplayNameBtn" data-i18n="settings.saveName">Сохранить название</button></div>
+        <p><b data-i18n="settings.apiariesCount">Мои пасеки:</b> <span id="settingsApiaryCount">0</span></p>
+        <p><b data-i18n="settings.hivesCount">Мои ульи:</b> <span id="settingsHiveCount">0</span></p>
+        <div class="actions"><button class="btn secondary" id="refreshBtn" data-i18n="settings.refresh">Обновить данные</button></div>
       </div>
       <div class="panel" id="shareJournalPanel">
-        <h3>🔗 Поделиться журналом</h3>
-        <p class="muted">Отправьте ссылку на цифровой журнал другим пчеловодам через Telegram, Viber, WhatsApp, SMS или любое другое приложение.</p>
+        <h3 data-i18n="settings.share">🔗 Поделиться журналом</h3>
+        <p class="muted" data-i18n="settings.shareHelp">Отправьте ссылку на цифровой журнал другим пчеловодам через Telegram, Viber, WhatsApp, SMS или любое другое приложение.</p>
         <div class="actions">
-          <button class="btn gold" type="button" id="shareJournalBtn">↗ Поделиться ссылкой</button>
-          <button class="btn secondary" type="button" id="copyJournalLinkBtn">Копировать ссылку</button>
+          <button class="btn gold" type="button" id="shareJournalBtn" data-i18n="settings.shareButton">↗ Поделиться ссылкой</button>
+          <button class="btn secondary" type="button" id="copyJournalLinkBtn" data-i18n="settings.copyLink">Копировать ссылку</button>
         </div>
-        <p id="shareJournalStatus" class="muted" role="status" aria-live="polite">Личные записи, пароли и данные пасеки не передаются — отправляется только адрес журнала.</p>
+        <p id="shareJournalStatus" class="muted" role="status" aria-live="polite" data-i18n="settings.sharePrivacy">Личные записи, пароли и данные пасеки не передаются — отправляется только адрес журнала.</p>
       </div>
       <div class="panel" id="pushNotificationsPanel">
-        <h3>🔔 Уведомления на телефон</h3>
-        <p class="muted">Разрешите уведомления в Chrome на Android. После настройки push-уведомления смогут приходить, даже когда журнал закрыт.</p>
+        <h3 data-i18n="settings.pushTitle">🔔 Уведомления на телефон</h3>
+        <p class="muted" data-i18n="settings.pushHelp">Разрешите уведомления в Chrome на Android. После настройки push-уведомления смогут приходить, даже когда журнал закрыт.</p>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin:14px 0">
-          <div class="field"><label for="pushReminderFrequency">Когда напоминать</label><select id="pushReminderFrequency"><option value="daily">Каждый день</option><option value="weekdays">Только по будням</option><option value="weekly">Раз в неделю (понедельник)</option></select></div>
-          <div class="field"><label for="pushReminderTime">Время (Europe/Minsk)</label><input id="pushReminderTime" type="time" step="900" value="11:00"></div>
+          <div class="field"><label for="pushReminderFrequency" data-i18n="settings.when">Когда напоминать</label><select id="pushReminderFrequency"><option value="daily" data-i18n="settings.daily">Каждый день</option><option value="weekdays" data-i18n="settings.weekdays">Только по будням</option><option value="weekly" data-i18n="settings.weekly">Раз в неделю (понедельник)</option></select></div>
+          <div class="field"><label for="pushReminderTime" data-i18n="settings.time">Время (Europe/Minsk)</label><input id="pushReminderTime" type="time" step="900" value="11:00"></div>
         </div>
         <div style="display:grid;gap:9px;margin:12px 0">
-          <label style="display:flex;align-items:center;gap:9px"><input id="pushReminderEnabled" type="checkbox" checked> Получать push-напоминания</label>
-          <label style="display:flex;align-items:center;gap:9px"><input id="pushReminderLowStock" type="checkbox" checked> Остатки лекарств</label>
-          <label style="display:flex;align-items:center;gap:9px"><input id="pushReminderExpiry" type="checkbox" checked> Сроки годности препаратов</label>
-          <label style="display:flex;align-items:center;gap:9px"><input id="pushReminderTasks" type="checkbox" checked> Задачи и запланированные работы</label>
-          <label style="display:flex;align-items:center;gap:9px"><input id="pushReminderDisinfection" type="checkbox" checked> Плановая дезинфекция</label>
-          <label style="display:flex;align-items:center;gap:9px"><input id="pushReminderBirthdays" type="checkbox" checked> Дни рождения контактов</label>
+          <label style="display:flex;align-items:center;gap:9px"><input id="pushReminderEnabled" type="checkbox" checked> <span data-i18n="settings.pushEnabled">Получать push-напоминания</span></label>
+          <label style="display:flex;align-items:center;gap:9px"><input id="pushReminderLowStock" type="checkbox" checked> <span data-i18n="settings.lowStock">Остатки лекарств</span></label>
+          <label style="display:flex;align-items:center;gap:9px"><input id="pushReminderExpiry" type="checkbox" checked> <span data-i18n="settings.expiry">Сроки годности препаратов</span></label>
+          <label style="display:flex;align-items:center;gap:9px"><input id="pushReminderTasks" type="checkbox" checked> <span data-i18n="settings.tasks">Задачи и запланированные работы</span></label>
+          <label style="display:flex;align-items:center;gap:9px"><input id="pushReminderDisinfection" type="checkbox" checked> <span data-i18n="settings.disinfection">Плановая дезинфекция</span></label>
+          <label style="display:flex;align-items:center;gap:9px"><input id="pushReminderBirthdays" type="checkbox" checked> <span data-i18n="settings.birthdays">Дни рождения контактов</span></label>
         </div>
-        <div class="actions"><button class="btn gold" type="button" id="savePushReminderPreferencesBtn">Сохранить настройки напоминаний</button><button class="btn secondary" type="button" id="enablePushBtn">Включить и проверить уведомления</button></div>
-        <p id="pushPreferencesStatus" class="muted" role="status" aria-live="polite">Параметры по умолчанию показаны только для настройки формы и не сохранены в профиле.</p>
-        <p id="pushStatus" class="muted" role="status" aria-live="polite">Push ещё не подключён на этом устройстве.</p>
+        <div class="actions"><button class="btn gold" type="button" id="savePushReminderPreferencesBtn" data-i18n="settings.saveReminders">Сохранить настройки напоминаний</button><button class="btn secondary" type="button" id="enablePushBtn" data-i18n="settings.enablePush">Включить и проверить уведомления</button></div>
+        <p id="pushPreferencesStatus" class="muted" role="status" aria-live="polite" data-i18n="settings.defaultPrefs">Параметры по умолчанию показаны только для настройки формы и не сохранены в профиле.</p>
+        <p id="pushStatus" class="muted" role="status" aria-live="polite" data-i18n="settings.pushNotConnected">Push ещё не подключён на этом устройстве.</p>
       </div>
       <div class="panel" id="restoreJournalPanel">
-        <h3>📥 Восстановление из JSON</h3>
-        <p class="muted">Загрузите ранее сохранённую полную копию журнала. Существующие записи не удаляются: записи с совпадающими ID будут обновлены, остальные добавлены. Аккаунт, название пасечника и настройки доступа не изменяются.</p>
+        <h3 data-i18n="settings.restoreTitle">📥 Восстановление из JSON</h3>
+        <p class="muted" data-i18n="settings.restoreHelp">Загрузите ранее сохранённую полную копию журнала. Существующие записи не удаляются: записи с совпадающими ID будут обновлены, остальные добавлены. Аккаунт, название пасечника и настройки доступа не изменяются.</p>
         <div class="field" style="max-width:560px">
-          <label for="restoreJsonFile">Резервная копия журнала (.json)</label>
+          <label for="restoreJsonFile" data-i18n="settings.backupLabel">Резервная копия журнала (.json)</label>
           <input id="restoreJsonFile" type="file" accept=".json,application/json">
         </div>
-        <div class="actions"><button type="button" class="btn gold" id="restorePreviewBtn">Проверить копию</button></div>
+        <div class="actions"><button type="button" class="btn gold" id="restorePreviewBtn" data-i18n="settings.checkBackup">Проверить копию</button></div>
         <div id="restorePreview" style="display:none;margin-top:14px;padding:14px;border:1px solid var(--line);border-radius:12px">
           <div id="restorePreviewSummary"></div>
-          <p class="muted" style="margin-top:10px">Файл JSON содержит данные записей, но не сами фотографии. Записи фото будут пропущены, поскольку файлы изображений в резервную копию не включены. Перед восстановлением сохраните текущую копию журнала.</p>
-          <label style="display:flex;align-items:flex-start;gap:8px;margin:12px 0"><input type="checkbox" id="restoreConfirmCheck" style="margin-top:4px"> Я проверил выбранный файл и понимаю, что совпадающие ID существующих записей будут обновлены.</label>
-          <div class="actions"><button type="button" class="btn gold" id="restoreRunBtn" disabled>Начать восстановление</button><button type="button" class="btn secondary" id="restoreCancelBtn">Отмена</button></div>
+          <p class="muted" style="margin-top:10px" data-i18n="settings.restorePhotoNote">Файл JSON содержит данные записей, но не сами фотографии. Записи фото будут пропущены, поскольку файлы изображений в резервную копию не включены. Перед восстановлением сохраните текущую копию журнала.</p>
+          <label style="display:flex;align-items:flex-start;gap:8px;margin:12px 0"><input type="checkbox" id="restoreConfirmCheck" style="margin-top:4px"> <span data-i18n="settings.restoreConfirm">Я проверил выбранный файл и понимаю, что совпадающие ID существующих записей будут обновлены.</span></label>
+          <div class="actions"><button type="button" class="btn gold" id="restoreRunBtn" disabled data-i18n="settings.restoreStart">Начать восстановление</button><button type="button" class="btn secondary" id="restoreCancelBtn" data-i18n="settings.cancel">Отмена</button></div>
           <p id="restoreStatus" class="muted" role="status" aria-live="polite"></p>
         </div>
       </div>
       <div class="panel" id="clearJournalPanel" style="border:1px solid #d97757;background:rgba(180,65,45,.06)">
-        <h3>🗑 Очистка журнала</h3>
-        <p class="muted">Удаление данных вашего журнала без удаления аккаунта, названия пасечника и настроек доступа.</p>
+        <h3 data-i18n="settings.clearTitle">🗑 Очистка журнала</h3>
+        <p class="muted" data-i18n="settings.clearHelp">Удаление данных вашего журнала без удаления аккаунта, названия пасечника и настроек доступа.</p>
         <ul style="padding-left:22px;line-height:1.8">
-          <li>Все ульи и пасеки</li>
-          <li>Осмотры, история работ и движения ульев</li>
-          <li>Записи здоровья, лечения и дезинфекции</li>
-          <li>Партии мёда, фасовка и QR-этикетки</li>
-          <li>Лекарства и движение их запасов</li>
-          <li>Финансовые записи и задачи</li>
-          <li>Фотографии и связанные файлы</li>
+          <li data-i18n="settings.clearHives">Все ульи и пасеки</li>
+          <li data-i18n="settings.clearInspections">Осмотры, история работ и движения ульев</li>
+          <li data-i18n="settings.clearHealth">Записи здоровья, лечения и дезинфекции</li>
+          <li data-i18n="settings.clearHoney">Партии мёда, фасовка и QR-этикетки</li>
+          <li data-i18n="settings.clearMedicines">Лекарства и движение их запасов</li>
+          <li data-i18n="settings.clearFinances">Финансовые записи и задачи</li>
+          <li data-i18n="settings.clearPhotos">Фотографии и связанные файлы</li>
         </ul>
-        <p style="font-weight:700;color:#b43d2d">⚠️ Внимание: удалённые данные восстановить будет нельзя. Перед очисткой при необходимости скачайте копию журнала в разделе «Экспорт данных».</p>
-        <div class="actions"><button type="button" class="btn danger" id="clearJournalStartBtn">🗑 Очистить журнал…</button></div>
+        <p style="font-weight:700;color:#b43d2d" data-i18n="settings.clearWarning">⚠️ Внимание: удалённые данные восстановить будет нельзя. Перед очисткой при необходимости скачайте копию журнала в разделе «Экспорт данных».</p>
+        <div class="actions"><button type="button" class="btn danger" id="clearJournalStartBtn" data-i18n="settings.clearStart">🗑 Очистить журнал…</button></div>
         <div id="clearJournalConfirm" style="display:none;margin-top:14px;padding:14px;border:1px solid #b43d2d;border-radius:12px">
-          <p><b>Подтверждение 2 из 2.</b> Будут удалены все перечисленные данные только вашего аккаунта. Аккаунт, название пасечника и доступ останутся.</p>
-          <p class="muted">Для подтверждения введите точно: <b>УДАЛИТЬ ВСЁ</b></p>
-          <div class="field" style="max-width:360px"><label for="clearJournalPhrase">Подтверждение удаления</label><input id="clearJournalPhrase" autocomplete="off" placeholder="УДАЛИТЬ ВСЁ"></div>
+          <p><b data-i18n="settings.clearConfirmTitle">Подтверждение 2 из 2.</b> <span data-i18n="settings.clearConfirmHelp">Будут удалены все перечисленные данные только вашего аккаунта. Аккаунт, название пасечника и доступ останутся.</span></p>
+          <p class="muted"><span data-i18n="settings.clearType">Для подтверждения введите точно:</span> <b>УДАЛИТЬ ВСЁ</b></p>
+          <div class="field" style="max-width:360px"><label for="clearJournalPhrase" data-i18n="settings.clearPhrase">Подтверждение удаления</label><input id="clearJournalPhrase" autocomplete="off" placeholder="УДАЛИТЬ ВСЁ"></div>
           <div class="actions">
-            <button type="button" class="btn danger" id="clearJournalConfirmBtn" disabled>Да, безвозвратно удалить</button>
-            <button type="button" class="btn secondary" id="clearJournalCancelBtn">Отмена</button>
+            <button type="button" class="btn danger" id="clearJournalConfirmBtn" disabled data-i18n="settings.clearYes">Да, безвозвратно удалить</button>
+            <button type="button" class="btn secondary" id="clearJournalCancelBtn" data-i18n="settings.cancel">Отмена</button>
           </div>
         </div>
         <p id="clearJournalStatus" class="muted" role="status" aria-live="polite"></p>
       </div>
       <div class="panel">
-        <h3>📦 Экспорт данных</h3>
-        <p class="muted">Скачать копию журнала для хранения или переноса. Фотографии отдельно не входят в JSON/CSV.</p>
+        <h3 data-i18n="settings.exportTitle">📦 Экспорт данных</h3>
+        <p class="muted" data-i18n="settings.exportHelp">Скачать копию журнала для хранения или переноса. Фотографии отдельно не входят в JSON/CSV.</p>
         <div class="actions" style="flex-wrap:wrap">
-          <button type="button" class="btn gold" id="exportJsonBtn">⬇️ Полная копия JSON</button>
-          <button type="button" class="btn secondary export-csv" data-export="hives">Ульи CSV</button>
-          <button type="button" class="btn secondary export-csv" data-export="inspections">Осмотры CSV</button>
-          <button type="button" class="btn secondary export-csv" data-export="health">Здоровье CSV</button>
-          <button type="button" class="btn secondary export-csv" data-export="treatments">Лечение CSV</button>
-          <button type="button" class="btn secondary export-csv" data-export="queens">Матки CSV</button>
-          <button type="button" class="btn secondary export-csv" data-export="honey">Мёд CSV</button>
-          <button type="button" class="btn secondary export-csv" data-export="tasks">Напоминания CSV</button>
-          <button type="button" class="btn secondary export-csv" data-export="finance">Финансы CSV</button>
-          <button type="button" class="btn secondary export-csv" data-export="medicines">Лекарства CSV</button><button type="button" class="btn secondary export-csv" data-export="medicineStockMovements">Движение лекарств CSV</button>
+          <button type="button" class="btn gold" id="exportJsonBtn" data-i18n="settings.exportFull">⬇️ Полная копия JSON</button>
+          <button type="button" class="btn secondary export-csv" data-export="hives" data-i18n="settings.exportHives">Ульи CSV</button>
+          <button type="button" class="btn secondary export-csv" data-export="inspections" data-i18n="settings.exportInspections">Осмотры CSV</button>
+          <button type="button" class="btn secondary export-csv" data-export="health" data-i18n="settings.exportHealth">Здоровье CSV</button>
+          <button type="button" class="btn secondary export-csv" data-export="treatments" data-i18n="settings.exportTreatments">Лечение CSV</button>
+          <button type="button" class="btn secondary export-csv" data-export="queens" data-i18n="settings.exportQueens">Матки CSV</button>
+          <button type="button" class="btn secondary export-csv" data-export="honey" data-i18n="settings.exportHoney">Мёд CSV</button>
+          <button type="button" class="btn secondary export-csv" data-export="tasks" data-i18n="settings.exportTasks">Напоминания CSV</button>
+          <button type="button" class="btn secondary export-csv" data-export="finance" data-i18n="settings.exportFinance">Финансы CSV</button>
+          <button type="button" class="btn secondary export-csv" data-export="medicines" data-i18n="settings.exportMedicines">Лекарства CSV</button><button type="button" class="btn secondary export-csv" data-export="medicineStockMovements" data-i18n="settings.exportMedicineMoves">Движение лекарств CSV</button>
         </div>
       </div>
       <div class="panel" id="userAccessPanel" style="display:none">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
-          <div><h3 style="margin-bottom:4px">👥 Пользователи журнала</h3><p class="muted">Только владелец может разрешать и блокировать доступ.</p></div>
-          <button class="btn secondary" type="button" id="refreshUsersBtn">Обновить</button>
+          <div><h3 style="margin-bottom:4px" data-i18n="settings.usersTitle">👥 Пользователи журнала</h3><p class="muted" data-i18n="settings.usersHelp">Только владелец может разрешать и блокировать доступ.</p></div>
+          <button class="btn secondary" type="button" id="refreshUsersBtn" data-i18n="settings.refreshUsers">Обновить</button>
         </div>
-        <div id="userAccessList" class="empty">Загрузка...</div>
+        <div id="userAccessList" class="empty" data-i18n="settings.loading">Загрузка...</div>
       </div>
     </section>
     </div>
@@ -1197,6 +1219,8 @@ body.subscription-readonly #subscriptionStatusNote::after{content:" Режим �
 </div>
 <div id="journalError" style="display:none;position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:99999;max-width:min(900px,92vw);padding:14px 18px;border:2px solid #b33;border-radius:12px;background:#fff4f2;color:#7a2018;box-shadow:0 8px 30px rgba(0,0,0,.2);font:14px/1.45 Arial,sans-serif;white-space:pre-wrap"></div><div class="toast" id="toast"></div>
 
+<script src="i18n.js?v=29"></script>
+<script>if(window.JournalI18n)window.JournalI18n.init(null,null);</script>
 <script>
 // Keep the live GitHub Pages journal isolated from the Vercel test journal.
 const IS_PRODUCTION_JOURNAL = window.location.hostname === 'artnik78.github.io';
@@ -1246,11 +1270,12 @@ function $(id){return document.getElementById(id)}
 function showJournalError(msg){const el=$('journalError');if(el){el.textContent=String(msg);el.style.display='block'}}
 window.addEventListener('error',e=>showJournalError('Ошибка JavaScript: '+(e.message||e.error||'неизвестная ошибка')));
 window.addEventListener('unhandledrejection',e=>showJournalError('Ошибка Promise: '+(e.reason?.message||e.reason||'неизвестная ошибка')));
-function toast(msg){const t=$('toast');t.textContent=msg;t.style.display='block';clearTimeout(window.__toastTimer);window.__toastTimer=setTimeout(()=>t.style.display='none',12000)}
+function toast(msg){if(window.JournalI18n)msg=window.JournalI18n.translateMessage(msg);const t=$('toast');t.textContent=msg;t.style.display='block';clearTimeout(window.__toastTimer);window.__toastTimer=setTimeout(()=>t.style.display='none',12000)}
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+function journalLocale(){const lang=window.JournalI18n?.getLanguage?.()||'ru';return lang==='be'?'be-BY':lang==='en'?'en-GB':'ru-RU'}
 function today(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}function formatHomeDate(){
   const d=new Date();
-  const el=$('homeDateLabel'); if(el) el.textContent=d.toLocaleDateString('ru-RU',{day:'2-digit',month:'long',year:'numeric'});
+  const el=$('homeDateLabel'); if(el) el.textContent=d.toLocaleDateString(journalLocale(),{day:'2-digit',month:'long',year:'numeric'});
 }
 let homeWeatherRequestId=0;
 function homeLocationName(){
@@ -1334,12 +1359,12 @@ function renderSubscriptionStatus(profile){
     const ms=end.getTime()-now;
     const days=Math.ceil(ms/86400000);
     title='Пробный период';
-    detail='Доступ открыт до '+end.toLocaleString('ru-RU',{day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    detail='Доступ открыт до '+end.toLocaleString(journalLocale(),{day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
     remain=days===1?'Остался 1 день':('Осталось '+days+' дн.');
     note='После окончания пробного периода потребуется оформить доступ. Данные пасеки не удаляются.';
   }else if(status==='active'&&validEnd&&!expired){
     title='Подписка активна';
-    detail='Доступ открыт до '+end.toLocaleDateString('ru-RU');
+    detail='Доступ открыт до '+end.toLocaleDateString(journalLocale());
     remain='Действует';
   }else if(status==='manual'){
     title='Доступ предоставлен владельцем';
@@ -1347,12 +1372,12 @@ function renderSubscriptionStatus(profile){
     remain='Активен';
   }else if(status==='trial'&&expired){
     title='Пробный период завершён';
-    detail='Срок закончился '+end.toLocaleDateString('ru-RU');
+    detail='Срок закончился '+end.toLocaleDateString(journalLocale());
     remain='Завершён';
     note='Чтобы снова пользоваться всеми функциями, потребуется оформить доступ. Данные пасеки сохраняются.';
   }else if(status==='active'&&expired){
     title='Срок подписки завершён';
-    detail='Подписка закончилась '+end.toLocaleDateString('ru-RU');
+    detail='Подписка закончилась '+end.toLocaleDateString(journalLocale());
     remain='Завершена';
   }else if(!allowed){
     title='Доступ пока не активирован';
@@ -1382,7 +1407,7 @@ async function calculateSubscriptionQuote(){
     if(!data||!Number.isFinite(Number(data.amount)))throw new Error(data?.error||'Не удалось рассчитать сумму.');
     const amount=new Intl.NumberFormat('ru-RU',{minimumFractionDigits:0,maximumFractionDigits:2}).format(Number(data.amount));
     const rateDate=data.exchange_rate_date?new Date(data.exchange_rate_date+'T00:00:00'):null;
-    const dateText=rateDate&&!Number.isNaN(rateDate.getTime())?rateDate.toLocaleDateString('ru-RU'):'не указана';
+    const dateText=rateDate&&!Number.isNaN(rateDate.getTime())?rateDate.toLocaleDateString(journalLocale()):'не указана';
     const sourceText=data.source_type==='official'?'Официальный курс НБРБ':'Резервный курс (не официальный курс НБРБ)';
     result.textContent='К оплате за 1 год: '+amount+' '+data.currency+'. '+sourceText+' на '+dateText+'. Базовая цена: 20 USD.';
     result.style.color='var(--green2)';
@@ -1787,7 +1812,7 @@ function birthdayNextDate(value){
 function formatContactDate(value){
   if(!value)return 'Не указан';
   const d=new Date(String(value).slice(0,10)+'T12:00:00');
-  return d.toLocaleDateString('ru-RU',{day:'2-digit',month:'long',year:'numeric'});
+  return d.toLocaleDateString(journalLocale(),{day:'2-digit',month:'long',year:'numeric'});
 }
 function renderContacts(){
   const box=$('contactsList');if(!box)return;
@@ -1871,7 +1896,7 @@ async function loadPushReminderPreferences(){
     $('pushReminderTasks').checked=!!p.tasks;
     $('pushReminderDisinfection').checked=!!p.disinfection;
     $('pushReminderBirthdays').checked=p.birthdays!==false;
-    if(status)status.textContent=data?'Сохранённые настройки загружены. Часовой пояс: Europe/Minsk.':'Показаны настройки по умолчанию. Они ещё не сохранены — нажмите «Сохранить настройки напоминаний».';
+    if(status){const message=data?'Сохранённые настройки загружены. Часовой пояс: Europe/Minsk.':'Показаны настройки по умолчанию. Они ещё не сохранены — нажмите «Сохранить настройки напоминаний».';status.textContent=window.JournalI18n?window.JournalI18n.translateMessage(message):message;}
   }catch(e){console.error('Push preferences load:',e);if(status)status.textContent='Не удалось загрузить настройки: '+(e.message||e)}
 }
 async function savePushReminderPreferences(){
@@ -1949,6 +1974,7 @@ async function showApp(user){
       $('authMessage').textContent='Профиль журнала ещё создаётся. Обновите страницу через минуту.';
       return;
     }
+    if(window.JournalI18n) window.JournalI18n.init(user,db);
     if(profile.approval_status==='rejected'){
       $('auth').style.display='flex'; $('app').style.display='none';
       $('authMessage').textContent='Заявка отклонена. Если это ошибка, свяжитесь с владельцем журнала.';
@@ -2476,9 +2502,10 @@ if($('logoutBtn')) $('logoutBtn').onclick=async()=>{
 const homeLogoutButton=$('homeLogoutBtn'); if(homeLogoutButton)homeLogoutButton.onclick=()=>$('logoutBtn').click();
 if($('refreshBtn')) $('refreshBtn').onclick=()=>loadAll().catch(e=>toast('Ошибка загрузки: '+e.message));
 async function loadJournalUsers(){
+  const tr=(value)=>window.JournalI18n?.translateMessage(value)||value;
   const box=$('userAccessList'); if(!box)return;
   const button=$('refreshUsersBtn');
-  if(button){button.disabled=true;button.textContent='Обновление…'}
+  if(button){button.disabled=true;button.textContent=tr('Обновление…')}
   box.setAttribute('aria-live','polite');
   try{
     const {data:{user},error:authError}=await db.auth.getUser();
@@ -2496,27 +2523,27 @@ async function loadJournalUsers(){
       const validSeen=seen&&!Number.isNaN(seen.getTime());
       const days=validSeen?Math.max(0,Math.floor((Date.now()-seen.getTime())/86400000)):null;
       const activityStatus=days===null
-        ? '<span style="color:#777;font-weight:700">⚪ Ни разу не входил</span>'
+        ? '<span style="color:#777;font-weight:700">⚪ '+tr('Ни разу не входил')+'</span>'
         : days<7
-          ? '<span style="color:#16803d;font-weight:700">🟢 Недавно заходил</span>'
-          : '<span style="color:#c62828;font-weight:700">🔴 Не заходил более 7 дней</span>';
+          ? '<span style="color:#16803d;font-weight:700">🟢 '+tr('Недавно заходил')+'</span>'
+          : '<span style="color:#c62828;font-weight:700">🔴 '+tr('Не заходил более 7 дней')+'</span>';
       const activityLabel=validSeen
-        ? 'Последний вход: '+seen.toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})
-        : 'Дата активности отсутствует';
+        ? tr('Последний вход:')+' '+seen.toLocaleString(journalLocale(),{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})
+        : tr('Дата активности отсутствует');
       return '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 0;border-bottom:1px solid var(--line)">'+
-        '<div><b>'+esc(u.display_name||u.email||u.phone||'—')+'</b><div class="muted">'+(u.phone&&!u.email?'Вход по телефону · ':'')+(owner?'Владелец':'Пользователь')+' · '+(u.approval_status==='approved'?'Заявка одобрена':u.approval_status==='rejected'?'Заявка отклонена':(active?'Действующий доступ (старый аккаунт)':'Ожидает одобрения'))+' · '+(active?'Доступ разрешён':'Доступ закрыт')+'</div><div class="muted" style="margin-top:4px">'+(u.subscription_status==='trial'&&u.trial_ends_at?(expired?'Пробный период завершён':'Пробный период до: '+new Date(u.trial_ends_at).toLocaleString('ru-RU')):(u.subscription_status==='active'&&u.subscription_ends_at?'Подписка до: '+new Date(u.subscription_ends_at).toLocaleDateString('ru-RU'):(u.subscription_status==='manual'?'Ручной доступ':(expired?'Срок истёк — требуется оплата':'Подписка: '+(u.subscription_status||'нет')))))+'</div><div style="margin-top:4px">'+activityStatus+'</div><div class="muted" style="margin-top:4px">'+esc(activityLabel)+'</div></div>'+
+        '<div><b>'+esc(u.display_name||u.email||u.phone||'—')+'</b><div class="muted">'+(u.phone&&!u.email?tr('Вход по телефону · '):'')+(owner?tr('Владелец'):tr('Пользователь'))+' · '+(u.approval_status==='approved'?tr('Заявка одобрена'):u.approval_status==='rejected'?tr('Заявка отклонена'):(active?tr('Действующий доступ (старый аккаунт)'):tr('Ожидает одобрения')))+' · '+(active?tr('Доступ разрешён'):tr('Доступ закрыт'))+'</div><div class="muted" style="margin-top:4px">'+(u.subscription_status==='trial'&&u.trial_ends_at?(expired?tr('Пробный период завершён'):tr('Пробный период до:')+' '+new Date(u.trial_ends_at).toLocaleString(journalLocale())):(u.subscription_status==='active'&&u.subscription_ends_at?tr('Подписка до:')+' '+new Date(u.subscription_ends_at).toLocaleDateString(journalLocale()):(u.subscription_status==='manual'?tr('Ручной доступ'):(expired?tr('Срок истёк — требуется оплата'):tr('Подписка:')+' '+tr(u.subscription_status||'нет')))))+'</div><div style="margin-top:4px">'+activityStatus+'</div><div class="muted" style="margin-top:4px">'+esc(activityLabel)+'</div></div>'+
         (owner?'':'<div style="display:flex;gap:8px;flex-wrap:wrap">'+
-          (u.approval_status==='approved'?'<button type="button" class="btn gold" data-user-renew="'+esc(u.user_id)+'" data-user-email="'+esc(u.email||u.phone||'')+'">Подтвердить оплату · +1 год</button>':'')+
-          (expired?'':'<button type="button" class="btn '+(active?'danger':'gold')+'" data-user-access="'+esc(u.user_id)+'" data-user-allowed="'+(active?'1':'0')+'">'+(active?'Заблокировать':'Разрешить доступ')+'</button>')+
-          '<button type="button" class="btn danger" data-user-delete="'+esc(u.user_id)+'" data-user-email="'+esc(u.email||u.phone||'')+'">Удалить пользователя</button></div>')+
+          (u.approval_status==='approved'?'<button type="button" class="btn gold" data-user-renew="'+esc(u.user_id)+'" data-user-email="'+esc(u.email||u.phone||'')+'">'+tr('Подтвердить оплату · +1 год')+'</button>':'')+
+          (expired?'':'<button type="button" class="btn '+(active?'danger':'gold')+'" data-user-access="'+esc(u.user_id)+'" data-user-allowed="'+(active?'1':'0')+'">'+(active?tr('Заблокировать'):tr('Разрешить доступ'))+'</button>')+
+          '<button type="button" class="btn danger" data-user-delete="'+esc(u.user_id)+'" data-user-email="'+esc(u.email||u.phone||'')+'">'+tr('Удалить пользователя')+'</button></div>')+
         '</div>';
-    }).join('')||'<div class="empty">Пользователей пока нет.</div>';
+    }).join('')||'<div class="empty">'+tr('Пользователей пока нет.')+'</div>';
   }catch(error){
     console.error('Не удалось обновить список пользователей:',error);
     box.innerHTML='<div class="empty">Не удалось обновить список: '+esc(error?.message||'ошибка загрузки')+'</div>';
     toast('Не удалось обновить пользователей');
   }finally{
-    if(button){button.disabled=false;button.textContent='Обновить'}
+    if(button){button.disabled=false;button.textContent=tr('Обновить')}
   }
 }
 if($('refreshUsersBtn')) $('refreshUsersBtn').onclick=()=>loadJournalUsers();
@@ -2726,7 +2753,7 @@ $('colonyOperationForm')?.addEventListener('submit',async e=>{
   $('colonyOperationFormTitle').textContent='Новая операция с семьёй';
   toast(id?'Изменения сохранены':'Операция сохранена');await loadAll();
 });
-function waxKg(n){return (Number(n)||0).toLocaleString('ru-RU',{minimumFractionDigits:3,maximumFractionDigits:3})+' кг'}
+function waxKg(n){return (Number(n)||0).toLocaleString(journalLocale(),{minimumFractionDigits:3,maximumFractionDigits:3})+' кг'}
 function waxAmountFor(row){
   const map={'Получен воск':'wax_received_kg','Сдан в переработку':'wax_sent_kg','Получен воск после переработки':'wax_returned_kg','Получена вощина':'foundation_received_kg','Использована вощина':'foundation_used_kg','Корректировка':'wax_adjustment_kg'};
   return Number(row[map[row.operation_type]]||0);
@@ -2806,7 +2833,7 @@ $('waxOperationForm')?.addEventListener('submit',async e=>{
   $('waxFormTitle').textContent='Новая операция с воском';$('waxSaveBtn').textContent='💾 Сохранить операцию';updateWaxAmountLabel();
   toast(id?'Изменения сохранены':'Операция сохранена');await loadAll();
 });
-function apiaryProductKg(n){return (Number(n)||0).toLocaleString('ru-RU',{minimumFractionDigits:3,maximumFractionDigits:3})+' кг'}
+function apiaryProductKg(n){return (Number(n)||0).toLocaleString(journalLocale(),{minimumFractionDigits:3,maximumFractionDigits:3})+' кг'}
 function apiaryProductDelta(x){
   const q=Number(x.quantity_kg)||0;
   if(x.operation_type==='Получено')return q;
@@ -2909,14 +2936,14 @@ function renderHoneyPackagingAccounting(){
   if(!form.elements.id.value&&!form.elements.packaging_date.value)form.elements.packaging_date.value=today();
   const rows=(state.honeyPackagingRuns||[]).slice().sort((a,b)=>String(b.packaging_date||'').localeCompare(String(a.packaging_date||'')));
   if(!rows.length){box.innerHTML='<div class="empty">Фасовок пока нет. Добавьте первую запись выше.</div>';return}
-  box.innerHTML='<div class="table-wrap"><table class="table"><thead><tr><th>Дата</th><th>Партия</th><th>Банка</th><th>Фасовано</th><th>Осталось банок</th><th>Код этикетки / QR</th><th>Действия</th></tr></thead><tbody>'+rows.map(x=>{const h=state.honey.find(y=>String(y.id)===String(x.honey_batch_id));return '<tr><td>'+esc(x.packaging_date||'—')+'</td><td><b>'+esc(h?.batch_number||'Партия удалена')+'</b><div class="muted">'+esc(h?.honey_type||'')+'</div></td><td>'+esc(x.jar_size_g)+' г</td><td><b>'+esc(x.jar_count)+' шт.</b><div class="muted">'+(Number(x.jar_size_g||0)*Number(x.jar_count||0)/1000).toLocaleString('ru-RU',{maximumFractionDigits:3})+' кг</div></td><td><b>'+packagingRunRemaining(x)+' шт.</b></td><td>'+esc(x.label_code||'—')+'</td><td><div class="actions" style="margin:0;flex-wrap:wrap"><button type="button" class="btn gold honey-pack-qr" data-id="'+esc(x.id)+'">QR банок</button><button type="button" class="btn secondary honey-pack-edit" data-id="'+esc(x.id)+'">Изменить</button><button type="button" class="btn danger honey-pack-delete" data-id="'+esc(x.id)+'">Удалить</button></div></td></tr>'}).join('')+'</tbody></table></div>';
+  box.innerHTML='<div class="table-wrap"><table class="table"><thead><tr><th>Дата</th><th>Партия</th><th>Банка</th><th>Фасовано</th><th>Осталось банок</th><th>Код этикетки / QR</th><th>Действия</th></tr></thead><tbody>'+rows.map(x=>{const h=state.honey.find(y=>String(y.id)===String(x.honey_batch_id));return '<tr><td>'+esc(x.packaging_date||'—')+'</td><td><b>'+esc(h?.batch_number||'Партия удалена')+'</b><div class="muted">'+esc(h?.honey_type||'')+'</div></td><td>'+esc(x.jar_size_g)+' г</td><td><b>'+esc(x.jar_count)+' шт.</b><div class="muted">'+(Number(x.jar_size_g||0)*Number(x.jar_count||0)/1000).toLocaleString(journalLocale(),{maximumFractionDigits:3})+' кг</div></td><td><b>'+packagingRunRemaining(x)+' шт.</b></td><td>'+esc(x.label_code||'—')+'</td><td><div class="actions" style="margin:0;flex-wrap:wrap"><button type="button" class="btn gold honey-pack-qr" data-id="'+esc(x.id)+'">QR банок</button><button type="button" class="btn secondary honey-pack-edit" data-id="'+esc(x.id)+'">Изменить</button><button type="button" class="btn danger honey-pack-delete" data-id="'+esc(x.id)+'">Удалить</button></div></td></tr>'}).join('')+'</tbody></table></div>';
   box.querySelectorAll('.honey-pack-qr').forEach(b=>b.onclick=()=>openHoneyJarLabels(b.dataset.id));
   box.querySelectorAll('.honey-pack-edit').forEach(b=>b.onclick=()=>{if(guestMode)return;const x=rows.find(y=>String(y.id)===String(b.dataset.id));if(!x)return;Object.keys(x).forEach(k=>{if(form.elements[k])form.elements[k].value=x[k]??''});if(![100,130,280,500,1000].includes(Number(x.jar_size_g))){form.elements.jar_size_g.value='other';form.elements.jar_size_other_g.value=x.jar_size_g;$('honeyJarSizeOtherField').style.display='block'}$('honeyPackagingSaveBtn').textContent='💾 Сохранить изменения';form.scrollIntoView({behavior:'smooth',block:'center'})});
   box.querySelectorAll('.honey-pack-delete').forEach(b=>b.onclick=async()=>{if(guestMode)return;const x=rows.find(y=>String(y.id)===String(b.dataset.id));if(!x)return;if((state.honeySales||[]).some(s=>String(s.packaging_run_id||'')===String(x.id))||(state.honeyJarLabels||[]).some(l=>String(l.packaging_run_id)===String(x.id))){toast('Нельзя удалить фасовку после создания QR-кодов или привязки продаж.');return}if(!confirm('Удалить запись фасовки '+(x.label_code||x.jar_size_g+' г')+'?'))return;const {error}=await db.from('honey_packaging_runs').delete().eq('id',x.id);if(error){toast('Не удалось удалить фасовку: '+error.message);return}toast('Фасовка удалена.');await loadAll()});
 }
 $('honeyPackagingForm')?.elements.jar_size_g?.addEventListener('change',e=>{$('honeyJarSizeOtherField').style.display=e.target.value==='other'?'block':'none'});
 $('honeyPackagingCancelBtn')?.addEventListener('click',()=>{const f=$('honeyPackagingForm');f.reset();f.elements.id.value='';f.elements.packaging_date.value=today();$('honeyJarSizeOtherField').style.display='none';$('honeyPackagingSaveBtn').textContent='💾 Сохранить фасовку'});
-$('honeyPackagingForm')?.addEventListener('submit',async e=>{e.preventDefault();if(guestMode){toast('Гостевой режим — только просмотр');return}const f=e.currentTarget,d=formData(f),size=d.jar_size_g==='other'?Number(d.jar_size_other_g):Number(d.jar_size_g),count=Number(d.jar_count);if(!d.honey_batch_id||!d.packaging_date||!Number.isFinite(size)||size<=0||!Number.isInteger(count)||count<=0){toast('Проверьте партию, дату, массу банки и количество.');return}const id=d.id,existingRun=id?(state.honeyPackagingRuns||[]).find(x=>String(x.id)===String(id)):null,hasRunSales=!!id&&(state.honeySales||[]).some(s=>String(s.packaging_run_id||'')===String(id)),hasRunLabels=!!id&&(state.honeyJarLabels||[]).some(l=>String(l.packaging_run_id)===String(id));if(existingRun&&(hasRunSales||hasRunLabels)){const sameIdentity=String(d.honey_batch_id)===String(existingRun.honey_batch_id)&&Number(size)===Number(existingRun.jar_size_g)&&String(d.packaging_date)===String(existingRun.packaging_date)&&String(d.label_code||'').trim()===String(existingRun.label_code||'');if(!sameIdentity){toast('У фасовки с QR-кодами или продажами нельзя менять партию, массу банки, дату и код этикетки. Можно увеличить количество банок или изменить примечание.');return}if(count<Number(existingRun.jar_count||0)){toast('Количество нельзя уменьшить: ранее выданные QR-коды и продажи должны остаться действительными. Можно оставить прежнее количество или увеличить его.');return}}const batch=state.honey.find(h=>String(h.id)===String(d.honey_batch_id));if(!batch){toast('Не найдена партия урожая.');return}const availableKg=Math.max(0,Number(batch.quantity_kg||0)-Number(batch.sold_kg||0)-packagingKgReservedForBatch(d.honey_batch_id,id)),requestedKg=size*count/1000;if(requestedKg>availableKg+0.001){toast('Недостаточно нераспределённого мёда в партии. Доступно для фасовки: '+availableKg.toLocaleString('ru-RU',{maximumFractionDigits:3})+' кг.');return}const payload={honey_batch_id:d.honey_batch_id,packaging_date:d.packaging_date,jar_size_g:size,jar_count:count,label_code:d.label_code.trim()||null,notes:d.notes.trim()||null};const result=id?await db.from('honey_packaging_runs').update(payload).eq('id',id):await db.from('honey_packaging_runs').insert(payload);if(result.error){toast('Не удалось сохранить фасовку: '+result.error.message);return}f.reset();f.elements.id.value='';f.elements.packaging_date.value=today();$('honeyJarSizeOtherField').style.display='none';$('honeyPackagingSaveBtn').textContent='💾 Сохранить фасовку';toast(id?'Фасовка изменена.':'Фасовка сохранена.');await loadAll()});
+$('honeyPackagingForm')?.addEventListener('submit',async e=>{e.preventDefault();if(guestMode){toast('Гостевой режим — только просмотр');return}const f=e.currentTarget,d=formData(f),size=d.jar_size_g==='other'?Number(d.jar_size_other_g):Number(d.jar_size_g),count=Number(d.jar_count);if(!d.honey_batch_id||!d.packaging_date||!Number.isFinite(size)||size<=0||!Number.isInteger(count)||count<=0){toast('Проверьте партию, дату, массу банки и количество.');return}const id=d.id,existingRun=id?(state.honeyPackagingRuns||[]).find(x=>String(x.id)===String(id)):null,hasRunSales=!!id&&(state.honeySales||[]).some(s=>String(s.packaging_run_id||'')===String(id)),hasRunLabels=!!id&&(state.honeyJarLabels||[]).some(l=>String(l.packaging_run_id)===String(id));if(existingRun&&(hasRunSales||hasRunLabels)){const sameIdentity=String(d.honey_batch_id)===String(existingRun.honey_batch_id)&&Number(size)===Number(existingRun.jar_size_g)&&String(d.packaging_date)===String(existingRun.packaging_date)&&String(d.label_code||'').trim()===String(existingRun.label_code||'');if(!sameIdentity){toast('У фасовки с QR-кодами или продажами нельзя менять партию, массу банки, дату и код этикетки. Можно увеличить количество банок или изменить примечание.');return}if(count<Number(existingRun.jar_count||0)){toast('Количество нельзя уменьшить: ранее выданные QR-коды и продажи должны остаться действительными. Можно оставить прежнее количество или увеличить его.');return}}const batch=state.honey.find(h=>String(h.id)===String(d.honey_batch_id));if(!batch){toast('Не найдена партия урожая.');return}const availableKg=Math.max(0,Number(batch.quantity_kg||0)-Number(batch.sold_kg||0)-packagingKgReservedForBatch(d.honey_batch_id,id)),requestedKg=size*count/1000;if(requestedKg>availableKg+0.001){toast('Недостаточно нераспределённого мёда в партии. Доступно для фасовки: '+availableKg.toLocaleString(journalLocale(),{maximumFractionDigits:3})+' кг.');return}const payload={honey_batch_id:d.honey_batch_id,packaging_date:d.packaging_date,jar_size_g:size,jar_count:count,label_code:d.label_code.trim()||null,notes:d.notes.trim()||null};const result=id?await db.from('honey_packaging_runs').update(payload).eq('id',id):await db.from('honey_packaging_runs').insert(payload);if(result.error){toast('Не удалось сохранить фасовку: '+result.error.message);return}f.reset();f.elements.id.value='';f.elements.packaging_date.value=today();$('honeyJarSizeOtherField').style.display='none';$('honeyPackagingSaveBtn').textContent='💾 Сохранить фасовку';toast(id?'Фасовка изменена.':'Фасовка сохранена.');await loadAll()});
 function renderHoneySalesAccounting(){
   const form=$('honeySalesForm'),box=$('honeySalesList');if(!form||!box)return;
   const oldBatch=form.elements.honey_batch_id.value;
@@ -2931,7 +2958,7 @@ function renderHoneySalesAccounting(){
   const batchFor=id=>state.honey.find(h=>String(h.id)===String(id));
   box.innerHTML='<div class="table-wrap"><table class="table"><thead><tr><th>Дата</th><th>Партия</th><th>Продано</th><th>Сумма</th><th>Примечание</th><th>Финансы</th><th>Действия</th></tr></thead><tbody>'+rows.map(x=>{
     const h=batchFor(x.honey_batch_id),linked=(state.finance||[]).some(f=>String(f.source_honey_sale_id||'')===String(x.id)),pack=(state.honeyPackagingRuns||[]).find(p=>String(p.id)===String(x.packaging_run_id));
-    return '<tr><td>'+esc(x.sale_date||'—')+'</td><td><b>'+esc(h?.batch_number||'Партия удалена')+'</b><div class="muted">'+esc(h?.honey_type||'')+'</div>'+(pack?'<div class="muted">'+esc(x.package_count||0)+' × '+esc(pack.jar_size_g)+' г · '+esc(pack.label_code||'без кода')+'</div>':'')+'</td><td>'+esc(Number(x.quantity_kg||0).toLocaleString('ru-RU',{minimumFractionDigits:3,maximumFractionDigits:3}))+' кг'+(pack?'<div class="muted">'+esc(x.package_count||0)+' банок</div>':'')+'</td><td>'+esc(Number(x.sale_amount||0).toFixed(2))+'</td><td>'+esc(x.notes||'—')+'</td><td>'+(linked?'<span class="ok-badge">Доход учтён</span>':'<button type="button" class="btn gold honey-sale-finance" data-id="'+esc(x.id)+'">Добавить доход</button>')+'</td><td><div class="actions" style="margin:0;flex-wrap:wrap">'+(linked?'<span class="muted">Запись закреплена</span>':'<button type="button" class="btn secondary honey-sale-edit" data-id="'+esc(x.id)+'">Изменить</button><button type="button" class="btn danger honey-sale-delete" data-id="'+esc(x.id)+'">Удалить</button>')+'</div></td></tr>';
+    return '<tr><td>'+esc(x.sale_date||'—')+'</td><td><b>'+esc(h?.batch_number||'Партия удалена')+'</b><div class="muted">'+esc(h?.honey_type||'')+'</div>'+(pack?'<div class="muted">'+esc(x.package_count||0)+' × '+esc(pack.jar_size_g)+' г · '+esc(pack.label_code||'без кода')+'</div>':'')+'</td><td>'+esc(Number(x.quantity_kg||0).toLocaleString(journalLocale(),{minimumFractionDigits:3,maximumFractionDigits:3}))+' кг'+(pack?'<div class="muted">'+esc(x.package_count||0)+' банок</div>':'')+'</td><td>'+esc(Number(x.sale_amount||0).toFixed(2))+'</td><td>'+esc(x.notes||'—')+'</td><td>'+(linked?'<span class="ok-badge">Доход учтён</span>':'<button type="button" class="btn gold honey-sale-finance" data-id="'+esc(x.id)+'">Добавить доход</button>')+'</td><td><div class="actions" style="margin:0;flex-wrap:wrap">'+(linked?'<span class="muted">Запись закреплена</span>':'<button type="button" class="btn secondary honey-sale-edit" data-id="'+esc(x.id)+'">Изменить</button><button type="button" class="btn danger honey-sale-delete" data-id="'+esc(x.id)+'">Удалить</button>')+'</div></td></tr>';
   }).join('')+'</tbody></table></div>';
   box.querySelectorAll('.honey-sale-finance').forEach(b=>b.onclick=async()=>{
     if(guestMode)return;
@@ -2939,7 +2966,7 @@ function renderHoneySalesAccounting(){
     if((state.finance||[]).some(f=>String(f.source_honey_sale_id||'')===String(x.id))){toast('Доход по этой продаже уже учтён.');await loadAll();return}
     if(!confirm('Добавить в «Финансы» доход '+Number(x.sale_amount||0).toFixed(2)+' за продажу мёда?'))return;
     const h=batchFor(x.honey_batch_id);
-    const description='Продажа мёда '+(h?.honey_type||'')+' ('+(h?.batch_number||'без номера')+'), '+Number(x.quantity_kg||0).toLocaleString('ru-RU',{maximumFractionDigits:3})+' кг'+(x.notes?' • '+x.notes:'');
+    const description='Продажа мёда '+(h?.honey_type||'')+' ('+(h?.batch_number||'без номера')+'), '+Number(x.quantity_kg||0).toLocaleString(journalLocale(),{maximumFractionDigits:3})+' кг'+(x.notes?' • '+x.notes:'');
     const {error}=await db.from('finances').insert({operation_date:x.sale_date||today(),operation_type:'Доход',amount:Number(x.sale_amount),category:'Продажа мёда',description,source_honey_sale_id:x.id});
     if(error){if(String(error.code)==='23505'){toast('Доход по этой продаже уже существует.');await loadAll();return}toast('Не удалось добавить доход: '+error.message);return}
     toast('Доход от продажи мёда добавлен в «Финансы».');await loadAll();
@@ -3266,7 +3293,7 @@ function renderAll(){
         const medicineUses=state.treatments.filter(t=>String(t.medicine_id||'')===String(m.id)).sort((a,b)=>String(b.treatment_date||'').localeCompare(String(a.treatment_date||'')));
         const lastUse=medicineUses[0]?.treatment_date;
         const usageSummary=medicineUses.length
-          ? '<div class="muted" style="font-size:12px;margin-top:9px;padding-top:8px;border-top:1px solid var(--line)">🩺 Применений: <b>'+medicineUses.length+'</b> · последнее: <b>'+esc(lastUse?new Date(String(lastUse).slice(0,10)+'T00:00:00').toLocaleDateString('ru-RU'):'дата не указана')+'</b></div>'
+          ? '<div class="muted" style="font-size:12px;margin-top:9px;padding-top:8px;border-top:1px solid var(--line)">🩺 Применений: <b>'+medicineUses.length+'</b> · последнее: <b>'+esc(lastUse?new Date(String(lastUse).slice(0,10)+'T00:00:00').toLocaleDateString(journalLocale()):'дата не указана')+'</b></div>'
           : '<div class="muted" style="font-size:12px;margin-top:9px;padding-top:8px;border-top:1px solid var(--line)">🩺 Применений по журналу: нет</div>';
         return '<div class="medicine-mobile-card '+statusClass+'"><div class="medicine-mobile-top"><b>💊 '+esc(m.name)+'</b><span>'+status+'</span></div><div class="medicine-mobile-grid"><span><small>Фасовка</small><b>'+esc(m.volume||'—')+'</b></span><span><small>Остаток</small><b>'+esc(m.quantity)+' / '+esc(m.min_quantity??'—')+'</b></span><span><small>Срок годности</small><b>'+esc(m.expiry_date||'—')+'</b></span></div>'+usageSummary+'<div class="medicine-mobile-actions"><button type="button" class="btn secondary medicine-stock-history" data-id="'+esc(m.id)+'">📋 Движение склада</button><button type="button" class="btn secondary medicine-edit" data-id="'+esc(m.id)+'">Изменить</button><button type="button" class="btn danger medicine-delete" data-id="'+esc(m.id)+'">Удалить</button></div></div>';
       }).join('')+'</div>'
@@ -3380,7 +3407,7 @@ document.querySelectorAll('.honey-batch-card').forEach(b=>b.onclick=()=>openHone
   const financeRows=state.finance||[];
   const isIncome=f=>String(f.operation_type??f.entry_type??'').trim().toLowerCase().includes('доход');
   const isExpense=f=>String(f.operation_type??f.entry_type??'').trim().toLowerCase().includes('расход');
-  const money=n=>Number(n||0).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2})+' руб.';
+  const money=n=>Number(n||0).toLocaleString(journalLocale(),{minimumFractionDigits:2,maximumFractionDigits:2})+' руб.';
   const financeIncome=financeRows.filter(isIncome).reduce((sum,f)=>sum+(Number(f.amount)||0),0);
   const financeExpense=financeRows.filter(isExpense).reduce((sum,f)=>sum+(Number(f.amount)||0),0);
   setText('financeIncome',money(financeIncome));
@@ -3503,7 +3530,7 @@ function renderQueenBreederCalendar(){
   const grid=$('queenCalendarGrid'),title=$('queenCalendarMonthTitle'),upcoming=$('queenCalendarUpcoming');
   if(!grid||!title)return;
   const y=queenCalendarMonth.getFullYear(),m=queenCalendarMonth.getMonth();
-  title.textContent=queenCalendarMonth.toLocaleDateString('ru-RU',{month:'long',year:'numeric'});
+  title.textContent=queenCalendarMonth.toLocaleDateString(journalLocale(),{month:'long',year:'numeric'});
   const first=new Date(y,m,1),start=new Date(y,m,1);
   start.setDate(1-((first.getDay()+6)%7));
   const today=queenCalendarISO(new Date()),events=queenCalendarEvents();
@@ -3519,7 +3546,7 @@ function renderQueenBreederCalendar(){
   const monthEvents=events.filter(e=>e.date>=startISO&&e.date<=endISO);
   if(upcoming){
     const future=events.filter(e=>e.date>=today).slice(0,8);
-    upcoming.innerHTML='<h4 style="margin:0 0 8px">Ближайшие этапы</h4>'+(future.length?'<div class="reminder-list">'+future.map(e=>'<div class="reminder-row"><div><b>'+esc(e.title)+'</b><div class="muted">'+esc(e.code)+(e.estimated?' · расчётная дата':'')+'</div></div><span class="ok-badge">'+esc(queenCalendarDate(e.date).toLocaleDateString('ru-RU',{day:'2-digit',month:'short'}))+'</span></div>').join('')+'</div>':'<div class="empty">Предстоящих этапов нет. Добавьте серию вывода маток, чтобы заполнить календарь.</div>');
+    upcoming.innerHTML='<h4 style="margin:0 0 8px">Ближайшие этапы</h4>'+(future.length?'<div class="reminder-list">'+future.map(e=>'<div class="reminder-row"><div><b>'+esc(e.title)+'</b><div class="muted">'+esc(e.code)+(e.estimated?' · расчётная дата':'')+'</div></div><span class="ok-badge">'+esc(queenCalendarDate(e.date).toLocaleDateString(journalLocale(),{day:'2-digit',month:'short'}))+'</span></div>').join('')+'</div>':'<div class="empty">Предстоящих этапов нет. Добавьте серию вывода маток, чтобы заполнить календарь.</div>');
   }
 }
 $('queenCalendarPrev')?.addEventListener('click',()=>{queenCalendarMonth.setMonth(queenCalendarMonth.getMonth()-1);renderQueenBreederCalendar()});
@@ -3762,6 +3789,7 @@ function queenPanelHtml(id){
     (rows.length?'<div class="table-wrap" style="margin-top:10px"><table class="table"><thead><tr><th>Подсадка</th><th>№</th><th>Порода</th><th>Год</th><th>Происхождение</th><th>Метка</th><th>Статус</th><th></th></tr></thead><tbody>'+history+'</tbody></table></div>':'')+form+'</div>';
 }
 function showHiveFamily(id){
+  window.__activeHiveFamilyId=id;
   const h=state.hives.find(x=>String(x.id)===String(id)); if(!h)return;
   const inspections=state.inspections.filter(i=>String(i.hive_id)===String(id)).sort((a,b)=>String(b.inspection_date||'').localeCompare(String(a.inspection_date||'')));
   const last=inspections[0]||null;
@@ -4340,7 +4368,7 @@ function openHoneyBatch(id){
   const sourceApiary=state.apiaries.find(a=>String(a.id)===String(h.apiary_id));
   const relatedSales=(state.honeySales||[]).filter(s=>String(s.honey_batch_id)===String(h.id));
   const relatedPackaging=(state.honeyPackagingRuns||[]).filter(p=>String(p.honey_batch_id)===String(h.id));
-  $('honeyBatchInfo').innerHTML='<div class="honey-passport"><div class="honey-passport-main"><span>ПАРТИЯ / ПРОИСХОЖДЕНИЕ</span><b>'+esc(h.batch_number||'—')+'</b><strong>'+esc(h.honey_type||'Мёд')+'</strong></div><div class="honey-passport-grid"><div><small>Пасека-источник</small><b>'+esc(sourceApiary?.name||'Не указана')+'</b></div><div><small>Период сбора</small><b>'+esc(h.collection_period||'—')+'</b></div><div><small>Дата сбора</small><b>'+esc(h.collection_date||'—')+'</b></div><div><small>Собрано</small><b>'+esc(h.quantity_kg??'—')+' кг</b></div><div><small>Продано</small><b>'+esc(h.sold_kg??0)+' кг</b></div><div><small>Остаток</small><b>'+esc(h.remaining_kg??Math.max(0,(Number(h.quantity_kg)||0)-(Number(h.sold_kg)||0)))+' кг</b></div><div><small>Цена за кг</small><b>'+esc(h.price_per_kg??'—')+'</b></div><div><small>Стоимость сбора</small><b>'+esc(total?total.toFixed(2):'—')+'</b></div><div><small>Место сбора</small><b>'+esc(h.collection_place||'—')+'</b></div><div><small>Примечание</small><b>'+esc(h.notes||'—')+'</b></div></div><div class="panel" style="margin-top:12px"><h4 style="margin:0 0 8px">🔎 Прослеживаемость партии</h4><div class="reminder-list"><div class="reminder-row"><div><b>1. Пасека-источник</b><div class="muted">'+esc(sourceApiary?.name||'Не указана')+' · '+esc(sourceApiary?.location||h.collection_place||'Место не указано')+'</div></div><span class="ok-badge">'+(sourceApiary?'Связана':'Не заполнено')+'</span></div><div class="reminder-row"><div><b>2. Партия урожая</b><div class="muted">'+esc(h.batch_number||'—')+' · '+esc(h.quantity_kg??'—')+' кг</div></div><span class="ok-badge">Учтена</span></div><div class="reminder-row"><div><b>3. Фасовка</b><div class="muted">'+relatedPackaging.length+' записей · '+relatedPackaging.reduce((sum,p)=>sum+(Number(p.jar_size_g)||0)*(Number(p.jar_count)||0)/1000,0).toLocaleString('ru-RU',{maximumFractionDigits:3})+' кг подготовлено</div></div><span class="ok-badge">'+(relatedPackaging.length?'Связана':'Пока нет')+'</span></div><div class="reminder-row"><div><b>4. Продажи</b><div class="muted">'+relatedSales.length+' записей · '+relatedSales.reduce((sum,s)=>sum+(Number(s.quantity_kg)||0),0).toLocaleString('ru-RU',{maximumFractionDigits:3})+' кг продано</div></div><span class="ok-badge">'+(relatedSales.length?'Связаны':'Пока нет')+'</span></div><div class="muted" style="margin-top:8px">Продажи фасованного мёда связаны с размером банки и кодом этикетки.</div></div></div></div>';
+  $('honeyBatchInfo').innerHTML='<div class="honey-passport"><div class="honey-passport-main"><span>ПАРТИЯ / ПРОИСХОЖДЕНИЕ</span><b>'+esc(h.batch_number||'—')+'</b><strong>'+esc(h.honey_type||'Мёд')+'</strong></div><div class="honey-passport-grid"><div><small>Пасека-источник</small><b>'+esc(sourceApiary?.name||'Не указана')+'</b></div><div><small>Период сбора</small><b>'+esc(h.collection_period||'—')+'</b></div><div><small>Дата сбора</small><b>'+esc(h.collection_date||'—')+'</b></div><div><small>Собрано</small><b>'+esc(h.quantity_kg??'—')+' кг</b></div><div><small>Продано</small><b>'+esc(h.sold_kg??0)+' кг</b></div><div><small>Остаток</small><b>'+esc(h.remaining_kg??Math.max(0,(Number(h.quantity_kg)||0)-(Number(h.sold_kg)||0)))+' кг</b></div><div><small>Цена за кг</small><b>'+esc(h.price_per_kg??'—')+'</b></div><div><small>Стоимость сбора</small><b>'+esc(total?total.toFixed(2):'—')+'</b></div><div><small>Место сбора</small><b>'+esc(h.collection_place||'—')+'</b></div><div><small>Примечание</small><b>'+esc(h.notes||'—')+'</b></div></div><div class="panel" style="margin-top:12px"><h4 style="margin:0 0 8px">🔎 Прослеживаемость партии</h4><div class="reminder-list"><div class="reminder-row"><div><b>1. Пасека-источник</b><div class="muted">'+esc(sourceApiary?.name||'Не указана')+' · '+esc(sourceApiary?.location||h.collection_place||'Место не указано')+'</div></div><span class="ok-badge">'+(sourceApiary?'Связана':'Не заполнено')+'</span></div><div class="reminder-row"><div><b>2. Партия урожая</b><div class="muted">'+esc(h.batch_number||'—')+' · '+esc(h.quantity_kg??'—')+' кг</div></div><span class="ok-badge">Учтена</span></div><div class="reminder-row"><div><b>3. Фасовка</b><div class="muted">'+relatedPackaging.length+' записей · '+relatedPackaging.reduce((sum,p)=>sum+(Number(p.jar_size_g)||0)*(Number(p.jar_count)||0)/1000,0).toLocaleString(journalLocale(),{maximumFractionDigits:3})+' кг подготовлено</div></div><span class="ok-badge">'+(relatedPackaging.length?'Связана':'Пока нет')+'</span></div><div class="reminder-row"><div><b>4. Продажи</b><div class="muted">'+relatedSales.length+' записей · '+relatedSales.reduce((sum,s)=>sum+(Number(s.quantity_kg)||0),0).toLocaleString(journalLocale(),{maximumFractionDigits:3})+' кг продано</div></div><span class="ok-badge">'+(relatedSales.length?'Связаны':'Пока нет')+'</span></div><div class="muted" style="margin-top:8px">Продажи фасованного мёда связаны с размером банки и кодом этикетки.</div></div></div></div>';
   $('honeyBatchModal').style.display='flex';
 }
 function closeHoneyBatch(){$('honeyBatchModal').style.display='none'}
@@ -4350,13 +4378,14 @@ if($('editHoneyBatchBtn')) $('editHoneyBatchBtn').onclick=()=>{const title=$('ho
 if($('honeyBatchModal')) $('honeyBatchModal').onclick=e=>{if(e.target.id==='honeyBatchModal')closeHoneyBatch}
 function renderCalendar(){
   const y=calendarMonth.getFullYear(), m=calendarMonth.getMonth();
-  const names=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
-  $('calendarMonthTitle').textContent=names[m]+' '+y;
+  const monthName=new Date(Date.UTC(y,m,1)).toLocaleDateString(journalLocale(),{month:'long',timeZone:'UTC'});
+  $('calendarMonthTitle').textContent=monthName+' '+y;
   const firstDow=(new Date(Date.UTC(y,m,1)).getUTCDay()+6)%7;
   const days=new Date(Date.UTC(y,m+1,0)).getUTCDate();
   const prevDays=new Date(Date.UTC(y,m,0)).getUTCDate();
   const todayStr=today();
-  let html=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(x=>'<div class="calendar-head">'+x+'</div>').join('');
+  const weekdays=Array.from({length:7},(_,i)=>new Date(Date.UTC(2024,0,1+i)).toLocaleDateString(journalLocale(),{weekday:'short',timeZone:'UTC'}));
+  let html=weekdays.map(x=>'<div class="calendar-head">'+x+'</div>').join('');
   for(let i=0;i<42;i++){
     const raw=i-firstDow+1;
     let yy=y, mm=m, dd=raw, other=false;
@@ -4384,6 +4413,7 @@ function renderCalendar(){
   $('calendarTasks').innerHTML=state.tasks.length?'<table class="table"><thead><tr><th>Дата</th><th>Тип</th><th>Событие</th><th>Приоритет</th><th>Статус</th><th>Напоминание</th><th></th></tr></thead><tbody>'+state.tasks.map(t=>'<tr><td>'+esc(t.due_date||'')+'</td><td>'+esc(eventType(t))+'</td><td>'+esc(eventTitle(t))+'</td><td>'+esc(t.priority)+'</td><td>'+esc(t.status)+'</td><td>'+esc(eventReminder(t))+'</td><td><button type="button" class="btn secondary calendar-open-table" data-event-id="'+esc(t.id)+'">Открыть</button></td></tr>').join('')+'</tbody></table>':'<div class="empty">Событий пока нет. Нажмите «Добавить событие».</div>';
   document.querySelectorAll('.calendar-event,.calendar-open-table').forEach(b=>b.onclick=()=>openEventModal(b.dataset.eventId));
 }
+window.addEventListener('journal-language-change',()=>{renderAll();renderCalendar();renderQueenBreederCalendar();if(window.__activeHiveFamilyId&&$('hiveFamilyModal')?.style.display==='flex')showHiveFamily(window.__activeHiveFamilyId);if(window.JournalI18n)window.JournalI18n.apply(document.getElementById('app')||document);});
 if($('prevMonthBtn')) $('prevMonthBtn').onclick=()=>{calendarMonth.setMonth(calendarMonth.getMonth()-1);renderCalendar()};
 if($('nextMonthBtn')) $('nextMonthBtn').onclick=()=>{calendarMonth.setMonth(calendarMonth.getMonth()+1);renderCalendar()};
 if($('addCalendarEventBtn')) $('addCalendarEventBtn').onclick=()=>{$('calendarFormPanel').style.display='block';$('calendarForm').elements.due_date.value=today();$('calendarFormPanel').scrollIntoView({behavior:'smooth',block:'start'})};
@@ -4519,7 +4549,7 @@ document.addEventListener('click',e=>{if(e.target.closest('#closeHiveQr,#closeHi
       return;
     }
     const pct=m/b*100;
-    output.textContent='Результат: '+pct.toLocaleString('ru-RU',{maximumFractionDigits:2})+'% заражённости ('+m+' клещей на '+b+' пчёл).';
+    output.textContent='Результат: '+pct.toLocaleString(journalLocale(),{maximumFractionDigits:2})+'% заражённости ('+m+' клещей на '+b+' пчёл).';
   };
   bees?.addEventListener('input',update); mites?.addEventListener('input',update);
   document.getElementById('varroaApplyResult')?.addEventListener('click',()=>{
@@ -4532,7 +4562,7 @@ document.addEventListener('click',e=>{if(e.target.closest('#closeHiveQr,#closeHi
     if(form?.elements.varroa_result)form.elements.varroa_result.value=pct.toFixed(2);
     if(form?.elements.varroa_unit)form.elements.varroa_unit.value='% поражения';
     if(form?.elements.varroa_method&&!form.elements.varroa_method.value)form.elements.varroa_method.value='Спиртовая смывка';
-    if(form?.elements.symptoms&&!form.elements.symptoms.value)form.elements.symptoms.value='Смыв: '+m+' клещей в пробе из '+b+' пчёл; расчётная заражённость '+pct.toLocaleString('ru-RU',{maximumFractionDigits:2})+'%.';
+    if(form?.elements.symptoms&&!form.elements.symptoms.value)form.elements.symptoms.value='Смыв: '+m+' клещей в пробе из '+b+' пчёл; расчётная заражённость '+pct.toLocaleString(journalLocale(),{maximumFractionDigits:2})+'%.';
     if(output)output.textContent='Результат перенесён в форму записи. Нажмите «Сохранить запись о здоровье», чтобы сохранить его в журнале.';
   });
   update();
