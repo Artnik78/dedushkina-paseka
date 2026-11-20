@@ -16,14 +16,6 @@
 <link rel="manifest" href="manifest-pwa.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <title>Мир пчеловодства — цифровой журнал пасечника</title>
-<script>
-(function(){
-  const params=new URLSearchParams(window.location.search);
-  if(params.has('hive')){
-    window.location.replace('trace.html?offline=1');
-  }
-})();
-</script>
 <script id="hive-qr-lib" src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
